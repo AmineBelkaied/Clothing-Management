@@ -1,0 +1,163 @@
+<p-toast position="bottom-right"></p-toast>
+
+
+<div class="container-fluid">
+    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+        <div class="card-body px-0 py-0">
+
+<div class="row mt-3 ml-2 mr-3 mb-3">
+    <div class="col-md-2">
+            <button pButton pRipple icon="pi pi-plus" class="p-button-success mb-2 mr-2 mt-2 buttonSize" (click)="addNewRow()"></button>
+            <button pButton pRipple icon="pi pi-trash" class="p-button-danger mb-2 ml-2 mt-2 buttonSize" (click)="deleteSelectedPackets()" [disabled]="!selectedPackets || !selectedPackets.length"></button>
+    </div>
+    <div class="col-md-5">
+      
+        <span class="p-input-icon-left ml-auto">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="search(dt , $event)" placeholder="Client, Tel, Gouvernorat" />
+        </span>
+        <p-calendar [(ngModel)]="rangeDates" selectionMode="range" [appendTo]="dt" (onSelect)="dt.filter($event, 'date' ,'filterDate');" dateFormat="dd/mm/yy"  [readonlyInput]="true" inputId="range" placeholder="Filtrer par date/période" [showClear]="true" (onClear)="resetTable(dt)" [showButtonBar]="true"  [showIcon]="true" class="ml-4"></p-calendar>
+    </div>
+    
+    <div class="col-md-5">
+        <button type="button" pButton pRipple icon="pi pi-file" (click)="dt.exportCSV()" class="mr-2 ml-2 mt-2 buttonSize" pTooltip="CSV" tooltipPosition="bottom"></button>
+        <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success ml-2 mr-2 buttonSize"  pTooltip="XLS" tooltipPosition="bottom"></button>
+    <!--             <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()" class="p-button-warning mr-2" pTooltip="PDF" tooltipPosition="bottom"></button> -->
+        <button type="button" pButton pRipple icon="pi pi-filter" (click)="dt.exportCSV({selectionOnly:true})" class="p-button-info buttonSize ml-2" pTooltip="Selection Only" tooltipPosition="bottom"></button>           
+        <p-selectButton [options]="confirmation" [(ngModel)]="value" optionLabel="name" optionDisabled="inactive" class="pull-right" (onOptionClick)="changeOption($event)"></p-selectButton>    
+    </div>
+</div>
+
+</div>
+</div>
+</div>
+
+
+<!--     <button pButton pRipple (click)="addNewRow()" icon="pi pi-plus" style="margin-left:90%"
+        class="p-button-success p-button-sm mb-2"></button> -->
+
+<p-table #dt [columns]="cols" [value]="packets" styleClass="p-datatable-gridlines p-datatable-sm mb-1" class="table table-hover" [resizableColumns]="true" [autoLayout]="true"
+    selectionMode="multiple" [(selection)]="selectedPackets" responsiveLayout="scroll" [exportHeader]="'customExportHeader'"
+    (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)"
+    dataKey="id" responsiveLayout="scroll" [globalFilterFields]="['customerName', 'customerPhoneNb' ,'governorate']">
+    <ng-template pTemplate="header" let-columns>
+        <tr>
+<!--             <th>Id</th>
+            <th>Date</th>
+            <th pSortableColumn="customerName">Client<p-sortIcon field="customerName"></p-sortIcon>
+            </th>
+            <th pSortableColumn="customerPhoneNb">Téléphone<p-sortIcon field="customerPhoneNb"></p-sortIcon>
+            </th>
+            <th pSortableColumn="governorate">Gouvernorat<p-sortIcon field="governorate"></p-sortIcon>
+            </th>
+            <th pSortableColumn="address">Adresse<p-sortIcon field="address"></p-sortIcon>
+            </th>
+            <th>Articles</th>
+            <th pSortableColumn="price">Prix (DT)<p-sortIcon field="price"></p-sortIcon>
+            </th>
+            <th pSortableColumn="confirmation">Confirmé<p-sortIcon field="confirmation"></p-sortIcon>
+            </th> -->
+            <th style="width: 3rem;" class="align-center">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field"  class="align-center">
+                {{col.header}}<p-sortIcon [field]="col.field"></p-sortIcon>
+            </th>
+           <!--  <th>Actions</th> -->
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-packet>
+        <tr [ngClass]="{'row-accessories': packet.relatedProducts.includes('?')}">
+            <td>
+                <p-tableCheckbox [value]="packet"></p-tableCheckbox>
+            </td>
+            <td>{{packet.id}}</td>
+            <td>{{packet.date | date : 'dd/MM'}} </td>
+            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'customerName'" style="cursor: pointer;">
+                <p-cellEditor>
+                    <ng-template pTemplate="input">
+                        <input pInputText type="text" [(ngModel)]="packet.customerName">
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                        {{packet.customerName}}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'customerPhoneNb'" style="cursor: pointer;">
+                <p-cellEditor>
+                    <ng-template pTemplate="input">
+                        <input pInputText type="text" [(ngModel)]="packet.customerPhoneNb">
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                        {{packet.customerPhoneNb}}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'governorate'" style="cursor: pointer;">
+                <p-cellEditor>
+                    <ng-template pTemplate="input">
+                        <input pInputText [(ngModel)]="packet.governorate">
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                        {{packet.governorate}}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'address'" style="cursor: pointer;">
+                <p-cellEditor>
+                    <ng-template pTemplate="input">
+                        <input pInputText type="text" [(ngModel)]="packet.address">
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                        {{packet.address}}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td> 
+                <ng-container *ngIf="packet.relatedProducts != '';else addMode">
+                    <p changeColor (click)="editProducts(packet)" style="cursor: pointer;">
+                        {{packet.relatedProducts}} <i class="pi pi-pencil" style="color: red;"></i>
+                    </p>
+                </ng-container>
+                <ng-template #addMode>
+                    <button pButton pRipple (click)="openNew(packet)" icon="pi pi-plus"
+                    style="font-size:2px;width: 5px;" class="p-button-primary p-button-sm"></button>
+                </ng-template>
+
+            </td>
+            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'price'" style="cursor: pointer;">
+                <p-cellEditor>
+                    <ng-template pTemplate="input">
+                        <input pInputText type="number" min="0" [(ngModel)]="packet.price">
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                        {{packet.price}}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td>
+                <p-inputSwitch [(ngModel)]="packet.confirmation" (onChange)="updateConfirmation(packet.id , $event)">
+                </p-inputSwitch>
+            </td>
+<!--             <td>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-sm buttonSize"
+                    (click)="deletePacket(packet)"></button>
+            </td> -->
+        </tr>
+    </ng-template>
+</p-table>
+<ng-template *ngIf="packets.length < 1">
+    Pas d'articles ajoutés
+</ng-template>
+<p-dialog [(visible)]="modelDialog" [style]="{width: '73%' }" header="{{editMode ? 'Mettre à jour les articles' : 'Ajouter des articles'}}"
+    [modal]="true" appendTo="body" (onHide)="hideDialog()" >
+    <ng-template pTemplate="content">
+        <app-add-packet [packet]="packet" (submitEvent)="OnSubmit($event)" [offersList]="offersList" [editMode]="editMode"></app-add-packet>
+    </ng-template>
+
+<!--     <ng-template pTemplate="footer">
+        <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text"></button>
+    </ng-template> -->
+</p-dialog>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
