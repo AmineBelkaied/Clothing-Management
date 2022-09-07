@@ -209,7 +209,7 @@ export class ListPacketsComponent implements OnInit {
 
   deletePacket(packet: any) {
     this.confirmationService.confirm({
-      message: 'Etes vous sûre de vouloir supprimer cette commande ?',
+      message: 'Êtes-vous sûr de vouloir supprimer cette commande ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -228,7 +228,7 @@ export class ListPacketsComponent implements OnInit {
     console.log(selectedPacketsId);
     
     this.confirmationService.confirm({
-      message: 'Etes vous sure de vouloir supprimer les commandes séléctionnés ?',
+      message: 'Êtes-vous sûr de vouloir supprimer les commandes séléctionnées ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -276,7 +276,7 @@ export class ListPacketsComponent implements OnInit {
     if (!this.editMode)
       this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été ajoutés avec succés', life: 1000 });
     else
-      this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été mis à jour avec succée', life: 1000 });
+      this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été mis à jour avec succés', life: 1000 });
   }
 
   changeColor(this: any) {

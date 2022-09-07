@@ -31,7 +31,7 @@
                     </p> -->
                   </td>
                   <td formArrayName="models">
-                <tr *ngFor="let model of models(i).controls; let j=index" [formGroupName]="j" class="mt-3">
+                <tr *ngFor="let model of models(i).controls; let j=index" [formGroupName]="j" class="mt-3"  style="max-width: 100%">
                   <td style="text-align:center;vertical-align: middle;background-color: aliceblue">
                     <small style="font-style: oblique;font-size: smaller">{{model.get("name")?.value}}</small>
                   </td>
@@ -69,9 +69,9 @@
 <!--         <div class="col-md-2" >
           <button pButton pRipple label="Annuler" icon="pi pi-times"  class="p-button-text p-button-sm" (click)="hideDialog()"></button>
         </div> -->
-        <div class="col-md-2" style="margin-left:80%">
+        <div class="col-md-2" style="margin-left:85%">
 
-          <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text p-button-sm" (click)="onSubmit()"></button>
+          <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text" (click)="onSubmit()"></button>
         </div>
       </div>
       <!-- <button type="submit" class="btn btn-success" >Valider</button> -->

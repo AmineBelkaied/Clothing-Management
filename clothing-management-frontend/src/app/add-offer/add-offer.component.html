@@ -56,7 +56,7 @@
                               </thead>
                               <tr *ngFor="let modelQuantity of modelQuantities().controls; let i=index" [formGroupName]="i" class="mt-4">
                                 <td align="center">
-                                  <p-dropdown [options]="modelList"  optionLabel="name"
+                                  <p-dropdown [options]="modelList"  optionLabel="name" dataKey="id"
                                     formControlName="model" [style]="{ width: '70%'}"
                                     [panelStyle]="{ width: '10%' }" [showClear]="true" placeholder="Choisir le modèle" appendTo="body">
                                   </p-dropdown>
@@ -88,7 +88,7 @@
                     </div> -->
                     <div  class="col-md-2 mt-3" style="margin-left:85%">
 <!--                     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button> -->
-                    <button pButton pRipple label="Ajouter" icon="pi pi-check" class="p-button-text" (click)="saveOffer()"></button>
+                    <button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'" [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'" class="p-button-text" (click)="saveOffer()"></button>
                   </div>
             <br>
   

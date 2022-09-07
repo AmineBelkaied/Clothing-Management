@@ -36,7 +36,7 @@ export class ListOffersComponent implements OnInit {
   statuses: any[] = [];
 
   constructor(private offerService: OfferService, private modelService: ModelService, private messageService: MessageService,
-     private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService) {
   }
 
   ngOnInit() {
@@ -65,16 +65,16 @@ export class ListOffersComponent implements OnInit {
     let selectedOffersId = this.selectedOffers.map((selectedOffer: any) => selectedOffer.offerId);
     console.log(selectedOffersId);
     this.confirmationService.confirm({
-      message: 'Etes vous sure de vouloir supprimer les offres séléctionnés ?',
+      message: 'Êtes-vous sûr de vouloir supprimer les offres séléctionnées ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.offerService.deleteSelectedOffers(selectedOffersId)
-        .subscribe(result => {
-          console.log("offers successfully deleted !");
-          this.offers = this.offers.filter((offer: OfferModelDTO) => selectedOffersId.indexOf(offer.offerId) == -1);
-          this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les offres séléctionnés ont été supprimé avec succés', life: 1000 });
-        })
+          .subscribe(result => {
+            console.log("offers successfully deleted !");
+            this.offers = this.offers.filter((offer: OfferModelDTO) => selectedOffersId.indexOf(offer.offerId) == -1);
+            this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les offres séléctionnés ont été supprimé avec succés', life: 1000 });
+          })
       }
     });
   }
@@ -88,14 +88,14 @@ export class ListOffersComponent implements OnInit {
   deleteOffer(offer: Offer) {
     console.log(offer.id)
     this.confirmationService.confirm({
-      message: "Etes vous sûre de vouloir supprimer l'offre " + offer.name + "?",
+      message: "Êtes-vous sûr de vouloir supprimer l'offre " + offer.name + "?",
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.offerService.deleteOfferById(offer.id).subscribe((response: any) => {
           this.offers = this.offers.filter(val => val.offerId !== offer.id);
           this.offer = Object.assign({}, this.offer);
-          this.messageService.add({ severity: 'success', summary: 'Succés', detail: "L'offre a été supprimé avec succés", life: 1000 });
+          this.messageService.add({ severity: 'success', summary: 'Succés', detail: "L'offre a été supprimée avec succés", life: 1000 });
         })
       }
     });
@@ -118,21 +118,26 @@ export class ListOffersComponent implements OnInit {
     let offerModels = "";
     modelQuantities.forEach((modelQuantity, index) => {
       offerModels += modelQuantity.quantity + " " + modelQuantity.model.name;
-      if(index < modelQuantities.length -1)
+      if (index < modelQuantities.length - 1)
         offerModels += " , ";
     });
     return offerModels;
   }
-  
+
   hideDialog() {
     this.offerDialog = false;
     this.submitted = false;
   }
 
-  OnSubmit($event: any){
-    console.log($event)
-    this.offers.push($event);
+  OnSubmit($event: any) {
+    let offerResponse = $event;
+    if (this.editMode) {
+      this.offers[this.findIndexById(offerResponse.offerId)] = offerResponse;
+      this.messageService.add({ severity: 'success', summary: 'Successful', detail: "L'offre a été modifiée avec succés", life: 1000 });
+    } else {
+      this.offers.push(offerResponse);
+      this.messageService.add({ severity: 'success', summary: 'Successful', detail: "L'offre a été crée avec succés", life: 1000 });
+    }
     this.hideDialog();
-    this.messageService.add({ severity: 'success', summary: 'Successful', detail: "L'offre a été crée avec succés", life: 1000 });
   }
 }

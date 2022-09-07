@@ -79,8 +79,9 @@ export class AddOfferComponent implements OnInit {
     console.log(offerModelDTO);
     if(this.editMode) {
       this.offerService.updateOffer(offerModelDTO)
-      .subscribe(() => {
-
+      .subscribe(offerResponse => {
+        console.log(offerResponse);
+        this.submitEvent.emit(offerResponse);
       });
     } else {
       this.offerService.addOffer(offerModelDTO)

@@ -149,7 +149,7 @@
 <ng-template *ngIf="packets.length < 1">
     Pas d'articles ajoutés
 </ng-template>
-<p-dialog [(visible)]="modelDialog" [style]="{width: '73%' }" header="{{editMode ? 'Mettre à jour les articles' : 'Ajouter des articles'}}"
+<p-dialog [(visible)]="modelDialog" [style]="{width: '60%' }" header="{{editMode ? 'Mettre à jour les articles' : 'Ajouter des articles'}}"
     [modal]="true" appendTo="body" (onHide)="hideDialog()" >
     <ng-template pTemplate="content">
         <app-add-packet [packet]="packet" (submitEvent)="OnSubmit($event)" [offersList]="offersList" [editMode]="editMode"></app-add-packet>

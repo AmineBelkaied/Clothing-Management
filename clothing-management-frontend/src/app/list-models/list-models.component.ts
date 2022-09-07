@@ -22,6 +22,7 @@ export class ListModelsComponent implements OnInit {
     "colors": [],
     "size": ""
   }
+  editMode = false;
 
   colors: Color[] = [];
   selectedModels: Model[] = [];
@@ -70,11 +71,12 @@ export class ListModelsComponent implements OnInit {
     }
     this.submitted = false;
     this.modelDialog = true;
+    this.editMode = false;
   }
 
   deleteSelectedModels() {
     this.confirmationService.confirm({
-      message: 'Etes vous sure de vouloir supprimer les modèles séléctionnés ?',
+      message: 'Êtes-vous sûr de vouloir supprimer les modèles séléctionnés ?',
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -101,6 +103,7 @@ export class ListModelsComponent implements OnInit {
         this.model = Object.assign({} , this.model)
         console.log(this.model) */
     this.modelDialog = true;
+    this.editMode = true;
   }
 
   deleteModel(model: Model) {

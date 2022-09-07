@@ -6,20 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="b5154d2a-9df1-4004-8ef7-516b9ab6f3ca" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/controllers/OfferController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/controllers/OfferController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/OfferModelDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/OfferModelDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Offer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Offer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/repository/IOfferModelRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/repository/IOfferModelRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/services/OfferService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/services/OfferService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/services/PacketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/services/PacketService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Clothing-Mangement.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Clothing-Mangement.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/OfferServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/OfferServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/controllers/OfferController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/controllers/OfferController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/OfferModelDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/OfferModelDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Offer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Offer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/repository/IOfferModelRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/repository/IOfferModelRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/services/OfferService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/services/OfferService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/OfferServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/OfferServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/services/offer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/services/offer.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,16 +70,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RequestMappingsPanelOrder0" value="0" />
-    <property name="RequestMappingsPanelOrder1" value="1" />
-    <property name="RequestMappingsPanelWidth0" value="75" />
-    <property name="RequestMappingsPanelWidth1" value="75" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="restartRequiresConfirmation" value="false" />
-  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "D:/Projects/Clothing-Management/Clothing-Management/clothing-management-backend",
+    "spring.configuration.checksum": "0048637aba58841b11a2eddbd075a5e6"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.clothing.management.controllers" />
@@ -120,7 +110,7 @@
       </map>
     </option>
   </component>
-  <component name="SpellCheckerSettings" BundledDictionaries="0" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="application-level" UseSingleDictionary="true" />
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -184,81 +174,22 @@
       <workItem from="1662468655712" duration="7340000" />
       <workItem from="1662490315051" duration="432000" />
       <workItem from="1662490949221" duration="8976000" />
+      <workItem from="1662560357527" duration="1529000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
     </option>
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="574" y="105" key="#com.intellij.ide.util.MemberChooser" timestamp="1662497362462">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="574" y="105" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1662497362462" />
-    <state width="1493" height="261" key="GridCell.Tab.0.bottom" timestamp="1662555366802">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1662555366802" />
-    <state width="1493" height="261" key="GridCell.Tab.0.center" timestamp="1662555366802">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1662555366802" />
-    <state width="1493" height="261" key="GridCell.Tab.0.left" timestamp="1662555366802">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1662555366802" />
-    <state width="1493" height="261" key="GridCell.Tab.0.right" timestamp="1662555366802">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1662555366802" />
-    <state width="1493" height="261" key="GridCell.Tab.1.bottom" timestamp="1662555366802">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1662555366802" />
-    <state width="1493" height="261" key="GridCell.Tab.1.center" timestamp="1662555366802">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1662555366802" />
-    <state width="1493" height="261" key="GridCell.Tab.1.left" timestamp="1662555366802">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1662555366802" />
-    <state width="1493" height="261" key="GridCell.Tab.1.right" timestamp="1662555366802">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1662555366802" />
-    <state width="1493" height="261" key="GridCell.Tab.2.bottom" timestamp="1662555366803">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.2.bottom/0.0.1536.824@0.0.1536.824" timestamp="1662555366803" />
-    <state width="1493" height="261" key="GridCell.Tab.2.center" timestamp="1662555366803">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.2.center/0.0.1536.824@0.0.1536.824" timestamp="1662555366803" />
-    <state width="1493" height="261" key="GridCell.Tab.2.left" timestamp="1662555366803">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.2.left/0.0.1536.824@0.0.1536.824" timestamp="1662555366803" />
-    <state width="1493" height="261" key="GridCell.Tab.2.right" timestamp="1662555366803">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="1493" height="261" key="GridCell.Tab.2.right/0.0.1536.824@0.0.1536.824" timestamp="1662555366803" />
-    <state x="477" y="240" key="com.intellij.ide.util.TipDialog" timestamp="1662490948154">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="477" y="240" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1662490948154" />
   </component>
 </project>

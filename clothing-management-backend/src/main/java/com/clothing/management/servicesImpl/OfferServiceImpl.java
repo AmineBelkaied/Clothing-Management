@@ -98,11 +98,9 @@ public class OfferServiceImpl implements OfferService {
            offerResult = offerRepository.save(offerToUpdate);
         }
         // Update the models of the offer and their quantities
-        List<Long> offersId = offerModelRepository.findByOfferId(offerModelDTO.getOfferId())
-                .stream()
-                .map(offerModel -> offerModel.getOffer().getId()).collect(Collectors.toList());
-        if(offersId.size() > 0 )
-            offerModelRepository.deleteAllById(offersId);
+        List<OfferModel> offerModels = offerModelRepository.findByOfferId(offerModelDTO.getOfferId());
+        if(offerModels.size() > 0 )
+            offerModelRepository.deleteAll(offerModels);
         for(ModelQuantity modelQuantity: offerModelDTO.getModelQuantities()){
             offerModelRepository.addOfferModel(offerResult.getId() , modelQuantity.getModel().getId() , modelQuantity.getQuantity());
         }

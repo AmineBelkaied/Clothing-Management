@@ -2,3 +2,11 @@
     width: 38px;
     height: 38px !important;
    }
+
+tr td {
+    text-align: center;
+}
+
+tr > th {
+    text-align: center;
+}
