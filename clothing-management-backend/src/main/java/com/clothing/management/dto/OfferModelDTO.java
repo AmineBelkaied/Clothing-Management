@@ -6,14 +6,14 @@ public class OfferModelDTO {
 
     private Long offerId;
     private String name;
-    private Float price;
+    private Double price;
     private boolean enabled;
     private List<ModelQuantity> modelQuantities;
 
     public OfferModelDTO() {
     }
 
-    public OfferModelDTO(Long offerId, String name, Float price, boolean enabled, List<ModelQuantity> modelQuantities) {
+    public OfferModelDTO(Long offerId, String name, Double price, boolean enabled, List<ModelQuantity> modelQuantities) {
         this.offerId = offerId;
         this.name = name;
         this.price = price;
@@ -21,14 +21,14 @@ public class OfferModelDTO {
         this.modelQuantities = modelQuantities;
     }
 
-    public OfferModelDTO(Long offerId, String name, Float price, boolean enabled) {
+    public OfferModelDTO(Long offerId, String name, Double price, boolean enabled) {
         this.offerId = offerId;
         this.name = name;
         this.price = price;
         this.enabled = enabled;
     }
 
-    public OfferModelDTO(String name, Float price, boolean enabled) {
+    public OfferModelDTO(String name, Double price, boolean enabled) {
         this.name = name;
         this.price = price;
         this.enabled = enabled;
@@ -50,11 +50,11 @@ public class OfferModelDTO {
         this.name = name;
     }
 
-    public Float getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Float price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

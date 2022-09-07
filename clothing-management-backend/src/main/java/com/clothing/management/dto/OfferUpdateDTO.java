@@ -8,14 +8,14 @@ public class OfferUpdateDTO {
 
     private Long offerId;
     private String name;
-    private Float price;
+    private Double price;
     private boolean enabled;
     private List<Product> products;
 
     public OfferUpdateDTO() {
     }
 
-    public OfferUpdateDTO(Long offerId, String name, Float price, boolean enabled, List<Product> products) {
+    public OfferUpdateDTO(Long offerId, String name, Double price, boolean enabled, List<Product> products) {
         this.offerId = offerId;
         this.name = name;
         this.price = price;
@@ -23,7 +23,7 @@ public class OfferUpdateDTO {
         this.products = products;
     }
 
-    public OfferUpdateDTO(Long offerId, String name, Float price) {
+    public OfferUpdateDTO(Long offerId, String name, Double price) {
         this.offerId = offerId;
         this.name = name;
         this.price = price;
@@ -45,11 +45,11 @@ public class OfferUpdateDTO {
         this.name = name;
     }
 
-    public Float getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Float price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

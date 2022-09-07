@@ -14,13 +14,13 @@ public class Offer {
     private String name;
     @OneToMany(mappedBy = "offer" , cascade = CascadeType.ALL)
     private Set<OfferModel> offerModels= new HashSet<>();
-    private Float price;
+    private Double price;
     private boolean enabled;
 
     public Offer() {
     }
 
-    public Offer(String name, Float price, boolean enabled) {
+    public Offer(String name, Double price, boolean enabled) {
         this.name = name;
         this.price = price;
         this.enabled = enabled;
@@ -50,11 +50,11 @@ public class Offer {
         this.offerModels = offerModels;
     }
 
-    public Float getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Float price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

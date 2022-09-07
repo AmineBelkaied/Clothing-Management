@@ -25,7 +25,7 @@ public class Packet {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fbpage_id")
     private FbPage fbPage;
-    private Integer price;
+    private Double price;
     private boolean confirmation;
     private String status;
     private Date date;
@@ -33,7 +33,7 @@ public class Packet {
     public Packet() {
     }
 
-    public Packet(String customerName, String customerPhoneNb, String governorate, String address, String relatedProducts, String packetReference, Set<ProductsPacket> products, FbPage fbPage, Integer price, boolean confirmation, String status, Date date) {
+    public Packet(String customerName, String customerPhoneNb, String governorate, String address, String relatedProducts, String packetReference, Set<ProductsPacket> products, FbPage fbPage, Double price, boolean confirmation, String status, Date date) {
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
         this.governorate = governorate;
@@ -104,11 +104,11 @@ public class Packet {
         this.fbPage = fbPage;
     }
 
-    public Integer getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

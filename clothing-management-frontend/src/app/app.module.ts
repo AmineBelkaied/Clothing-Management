@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { AddModelComponent } from './add-model/add-model.component';
 import {InputTextModule} from 'primeng/inputtext';
+import {InputNumberModule} from 'primeng/inputnumber';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {DropdownModule} from 'primeng/dropdown';
@@ -21,6 +22,8 @@ import {InputSwitchModule} from 'primeng/inputswitch';
 import {CalendarModule} from 'primeng/calendar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog'; 
 import {CardModule} from 'primeng/card';
+import {TabViewModule} from 'primeng/tabview';
+import {SplitterModule} from 'primeng/splitter';
 import { HttpClientModule } from '@angular/common/http';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ListModelsComponent } from './list-models/list-models.component';
@@ -29,6 +32,9 @@ import { ListPacketsComponent } from './list-packets/list-packets.component';
 import { ChangeColorDirective } from './directives/change-color.directive';
 import { AddOfferComponent } from './add-offer/add-offer.component';
 import { ListOffersComponent } from './list-offers/list-offers.component';
+import { AddColorComponent } from './add-color/add-color.component';
+import { ListColorsComponent } from './list-colors/list-colors.component';
+import { ConfigComponent } from './config/config.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +47,10 @@ import { ListOffersComponent } from './list-offers/list-offers.component';
     ListPacketsComponent,
     ChangeColorDirective,
     AddOfferComponent,
-    ListOffersComponent
+    ListOffersComponent,
+    AddColorComponent,
+    ListColorsComponent,
+    ConfigComponent
   ],
   imports: [
     BrowserModule,
@@ -57,6 +66,9 @@ import { ListOffersComponent } from './list-offers/list-offers.component';
     ToolbarModule,
     TableModule,
     CalendarModule,
+    InputNumberModule,
+    TabViewModule,
+    SplitterModule,
     SelectButtonModule,
     DialogModule,
     CardModule,

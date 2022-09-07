@@ -128,10 +128,11 @@
             <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'price'" style="cursor: pointer;">
                 <p-cellEditor>
                     <ng-template pTemplate="input">
-                        <input pInputText type="number" min="0" [(ngModel)]="packet.price">
+                        <p-inputNumber [(ngModel)]="packet.price" inputId="currency-us" mode="currency" currency="TND"></p-inputNumber>
+                    <!--     <input pInputText type="number" min="0" [(ngModel)]="packet.price"> -->
                     </ng-template>
                     <ng-template pTemplate="output">
-                        {{packet.price}}
+                        {{packet.price}} DT
                     </ng-template>
                 </p-cellEditor>
             </td>
