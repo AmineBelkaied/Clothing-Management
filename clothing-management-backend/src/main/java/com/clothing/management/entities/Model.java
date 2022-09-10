@@ -1,9 +1,7 @@
 package com.clothing.management.entities;
 
-import com.clothing.management.enums.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.util.*;
@@ -27,24 +25,28 @@ public class Model {
             inverseJoinColumns = { @JoinColumn(name = "color_id") }
     )
     private Set<Color> colors = new HashSet<>();
+    @ManyToMany(cascade = { CascadeType.MERGE })
+    @JoinTable(
+            name = "model_sizes",
+            joinColumns = { @JoinColumn(name = "model_id") },
+            inverseJoinColumns = { @JoinColumn(name = "size_id") }
+    )
+    private Set<Size> sizes = new HashSet<>();
     @OneToMany(mappedBy = "model")
     @JsonIgnore
     private Set<OfferModel> modelOffers = new HashSet<>();
-    private String size;
-    @Transient
-    public List<String> sizes = Arrays.asList("S" , "M" , "L" , "1", "2" , "3", "4");
+
 
     public Model() {
     }
 
-    public Model(String name, List<Product> products, String reference, String description, Set<Color> colors, Set<OfferModel> modelOffers, String size, List<String> sizes) {
+    public Model(String name, List<Product> products, String reference, String description, Set<Color> colors,Set<Size> sizes, Set<OfferModel> modelOffers) {
         this.name = name;
         this.products = products;
         this.reference = reference;
         this.description = description;
         this.colors = colors;
         this.modelOffers = modelOffers;
-        this.size = size;
         this.sizes = sizes;
     }
 
@@ -100,19 +102,11 @@ public class Model {
         this.description = description;
     }
 
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-    public List<String> getSizes() {
+    public Set<Size> getSizes() {
         return sizes;
     }
 
-    public void setSizes(List<String> sizes) {
+    public void setSizes(Set<Size> sizes) {
         this.sizes = sizes;
     }
 
@@ -124,7 +118,7 @@ public class Model {
                 ", reference='" + reference + '\'' +
                 ", description='" + description + '\'' +
                 ", colors=" + colors +
-                ", size=" + size +
+                ", sizes=" + sizes +
                 '}';
     }
 }

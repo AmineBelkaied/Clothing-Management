@@ -1,0 +1,29 @@
+<div class="card" style="width: 100%">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Ajouter une taille</h5>
+      <div class="card-text">
+        <form #sizeForm="ngForm" (ngSubmit)="addSize(sizeForm)">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="reference" class="form-label">Référence</label>
+                <input type="text" class="form-control" id="reference" placeholder="Référence du modèle"
+                  name="reference" [(ngModel)]="size.reference" />
+              </div>
+              <div class="col-md-6">
+                <label for="description" class="form-label">Description</label>
+                <input type="text" class="form-control" id="description" placeholder="Description du modèle"
+                  name="description" [(ngModel)]="size.description"/>
+              </div>
+            </div>
+            <div class="row mt-3  pull-right">
+             <div class="col-md-2">
+              <button type="submit" class="btn btn-primary ">Ajouter</button>
+            </div> 
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  

@@ -32,9 +32,11 @@ import { ListPacketsComponent } from './list-packets/list-packets.component';
 import { ChangeColorDirective } from './directives/change-color.directive';
 import { AddOfferComponent } from './add-offer/add-offer.component';
 import { ListOffersComponent } from './list-offers/list-offers.component';
-import { AddColorComponent } from './add-color/add-color.component';
+import { AddSizeComponent } from './add-size/add-size.component';
+import { ListSizesComponent } from './list-sizes/list-sizes.component';
+/* import { AddColorComponent } from './add-color/add-color.component';
 import { ListColorsComponent } from './list-colors/list-colors.component';
-import { ConfigComponent } from './config/config.component';
+import { ConfigComponent } from './config/config.component'; */
 
 @NgModule({
   declarations: [
@@ -48,9 +50,8 @@ import { ConfigComponent } from './config/config.component';
     ChangeColorDirective,
     AddOfferComponent,
     ListOffersComponent,
-    AddColorComponent,
-    ListColorsComponent,
-    ConfigComponent
+    AddSizeComponent,
+    ListSizesComponent
   ],
   imports: [
     BrowserModule,

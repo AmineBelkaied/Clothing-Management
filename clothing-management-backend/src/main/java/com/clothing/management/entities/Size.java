@@ -7,24 +7,30 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-public class Color {
+public class Size {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
     private String reference;
+    private String description;
     @ManyToMany(mappedBy = "colors")
     @JsonBackReference
     private Set<Model> models = new HashSet<>();;
 
-    public Color() {
+
+    public Size() {
     }
 
-    public Color(String name, String reference, Set<Model> models) {
-        this.name = name;
+    public Size(Long id, String reference, String description) {
+        this.id = id;
         this.reference = reference;
-        this.models = models;
+        this.description = description;
+    }
+
+    public Size(String reference, String description) {
+        this.reference = reference;
+        this.description = description;
     }
 
     public Long getId() {
@@ -35,14 +41,6 @@ public class Color {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getReference() {
         return reference;
     }
@@ -51,20 +49,20 @@ public class Color {
         this.reference = reference;
     }
 
-    public Set<Model> getModels() {
-        return models;
+    public String getDescription() {
+        return description;
     }
 
-    public void setModels(Set<Model> models) {
-        this.models = models;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
     public String toString() {
-        return "Color{" +
+        return "Size{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
                 ", reference='" + reference + '\'' +
+                ", description='" + description + '\'' +
                 '}';
     }
 }
