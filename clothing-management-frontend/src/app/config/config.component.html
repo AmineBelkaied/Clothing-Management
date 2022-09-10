@@ -1,0 +1,23 @@
+<div class="container-fluid">
+    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+        <div class="card-body">
+            <div class="row">
+<p-tabView>
+    <p-tabPanel header="Couleurs">
+        <p-splitter [panelSizes]="[40,60]" [minSizes]="[30,70]" >
+            <ng-template pTemplate>
+               <app-add-color></app-add-color>
+            </ng-template>
+            <ng-template pTemplate>
+                <app-list-colors></app-list-colors>
+            </ng-template>
+        </p-splitter>
+    </p-tabPanel>
+    <p-tabPanel header="Taille">
+        Content 2
+    </p-tabPanel>
+</p-tabView>
+</div>
+</div>
+</div>
+</div>

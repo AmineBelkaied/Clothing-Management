@@ -4,23 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b5154d2a-9df1-4004-8ef7-516b9ab6f3ca" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/OfferModelDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/OfferModelDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/OfferUpdateDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/OfferUpdateDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/SelectedProductsDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/SelectedProductsDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Offer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Offer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Packet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Packet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/OfferModelDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/OfferModelDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/OfferUpdateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/OfferUpdateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/SelectedProductsDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/SelectedProductsDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Offer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Offer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Packet.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Packet.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/OfferServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/OfferServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/PacketServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/PacketServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-packets/list-packets.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-packets/list-packets.component.html" afterDir="false" />
-    </list>
+    <list default="true" id="b5154d2a-9df1-4004-8ef7-516b9ab6f3ca" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -185,7 +169,7 @@
       <workItem from="1662468655712" duration="7340000" />
       <workItem from="1662490315051" duration="432000" />
       <workItem from="1662490949221" duration="8976000" />
-      <workItem from="1662560357527" duration="2597000" />
+      <workItem from="1662560357527" duration="2598000" />
     </task>
     <servers />
   </component>
