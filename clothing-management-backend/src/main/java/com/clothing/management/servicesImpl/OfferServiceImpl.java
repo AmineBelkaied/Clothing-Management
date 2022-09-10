@@ -45,15 +45,7 @@ public class OfferServiceImpl implements OfferService {
             for(OfferModel offerModel : offerModels) {
                 System.out.println("key: " + offer.getName());
                 Model model = offerModel.getModel();
-                System.out.println("getSize : " + model.getSize());
-                int maxSizeIndex = model.sizes.indexOf(model.getSize());
-                System.out.println("maxSizeIndex : " + maxSizeIndex);
                 System.out.println("model : " + model.toString());
-                List<String> sizes = new ArrayList<>();
-                for(int i=0 ; i <= maxSizeIndex; i++)
-                   sizes.add(model.sizes.get(i));
-                System.out.println("sizes : " + sizes.toString());
-                model.setSizes(sizes);
                 ModelQuantity modelQuantity = new ModelQuantity(offerModel.getQuantity() , model);
                 modelQuantities.add(modelQuantity);
             }

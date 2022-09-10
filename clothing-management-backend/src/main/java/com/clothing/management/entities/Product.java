@@ -1,6 +1,5 @@
 package com.clothing.management.entities;
 
-import com.clothing.management.enums.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -14,7 +13,9 @@ public class Product{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String reference;
-    private String size;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "size_id")
+    private Size size;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "color_id")
     private Color color;
@@ -31,7 +32,7 @@ public class Product{
     public Product() {
     }
 
-    public Product(String reference, String size, Color color, int quantity, Date date, Set<ProductsPacket> commands, Model model) {
+    public Product(String reference, Size size, Color color, int quantity, Date date, Set<ProductsPacket> commands, Model model) {
         this.reference = reference;
         this.size = size;
         this.color = color;
@@ -41,7 +42,7 @@ public class Product{
         this.model = model;
     }
 
-    public Product(Model model, Color color, String size) {
+    public Product(Model model, Color color, Size size) {
         this.model = model;
         this.color = color;
         this.size = size;
@@ -63,11 +64,11 @@ public class Product{
         this.reference = reference;
     }
 
-    public String getSize() {
+    public Size getSize() {
         return size;
     }
 
-    public void setSize(String size) {
+    public void setSize(Size size) {
         this.size = size;
     }
 

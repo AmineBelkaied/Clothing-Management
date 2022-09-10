@@ -103,7 +103,7 @@ export class ListPacketsComponent implements OnInit {
       { field: 'customerName', header: 'Client', customExportHeader: 'Product Code' },
       { field: 'customerPhoneNb', header: 'Téléphone' },
       { field: 'governorate', header: 'Gouvernorat' },
-      { field: 'address', header: 'Quantity' },
+      { field: 'address', header: 'Adresse' },
       { field: 'relatedProducts', header: 'Articles' },
       { field: 'price', header: 'Prix' },
       { field: 'confirmation', header: 'Confirmé' }

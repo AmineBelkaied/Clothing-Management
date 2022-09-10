@@ -5,21 +5,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b5154d2a-9df1-4004-8ef7-516b9ab6f3ca" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/controllers/SizeController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Size.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/repository/ISizeRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/services/SizeService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/SizeServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/OfferModelDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/OfferModelDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/OfferUpdateDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/OfferUpdateDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/SelectedProductsDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/dto/SelectedProductsDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Offer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Offer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Packet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Packet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/OfferModelDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/OfferModelDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/OfferUpdateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/OfferUpdateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/SelectedProductsDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/dto/SelectedProductsDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Offer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Offer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Packet.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Packet.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Color.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Color.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Model.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Model.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/enums/Size.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/ModelServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/ModelServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/OfferServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/OfferServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/PacketServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/PacketServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Color.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Color.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Model.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Model.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Product.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/entities/Product.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/enums/Size.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/ModelServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/ModelServiceImpl.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/OfferServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/OfferServiceImpl.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/PacketServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/PacketServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/angular.json" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/angular.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/app-routing.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/app-routing.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-packets/list-packets.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-packets/list-packets.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/sidebar/sidebar.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/sidebar/sidebar.component.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,22 +85,21 @@
     <option name="version" value="1" />
   </component>
   <component name="ProjectId" id="2CGhoUnllVrjvAgGVhQ4pYtJZtS" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "D:/Projects/Clothing-Management/Clothing-Management/clothing-management-backend",
-    "spring.configuration.checksum": "0048637aba58841b11a2eddbd075a5e6"
-  }
-}]]></component>
+  <component name="PropertiesComponent">
+    <property name="RequestMappingsPanelOrder0" value="0" />
+    <property name="RequestMappingsPanelOrder1" value="1" />
+    <property name="RequestMappingsPanelWidth0" value="75" />
+    <property name="RequestMappingsPanelWidth1" value="75" />
+    <property name="last_opened_file_path" value="C:/Project/sdp" />
+    <property name="restartRequiresConfirmation" value="false" />
+  </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.clothing.management.controllers" />
@@ -121,7 +129,7 @@
       </map>
     </option>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SpellCheckerSettings" BundledDictionaries="0" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="application-level" UseSingleDictionary="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -197,10 +205,62 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="574" y="131" width="450" height="480" key="#com.intellij.ide.util.MemberChooser" timestamp="1662665195957">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="574" y="131" width="450" height="480" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1662665195957" />
+    <state x="228" y="342" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1662662089718">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="228" y="342" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/0.0.1536.824@0.0.1536.824" timestamp="1662662089718" />
+    <state x="571" y="281" width="418" height="265" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1662666394834">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="571" y="281" width="418" height="265" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.0.1536.824@0.0.1536.824" timestamp="1662666394834" />
+    <state x="549" y="170" key="FileChooserDialogImpl" timestamp="1662708094424">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="549" y="170" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1662708094424" />
+    <state width="1493" height="2" key="GridCell.Tab.0.bottom" timestamp="1662708094510">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="2" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1662708094510" />
+    <state width="1493" height="2" key="GridCell.Tab.0.center" timestamp="1662708094510">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="2" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1662708094510" />
+    <state width="1493" height="2" key="GridCell.Tab.0.left" timestamp="1662708094510">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="2" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1662708094510" />
+    <state width="1493" height="2" key="GridCell.Tab.0.right" timestamp="1662708094510">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="2" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1662708094510" />
+    <state width="1493" height="2" key="GridCell.Tab.1.bottom" timestamp="1662708094510">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="2" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1662708094510" />
+    <state width="1493" height="2" key="GridCell.Tab.1.center" timestamp="1662708094510">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="2" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1662708094510" />
+    <state width="1493" height="2" key="GridCell.Tab.1.left" timestamp="1662708094510">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="2" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1662708094510" />
+    <state width="1493" height="2" key="GridCell.Tab.1.right" timestamp="1662708094510">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="2" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1662708094510" />
   </component>
 </project>
