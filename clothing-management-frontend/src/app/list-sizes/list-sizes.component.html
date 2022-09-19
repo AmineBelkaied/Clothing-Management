@@ -1,43 +1,28 @@
-<p-toast></p-toast>
-<!-- 
-<div class="row mb-5">
-    <app-add-model [model]="model"></app-add-model>
-</div> -->
-
-<div class="container-fluid">
-<!--     <p-toolbar styleClass="mb-4"> -->
-    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-        <div class="card-body">
-        <div class="row">
-            <div class="col-md-8">
-                <h5>Tailles</h5>
-            </div>
-        </div>
-    </div>
-    </div>
-    <p-table #dt [value]="sizes" [rows]="10" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
-        <ng-template pTemplate="header">
-            <tr>
-                <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon></th>
-                <th pSortableColumn="reference">Référence <p-sortIcon field="reference"></p-sortIcon></th>
-                <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
-                <th>Actions</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-size>
-            <tr>
-                <td>{{size.id}}</td>
-                <td>{{size.reference}}</td>
-                <td>{{size.description}}</td>
-                <td>
-                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2 buttonSize" (click)="editSize(size)"></button>
-                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger buttonSize" (click)="deleteSize(size)"></button> 
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
-</div>
+<p-table #dt [value]="sizes" [rows]="10" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon>
+            </th>
+            <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon>
+            </th>
+            <th pSortableColumn="reference">Référence <p-sortIcon field="reference"></p-sortIcon>
+            </th>
+            <th>Actions</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-size>
+        <tr>
+            <td>{{size.id}}</td>
+            <td>{{size.description}}</td>
+            <td style="font-weight: bold;">{{size.reference}}</td>
+            <td>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2 buttonSize"
+                    (click)="editSize(size)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger buttonSize"
+                    (click)="deleteSize(size)"></button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
 
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
-
-<app-add-size></app-add-size>

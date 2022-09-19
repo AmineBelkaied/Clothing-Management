@@ -34,9 +34,12 @@ import { AddOfferComponent } from './add-offer/add-offer.component';
 import { ListOffersComponent } from './list-offers/list-offers.component';
 import { AddSizeComponent } from './add-size/add-size.component';
 import { ListSizesComponent } from './list-sizes/list-sizes.component';
-/* import { AddColorComponent } from './add-color/add-color.component';
+import { AddColorComponent } from './add-color/add-color.component';
 import { ListColorsComponent } from './list-colors/list-colors.component';
-import { ConfigComponent } from './config/config.component'; */
+import { ConfigComponent } from './config/config.component';
+import { ListGovernoratesComponent } from './list-governorates/list-governorates.component';
+import { ListCitiesComponent } from './list-cities/list-cities.component';
+import { AddCityComponent } from './add-city/add-city.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +54,13 @@ import { ConfigComponent } from './config/config.component'; */
     AddOfferComponent,
     ListOffersComponent,
     AddSizeComponent,
-    ListSizesComponent
+    ListSizesComponent,
+    AddColorComponent,
+    ListColorsComponent,
+    ConfigComponent,
+    ListGovernoratesComponent,
+    ListCitiesComponent,
+    AddCityComponent
   ],
   imports: [
     BrowserModule,

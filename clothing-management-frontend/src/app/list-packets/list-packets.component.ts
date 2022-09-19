@@ -1,11 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { ConfirmationService, FilterService, MessageService, SelectItem } from 'primeng/api';
+import { ConfirmationService, FilterService, MessageService, SelectItem, SelectItemGroup } from 'primeng/api';
 import { Packet } from '../../shared/models/Packet';
 import { OfferService } from '../services/offer.service';
 import { PacketService } from '../services/packet.service';
 import * as FileSaver from 'file-saver';
 import { DatePipe } from '@angular/common';
 import { Table } from 'primeng/table';
+import { GovernorateService } from '../services/governorate.service';
+import { Governorate } from 'src/shared/models/Governorate';
+import { CityService } from '../services/city.service';
 var jsPDF: any; // Important
 
 @Component({
@@ -45,7 +48,7 @@ export class ListPacketsComponent implements OnInit {
     date: new Date(),
     customerName: "",
     customerPhoneNb: "",
-    governorate: "",
+    city: null,
     address: "",
     relatedProducts: "",
     packetReference: "",
@@ -70,9 +73,11 @@ export class ListPacketsComponent implements OnInit {
 
   oldField: any;
   offersList: any[] = [];
+  groupedCities: SelectItemGroup[] = [];
+  selectedCity: any;
   clonedProducts: { [s: string]: Packet; } = {};
   constructor(private messageService: MessageService, private packetService: PacketService,
-    private confirmationService: ConfirmationService, private offerService: OfferService,
+    private confirmationService: ConfirmationService, private offerService: OfferService, private cityService: CityService,
     private filterService: FilterService, public datepipe: DatePipe) {
     this.confirmation = [
       { name: 'Tous', code: 'all', inactive: false },
@@ -102,7 +107,7 @@ export class ListPacketsComponent implements OnInit {
       { field: 'date', header: 'Date' },
       { field: 'customerName', header: 'Client', customExportHeader: 'Product Code' },
       { field: 'customerPhoneNb', header: 'Téléphone' },
-      { field: 'governorate', header: 'Gouvernorat' },
+      { field: 'city', header: 'Ville' },
       { field: 'address', header: 'Adresse' },
       { field: 'relatedProducts', header: 'Articles' },
       { field: 'price', header: 'Prix' },
@@ -114,6 +119,14 @@ export class ListPacketsComponent implements OnInit {
       .subscribe((offers: any) => {
         this.offersList = offers;
       })
+      this.cityService.findAllGroupedCities()
+      .subscribe((groupedCities: any) => {
+        console.log(groupedCities);
+        
+        this.groupedCities = this.cityService.adaptListToDropDown(groupedCities);
+        console.log(JSON.stringify(groupedCities))
+      })
+
 
     this.rangeDates[0] = todayPackets ? new Date() : yesterDay;
     // filter by range date
@@ -147,23 +160,33 @@ export class ListPacketsComponent implements OnInit {
   }
 
   onEditInit(packet: any) {
+    console.log(packet);
+    
     this.oldField = packet.data[packet.field];
+   console.log(this.oldField);
+   
   }
 
   onEditComplete(packet: any) {
-    /* const oldPacket = this.packets.filter(p => p.id == packet['data'].id)
-     let check =JSON.stringify(oldPacket[0]) === JSON.stringify(packet.data)*/
+    console.log(packet)
     console.log(this.oldField)
     console.log(packet.data[packet.field])
     if (this.oldField !== packet.data[packet.field]) {
-      console.log(packet)
-      let updatedField = { [packet.field]: packet.data[packet.field] }
-      console.log(updatedField)
-      this.packetService.patchPacket(packet['data'].id, updatedField)
-        .subscribe((response: any) => {
-          console.log(response);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'عملية ناجحة' });
-        });
+      if(packet.field == 'city') {
+        this.packetService.updatePacket(packet.data)
+          .subscribe((response: any) => {
+            console.log(response);
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'عملية ناجحة' });
+          });
+      } else {
+        let updatedField = { [packet.field]: packet.data[packet.field] }
+        console.log(updatedField)
+        this.packetService.patchPacket(packet['data'].id, updatedField)
+          .subscribe((response: any) => {
+            console.log(response);
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'عملية ناجحة' });
+          });
+      }
     }
   }
 
@@ -179,7 +202,7 @@ export class ListPacketsComponent implements OnInit {
       date: new Date(),
       customerName: "",
       customerPhoneNb: "",
-      governorate: "",
+      city: null,
       address: "",
       relatedProducts: "",
       packetReference: "",
@@ -293,15 +316,16 @@ export class ListPacketsComponent implements OnInit {
     let packets = this.packets
       //.filter(packet => packet.confirmation)
       .map((packet: any) => packet = {
-        "Id": packet.id,
-        "Date": packet.date,
-        "Nom client": packet.customerName,
-        "Tél client": packet.customerPhoneNb,
-        "Gouvernorat": packet.governorate,
-        "Adresse": packet.address,
-        "Articles": packet.relatedProducts,
-        "Description": packet.packetReference,
-        "Prix": packet.price
+        "destinataire": packet.customerName,
+        "adresse": packet.address,
+        "ville": packet.city.name,
+        "gouvernorat": packet.city.governorate.name,
+        "telephone": packet.customerPhoneNb,
+        "nombre_de_colis": 1,
+        "prix": packet.price,
+        "designation" : packet.id + " DIGGIE",
+        "commentaire": packet.relatedProducts
+        
       });
     import("xlsx").then(xlsx => {
       const worksheet = xlsx.utils.json_to_sheet(packets);

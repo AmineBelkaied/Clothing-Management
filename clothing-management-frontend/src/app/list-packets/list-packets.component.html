@@ -1,6 +1,4 @@
 <p-toast position="bottom-right"></p-toast>
-
-
 <div class="container-fluid">
     <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
         <div class="card-body px-0 py-0">
@@ -39,7 +37,7 @@
 <p-table #dt [columns]="cols" [value]="packets" styleClass="p-datatable-gridlines p-datatable-sm mb-1" class="table table-hover" [resizableColumns]="true" [autoLayout]="true"
     selectionMode="multiple" [(selection)]="selectedPackets" responsiveLayout="scroll" [exportHeader]="'customExportHeader'"
     (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)"
-    dataKey="id" responsiveLayout="scroll" [globalFilterFields]="['customerName', 'customerPhoneNb' ,'governorate']">
+    dataKey="id" responsiveLayout="scroll" [globalFilterFields]="['customerName', 'customerPhoneNb' ,'city']">
     <ng-template pTemplate="header" let-columns>
         <tr>
 <!--             <th>Id</th>
@@ -93,13 +91,32 @@
                     </ng-template>
                 </p-cellEditor>
             </td>
-            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'governorate'" style="cursor: pointer;">
+            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'city'" style="cursor: pointer;">
                 <p-cellEditor>
                     <ng-template pTemplate="input">
-                        <input pInputText [(ngModel)]="packet.governorate">
+                      <!--   <input pInputText [(ngModel)]="packet.governorate"> -->
+
+                        <p-dropdown
+  [options]="groupedCities"
+  [(ngModel)]="packet.city"
+  placeholder="Choisr la ville"
+  [group]="true"
+  [filter]="true"
+  filterBy="label,value,governorate"
+  [style]="{ width: '90%' }"
+  [panelStyle]="{ width: '10%' }" 
+  appendTo="body"
+>
+  <ng-template let-city pTemplate="group">
+    <div class="p-d-flex p-ai-center">
+      <span>{{ city.label }}</span>
+    </div>
+  </ng-template>
+</p-dropdown>
+
                     </ng-template>
                     <ng-template pTemplate="output">
-                        {{packet.governorate}}
+                        {{packet.city?.governorate.name}} - {{packet.city?.name}} 
                     </ng-template>
                 </p-cellEditor>
             </td>

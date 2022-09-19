@@ -13,8 +13,8 @@ public class Model {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String  name;
-    @OneToMany(mappedBy = "model" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
+    @OneToMany(mappedBy = "model" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Product> products;
     private String reference;
     private String description;

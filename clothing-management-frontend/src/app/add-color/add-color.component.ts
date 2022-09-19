@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 import { Color } from '../models/color';
 import { ColorService } from '../services/color.service';
 
@@ -12,12 +13,11 @@ export class AddColorComponent implements OnInit {
 
   color!: Color;
   editMode!: boolean;
-  constructor(public colorService: ColorService) { }
+  constructor(public colorService: ColorService, private messageService: MessageService) { }
 
   ngOnInit(): void {
     this.colorService.color.subscribe(color => {
       this.color = color
-      console.log(this.color)
     });
   }
 
@@ -26,15 +26,17 @@ export class AddColorComponent implements OnInit {
       this.color.name = form.value.name;
       this.color.reference = form.value.reference;
       this.colorService.updateColor(this.color)
-      .subscribe((updateColor: any) => {
-        console.log(updateColor)
-        this.colorService.spliceColor(updateColor);
+      .subscribe((updatedColor: any) => {
+        console.log(updatedColor) 
+        this.colorService.spliceColor(updatedColor);
+        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La couleur a été modifiée avec succés", life: 1000 });
         form.reset();
       });
     } else {
       this.colorService.addColor(form.value)
       .subscribe((addedColor: any) => {
         this.colorService.colors.push(addedColor);
+        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La couleur a été crée avec succés", life: 1000 });
         form.reset();
       });
     }

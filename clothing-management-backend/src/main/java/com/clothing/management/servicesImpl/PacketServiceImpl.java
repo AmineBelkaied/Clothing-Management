@@ -66,8 +66,11 @@ public class PacketServiceImpl implements PacketService {
             Optional<String> firstKeyOptional = field.keySet().stream().findFirst();
             if (firstKeyOptional.isPresent()) {
                 String firstKey = firstKeyOptional.get();
+                System.out.println("firstKey : " + firstKey);
                 Field fieldPacket = ReflectionUtils.findField(Packet.class , (String) firstKey);
                 fieldPacket.setAccessible(true);
+                System.out.println("fieldPacket : " + fieldPacket.toString());
+                System.out.println("field.get(firstKey) : " + field.get(firstKey));
                 ReflectionUtils.setField(fieldPacket , packet , field.get(firstKey));
                 updatePacket(packet);
             }

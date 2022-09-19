@@ -21,7 +21,8 @@ export class ListSizesComponent implements OnInit {
   }
 
   editSize(size: any) {
-    this.sizeSerivce.size.next(size);
+    this.sizeSerivce.editSize({...size});
+    this.sizeSerivce.editMode = true;
   }
 
   deleteSize(size: any) {
@@ -33,7 +34,7 @@ export class ListSizesComponent implements OnInit {
         this.sizeSerivce.deleteSizeById(size.id)
           .subscribe(result => {
             this.sizes = this.sizes.filter(val => val.id !== size.id);
-            this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été crée avec succés", life: 1000 });
+            this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été supprimée avec succés", life: 1000 });
           })
       }
     });

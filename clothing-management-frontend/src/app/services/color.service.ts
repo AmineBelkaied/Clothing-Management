@@ -45,16 +45,9 @@ export class ColorService {
     this.colors.push(color);
   }
 
-  //
-  spliceColor(color: any){
-    
-    console.log(color)
-    let index = this.colors.findIndex(color => color);
+  spliceColor(updatedColor: any){
+    let index = this.colors.findIndex(color => color.id == updatedColor.id);
     console.log(index);
-    
-    let updatedColor = Object.assign({} , color);  
-    console.log(updatedColor);
-    
     this.colors.splice(index , 1 , updatedColor);
   }
   

@@ -11,24 +11,36 @@ import { SizeService } from '../services/size.service';
 })
 export class AddSizeComponent implements OnInit {
 
-  size: Size = {
-    'id' : '',
-    'reference' : '',
-    'description' : ''
-   }
-  
-  constructor(private sizeService: SizeService, private messageService: MessageService) { }
+  size!: Size;
+  editMode!: boolean;
+  constructor(public sizeService: SizeService, private messageService: MessageService) { }
 
   ngOnInit(): void {
+    this.sizeService.size.subscribe(size => {
+      this.size = size;
+      console.log(this.size)
+    });
   }
 
-  addSize(sizeForm: NgForm) {
-    this.sizeService.addSize(sizeForm.value)
-    .subscribe((addedSize: any) => {
-      this.sizeService.pushSize(addedSize);
-      this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été crée avec succés", life: 1000 });
-    })
-
+  addSize(form: NgForm) {
+    if(this.sizeService.editMode){
+      this.size.reference = form.value.reference;
+      this.size.description = form.value.description;
+      this.sizeService.updateSize(this.size)
+      .subscribe((updateSize: any) => {
+        console.log(updateSize)
+        this.sizeService.spliceSize(updateSize);
+        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été modifiée avec succés", life: 1000 });
+        form.reset();
+      });
+    } else {
+      this.sizeService.addSize(form.value)
+      .subscribe((addedColor: any) => {
+        this.sizeService.sizes.push(addedColor);
+        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été crée avec succés", life: 1000 });
+        form.reset();
+      });
+    }
   }
 
 }

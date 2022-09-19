@@ -25,7 +25,7 @@ public class Product{
     @OneToMany(mappedBy = "product" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ProductsPacket> commands;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "model_id")
     private Model model;
 

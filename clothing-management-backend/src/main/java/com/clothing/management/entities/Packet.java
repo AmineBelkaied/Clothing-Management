@@ -14,7 +14,9 @@ public class Packet {
     private Long id;
     private String customerName;
     private String customerPhoneNb;
-    private String governorate;
+    @OneToOne
+    @JoinColumn(name = "city_id")
+    private City city;
     private String address;
     private String relatedProducts;
     private String packetReference;
@@ -22,7 +24,7 @@ public class Packet {
     @JsonIgnore
     private Set<ProductsPacket> products;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "fbpage_id")
     private FbPage fbPage;
     private Double price;
@@ -33,10 +35,10 @@ public class Packet {
     public Packet() {
     }
 
-    public Packet(String customerName, String customerPhoneNb, String governorate, String address, String relatedProducts, String packetReference, Set<ProductsPacket> products, FbPage fbPage, Double price, boolean confirmation, String status, Date date) {
+    public Packet(String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetReference, Set<ProductsPacket> products, FbPage fbPage, Double price, boolean confirmation, String status, Date date) {
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
-        this.governorate = governorate;
+        this.city = city;
         this.address = address;
         this.relatedProducts = relatedProducts;
         this.packetReference = packetReference;
@@ -72,13 +74,13 @@ public class Packet {
         this.customerPhoneNb = customerPhoneNb;
     }
 
-    public String getAddress() {
-        return address;
-    }
+    public City getCity() { return city; }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
+    public void setCity(City city) { this.city = city; }
+
+    public String getAddress() { return address; }
+
+    public void setAddress(String fullAddress) { this.address = address; }
 
     public String getRelatedProducts() { return relatedProducts; }
 
@@ -128,14 +130,6 @@ public class Packet {
         this.date = date;
     }
 
-    public String getGovernorate() {
-        return governorate;
-    }
-
-    public void setGovernorate(String governorate) {
-        this.governorate = governorate;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -150,8 +144,8 @@ public class Packet {
                 "id=" + id +
                 ", customerName='" + customerName + '\'' +
                 ", customerPhoneNb='" + customerPhoneNb + '\'' +
-                ", governorate='" + governorate + '\'' +
                 ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
                 ", relatedProducts='" + relatedProducts + '\'' +
                 ", packetReference='" + packetReference + '\'' +
                 ", products=" + products +

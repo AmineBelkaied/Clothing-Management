@@ -46,16 +46,9 @@ export class SizeService {
     this.sizes.push(size);
   }
 
-  //
-  spliceSize(size: any){
-    
-    console.log(size)
-    let index = this.sizes.findIndex(size => size);
+  spliceSize(updatedSize: any){
+    let index = this.sizes.findIndex(size => size.id == updatedSize.id);
     console.log(index);
-    
-    let updatedSize = Object.assign({} , size);  
-    console.log(updatedSize);
-    
     this.sizes.splice(index , 1 , updatedSize);
   }
   
