@@ -27,15 +27,14 @@ public class Packet {
     @ManyToOne
     @JoinColumn(name = "fbpage_id")
     private FbPage fbPage;
-    private Double price;
-    private boolean confirmation;
-    private String status;
+    private Integer price;
     private Date date;
+    private String status;
 
     public Packet() {
     }
 
-    public Packet(String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetReference, Set<ProductsPacket> products, FbPage fbPage, Double price, boolean confirmation, String status, Date date) {
+    public Packet(String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetReference, Set<ProductsPacket> products, FbPage fbPage, Integer price, boolean confirmation, String status, Date date) {
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
         this.city = city;
@@ -45,7 +44,6 @@ public class Packet {
         this.products = products;
         this.fbPage = fbPage;
         this.price = price;
-        this.confirmation = confirmation;
         this.status = status;
         this.date = date;
     }
@@ -106,20 +104,12 @@ public class Packet {
         this.fbPage = fbPage;
     }
 
-    public Double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
-    }
-
-    public boolean isConfirmation() {
-        return confirmation;
-    }
-
-    public void setConfirmation(boolean confirmation) {
-        this.confirmation = confirmation;
     }
 
     public Date getDate() {
@@ -151,7 +141,6 @@ public class Packet {
                 ", products=" + products +
                 ", fbPage=" + fbPage +
                 ", price=" + price +
-                ", confirmation=" + confirmation +
                 ", status='" + status + '\'' +
                 ", date=" + date +
                 '}';

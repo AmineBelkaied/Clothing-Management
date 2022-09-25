@@ -222,6 +222,8 @@ export class AddPacketComponent implements OnInit {
   onSubmit() {
     let productsRef: string[] = [];
     let packetReference = "";
+    let refsArray =[];
+    let refs = "";
     console.log("this.packetForm.value", this.packetForm.value);
     let packet = this.packetForm.value;
     for (var i = 0; i < packet.offers.length; i++) {
@@ -232,10 +234,10 @@ export class AddPacketComponent implements OnInit {
         for (var j = 0; j < offer.models.length; j++) {
           let refModel = offer.models[j].reference;
           let color = offer.models[j].selectedColor != null ? offer.models[j].selectedColor.reference : null;
-          let size = offer.models[j].selectedSize;
+          let size = offer.models[j].selectedSize != null ? offer.models[j].selectedSize.reference : null;
           let productRef = this.createProductRef(refModel, color, size);
             productsRef.push(productRef);
-          packetReference += productRef;
+            packetReference += productRef;
           if (j < offer.models.length - 1)
             packetReference += ",";
         }
@@ -243,6 +245,7 @@ export class AddPacketComponent implements OnInit {
       if (i < packet.offers.length - 1)
         packetReference += "-";
     }
+    console.log(refs);
     console.log("Ref", productsRef);
     console.log("packetReference", packetReference);
     let selectedProducts = { "idPacket": this.packet.id, "price": this.totalPrice, "productsRef": productsRef, "packetRef": packetReference };

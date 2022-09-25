@@ -40,6 +40,9 @@ import { ConfigComponent } from './config/config.component';
 import { ListGovernoratesComponent } from './list-governorates/list-governorates.component';
 import { ListCitiesComponent } from './list-cities/list-cities.component';
 import { AddCityComponent } from './add-city/add-city.component';
+import { AddFbpageComponent } from './add-fbpage/add-fbpage.component';
+import { ListFbpagesComponent } from './list-fbpages/list-fbpages.component';
+import { StockComponent } from './stock/stock.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +63,10 @@ import { AddCityComponent } from './add-city/add-city.component';
     ConfigComponent,
     ListGovernoratesComponent,
     ListCitiesComponent,
-    AddCityComponent
+    AddCityComponent,
+    AddFbpageComponent,
+    ListFbpagesComponent,
+    StockComponent
   ],
   imports: [
     BrowserModule,

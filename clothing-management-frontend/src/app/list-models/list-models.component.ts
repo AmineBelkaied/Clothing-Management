@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Model } from 'src/shared/models/Model';
+import { Size } from 'src/shared/models/Size';
 import { Color } from '../models/color';
 import { ColorService } from '../services/color.service';
 import { ModelService } from '../services/model.service';
+import { SizeService } from '../services/size.service';
 
 @Component({
   selector: 'app-list-models',
@@ -20,19 +22,18 @@ export class ListModelsComponent implements OnInit {
     "reference": "",
     "description": "",
     "colors": [],
-    "size": ""
+    "sizes": []
   }
   editMode = false;
 
   colors: Color[] = [];
+  sizes: Size[] = [];
   selectedModels: Model[] = [];
 
   submitted: boolean = false;
 
-  statuses: any[] = [];
-
   constructor(private modelService: ModelService, private messageService: MessageService,
-     private confirmationService: ConfirmationService, private colorService: ColorService) {
+     private confirmationService: ConfirmationService, private colorService: ColorService, private sizeService: SizeService) {
   }
 
   ngOnInit() {
@@ -42,23 +43,15 @@ export class ListModelsComponent implements OnInit {
       this.colors = colors;
       console.log(this.colors)
     })
+    this.sizeService.findAllSizes()
+    .subscribe((sizes: any) => {
+      this.sizes = sizes;
+      console.log(this.sizes)
+    })
     this.modelService.findAllModels().subscribe((data: any) => {
       console.log(data)
       this.models = data;
-      /*         this.models.forEach(model => {
-                model.colors = model.colors.map((color:any) => color.name);
-                console.log(model.colors)
-                console.log(this.models)
-              }); */
     });
-
-    this.statuses = [
-      { label: 'INSTOCK', value: 'instock' },
-      { label: 'LOWSTOCK', value: 'lowstock' },
-      { label: 'OUTOFSTOCK', value: 'outofstock' }
-    ];
-
-
   }
 
   openNew() {
@@ -67,7 +60,7 @@ export class ListModelsComponent implements OnInit {
       "reference": "",
       "description": "",
       "colors": [],
-      "size": ""
+      "sizes": []
     }
     this.submitted = false;
     this.modelDialog = true;
@@ -137,7 +130,7 @@ export class ListModelsComponent implements OnInit {
             next: response => {
               console.log(response);
               this.models[this.findIndexById(this.model.id)] = this.model;
-              this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'model Updated', life: 3000 });
+              this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Le modèle a été mise à jour avec succés', life: 3000 });
             }
           });
       }
@@ -151,7 +144,7 @@ export class ListModelsComponent implements OnInit {
               //this.model.id = this.createId();
               //this.model.image = 'model-placeholder.svg';
               this.models.push(this.model);
-              this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'model Created', life: 3000 });
+              this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Le modèle a été crée avec succés', life: 3000 });
             },
             error: error => {
 
@@ -203,5 +196,15 @@ export class ListModelsComponent implements OnInit {
         colorDisplay += ",";
     });
     return colorDisplay;
+  }
+
+  modelSizesDisplay(sizes: any[]) {
+    let sizeDisplay = "";
+    sizes.forEach((size, index) => {
+      sizeDisplay += size.reference;
+      if (index < sizes.length - 1)
+        sizeDisplay += "-";
+    });
+    return sizeDisplay;
   }
 }

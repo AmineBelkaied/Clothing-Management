@@ -27,7 +27,7 @@
         </p-splitter>
     </p-tabPanel>
 
-    <p-tabPanel header="Gouvernorats">
+    <p-tabPanel header="Gouvernorats / Villes">
         <p-splitter [panelSizes]="[20,80]" [minSizes]="[20,80]">
             <ng-template pTemplate>
                 <app-list-governorates [governorates]="governorates"></app-list-governorates>
@@ -35,6 +35,17 @@
             <ng-template pTemplate>
                <app-list-cities [governorates]="governorates"></app-list-cities>
             </ng-template>
+        </p-splitter>
+    </p-tabPanel>
+
+    <p-tabPanel header="Pages FB">
+        <p-splitter [panelSizes]="[40,60]" [minSizes]="[30,70]">
+            <ng-template pTemplate>
+                <app-add-fbpage></app-add-fbpage>
+             </ng-template>
+             <ng-template pTemplate>
+                 <app-list-fbpages></app-list-fbpages>
+             </ng-template>
         </p-splitter>
     </p-tabPanel>
 </p-tabView>

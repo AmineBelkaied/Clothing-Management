@@ -1,0 +1,25 @@
+<p-table #dt [value]="fbPages" [rows]="10" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon>
+            </th>
+            <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
+            </th>
+            <th pSortableColumn="link">Lien <p-sortIcon field="link"></p-sortIcon>
+            <th>Actions</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-fbPage>
+        <tr>
+            <td>{{fbPage.id}}</td>
+            <td>{{fbPage.name}}</td>
+            <td style="font-weight: bold;">{{fbPage.link}}</td>
+            <td>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-4 buttonSize"
+                    (click)="editFbPage(fbPage)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger buttonSize"
+                    (click)="deleteFbPage(fbPage)"></button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>

@@ -1,0 +1,71 @@
+<p-toast position="bottom-right"></p-toast>
+<div class="container-fluid">
+    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+        <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Stock</h5>
+            </div>
+            <div class="col-md-5">
+                <span class="p-input-icon-left ml-auto">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" style="width: 150%" placeholder="Référence, Modèle, Couleur, Taille.." />
+                </span>
+            </div>
+            <div class="col-md-3">
+                <button pButton pRipple icon="pi pi-trash" class="p-button-danger mb-2 mt-2 buttonSize pull-right"
+                (click)="deleteSelectedProducts()"
+                [disabled]="!selectedProducts || !selectedProducts.length"></button>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="mb-4">
+<p-table #dt [columns]="cols" [value]="products" styleClass="p-datatable-gridlines p-datatable-sm mb-1" selectionMode="multiple" [(selection)]="selectedProducts"
+    class="table table-hover" [resizableColumns]="true" [autoLayout]="true"  responsiveLayout="scroll"
+    (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)"
+    dataKey="id" responsiveLayout="scroll"  [globalFilterFields]="['reference', 'model.name' , 'color.name' ,'size.reference']">
+    <ng-template pTemplate="header" let-columns>
+        <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field" class="align-center">
+                {{col.header}}<p-sortIcon [field]="col.field"></p-sortIcon>
+            </th>
+            <th style="width: 3rem;" class="align-center">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+        <tr>
+            <td>{{product.id}}</td>
+            <td>{{product.date | date : 'dd/MM'}} </td>
+            <td pEditableColumn [pEditableColumn]="product" [pEditableColumnField]="'quantity'"
+                style="cursor: pointer;">
+                <p-cellEditor>
+                    <ng-template pTemplate="input">
+                        <input pInputText type="text" [(ngModel)]="product.quantity">
+                    </ng-template>
+                    <ng-template pTemplate="output">
+                        {{product.quantity}}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td>{{product.reference}}</td>
+            <td>{{product.model?.name}}</td>
+            <td>{{product.color?.name}}</td>
+            <td>{{product.size?.reference}}</td>
+            <td>
+                <p-tableCheckbox [value]="product"></p-tableCheckbox>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+<ng-container *ngIf="products.length === 0">
+    <p class="mt-4" style="text-align: center;font-size: medium">
+        Veuillez ajouter des produits dans le stock depuis l'interface
+        <a routerLink="/models">Modèles</a>
+     </p>
+</ng-container>
+</div>
+</div>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

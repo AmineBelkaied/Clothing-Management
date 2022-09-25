@@ -6,14 +6,14 @@ import java.util.List;
 public class SelectedProductsDTO {
 
     private Long idPacket;
-    private Double price;
+    private Integer price;
     private List<String> productsRef = new ArrayList<>();
     private String packetRef;
 
     public SelectedProductsDTO() {
     }
 
-    public SelectedProductsDTO(Long idPacket, Double price, String packetRef, List<String> productsRef) {
+    public SelectedProductsDTO(Long idPacket, Integer price, String packetRef, List<String> productsRef) {
         this.idPacket = idPacket;
         this.price = price;
         this.productsRef = productsRef;
@@ -28,11 +28,11 @@ public class SelectedProductsDTO {
         this.idPacket = idPacket;
     }
 
-    public Double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 

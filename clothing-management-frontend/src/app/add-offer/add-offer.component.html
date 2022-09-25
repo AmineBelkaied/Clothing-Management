@@ -39,7 +39,7 @@
                 <div class="row mt-5">
                     <div class="card" style="width: 100%;">
                       <div class="card-body">
-                        <div class="card-title mb-4">
+                        <div class="card-title">
                           <p>
                             <button pButton pRipple icon="pi pi-plus" class="p-button-success p-button-sm buttonSize pull-right mb-3 mr-3"
                               (click)="addModelQuantity()"></button>
@@ -86,7 +86,7 @@
                         <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text p-button-sm" (click)="onSubmit()"></button>
                       </div>
                     </div> -->
-                    <div  class="col-md-2 mt-3" style="margin-left:85%">
+                    <div  class="col-md-3 mt-3" style="margin-left:80%">
 <!--                     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button> -->
                     <button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'" [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'" class="p-button-text" (click)="saveOffer()"></button>
                   </div>

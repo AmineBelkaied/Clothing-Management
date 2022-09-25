@@ -13,4 +13,5 @@ public interface ProductService {
     public Product addProduct(Product product);
     public Product updateProduct(Product product);
     public void deleteProduct(Product product);
+    void deleteSelectedProducts(List<Long> productsId);
 }

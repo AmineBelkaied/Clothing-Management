@@ -49,4 +49,5 @@ export class PacketService {
   deleteSelectedPackets(packetsId: any[]) {
     return this.http.delete(this.baseUrl + "/deleteSelectedPackets/" + packetsId);
   }
+
 }

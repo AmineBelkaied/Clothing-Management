@@ -9,6 +9,8 @@ import { Table } from 'primeng/table';
 import { GovernorateService } from '../services/governorate.service';
 import { Governorate } from 'src/shared/models/Governorate';
 import { CityService } from '../services/city.service';
+import { FbPage } from 'src/shared/models/FbPage';
+import { FbPageService } from '../services/fb-page.service';
 var jsPDF: any; // Important
 
 @Component({
@@ -53,13 +55,15 @@ export class ListPacketsComponent implements OnInit {
     relatedProducts: "",
     packetReference: "",
     price: 0,
-    confirmation: false
+    status: "NOTCONFIRMED"
+
   }
   @ViewChild('dt') private _table: Table | undefined;
   packetsClone: Packet[] = [];
   cols: any[] = [];
   confirmation: any[] = [];
-  value: any;
+  statusList: any[] = [];
+  selectedStatus: any[] = [];
   selectedPackets: Packet[] = [];
   exportColumns: any[] = [];
   rangeDates: Date[] = [];
@@ -74,16 +78,18 @@ export class ListPacketsComponent implements OnInit {
   oldField: any;
   offersList: any[] = [];
   groupedCities: SelectItemGroup[] = [];
+  fbPages: FbPage[] = [];
   selectedCity: any;
   clonedProducts: { [s: string]: Packet; } = {};
   constructor(private messageService: MessageService, private packetService: PacketService,
     private confirmationService: ConfirmationService, private offerService: OfferService, private cityService: CityService,
-    private filterService: FilterService, public datepipe: DatePipe) {
+    private fbPageService: FbPageService, private filterService: FilterService, public datepipe: DatePipe) {
     this.confirmation = [
       { name: 'Tous', code: 'all', inactive: false },
       { name: 'Confirmé', code: true, inactive: false },
       { name: 'Non Confirmé', code: false, inactive: false },
     ];
+    this.statusList = ['Non confirmée','Confirmée','En cours (1)','En cours (2)','En cours (3)','Livrée','Payée','Retour','Annulée','Echange'];
   }
 
   ngOnInit(): void {
@@ -99,33 +105,41 @@ export class ListPacketsComponent implements OnInit {
           this.packets = this.packetsClone.filter((packet: Packet) => this.transformDate(packet.date) == this.transformDate(yesterDay));
           this.rangeDates[0] = yesterDay;
           todayPackets = false;
+          //this.packets = this.packetsClone.map(packet => packet.address = this.transformString(packet.address , 35));
         }
-          
+
       })
     this.cols = [
       { field: 'id', header: 'Id' },
       { field: 'date', header: 'Date' },
+      { field: 'fbPage', header: 'PageFB'},
       { field: 'customerName', header: 'Client', customExportHeader: 'Product Code' },
       { field: 'customerPhoneNb', header: 'Téléphone' },
       { field: 'city', header: 'Ville' },
       { field: 'address', header: 'Adresse' },
       { field: 'relatedProducts', header: 'Articles' },
       { field: 'price', header: 'Prix' },
-      { field: 'confirmation', header: 'Confirmé' }
+      { field: 'status', header: 'Statut' }
     ];
+
 
     this.exportColumns = this.cols.map(col => ({ title: col.header, dataKey: col.field }));
     this.offerService.findAllOffers()
       .subscribe((offers: any) => {
         this.offersList = offers;
       })
-      this.cityService.findAllGroupedCities()
+    this.cityService.findAllGroupedCities()
       .subscribe((groupedCities: any) => {
         console.log(groupedCities);
-        
+
         this.groupedCities = this.cityService.adaptListToDropDown(groupedCities);
         console.log(JSON.stringify(groupedCities))
       })
+
+    this.fbPageService.findAllFbPages()
+    .subscribe((result: any) => {
+      this.fbPages = result;
+    })
 
 
     this.rangeDates[0] = todayPackets ? new Date() : yesterDay;
@@ -161,10 +175,10 @@ export class ListPacketsComponent implements OnInit {
 
   onEditInit(packet: any) {
     console.log(packet);
-    
+
     this.oldField = packet.data[packet.field];
-   console.log(this.oldField);
-   
+    console.log(this.oldField);
+
   }
 
   onEditComplete(packet: any) {
@@ -172,7 +186,7 @@ export class ListPacketsComponent implements OnInit {
     console.log(this.oldField)
     console.log(packet.data[packet.field])
     if (this.oldField !== packet.data[packet.field]) {
-      if(packet.field == 'city') {
+      if ((packet.field == 'city') || (packet.field == 'fbPage')) {
         this.packetService.updatePacket(packet.data)
           .subscribe((response: any) => {
             console.log(response);
@@ -188,6 +202,7 @@ export class ListPacketsComponent implements OnInit {
           });
       }
     }
+
   }
 
   onEditCancel(packet: any) {
@@ -203,11 +218,12 @@ export class ListPacketsComponent implements OnInit {
       customerName: "",
       customerPhoneNb: "",
       city: null,
+      fbPage: null,
       address: "",
       relatedProducts: "",
       packetReference: "",
       price: 0,
-      confirmation: false
+      status: null
     }
   }
 
@@ -249,18 +265,18 @@ export class ListPacketsComponent implements OnInit {
   deleteSelectedPackets() {
     let selectedPacketsId = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id);
     console.log(selectedPacketsId);
-    
+
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer les commandes séléctionnées ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.packetService.deleteSelectedPackets(selectedPacketsId)
-        .subscribe(result => {
-          console.log("packets successfully deleted !");
-          this.packets = this.packets.filter((packet: Packet) => selectedPacketsId.indexOf(packet.id) == -1);
-          this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000 });
-        })
+          .subscribe(result => {
+            console.log("packets successfully deleted !");
+            this.packets = this.packets.filter((packet: Packet) => selectedPacketsId.indexOf(packet.id) == -1);
+            this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000 });
+          })
       }
     });
   }
@@ -292,9 +308,8 @@ export class ListPacketsComponent implements OnInit {
     let packet = this.packets.filter(p => p.id == $event.packet.idPacket)[0];
     let pos = this.packets.indexOf(packet);
     console.log(packet);
-    packet.relatedProducts = $event.packet.productsRef;
+    packet.relatedProducts = $event.packet.productsRef.join(" , ");
     //packet.packetReference = $event.packet.packetReference;
-    packet.price = $event.packet.price;
     this.packets.splice(pos, 1, packet);
     if (!this.editMode)
       this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été ajoutés avec succés', life: 1000 });
@@ -323,9 +338,9 @@ export class ListPacketsComponent implements OnInit {
         "telephone": packet.customerPhoneNb,
         "nombre_de_colis": 1,
         "prix": packet.price,
-        "designation" : packet.id + " DIGGIE",
+        "designation": packet.id + " DIGGIE",
         "commentaire": packet.relatedProducts
-        
+
       });
     import("xlsx").then(xlsx => {
       const worksheet = xlsx.utils.json_to_sheet(packets);
@@ -344,11 +359,16 @@ export class ListPacketsComponent implements OnInit {
     FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
   }
 
-  changeOption(event: any) {
-    if (event.option.code === 'all')
-      this.packets = this.packetsClone.slice();
+  selectStatus(event: any) {
+    console.log(event);
+    if(event.value.length == 0) 
+      this.packets = this.packetsClone;
     else
-      this.packets = this.packetsClone.filter((packet: Packet) => packet.confirmation == event.option.code)
+      this.packets = this.packetsClone.filter((packet: Packet) => event.value.indexOf(packet.status) > -1)
+  }
+
+  clearStatus() {
+    this.packets = this.packetsClone;
   }
 
   changeDate(event: any) {
@@ -374,4 +394,26 @@ export class ListPacketsComponent implements OnInit {
     return new Date(transformDate).toDateString()
   }
 
+  transformAddress(text: any, nbr: number) {
+    let newText = "";
+    if(text.length > nbr) {
+      while(text.length > nbr){
+        let substring = text.substring(0 , nbr);
+        newText += substring + "<br>";
+        text = text.replace(substring , "");
+    }
+    return newText;
+    }
+  return text;
+  }
+  
+/*   transformProducts(packetReference: string) {
+    let refsArray = packetReference.split("-");
+    let displayedProducts = "";
+    if(refsArray.length > 0)
+    for(var i=0; i < refsArray.length ; i++) {
+      displayedProducts += refsArray[i].split(":")[1].split(',').join(' - ') + "<br>";
+    }
+    return displayedProducts;
+  } */
 }

@@ -37,20 +37,20 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public Model addModel(Model model) {
+      Model modelResponse = modelRepository.save(model);
       // Generate products
       if(model.getColors().size() > 0) {
           for(Color color : model.getColors()) {
               if(model.getSizes().size() > 0) {
                   for(Size size : model.getSizes()) {
                       String productRef = model.getReference().concat(color.getReference()).concat(size.getReference());
-                      Product product = new Product(productRef, size, color, 0, new Date(), null, model);
+                      Product product = new Product(productRef, size, color, 0, new Date(), null, modelResponse);
                       productRepository.save(product);
                   }
                 }
             }
          }
-      // Save model
-        return modelRepository.save(model);
+        return modelResponse;
     }
 
     @Override

@@ -4,5 +4,5 @@ export interface Model {
     reference: string;
     description?: string;
     colors: any[];
-    size: any;
+    sizes: any[];
 }

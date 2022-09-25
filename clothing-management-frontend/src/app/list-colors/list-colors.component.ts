@@ -41,7 +41,5 @@ export class ListColorsComponent implements OnInit {
           })
       }
     });
-
-    console.log("xwcwx");
   }
 }

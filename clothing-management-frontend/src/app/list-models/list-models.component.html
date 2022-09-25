@@ -55,8 +55,8 @@
                 </td>
                 <td>{{model.name}}</td>
                 <td>{{model.reference}}</td>
-                <td><!-- <span *ngFor="let color of model.colors">{{color.name}},</span> -->{{modelColorsDisplay(model.colors)}}</td>
-                <td>{{model.size}}</td>
+                <td>{{modelColorsDisplay(model.colors)}}</td>
+                <td>{{modelSizesDisplay(model.sizes)}}</td>
                 <td>{{model.description}}</td>
                 <td>
                     <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2 buttonSize" (click)="editModel(model)"></button>
@@ -74,7 +74,7 @@
 
 <p-dialog [(visible)]="modelDialog" [style]="{width: '60%'}" header="Détails du modèle" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
-        <app-add-model [model]="model" [colors]="colors"></app-add-model>
+        <app-add-model [model]="model" [colors]="colors" [sizes]="sizes"></app-add-model>
     </ng-template>
 
     <ng-template pTemplate="footer">

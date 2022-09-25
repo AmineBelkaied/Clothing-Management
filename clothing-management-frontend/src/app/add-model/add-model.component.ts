@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { NgForm } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Model } from 'src/shared/models/Model';
+import { Size } from 'src/shared/models/Size';
 import { Color } from '../models/color';
 import { ColorService } from '../services/color.service';
 import { ModelService } from '../services/model.service';
@@ -26,15 +27,15 @@ export class AddModelComponent implements OnChanges{
     "reference" : "",
     "description" : "",
     "colors" : [],
-    "size": ""
+    "sizes": []
   }
   @Input() colors: Color[] = [];
-  sizes: any[];
+  @Input() sizes: Size[] = [];
   selectedColors: any[] = [];
 
   selectedSize: any;
   constructor(private modelService: ModelService) {
-      this.sizes = ["S" , "M" , "L" , "1" , "2" , "3" , "4"];
+      //this.sizes = ["S" , "M" , "L" , "1" , "2" , "3" , "4"];
   }
 
   ngOnChanges(changes: SimpleChanges): void {

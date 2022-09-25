@@ -1,5 +1,7 @@
 package com.clothing.management.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -10,8 +12,18 @@ public class FbPage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String link;
+    @JsonIgnore
     @OneToMany(mappedBy = "fbPage")
     List<Packet> packets;
+
+    public FbPage() {
+    }
+
+    public FbPage(Long id, String link) {
+        this.id = id;
+        this.link = link;
+    }
 
     public FbPage(String name) {
         this.name = name;
@@ -41,12 +53,20 @@ public class FbPage {
         this.packets = packets;
     }
 
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
     @Override
     public String toString() {
         return "FbPage{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", packets=" + packets +
+                ", link='" + link + '\''+
                 '}';
     }
 }

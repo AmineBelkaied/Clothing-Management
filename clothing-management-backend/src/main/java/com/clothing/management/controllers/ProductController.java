@@ -40,4 +40,9 @@ public class ProductController {
     public void deleteProduct(@RequestBody Product product) {
         productService.deleteProduct(product);
     }
+
+    @DeleteMapping(value = "/deleteSelectedProducts/{productsId}" , produces = "application/json")
+    public void deleteSelectedPackets(@PathVariable List<Long> productsId) {
+        productService.deleteSelectedProducts(productsId);
+    }
 }
