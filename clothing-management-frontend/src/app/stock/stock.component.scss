@@ -10,3 +10,11 @@ tr td {
 tr > th {
     text-align: center;
 }
+
+:host ::ng-deep .no-products {
+    background-color:   #ffebeb !important;
+  }
+  
+  :host ::ng-deep .warning-product {
+    background-color:     rgb(255, 255, 197)!important;
+  }

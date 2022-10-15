@@ -20,8 +20,10 @@ import {DialogModule} from 'primeng/dialog';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {InputSwitchModule} from 'primeng/inputswitch';
 import {CalendarModule} from 'primeng/calendar';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import { ConfirmDialogModule } from 'primeng/confirmdialog'; 
 import {CardModule} from 'primeng/card';
+import {InputTextareaModule} from 'primeng/inputtextarea';
 import {TabViewModule} from 'primeng/tabview';
 import {SplitterModule} from 'primeng/splitter';
 import { HttpClientModule } from '@angular/common/http';
@@ -90,6 +92,8 @@ import { StockComponent } from './stock/stock.component';
     CardModule,
     ConfirmDialogModule,
     ToastModule,
+    ProgressSpinnerModule,
+    InputTextareaModule,
     HttpClientModule
   ],
   providers: [MessageService,ConfirmationService],

@@ -19,8 +19,8 @@
         </div>
     </div>
     <div class="ml-5 mb-4" style="width: 90%;">
-        <p-table #dt [value]="cities" styleClass="p-datatable-gridlines p-datatable-sm mb-1" rowGroupMode="rowspan" groupRowsBy="governorate.name" dataKey="id" sortField="gouvernorat.name"
-            sortMode="single" selectionMode="multiple" [(selection)]="selectedCities"  responsiveLayout="scroll"  responsiveLayout="scroll"  (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)"  [globalFilterFields]="['governorate.name', 'name' , 'postalCode']">
+        <p-table #dt [value]="cities" styleClass="p-datatable-gridlines p-datatable-sm mb-1" rowGroupMode="rowspan" groupRowsBy="governorate.name" dataKey="id" sortField="gouvernorat.name" [paginator]="cities.length > 10 ? true : false" [rows]="10"
+            sortMode="single" selectionMode="multiple" [(selection)]="selectedCities"  responsiveLayout="scroll"  (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)"  [globalFilterFields]="['governorate.name', 'name' , 'postalCode']">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Gouvernorat</th>

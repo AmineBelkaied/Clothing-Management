@@ -45,6 +45,16 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
+    public List<Packet> findAllTodaysPackets() {
+        return packetRepository.findAllTodayPackets();
+    }
+
+    @Override
+    public List<Packet> findAllPacketsByDate(Date date) {
+        return packetRepository.findAllByDate(date);
+    }
+
+    @Override
     public Optional<Packet> findPacketById(Long idPacket) {
         return packetRepository.findById(idPacket);
     }
@@ -73,6 +83,25 @@ public class PacketServiceImpl implements PacketService {
                 System.out.println("field.get(firstKey) : " + field.get(firstKey));
                 ReflectionUtils.setField(fieldPacket , packet , field.get(firstKey));
                 updatePacket(packet);
+                if(firstKey.equals("status") && (field.get(firstKey).equals("En cours (1)") || field.get(firstKey).equals("Retour"))) {
+                    // iterate through all productsRef
+                       String[] relatedProductRefs =  packet.getRelatedProducts().split(" , ");
+                       for (String productRef: relatedProductRefs) {
+                        Product product = productRepository.findByReference(productRef);
+                        if(product != null) {
+                            int quantity = product.getQuantity();
+                            // reduce product qte
+                            if(field.get(firstKey).equals("En cours (1)"))
+                                product.setQuantity(quantity > 0 ? quantity -1 : 0);
+                            else
+                                product.setQuantity(quantity + 1);
+                            product.setDate(new Date());
+                            productRepository.save(product);
+                        }
+                        // add the products of the packet inside historic table
+                        //productsPacketRepository.save(new ProductsPacket(product, packet, new Date()));
+                    }
+                }
             }
         }
         return packet;
@@ -87,18 +116,6 @@ public class PacketServiceImpl implements PacketService {
        if (optionalPacket.isPresent()) {
            Packet packet = optionalPacket.get();
            System.out.println("packet " + packet);
-           // iterate through all productsRef
-           for(String productRef: productsRef) {
-               Product product = productRepository.findByReference(productRef);
-               if(product != null) {
-                   int quantity = product.getQuantity();
-                   // reduce product qte
-                   product.setQuantity(quantity > 0 ? quantity -1 : 0);
-                   productRepository.save(product);
-               }
-               // add the products of the packet inside historic table
-               //productsPacketRepository.save(new ProductsPacket(product, packet, new Date()));
-           }
            // set packet price
            packet.setPrice(selectedProductsDTO.getPrice());
            // set related products references
@@ -136,24 +153,24 @@ public class PacketServiceImpl implements PacketService {
                        Product product = productRepository.findByReference(productsRef[j]);
                        if (product == null) {
                            String modelRef = productsRef[j].substring(0,2);
-                           System.out.println("modelRef : " + modelRef);
+                           //System.out.println("modelRef : " + modelRef);
                            Model model = modelRepository.findByReference(modelRef);
-                           System.out.println("model : " + model.getName());
+                           //System.out.println("model : " + model.getName());
                            Color color = new Color();
                            Size size = new Size();
                            if(productsRef[j].charAt(2) != '?') {
                                 String colorRef = productsRef[j].substring(2,4);
-                               System.out.println("colorRef : " + colorRef);
+                              // System.out.println("colorRef : " + colorRef);
                                 color = colorRepository.findByReference(colorRef);
-                               System.out.println("color : " + color.getName());
+                               //System.out.println("color : " + color.getName());
                                if(productsRef[j].charAt(4) != '?') {
-                                   System.out.println("sizee : " + productsRef[j].substring(4 , productsRef[j].length()));
+                                   //System.out.println("sizee : " + productsRef[j].substring(4 , productsRef[j].length()));
                                    String sizeRef = productsRef[j].substring(4 , productsRef[j].length());
                                    size = sizeRepository.findByReference(sizeRef);
                                }
                            } else {
                                if(productsRef[j].charAt(3) != '?') {
-                                   System.out.println("sizee : " + productsRef[j].substring(3 , productsRef[j].length()));
+                                   //System.out.println("sizee : " + productsRef[j].substring(3 , productsRef[j].length()));
                                    String sizeRef = productsRef[j].substring(3 , productsRef[j].length());
                                    size = sizeRepository.findByReference(sizeRef);
                                }

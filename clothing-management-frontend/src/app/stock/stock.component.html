@@ -22,9 +22,9 @@
     </div>
     <div class="mb-4">
 <p-table #dt [columns]="cols" [value]="products" styleClass="p-datatable-gridlines p-datatable-sm mb-1" selectionMode="multiple" [(selection)]="selectedProducts"
-    class="table table-hover" [resizableColumns]="true" [autoLayout]="true"  responsiveLayout="scroll"
+    class="table table-hover" [resizableColumns]="true" [autoLayout]="true"  responsiveLayout="scroll"  [paginator]="products.length > 10 ? true : false" [rows]="10"
     (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)"
-    dataKey="id" responsiveLayout="scroll"  [globalFilterFields]="['reference', 'model.name' , 'color.name' ,'size.reference']">
+    dataKey="id"  [globalFilterFields]="['reference', 'model.name' , 'color.name' ,'size.reference']" rowGroupMode="rowspan" groupRowsBy="model.name" >
     <ng-template pTemplate="header" let-columns>
         <tr>
             <th *ngFor="let col of columns" [pSortableColumn]="col.field" class="align-center">
@@ -35,25 +35,28 @@
             </th>
         </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-product>
+    <ng-template pTemplate="body" let-product let-rowIndex="rowIndex" let-rowgroup="rowgroup"
+    let-rowspan="rowspan">
         <tr>
-            <td>{{product.id}}</td>
-            <td>{{product.date | date : 'dd/MM'}} </td>
+            <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
+                <span class="font-bold ml-2">{{product.model?.name}}</span>
+            </td>
+            <td [ngClass]="[product.quantity == 0 ? 'no-products' : '',  product.quantity <= 3 && product.quantity >0 ? 'warning-product' : '']">{{product.id}}</td>
+            <td [ngClass]="[product.quantity == 0 ? 'no-products' : '',  product.quantity <= 3 && product.quantity >0 ? 'warning-product' : '']">{{product.date | date : 'dd/MM'}} </td>
             <td pEditableColumn [pEditableColumn]="product" [pEditableColumnField]="'quantity'"
-                style="cursor: pointer;">
+                style="cursor: pointer;width: 210px;" [ngClass]="[product.quantity == 0 ? 'no-products' : '',  product.quantity <= 3 && product.quantity >0 ? 'warning-product' : '']">
                 <p-cellEditor>
                     <ng-template pTemplate="input">
-                        <input pInputText type="text" [(ngModel)]="product.quantity">
+                        <input pInputText type="number" [(ngModel)]="product.quantity" min="0">
                     </ng-template>
                     <ng-template pTemplate="output">
                         {{product.quantity}}
                     </ng-template>
                 </p-cellEditor>
             </td>
-            <td>{{product.reference}}</td>
-            <td>{{product.model?.name}}</td>
-            <td>{{product.color?.name}}</td>
-            <td>{{product.size?.reference}}</td>
+            <td  [ngClass]="[product.quantity == 0 ? 'no-products' : '',  product.quantity <= 3 && product.quantity >0 ? 'warning-product' : '']">{{product.reference}}</td>
+            <td  [ngClass]="[product.quantity == 0 ? 'no-products' : '',  product.quantity <= 3 && product.quantity >0 ? 'warning-product' : '']">{{product.color?.name}}</td>
+            <td  [ngClass]="[product.quantity == 0 ? 'no-products' : '',  product.quantity <= 3 && product.quantity >0 ? 'warning-product' : '']">{{product.size?.reference}}</td>
             <td>
                 <p-tableCheckbox [value]="product"></p-tableCheckbox>
             </td>

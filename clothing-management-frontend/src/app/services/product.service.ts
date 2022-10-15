@@ -17,4 +17,9 @@ export class ProductService {
   deleteSelectedProducts(productsId: any[]) {
     return this.http.delete(this.baseUrl + "/deleteSelectedProducts/" + productsId);
   }
+
+  updatProduct(product: any) {
+    return this.http.put(this.baseUrl + "/update", product, { headers: { 'content-type': 'application/json' } })
+  }
+
 }

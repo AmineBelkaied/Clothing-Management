@@ -8192,8 +8192,8 @@
     width: 100%; }
   
   #sidebar {
-    min-width: 200px;
-    max-width: 270px;
+/*     min-width: 200px;
+    max-width: 270px; */
     background: #3445b4;
     color: #fff;
     -webkit-transition: all 0.3s;
@@ -8217,7 +8217,7 @@
     #sidebar ul.components {
       padding: 0; }
     #sidebar ul li {
-      font-size: 16px; }
+      font-size: 15px; }
       #sidebar ul li > ul {
         margin-left: 10px; }
         #sidebar ul li > ul li {

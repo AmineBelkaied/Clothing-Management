@@ -1,8 +1,7 @@
 td {
     text-align: center !important;
     vertical-align: middle;
-    white-space:pre-line !important;
-}
+    white-space:pre-line !important;}
 
 .align-center {
     text-align: center !important;
@@ -31,7 +30,7 @@ td {
 }
 
 :host ::ng-deep .row-accessories {
-    background-color: #fff3e1 !important;
+    background-color: #f2fffe !important;
 }
 
 /* ::ng-deep .ui-calendar .ui-inputtext {
@@ -60,3 +59,41 @@ td {
         }
     }
 }
+
+:host ::ng-deep .custom-spinner .p-progress-spinner-circle {
+    animation: custom-progress-spinner-dash 1.5s ease-in-out infinite, custom-progress-spinner-color 6s ease-in-out infinite;
+}
+
+@keyframes custom-progress-spinner-color {
+    100%,
+    0% {
+        stroke: #16697A;
+    }
+    40% {
+        stroke: #489FB5;
+    }
+    66% {
+        stroke: #82C0CC;
+    }
+    80%,
+    90% {
+        stroke: #FFA62B;
+    }
+}
+
+@keyframes custom-progress-spinner-dash {
+    0% {
+        stroke-dasharray: 1, 200;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 89, 200;
+        stroke-dashoffset: -35px;
+    }
+    100% {
+        stroke-dasharray: 89, 200;
+        stroke-dashoffset: -124px;
+    }
+}
+
+.breakWord{ word-wrap: break-word; max-width: 25ch;}

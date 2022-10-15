@@ -12,6 +12,7 @@ export class StockComponent implements OnInit {
   products: any[] = [];
   cols: any[] = [];
   selectedProducts: any[] = [];
+  oldProduct: any;
   constructor(private productService: ProductService, private messageService: MessageService,private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
@@ -21,22 +22,30 @@ export class StockComponent implements OnInit {
     });
     
     this.cols = [
+      { field: 'model', header: 'Modèle' },
       { field: 'id', header: 'Id' },
-      { field: 'date', header: 'Date' },
+      { field: 'date', header: 'Dernière modification' },
       { field: 'quantity', header: 'Quantité'},
       { field: 'reference', header: 'Référence' },
-      { field: 'model', header: 'Modèle' },
-      { field: 'color', header: 'Couleur' },
-      { field: 'size', header: 'Taille' }
+      { field: 'color.name', header: 'Couleur' },
+      { field: 'size.reference', header: 'Taille' }
     ];
   }
 
   onEditInit($event: any){
-
+    this.oldProduct = Object.assign({}, $event.data);
   }
 
-  onEditComplete($event: any){
-    
+  onEditComplete($event: any) {
+    if(this.oldProduct.quantity != $event.data.quantity) {
+      console.log($event.data);
+      $event.data.date = new Date();
+        this.productService.updatProduct($event.data)
+        .subscribe(result => {
+          console.log("quantity successfully updated !");
+          this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'La qunatité a été modifié avec succés', life: 1000 });
+        })
+    }
   }
 
   onEditCancel($event: any){
@@ -60,5 +69,12 @@ export class StockComponent implements OnInit {
           })
       }
     });
+  }
+
+  getColor(qte: any) : any{
+    if (qte <= 3 && qte > 0) 
+    return '.warning-product';
+    if(qte == 0)
+    return '.no-products';
   }
 }

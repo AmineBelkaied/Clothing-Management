@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationService, FilterService, MessageService, SelectItem, SelectItemGroup } from 'primeng/api';
 import { Packet } from '../../shared/models/Packet';
 import { OfferService } from '../services/offer.service';
@@ -6,11 +6,10 @@ import { PacketService } from '../services/packet.service';
 import * as FileSaver from 'file-saver';
 import { DatePipe } from '@angular/common';
 import { Table } from 'primeng/table';
-import { GovernorateService } from '../services/governorate.service';
-import { Governorate } from 'src/shared/models/Governorate';
 import { CityService } from '../services/city.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../services/fb-page.service';
+import { filter, map, Subject, takeUntil, tap } from 'rxjs';
 var jsPDF: any; // Important
 
 @Component({
@@ -19,32 +18,9 @@ var jsPDF: any; // Important
   styleUrls: ['./list-packets.component.css'],
   providers: [DatePipe]
 })
-export class ListPacketsComponent implements OnInit {
+export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy {
 
-  packets: Packet[] = [
-    /*     {
-          id: "1",
-          date: new Date(),
-          customerName: "ahmed",
-          customerPhoneNb: "200000",
-          governorate: "nabeul",
-          address: "hamm",
-          articles: "2p",
-          price: 0,
-          confirmation: false
-        },
-        {
-          id: "2",
-          date: new Date(),
-          customerName: "amine",
-          customerPhoneNb: "50000",
-          governorate: "nabeul",
-          address: "wxcwxcw",
-          articles: "2p55",
-          price: 0,
-          confirmation: false
-        } */
-  ]
+  packets: Packet[] = []
   packet: Packet = {
     id: "",
     date: new Date(),
@@ -68,47 +44,48 @@ export class ListPacketsComponent implements OnInit {
   exportColumns: any[] = [];
   rangeDates: Date[] = [];
   editMode = false;
-
   modelDialog!: boolean;
   submitted!: boolean;
   packetTest = {
     "address": "sousse"
   }
 
+  first= 0;
+  rows = 100;
   oldField: any;
   offersList: any[] = [];
   groupedCities: SelectItemGroup[] = [];
   fbPages: FbPage[] = [];
   selectedCity: any;
   clonedProducts: { [s: string]: Packet; } = {};
+  subcriber = new Subject<void>();
+  packetsByDate: Packet[] = [];
+  @ViewChild('dt') dt?: Table;
+  @ViewChild('calendar')
+  calendar: any;
   constructor(private messageService: MessageService, private packetService: PacketService,
     private confirmationService: ConfirmationService, private offerService: OfferService, private cityService: CityService,
-    private fbPageService: FbPageService, private filterService: FilterService, public datepipe: DatePipe) {
+    private fbPageService: FbPageService, private filterService: FilterService, public datePipe: DatePipe, private cdRef: ChangeDetectorRef) {
     this.confirmation = [
       { name: 'Tous', code: 'all', inactive: false },
       { name: 'Confirmé', code: true, inactive: false },
       { name: 'Non Confirmé', code: false, inactive: false },
     ];
-    this.statusList = ['Non confirmée','Confirmée','En cours (1)','En cours (2)','En cours (3)','Livrée','Payée','Retour','Annulée','Echange'];
+    this.statusList = ['Non confirmée','Confirmée','En cours (1)','En cours (2)','En cours (3)','Livrée','Payée','Retour','Annulée','Injoignable','Echange'];
+  }
+
+  ngAfterViewChecked() {
+    this.cdRef.detectChanges();
   }
 
   ngOnInit(): void {
+    this.packetService.findAllTodaysPackets().subscribe((allPackets: any) => {
+     this.packets = allPackets;
+     console.log(this.packets);
+     
+     this.packetsByDate = this.packets.slice()
+    });
 
-    let yesterDay = new Date();
-    yesterDay.setDate(yesterDay.getDate() - 1);
-    let todayPackets = true;
-    this.packetService.findAllPackets()
-      .subscribe((packetsList: any) => {
-        this.packetsClone = Object.assign([], packetsList);
-        this.packets = this.packetsClone.filter((packet: Packet) => this.transformDate(packet.date) == this.transformDate(new Date()));
-        if (this.packets.length == 0) {
-          this.packets = this.packetsClone.filter((packet: Packet) => this.transformDate(packet.date) == this.transformDate(yesterDay));
-          this.rangeDates[0] = yesterDay;
-          todayPackets = false;
-          //this.packets = this.packetsClone.map(packet => packet.address = this.transformString(packet.address , 35));
-        }
-
-      })
     this.cols = [
       { field: 'id', header: 'Id' },
       { field: 'date', header: 'Date' },
@@ -121,7 +98,6 @@ export class ListPacketsComponent implements OnInit {
       { field: 'price', header: 'Prix' },
       { field: 'status', header: 'Statut' }
     ];
-
 
     this.exportColumns = this.cols.map(col => ({ title: col.header, dataKey: col.field }));
     this.offerService.findAllOffers()
@@ -141,50 +117,14 @@ export class ListPacketsComponent implements OnInit {
       this.fbPages = result;
     })
 
-
-    this.rangeDates[0] = todayPackets ? new Date() : yesterDay;
-    // filter by range date
-    this.filterService.register('filterDate', (value: any, filter: any): any => {
-
-      this.packets = this.packetsClone.slice();
-      if (this.rangeDates === undefined || this.rangeDates === null)
-        return true;
-
-      if (filter === undefined || filter === null) {
-        return true;
-      }
-
-      if (value === undefined || value === null) {
-        return false;
-      }
-      // get the from/start value
-      let startDate = this.rangeDates[0].getTime();
-      let endDate;
-      // the to/end value might not be set
-      // use the from/start date and add 1 day
-      // or the to/end date and add 1 day
-      if (this.rangeDates[1]) {
-        endDate = this.rangeDates[1].getTime() + 86400000;
-      } else {
-        endDate = startDate + 86400000;
-      }
-      // compare it to the actual values
-      return new Date(value).getTime() >= startDate && new Date(value).getTime() <= endDate;
-    });
+    this.rangeDates[0] = new Date();
   }
 
   onEditInit(packet: any) {
-    console.log(packet);
-
     this.oldField = packet.data[packet.field];
-    console.log(this.oldField);
-
   }
 
   onEditComplete(packet: any) {
-    console.log(packet)
-    console.log(this.oldField)
-    console.log(packet.data[packet.field])
     if (this.oldField !== packet.data[packet.field]) {
       if ((packet.field == 'city') || (packet.field == 'fbPage')) {
         this.packetService.updatePacket(packet.data)
@@ -202,28 +142,18 @@ export class ListPacketsComponent implements OnInit {
           });
       }
     }
-
-  }
-
-  onEditCancel(packet: any) {
-    console.log("cancell")
-    console.log(packet)
-    //this.messageService.add({severity:'success', summary: 'Success', detail:'Product is updated'});
   }
 
   newPacket(): Packet {
     return {
-      id: "",
-      date: new Date(),
+      date: this.getDate(new Date()),
       customerName: "",
       customerPhoneNb: "",
-      city: null,
-      fbPage: null,
       address: "",
       relatedProducts: "",
       packetReference: "",
       price: 0,
-      status: null
+      status: "Non confirmée"
     }
   }
 
@@ -232,7 +162,9 @@ export class ListPacketsComponent implements OnInit {
     // Set the new row in edit mode
     this.packetService.addPacket(this.newPacket())
       .subscribe((response: any) => {
-        this.packets.push(response);
+        console.log(response);
+        
+        this.packets.unshift(response);
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
       });
   }
@@ -317,30 +249,64 @@ export class ListPacketsComponent implements OnInit {
       this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été mis à jour avec succés', life: 1000 });
   }
 
-  changeColor(this: any) {
-    this.style.color = "red";
+  onChangeEndDate($event: any) {
+    // get the from/start value
+    // get the from/start value
+    let startDate = this.rangeDates[0]
+    let endDate: any;
+    // the to/end value might not be set
+    // use the from/start date and add 1 day
+    // or the to/end date and add 1 day
+    if (this.rangeDates[1]) {
+      endDate = this.rangeDates[1];
+    } else {
+      endDate = startDate
+    }
+    this.packets = this.packetService.allPackets.filter((packet: any) => this.getDate(packet.date) >= this.getDate(startDate) && this.getDate(packet.date) <= this.getDate(endDate))
+    // save packetsByDate state
+    this.packetsByDate = [...this.packets]//console.log(this.packets);
   }
 
-  exportPdf() {
-    const doc = new jsPDF();
-    doc.autoTable(this.exportColumns, this.packets);
-    doc.save('products.pdf');
+  selectStatus(dt: Table, event: any) {
+    console.log(event);
+    if(this.rangeDates[0] != null) {
+      if (event.value.length === 0) 
+      this.packets = this.packetsByDate.slice();
+    else
+      this.packets = this.packetsByDate.filter((packet: Packet) => event.value.indexOf(packet.status) > -1);
+    } else {
+      if (event.value.length === 0) 
+      this.packets = this.packetService.allPackets.slice();
+    else
+      this.packets = this.packetService.allPackets.filter((packet: Packet) => event.value.indexOf(packet.status) > -1);
+    }
+  }
+
+  clearStatus() {
+    this.packets = this.packetsByDate;
+  }
+
+  changeDate(event: any) {
+    console.log(event)
+  }
+
+  resetTable() {
+    this.rangeDates = [];
+    this.packets = this.packetService.allPackets;
+  }
+
+  changeColor(this: any) {
+    this.style.color = "red";
   }
 
   exportExcel() {
     let packets = this.packets
       //.filter(packet => packet.confirmation)
       .map((packet: any) => packet = {
-        "destinataire": packet.customerName,
-        "adresse": packet.address,
-        "ville": packet.city.name,
-        "gouvernorat": packet.city.governorate.name,
-        "telephone": packet.customerPhoneNb,
-        "nombre_de_colis": 1,
+        "Id" : packet.id,
         "prix": packet.price,
-        "designation": packet.id + " DIGGIE",
-        "commentaire": packet.relatedProducts
-
+        "Références" : packet.relatedProducts,
+        "PageFB": packet.fbPage?.name
       });
     import("xlsx").then(xlsx => {
       const worksheet = xlsx.utils.json_to_sheet(packets);
@@ -356,45 +322,108 @@ export class ListPacketsComponent implements OnInit {
     const data: Blob = new Blob([buffer], {
       type: EXCEL_TYPE
     });
-    FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+    FileSaver.saveAs(data, fileName + " - " + this.transformDate(new Date()) + EXCEL_EXTENSION);
   }
 
-  selectStatus(event: any) {
-    console.log(event);
-    if(event.value.length == 0) 
-      this.packets = this.packetsClone;
-    else
-      this.packets = this.packetsClone.filter((packet: Packet) => event.value.indexOf(packet.status) > -1)
+  exportCSV() {
+    // map the packets to a customer packetList
+    let packets = this.packets
+    .map((packet: any) => packet = {
+      "destinataire_nom": this.getValue(packet.customerName),
+      "adresse": this.getValue(packet.address),
+      "ville": this.getValue(packet.city?.name),
+      "gouvernorat": this.getValue(packet.city?.governorate.name),
+      "telephone": this.getValue(packet.customerPhoneNb),
+      "telephone2": '',
+      "nombre_de_colis": 1,
+      "prix": this.getValue(packet.price),
+      "designation": this.getValue(packet.id) + " " + this.getValue(packet.fbPage?.name) + " " + this.getValue(packet.relatedProducts),
+      "commentaire": "Le colis peut etre ouvert lors de la commande du client"
+    });
+
+    // prepare the columns to be exported
+    let cols: any[] = [
+      { field: 'destinataire_nom', header: 'destinataire_nom'},
+      { field: 'adresse', header: 'adresse' },
+      { field: 'ville', header: 'ville'},
+      { field: 'gouvernorat', header: 'gouvernorat'},
+      { field: 'telephone', header: 'telephone' },
+      { field: 'telephone2', header: 'telephone2' },
+      { field: 'nombre_de_colis', header: 'nombre_de_colis'},
+      { field: 'prix', header: 'prix' },
+      { field: 'designation', header: 'designation' },
+      { field: 'commentaire', header: 'commentaire' }
+    ];
+    let csv = '';
+    let csvSeparator = ';';
+    //headers
+    for (let i = 0; i < cols.length; i++) {
+        if (cols[i].field) {
+            csv += cols[i].field;
+  
+            if (i < (cols.length - 1)) {
+                csv += csvSeparator;
+            }
+        }
+    }
+    //body        
+    packets.forEach((record: any, j) => {
+        csv += '\n';
+        for (let i = 0; i < cols.length; i++) {
+            if (cols[i].field) {
+                console.log(record[cols[i].field]);
+                // resolveFieldData seems to check if field is nested e.g. data.something --> probably not needed
+                csv += record[cols[i].field]; //this.resolveFieldData(record, this.columns[i].field);
+                if (i < (cols.length - 1)) {
+                    csv += csvSeparator;
+                }
+            }
+        }
+    });
+    this.download(csv, 'first - ' + this.transformDate(new Date()));
+  }
+  
+  download(text: any, filename: any) {
+    let element = document.createElement('a');
+    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+  
+    document.body.removeChild(element);
+  }
+  
+  getValue(fieldName: any) {
+    return (fieldName != null && fieldName!= undefined && fieldName != NaN) ? fieldName : '';
   }
 
-  clearStatus() {
-    this.packets = this.packetsClone;
+  exportPdf() {
+    const doc = new jsPDF();
+    doc.autoTable(this.exportColumns, this.packets);
+    doc.save('products.pdf');
   }
-
-  changeDate(event: any) {
-    console.log(event)
-  }
-
-  resetTable(dt: Table) {
-    this.packets = this.packetsClone.slice();
-    dt.clear();
-    console.log(dt.value);
-    console.log(this.packets);
-  }
-
-  search(dt: any, event: any) {
-    this.packets = this.packetsClone.slice();
-    console.log(event.target.value);
-    dt.filterGlobal(event.target.value, 'contains')
-  }
-
 
   transformDate(date: any) {
-    let transformDate: any = this.datepipe.transform(date, 'dd/MM/yyyy');
-    return new Date(transformDate).toDateString()
+    return this.datePipe.transform(date, 'dd/MM/yyyy');
   }
 
-  transformAddress(text: any, nbr: number) {
+  trackByFunction = (index: any, item: { id: any; }) => {
+    return item.id // O index
+  }
+
+  getDate(date: Date) : any {
+    return this.datePipe.transform(date, 'yyyy-MM-dd');
+  }
+
+  ngOnDestroy() {
+    this.subcriber.next();
+    this.subcriber.complete();
+  }
+
+  /*   transformAddress(text: any, nbr: number) {
     let newText = "";
     if(text.length > nbr) {
       while(text.length > nbr){
@@ -404,10 +433,12 @@ export class ListPacketsComponent implements OnInit {
     }
     return newText;
     }
+    console.log(text);
+    
   return text;
-  }
+  } */
   
-/*   transformProducts(packetReference: string) {
+/*  transformProducts(packetReference: string) {
     let refsArray = packetReference.split("-");
     let displayedProducts = "";
     if(refsArray.length > 0)
@@ -416,4 +447,5 @@ export class ListPacketsComponent implements OnInit {
     }
     return displayedProducts;
   } */
+
 }

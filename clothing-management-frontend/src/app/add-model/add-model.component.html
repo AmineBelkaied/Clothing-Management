@@ -12,7 +12,7 @@
             <div class="col-md-4">
               <label for="reference" class="form-label">Référence</label>
               <input type="text" class="form-control" id="reference" placeholder="Référence du modèle"
-                name="reference" [(ngModel)]="model.reference" />
+                name="reference" [(ngModel)]="model.reference" minlength="2" maxlength="2" />
             </div>
             <div class="col-md-4">
               <label for="description" class="form-label">Description</label>

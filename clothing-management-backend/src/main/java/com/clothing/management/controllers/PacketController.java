@@ -10,6 +10,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +26,16 @@ public class PacketController {
     @GetMapping(path = "/findAll")
     public List<Packet> findAllPackets() {
         return packetService.findAllPackets();
+    }
+
+    @GetMapping(path = "/findAllTodaysPackets")
+    public List<Packet> findAllTodaysPackets() {
+        return packetService.findAllTodaysPackets();
+    }
+
+    @GetMapping(path = "/findAllByDate/{date}")
+    public List<Packet> findAllPacketsByDate(Date date) {
+        return packetService.findAllPacketsByDate(date);
     }
 
     @GetMapping(path = "/findById/{id}")
