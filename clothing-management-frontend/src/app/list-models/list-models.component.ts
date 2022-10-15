@@ -68,14 +68,18 @@ export class ListModelsComponent implements OnInit {
   }
 
   deleteSelectedModels() {
+    let selectedModelsId = this.selectedModels.map((selectedModel: any) => selectedModel.id);
+    console.log(selectedModelsId);
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer les modèles séléctionnés ?',
-      header: 'Confirm',
+      header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.models = this.models.filter(val => !this.selectedModels.includes(val));
-        this.selectedModels = [];
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'models Deleted', life: 3000 });
+        this.modelService.deleteSelectedModels(selectedModelsId)
+          .subscribe(result => {
+            this.models = this.models.filter(val => !this.selectedModels.includes(val));
+            this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les modèles séléctionnés ont été supprimé avec succés', life: 1000 });
+          })
       }
     });
   }

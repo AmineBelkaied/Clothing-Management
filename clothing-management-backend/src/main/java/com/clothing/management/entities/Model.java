@@ -32,7 +32,7 @@ public class Model {
             inverseJoinColumns = { @JoinColumn(name = "size_id") }
     )
     private Set<Size> sizes = new HashSet<>();
-    @OneToMany(mappedBy = "model")
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<OfferModel> modelOffers = new HashSet<>();
 

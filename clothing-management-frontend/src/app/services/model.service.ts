@@ -32,4 +32,7 @@ export class ModelService {
     return this.http.delete(this.baseUrl + "/deleteById/" + idModel)
   }
 
+  deleteSelectedModels(modelsId: any[]) {
+    return this.http.delete(this.baseUrl + "/deleteSelectedModels/" + modelsId);
+  }
 }

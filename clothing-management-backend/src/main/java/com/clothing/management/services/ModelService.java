@@ -12,4 +12,5 @@ public interface ModelService {
     public Model addModel(Model model);
     public Model updateModel(Model model);
     public void deleteModelById(Long idModel);
+    void deleteSelectedModels(List<Long> modelsId);
 }

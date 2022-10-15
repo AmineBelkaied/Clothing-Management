@@ -41,7 +41,10 @@ public class PacketServiceImpl implements PacketService {
 
     @Override
     public List<Packet> findAllPackets() {
-        return packetRepository.findAll();
+        List<Packet> sortedPackets = packetRepository.findAll().stream()
+                .sorted(Comparator.comparingLong(Packet::getId).reversed())
+                .collect(Collectors.toList());
+        return sortedPackets;
     }
 
     @Override
@@ -137,82 +140,55 @@ public class PacketServiceImpl implements PacketService {
             //String packetReference= "TE:PUB.XL,PUN.L,SDBLL-TS:SDN.XL,PUN.M";
             System.out.println("packetReference : "  + packetReference);
             //if(packetReference.contains("-")) {
-                String[] offers= packetReference.split("-");
-            System.out.println("offers : "  + Arrays.toString(offers));
-                for(int i=0 ; i < offers.length ; i++) {
-                    System.out.println("offersNames : "  + offers[i]);
-                    String[] offerProducts =  offers[i].split(":");
+            if (packetReference != null) {
+                String[] offers = packetReference.split("-");
+                System.out.println("offers : " + Arrays.toString(offers));
+                for (int i = 0; i < offers.length; i++) {
+                    System.out.println("offersNames : " + offers[i]);
+                    String[] offerProducts = offers[i].split(":");
                     System.out.println("Arrray");
                     System.out.println(Arrays.toString(offerProducts));
                     Offer offer = offerRepository.findByName(offerProducts[0]);
-                    System.out.println("offer : "  + offer.toString());
-                    offerUpdateDTO = new OfferUpdateDTO(offer.getId() ,offer.getName() , offer.getPrice());
+                    System.out.println("offer : " + offer.toString());
+                    offerUpdateDTO = new OfferUpdateDTO(offer.getId(), offer.getName(), offer.getPrice());
                     String[] productsRef = offerProducts[1].split(",");
                     List<Product> productList = new ArrayList<>();
-                    for(int j=0; j < productsRef.length ; j++) {
-                       Product product = productRepository.findByReference(productsRef[j]);
-                       if (product == null) {
-                           String modelRef = productsRef[j].substring(0,2);
-                           //System.out.println("modelRef : " + modelRef);
-                           Model model = modelRepository.findByReference(modelRef);
-                           //System.out.println("model : " + model.getName());
-                           Color color = new Color();
-                           Size size = new Size();
-                           if(productsRef[j].charAt(2) != '?') {
-                                String colorRef = productsRef[j].substring(2,4);
-                              // System.out.println("colorRef : " + colorRef);
+                    for (int j = 0; j < productsRef.length; j++) {
+                        Product product = productRepository.findByReference(productsRef[j]);
+                        if (product == null) {
+                            String modelRef = productsRef[j].substring(0, 2);
+                            //System.out.println("modelRef : " + modelRef);
+                            Model model = modelRepository.findByReference(modelRef);
+                            //System.out.println("model : " + model.getName());
+                            Color color = new Color();
+                            Size size = new Size();
+                            if (productsRef[j].charAt(2) != '?') {
+                                String colorRef = productsRef[j].substring(2, 4);
+                                // System.out.println("colorRef : " + colorRef);
                                 color = colorRepository.findByReference(colorRef);
-                               //System.out.println("color : " + color.getName());
-                               if(productsRef[j].charAt(4) != '?') {
-                                   //System.out.println("sizee : " + productsRef[j].substring(4 , productsRef[j].length()));
-                                   String sizeRef = productsRef[j].substring(4 , productsRef[j].length());
-                                   size = sizeRepository.findByReference(sizeRef);
-                               }
-                           } else {
-                               if(productsRef[j].charAt(3) != '?') {
-                                   //System.out.println("sizee : " + productsRef[j].substring(3 , productsRef[j].length()));
-                                   String sizeRef = productsRef[j].substring(3 , productsRef[j].length());
-                                   size = sizeRepository.findByReference(sizeRef);
-                               }
-                           }
-                           product = new Product(model, color, size);
-                       }
-                     /*   List<String> sizes = new ArrayList<>();
-                        for(int k=0 ; k <= maxSizeIndex; k++)
-                            sizes.add(product.getModel().sizes.get(k));
-                        System.out.println("sizes : " + sizes.toString());
-                        product.getModel().setSizes(sizes);*/
-                       productList.add(product);
+                                //System.out.println("color : " + color.getName());
+                                if (productsRef[j].charAt(4) != '?') {
+                                    //System.out.println("sizee : " + productsRef[j].substring(4 , productsRef[j].length()));
+                                    String sizeRef = productsRef[j].substring(4, productsRef[j].length());
+                                    size = sizeRepository.findByReference(sizeRef);
+                                }
+                            } else {
+                                if (productsRef[j].charAt(3) != '?') {
+                                    //System.out.println("sizee : " + productsRef[j].substring(3 , productsRef[j].length()));
+                                    String sizeRef = productsRef[j].substring(3, productsRef[j].length());
+                                    size = sizeRepository.findByReference(sizeRef);
+                                }
+                            }
+                            product = new Product(model != null ? model : null, color, size);
+                        }
+                        productList.add(product);
                     }
                     offerUpdateDTO.setProducts(productList);
                     offerUpdateDTOList.add(offerUpdateDTO);
-                //}
+                }
             }
         }
         return offerUpdateDTOList;
-
-        /* String modelRef = models[j].substring(0,1);
-        int quantity = StringUtils.countOccurrencesOf(offerModels[1], modelRef);*/
-        /*Map<Offer, List<OfferModel>> offerListMap = offerModelRepository.findAll()
-                .stream()
-                .collect(groupingBy(OfferModel::getOffer));
-
-        List<OfferModelDTO> offerModelListDTO = new ArrayList<>();
-        OfferModelDTO offerModelDTO = null;
-
-        for (Offer offer : offerListMap.keySet()) {
-            System.out.println("key: " + offer.getName());
-            offerModelDTO = new OfferModelDTO(offer.getName() , offer.getPrice());
-            List<OfferModel> offerModels= offerListMap.get(offer);
-            List<ModelQuantity> modelQuantities = new ArrayList<>();
-            for(OfferModel offerModel : offerModels) {
-                System.out.println("key: " + offer.getName());
-                ModelQuantity modelQuantity = new ModelQuantity(offerModel.getQuantity() , offerModel.getModel());
-                modelQuantities.add(modelQuantity);
-            }
-            offerModelDTO.setModelQuantities(modelQuantities);
-            offerModelListDTO.add(offerModelDTO);
-        }*/
     }
     @Override
     public void deletePacketById(Long idPacket) {

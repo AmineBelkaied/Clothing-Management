@@ -169,12 +169,15 @@ export class AddPacketComponent implements OnInit {
       }
 
     this.totalPrice += offer.price;
+    
     this.packetForm.controls['price'].setValue(this.totalPrice);
   }
 
   removeOffer(offer: any, i: number) {
+    console.log(this.totalPrice);
+    console.log(offer.price);
     this.offers().removeAt(i);
-    this.totalPrice = this.totalPrice - offer.price;
+    this.totalPrice = offer.price != undefined && offer.price != null ? this.totalPrice - offer.price : 0;
   }
 
   clearModel(offerName: any, index: number) {

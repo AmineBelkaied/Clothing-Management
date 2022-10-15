@@ -40,4 +40,8 @@ public class ModelController {
     public void deleteModelById(@PathVariable Long idModel) {
         modelService.deleteModelById(idModel);
     }
+
+    @DeleteMapping(value = "/deleteSelectedModels/{modelsId}" , produces = "application/json")
+    public void deleteSelectedModels(@PathVariable List<Long> modelsId) { modelService.deleteSelectedModels(modelsId);
+    }
 }

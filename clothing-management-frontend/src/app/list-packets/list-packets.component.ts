@@ -10,6 +10,7 @@ import { CityService } from '../services/city.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../services/fb-page.service';
 import { filter, map, Subject, takeUntil, tap } from 'rxjs';
+import { Offer } from 'src/shared/models/Offer';
 var jsPDF: any; // Important
 
 @Component({
@@ -102,7 +103,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.exportColumns = this.cols.map(col => ({ title: col.header, dataKey: col.field }));
     this.offerService.findAllOffers()
       .subscribe((offers: any) => {
-        this.offersList = offers;
+        this.offersList = offers.filter((offer: Offer) => offer.enabled);
       })
     this.cityService.findAllGroupedCities()
       .subscribe((groupedCities: any) => {
@@ -130,7 +131,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         this.packetService.updatePacket(packet.data)
           .subscribe((response: any) => {
             console.log(response);
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'عملية ناجحة' });
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés'});
           });
       } else {
         let updatedField = { [packet.field]: packet.data[packet.field] }
@@ -138,7 +139,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         this.packetService.patchPacket(packet['data'].id, updatedField)
           .subscribe((response: any) => {
             console.log(response);
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'عملية ناجحة' });
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Le champ est modifié avec succés'});
           });
       }
     }
@@ -241,6 +242,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     let pos = this.packets.indexOf(packet);
     console.log(packet);
     packet.relatedProducts = $event.packet.productsRef.join(" , ");
+    packet.price = $event.packet.price;
     //packet.packetReference = $event.packet.packetReference;
     this.packets.splice(pos, 1, packet);
     if (!this.editMode)
@@ -333,8 +335,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       "adresse": this.getValue(packet.address),
       "ville": this.getValue(packet.city?.name),
       "gouvernorat": this.getValue(packet.city?.governorate.name),
-      "telephone": this.getValue(packet.customerPhoneNb),
-      "telephone2": '',
+      "telephone": this.getPhoneNumber1(packet.customerPhoneNb),
+      "telephone2": this.getPhoneNumber2(packet.customerPhoneNb),
       "nombre_de_colis": 1,
       "prix": this.getValue(packet.price),
       "designation": this.getValue(packet.id) + " " + this.getValue(packet.fbPage?.name) + " " + this.getValue(packet.relatedProducts),
@@ -416,6 +418,20 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   getDate(date: Date) : any {
     return this.datePipe.transform(date, 'yyyy-MM-dd');
+  }
+
+  getPhoneNumber1(phoneNumber1: string) {
+    if(this.getValue(phoneNumber1) != '' && phoneNumber1.includes('/')){
+        return phoneNumber1.substring(0, 8);
+    }
+    return '';
+  }
+
+  getPhoneNumber2(phoneNumber1: string) {
+    if(this.getValue(phoneNumber1) != '' && phoneNumber1.includes('/')){
+        return phoneNumber1.substring(9, phoneNumber1.length);
+    }
+    return '';
   }
 
   ngOnDestroy() {

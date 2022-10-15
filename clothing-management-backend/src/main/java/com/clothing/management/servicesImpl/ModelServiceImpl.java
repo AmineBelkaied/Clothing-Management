@@ -62,4 +62,13 @@ public class ModelServiceImpl implements ModelService {
     public void deleteModelById(Long idModel) {
         modelRepository.deleteById(idModel);
     }
+
+    /**
+     * Delete selected models by id
+     * @param modelsId
+     */
+    @Override
+    public void deleteSelectedModels(List<Long> modelsId) {
+        modelRepository.deleteAllById(modelsId);
+    }
 }

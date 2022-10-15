@@ -6,28 +6,20 @@
   <component name="ChangeListManager">
     <list default="true" id="b5154d2a-9df1-4004-8ef7-516b9ab6f3ca" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/controllers/PacketController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/controllers/PacketController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/controllers/ModelController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/controllers/ModelController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Model.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/entities/Model.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/repository/IPacketRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/repository/IPacketRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/services/PacketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/services/PacketService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/services/ModelService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/services/ModelService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/ModelServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/ModelServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/PacketServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clothing/management/servicesImpl/PacketServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/controllers/PacketController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/controllers/PacketController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/controllers/ModelController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/controllers/ModelController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/repository/IPacketRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/repository/IPacketRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/services/PacketService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/services/PacketService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/ModelServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/ModelServiceImpl.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/PacketServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/clothing/management/servicesImpl/PacketServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/add-color/add-color.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/add-color/add-color.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/add-model/add-model.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/add-model/add-model.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-cities/list-cities.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-cities/list-cities.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-packets/list-packets.component.css" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-packets/list-packets.component.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-packets/list-packets.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-packets/list-packets.component.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-packets/list-packets.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/list-packets/list-packets.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/services/packet.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/services/packet.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/services/product.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/services/product.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/stock/stock.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/stock/stock.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/stock/stock.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/stock/stock.component.scss" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/app/stock/stock.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/app/stock/stock.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/shared/models/Packet.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/shared/models/Packet.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../clothing-management-frontend/src/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/../clothing-management-frontend/src/styles.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -223,6 +215,7 @@
       <workItem from="1665511127752" duration="6467000" />
       <workItem from="1665684203768" duration="6850000" />
       <workItem from="1665732230186" duration="89000" />
+      <workItem from="1665849327915" duration="9390000" />
     </task>
     <servers />
   </component>
@@ -264,53 +257,53 @@
     </state>
     <state x="549" y="170" key="FileChooserDialogImpl/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1662968176790" />
     <state x="734" y="77" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1663413350718" />
-    <state width="780" height="109" key="GridCell.Tab.0.bottom" timestamp="1665707539359">
+    <state width="1493" height="146" key="GridCell.Tab.0.bottom" timestamp="1665858368664">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1493" height="261" key="GridCell.Tab.0.bottom/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1663572317640" />
-    <state width="780" height="109" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1665707539359" />
+    <state width="1493" height="146" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1665858368664" />
     <state width="1877" height="357" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1663658938955" />
-    <state width="780" height="109" key="GridCell.Tab.0.center" timestamp="1665707539359">
+    <state width="1493" height="146" key="GridCell.Tab.0.center" timestamp="1665858368664">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1493" height="261" key="GridCell.Tab.0.center/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1663572317640" />
-    <state width="780" height="109" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1665707539359" />
+    <state width="1493" height="146" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1665858368664" />
     <state width="1877" height="357" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1663658938955" />
-    <state width="780" height="109" key="GridCell.Tab.0.left" timestamp="1665707539359">
+    <state width="1493" height="146" key="GridCell.Tab.0.left" timestamp="1665858368663">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1493" height="261" key="GridCell.Tab.0.left/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1663572317640" />
-    <state width="780" height="109" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1665707539359" />
+    <state width="1493" height="146" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1665858368663" />
     <state width="1877" height="357" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1663658938955" />
-    <state width="780" height="109" key="GridCell.Tab.0.right" timestamp="1665707539359">
+    <state width="1493" height="146" key="GridCell.Tab.0.right" timestamp="1665858368664">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1493" height="261" key="GridCell.Tab.0.right/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1663572317640" />
-    <state width="780" height="109" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1665707539359" />
+    <state width="1493" height="146" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1665858368664" />
     <state width="1877" height="357" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1663658938955" />
-    <state width="780" height="109" key="GridCell.Tab.1.bottom" timestamp="1665707539359">
+    <state width="1493" height="146" key="GridCell.Tab.1.bottom" timestamp="1665858368666">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1493" height="261" key="GridCell.Tab.1.bottom/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1663572317640" />
-    <state width="780" height="109" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1665707539359" />
+    <state width="1493" height="146" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1665858368666" />
     <state width="1877" height="357" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1663658938955" />
-    <state width="780" height="109" key="GridCell.Tab.1.center" timestamp="1665707539359">
+    <state width="1493" height="146" key="GridCell.Tab.1.center" timestamp="1665858368665">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1493" height="261" key="GridCell.Tab.1.center/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1663572317640" />
-    <state width="780" height="109" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1665707539359" />
+    <state width="1493" height="146" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1665858368665" />
     <state width="1877" height="357" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1663658938955" />
-    <state width="780" height="109" key="GridCell.Tab.1.left" timestamp="1665707539359">
+    <state width="1493" height="146" key="GridCell.Tab.1.left" timestamp="1665858368665">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1493" height="261" key="GridCell.Tab.1.left/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1663572317640" />
-    <state width="780" height="109" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1665707539359" />
+    <state width="1493" height="146" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1665858368665" />
     <state width="1877" height="357" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1663658938955" />
-    <state width="780" height="109" key="GridCell.Tab.1.right" timestamp="1665707539359">
+    <state width="1493" height="146" key="GridCell.Tab.1.right" timestamp="1665858368665">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1493" height="261" key="GridCell.Tab.1.right/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1663572317640" />
-    <state width="780" height="109" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1665707539359" />
+    <state width="1493" height="146" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1665858368665" />
     <state width="1877" height="357" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1663658938955" />
     <state width="1493" height="347" key="GridCell.Tab.2.bottom" timestamp="1665386908909">
       <screen x="0" y="0" width="1536" height="824" />

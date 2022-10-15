@@ -23,12 +23,12 @@ export class StockComponent implements OnInit {
     
     this.cols = [
       { field: 'model', header: 'Modèle' },
-      { field: 'id', header: 'Id' },
-      { field: 'date', header: 'Dernière modification' },
+      //{ field: 'id', header: 'Id' },
+      { field: 'color.name', header: 'Couleur' },
+      { field: 'size.reference', header: 'Taille' },
       { field: 'quantity', header: 'Quantité'},
       { field: 'reference', header: 'Référence' },
-      { field: 'color.name', header: 'Couleur' },
-      { field: 'size.reference', header: 'Taille' }
+      { field: 'date', header: 'Dernière modification' }
     ];
   }
 
