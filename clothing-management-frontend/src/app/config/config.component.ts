@@ -1,8 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { SelectItemGroup } from 'primeng/api';
+import { Color } from 'src/shared/models/color';
 import { Governorate } from 'src/shared/models/Governorate';
-import { Color } from '../models/color';
-import { GovernorateService } from '../services/governorate.service';
+import { GovernorateService } from '../../shared/services/governorate.service';
 
 @Component({
   selector: 'app-config',

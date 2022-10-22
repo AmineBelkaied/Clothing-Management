@@ -5,6 +5,7 @@ import com.clothing.management.repository.IColorRepository;
 import com.clothing.management.services.ColorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,5 +39,10 @@ public class ColorServiceImpl implements ColorService {
     @Override
     public void deleteColor(Color color) {
         colorRepository.delete(color);
+    }
+
+    @Override
+    public void deleteColorById(Long idColor) {
+        colorRepository.deleteById(idColor);
     }
 }

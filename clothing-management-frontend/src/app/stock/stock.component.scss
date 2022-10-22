@@ -3,12 +3,10 @@
     height: 38px !important;
    }
 
-tr td {
+#table tr >  td , #table tr > th{
     text-align: center;
-}
+    max-height: 2px !important;
 
-tr > th {
-    text-align: center;
 }
 
 :host ::ng-deep .no-products {
@@ -16,5 +14,9 @@ tr > th {
   }
   
   :host ::ng-deep .warning-product {
-    background-color:     rgb(255, 255, 197)!important;
+    background-color:   #fdfdba!important;
+  }
+
+  :host ::ng-deep .expand-model {
+    background-color:   rgb(233, 245, 255) !important;
   }

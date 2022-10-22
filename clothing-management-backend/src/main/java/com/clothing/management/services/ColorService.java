@@ -12,4 +12,5 @@ public interface ColorService {
     public Color addColor(Color color);
     public Color updateColor(Color color);
     public void deleteColor(Color color);
+    public void deleteColorById(Long idColor);
 }

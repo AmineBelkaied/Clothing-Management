@@ -1,71 +1,74 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
+// import modules, directives and services
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { AddModelComponent } from './add-model/add-model.component';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputNumberModule} from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {DropdownModule} from 'primeng/dropdown';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { PacketComponent } from './packet/packet.component';
-import {ToolbarModule} from 'primeng/toolbar';
-import {TableModule} from 'primeng/table';
-import {ToastModule} from 'primeng/toast';
-import {DialogModule} from 'primeng/dialog';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {InputSwitchModule} from 'primeng/inputswitch';
-import {CalendarModule} from 'primeng/calendar';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import { ConfirmDialogModule } from 'primeng/confirmdialog'; 
-import {CardModule} from 'primeng/card';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {TabViewModule} from 'primeng/tabview';
-import {SplitterModule} from 'primeng/splitter';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TableModule } from 'primeng/table';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { CalendarModule } from 'primeng/calendar';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { CardModule } from 'primeng/card';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { TabViewModule } from 'primeng/tabview';
+import { SplitterModule } from 'primeng/splitter';
 import { HttpClientModule } from '@angular/common/http';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { ListModelsComponent } from './list-models/list-models.component';
-import { AddPacketComponent } from './add-packet/add-packet.component';
-import { ListPacketsComponent } from './list-packets/list-packets.component';
-import { ChangeColorDirective } from './directives/change-color.directive';
-import { AddOfferComponent } from './add-offer/add-offer.component';
-import { ListOffersComponent } from './list-offers/list-offers.component';
-import { AddSizeComponent } from './add-size/add-size.component';
-import { ListSizesComponent } from './list-sizes/list-sizes.component';
-import { AddColorComponent } from './add-color/add-color.component';
-import { ListColorsComponent } from './list-colors/list-colors.component';
+import { ChangeColorDirective } from 'src/shared/directives/change-color.directive';
+
+// import components
+import { AppComponent } from './app.component';
+import { AddCityComponent } from './config/city/add-city/add-city.component';
+import { ListCitiesComponent } from './config/city/list-cities/list-cities.component';
+import { AddColorComponent } from './config/color/add-color/add-color.component';
+import { ListColorsComponent } from './config/color/list-colors/list-colors.component';
 import { ConfigComponent } from './config/config.component';
-import { ListGovernoratesComponent } from './list-governorates/list-governorates.component';
-import { ListCitiesComponent } from './list-cities/list-cities.component';
-import { AddCityComponent } from './add-city/add-city.component';
-import { AddFbpageComponent } from './add-fbpage/add-fbpage.component';
-import { ListFbpagesComponent } from './list-fbpages/list-fbpages.component';
+import { AddFbpageComponent } from './config/fbpage/add-fbpage/add-fbpage.component';
+import { ListFbpagesComponent } from './config/fbpage/list-fbpages/list-fbpages.component';
+import { ListGovernoratesComponent } from './config/list-governorates/list-governorates.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { AddModelComponent } from './model/add-model/add-model.component';
+import { AddOfferComponent } from './offer/add-offer/add-offer.component';
+import { ListOffersComponent } from './offer/list-offers/list-offers.component';
+import { AddPacketComponent } from './packet/add-packet/add-packet.component';
+import { ListPacketsComponent } from './packet/list-packets/list-packets.component';
 import { StockComponent } from './stock/stock.component';
+import { ListModelsComponent } from './model/list-models/list-models.component';
+import { AddSizeComponent } from './config/size/add-size/add-size.component';
+import { ListSizesComponent } from './config/size/list-sizes/list-sizes.component';
+
 
 @NgModule({
   declarations: [
     AppComponent,
     SidebarComponent,
     AddModelComponent,
-    PacketComponent,
+    AddPacketComponent,
     ListModelsComponent,
     AddPacketComponent,
     ListPacketsComponent,
     ChangeColorDirective,
     AddOfferComponent,
     ListOffersComponent,
-    AddSizeComponent,
-    ListSizesComponent,
     AddColorComponent,
     ListColorsComponent,
+    AddSizeComponent,
+    ListSizesComponent,
+    AddCityComponent,
+    ListCitiesComponent,
     ConfigComponent,
     ListGovernoratesComponent,
-    ListCitiesComponent,
-    AddCityComponent,
     AddFbpageComponent,
     ListFbpagesComponent,
     StockComponent
@@ -96,7 +99,7 @@ import { StockComponent } from './stock/stock.component';
     InputTextareaModule,
     HttpClientModule
   ],
-  providers: [MessageService,ConfirmationService],
+  providers: [MessageService, ConfirmationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

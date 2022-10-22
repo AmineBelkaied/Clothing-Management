@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { ProductService } from '../services/product.service';
+import { Table } from 'primeng/table';
+import { ModelService } from 'src/shared/services/model.service';
+import { ProductService } from '../../shared/services/product.service';
 
 @Component({
   selector: 'app-stock',
@@ -10,19 +12,28 @@ import { ProductService } from '../services/product.service';
 export class StockComponent implements OnInit {
 
   products: any[] = [];
+  productsClone: any[] = [];
+  models: any[] = [];
   cols: any[] = [];
   selectedProducts: any[] = [];
   oldProduct: any;
-  constructor(private productService: ProductService, private messageService: MessageService,private confirmationService: ConfirmationService) { }
+  @ViewChild('dt') dt!: Table;
+  constructor(private productService: ProductService, private modelService: ModelService, private messageService: MessageService,private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
     this.productService.findAllProducts()
     .subscribe((result: any) => {
       this.products = result;
+      this.productsClone = this.products.slice();
+    });
+
+    this.modelService.findAllModels()
+    .subscribe((result: any) => {
+      this.models = result;
     });
     
     this.cols = [
-      { field: 'model', header: 'Modèle' },
+      //{ field: 'model', header: 'Modèle' },
       //{ field: 'id', header: 'Id' },
       { field: 'color.name', header: 'Couleur' },
       { field: 'size.reference', header: 'Taille' },
@@ -36,6 +47,10 @@ export class StockComponent implements OnInit {
     this.oldProduct = Object.assign({}, $event.data);
   }
 
+  getProducts(idModel: any){
+   this.products = this.productsClone.filter(product => product.model.id == idModel).slice();
+  }
+
   onEditComplete($event: any) {
     if(this.oldProduct.quantity != $event.data.quantity) {
       console.log($event.data);
@@ -46,6 +61,13 @@ export class StockComponent implements OnInit {
           this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'La qunatité a été modifié avec succés', life: 1000 });
         })
     }
+  }
+
+  search($event: any){
+      this.dt.filterGlobal($event.target.value, 'contains');
+/*  //this.models = this.modelsClone.filter(model => model.name.includes($event.target.value));
+      this.products = this.productsClone.filter(product => (product.reference.includes($event.target.value) 
+     || product.color.name.includes($event.target.value) || product.size.reference.includes($event.target.value))).slice(); */
   }
 
   onEditCancel($event: any){
@@ -65,6 +87,7 @@ export class StockComponent implements OnInit {
           .subscribe((result: any) => {
             console.log("packets successfully deleted !");
             this.products = this.products.filter((product: any) => selectedProductsId.indexOf(product.id) == -1);
+            this.selectedProducts = [];
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les produits séléctionnés ont été supprimé avec succés', life: 1000 });
           })
       }

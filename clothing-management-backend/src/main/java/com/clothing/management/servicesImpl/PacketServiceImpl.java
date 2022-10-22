@@ -95,7 +95,7 @@ public class PacketServiceImpl implements PacketService {
                             int quantity = product.getQuantity();
                             // reduce product qte
                             if(field.get(firstKey).equals("En cours (1)"))
-                                product.setQuantity(quantity > 0 ? quantity -1 : 0);
+                                product.setQuantity(quantity - 1);
                             else
                                 product.setQuantity(quantity + 1);
                             product.setDate(new Date());
@@ -143,48 +143,50 @@ public class PacketServiceImpl implements PacketService {
             if (packetReference != null) {
                 String[] offers = packetReference.split("-");
                 System.out.println("offers : " + Arrays.toString(offers));
-                for (int i = 0; i < offers.length; i++) {
-                    System.out.println("offersNames : " + offers[i]);
-                    String[] offerProducts = offers[i].split(":");
-                    System.out.println("Arrray");
-                    System.out.println(Arrays.toString(offerProducts));
-                    Offer offer = offerRepository.findByName(offerProducts[0]);
-                    System.out.println("offer : " + offer.toString());
-                    offerUpdateDTO = new OfferUpdateDTO(offer.getId(), offer.getName(), offer.getPrice());
-                    String[] productsRef = offerProducts[1].split(",");
-                    List<Product> productList = new ArrayList<>();
-                    for (int j = 0; j < productsRef.length; j++) {
-                        Product product = productRepository.findByReference(productsRef[j]);
-                        if (product == null) {
-                            String modelRef = productsRef[j].substring(0, 2);
-                            //System.out.println("modelRef : " + modelRef);
-                            Model model = modelRepository.findByReference(modelRef);
-                            //System.out.println("model : " + model.getName());
-                            Color color = new Color();
-                            Size size = new Size();
-                            if (productsRef[j].charAt(2) != '?') {
-                                String colorRef = productsRef[j].substring(2, 4);
-                                // System.out.println("colorRef : " + colorRef);
-                                color = colorRepository.findByReference(colorRef);
-                                //System.out.println("color : " + color.getName());
-                                if (productsRef[j].charAt(4) != '?') {
-                                    //System.out.println("sizee : " + productsRef[j].substring(4 , productsRef[j].length()));
-                                    String sizeRef = productsRef[j].substring(4, productsRef[j].length());
-                                    size = sizeRepository.findByReference(sizeRef);
+                if(offers.length > 0) {
+                    for (int i = 0; i < offers.length; i++) {
+                        String[] offerProducts = offers[i].split(":");
+                        if (offerProducts.length > 0) {
+                            Offer offer = offerRepository.findByName(offerProducts[0]);
+                            offerUpdateDTO = new OfferUpdateDTO(offer.getId(), offer.getName(), offer.getPrice());
+                            String[] productsRef = offerProducts[1].split(",");
+                            if (productsRef.length > 0) {
+                            List<Product> productList = new ArrayList<>();
+                            for (int j = 0; j < productsRef.length; j++) {
+                                Product product = productRepository.findByReference(productsRef[j]);
+                                if (product == null) {
+                                    String modelRef = productsRef[j].substring(0, 2);
+                                    //System.out.println("modelRef : " + modelRef);
+                                    Model model = modelRepository.findByReference(modelRef);
+                                    //System.out.println("model : " + model.getName());
+                                    Color color = new Color();
+                                    Size size = new Size();
+                                    if (productsRef[j].charAt(2) != '?') {
+                                        String colorRef = productsRef[j].substring(2, 4);
+                                        // System.out.println("colorRef : " + colorRef);
+                                        color = colorRepository.findByReference(colorRef);
+                                        //System.out.println("color : " + color.getName());
+                                        if (productsRef[j].charAt(4) != '?') {
+                                            //System.out.println("sizee : " + productsRef[j].substring(4 , productsRef[j].length()));
+                                            String sizeRef = productsRef[j].substring(4, productsRef[j].length());
+                                            size = sizeRepository.findByReference(sizeRef);
+                                        }
+                                    } else {
+                                        if (productsRef[j].charAt(3) != '?') {
+                                            //System.out.println("sizee : " + productsRef[j].substring(3 , productsRef[j].length()));
+                                            String sizeRef = productsRef[j].substring(3, productsRef[j].length());
+                                            size = sizeRepository.findByReference(sizeRef);
+                                        }
+                                    }
+                                    product = new Product(model != null ? model : null, color, size);
                                 }
-                            } else {
-                                if (productsRef[j].charAt(3) != '?') {
-                                    //System.out.println("sizee : " + productsRef[j].substring(3 , productsRef[j].length()));
-                                    String sizeRef = productsRef[j].substring(3, productsRef[j].length());
-                                    size = sizeRepository.findByReference(sizeRef);
-                                }
+                                productList.add(product);
                             }
-                            product = new Product(model != null ? model : null, color, size);
+                            offerUpdateDTO.setProducts(productList);
                         }
-                        productList.add(product);
+                        }
+                        offerUpdateDTOList.add(offerUpdateDTO);
                     }
-                    offerUpdateDTO.setProducts(productList);
-                    offerUpdateDTOList.add(offerUpdateDTO);
                 }
             }
         }

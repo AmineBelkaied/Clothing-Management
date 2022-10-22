@@ -40,4 +40,9 @@ public class ColorController {
     public void deleteColor(@RequestBody Color color) {
         colorService.deleteColor(color);
     }
+
+    @DeleteMapping(value = "/deleteById/{idColor}")
+    public void deleteColorById(@PathVariable Long idColor) {
+        colorService.deleteColorById(idColor);
+    }
 }
