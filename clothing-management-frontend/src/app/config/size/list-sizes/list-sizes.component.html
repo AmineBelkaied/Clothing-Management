@@ -1,0 +1,27 @@
+<p-table #dt [value]="sizes" [rows]="10" responsiveLayout="scroll" [rowHover]="true" dataKey="id"
+[paginator]="sizes.length > 7 ? true : false" [rows]="7" [showCurrentPageReport]="true">
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon>
+            </th>
+            <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon>
+            </th>
+            <th pSortableColumn="reference">Référence <p-sortIcon field="reference"></p-sortIcon>
+            </th>
+            <th>Actions</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-size>
+        <tr>
+            <td>{{size.id}}</td>
+            <td>{{size.description}}</td>
+            <td style="font-weight: bold;">{{size.reference}}</td>
+            <td>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2 buttonSize"
+                    (click)="editSize(size)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger buttonSize"
+                    (click)="deleteSize(size)"></button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
