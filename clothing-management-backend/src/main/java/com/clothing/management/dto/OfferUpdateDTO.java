@@ -8,22 +8,14 @@ public class OfferUpdateDTO {
 
     private Long offerId;
     private String name;
-    private Double price;
+    private double price;
     private boolean enabled;
     private List<Product> products;
 
     public OfferUpdateDTO() {
     }
 
-    public OfferUpdateDTO(Long offerId, String name, Double price, boolean enabled, List<Product> products) {
-        this.offerId = offerId;
-        this.name = name;
-        this.price = price;
-        this.enabled = enabled;
-        this.products = products;
-    }
-
-    public OfferUpdateDTO(Long offerId, String name, Double price) {
+    public OfferUpdateDTO(Long offerId, String name, double price) {
         this.offerId = offerId;
         this.name = name;
         this.price = price;
@@ -45,7 +37,7 @@ public class OfferUpdateDTO {
         this.name = name;
     }
 
-    public Double getPrice() {
+    public double getPrice() {
         return price;
     }
 
@@ -68,6 +60,7 @@ public class OfferUpdateDTO {
     public void setProducts(List<Product> products) {
         this.products = products;
     }
+
 
     @Override
     public String toString() {

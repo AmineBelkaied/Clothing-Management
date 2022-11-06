@@ -10,8 +10,11 @@ export interface Packet {
     fbPage?: any;
     address?: string;
     price?: number;
+    deliveryPrice?: number;
+    discount?: number;
     relatedProducts?: string;
     packetReference?: string;
+    packetDescription?: string;
     status: any;
     confirmation?: boolean;
 }

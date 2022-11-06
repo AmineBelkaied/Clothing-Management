@@ -1,6 +1,7 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.dto.OfferUpdateDTO;
+import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.dto.SelectedProductsDTO;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.services.PacketService;
@@ -44,7 +45,7 @@ public class PacketController {
     }
 
     @GetMapping(path = "/findPacketRelatedProducts/{idPacket}")
-    public List<OfferUpdateDTO> findPacketRelatedProducts(@PathVariable Long idPacket) {
+    public PacketDTO findPacketRelatedProducts(@PathVariable Long idPacket) {
         return packetService.findPacketRelatedProducts(idPacket);
     }
 

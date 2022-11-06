@@ -19,6 +19,7 @@ public class Packet {
     private City city;
     private String address;
     private String relatedProducts;
+    private String packetDescription;
     private String packetReference;
     @OneToMany(mappedBy = "packet" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -27,20 +28,23 @@ public class Packet {
     @ManyToOne
     @JoinColumn(name = "fbpage_id")
     private FbPage fbPage;
-    private Integer price;
+    private double price;
+    private double deliveryPrice;
+    private double discount;
     private Date date;
     private String status;
 
     public Packet() {
     }
 
-    public Packet(String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetReference, Set<ProductsPacket> products, FbPage fbPage, Integer price, boolean confirmation, String status, Date date) {
+    public Packet(String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetReference, String packetDescription, Set<ProductsPacket> products, FbPage fbPage, double price, boolean confirmation, String status, Date date) {
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
         this.city = city;
         this.address = address;
         this.relatedProducts = relatedProducts;
         this.packetReference = packetReference;
+        this.packetDescription = packetDescription;
         this.products = products;
         this.fbPage = fbPage;
         this.price = price;
@@ -104,11 +108,19 @@ public class Packet {
         this.fbPage = fbPage;
     }
 
-    public Integer getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public String getPacketDescription() {
+        return packetDescription;
+    }
+
+    public void setPacketDescription(String packetDescription) {
+        this.packetDescription = packetDescription;
+    }
+
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -128,21 +140,41 @@ public class Packet {
         this.status = status;
     }
 
+    public double getDeliveryPrice() {
+        return deliveryPrice;
+    }
+
+    public void setDeliveryPrice(double deliveryPrice) {
+        this.deliveryPrice = deliveryPrice;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
+    }
+
+
     @Override
     public String toString() {
         return "Packet{" +
                 "id=" + id +
                 ", customerName='" + customerName + '\'' +
                 ", customerPhoneNb='" + customerPhoneNb + '\'' +
+                ", city=" + city +
                 ", address='" + address + '\'' +
-                ", city='" + city + '\'' +
                 ", relatedProducts='" + relatedProducts + '\'' +
+                ", packetDescription='" + packetDescription + '\'' +
                 ", packetReference='" + packetReference + '\'' +
                 ", products=" + products +
                 ", fbPage=" + fbPage +
                 ", price=" + price +
-                ", status='" + status + '\'' +
+                ", deliveryPrice=" + deliveryPrice +
+                ", discount=" + discount +
                 ", date=" + date +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

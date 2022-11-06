@@ -54,9 +54,7 @@ public class ModelServiceImpl implements ModelService {
     }
 
     @Override
-    public Model updateModel(Model model) {
-        return modelRepository.save(model);
-    }
+    public Model updateModel(Model model) { return modelRepository.save(model); }
 
     @Override
     public void deleteModelById(Long idModel) {

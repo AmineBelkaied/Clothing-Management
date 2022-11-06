@@ -6,18 +6,24 @@ import java.util.List;
 public class SelectedProductsDTO {
 
     private Long idPacket;
-    private Integer price;
+    private double totalPrice;
+    private double deliveryPrice;
+    private double discount;
     private List<String> productsRef = new ArrayList<>();
     private String packetRef;
+    private String packetDescription;
 
     public SelectedProductsDTO() {
     }
 
-    public SelectedProductsDTO(Long idPacket, Integer price, String packetRef, List<String> productsRef) {
+    public SelectedProductsDTO(Long idPacket, double totalPrice, double deliveryPrice, double discount, List<String> productsRef, String packetRef, String packetDescription) {
         this.idPacket = idPacket;
-        this.price = price;
+        this.totalPrice = totalPrice;
+        this.deliveryPrice = deliveryPrice;
+        this.discount = discount;
         this.productsRef = productsRef;
         this.packetRef = packetRef;
+        this.packetDescription = packetDescription;
     }
 
     public Long getIdPacket() {
@@ -28,17 +34,29 @@ public class SelectedProductsDTO {
         this.idPacket = idPacket;
     }
 
-    public Integer getPrice() {
-        return price;
+    public double getTotalPrice() {
+        return totalPrice;
     }
 
-    public void setPrice(Integer price) {
-        this.price = price;
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
-    public String getPacketRef() { return packetRef; }
+    public double getDeliveryPrice() {
+        return deliveryPrice;
+    }
 
-    public void setPacketRef(String packetRef) { this.packetRef = packetRef; }
+    public void setDeliveryPrice(double deliveryPrice) {
+        this.deliveryPrice = deliveryPrice;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
+    }
 
     public List<String> getProductsRef() {
         return productsRef;
@@ -48,13 +66,19 @@ public class SelectedProductsDTO {
         this.productsRef = productsRef;
     }
 
-    @Override
-    public String toString() {
-        return "SelectedProductsDTO{" +
-                "idPacket=" + idPacket +
-                ", price=" + price +
-                ", productsRef=" + productsRef +
-                ", packetRef='" + packetRef + '\'' +
-                '}';
+    public String getPacketRef() {
+        return packetRef;
+    }
+
+    public void setPacketRef(String packetRef) {
+        this.packetRef = packetRef;
+    }
+
+    public String getPacketDescription() {
+        return packetDescription;
+    }
+
+    public void setPacketDescription(String packetDescription) {
+        this.packetDescription = packetDescription;
     }
 }

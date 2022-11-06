@@ -1,6 +1,7 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.dto.OfferUpdateDTO;
+import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.dto.SelectedProductsDTO;
 import com.clothing.management.entities.*;
 import com.clothing.management.repository.*;
@@ -102,7 +103,7 @@ public class PacketServiceImpl implements PacketService {
                             productRepository.save(product);
                         }
                         // add the products of the packet inside historic table
-                        //productsPacketRepository.save(new ProductsPacket(product, packet, new Date()));
+                       // productsPacketRepository.save(new ProductsPacket(product, packet, new Date()));
                     }
                 }
             }
@@ -119,23 +120,30 @@ public class PacketServiceImpl implements PacketService {
        if (optionalPacket.isPresent()) {
            Packet packet = optionalPacket.get();
            System.out.println("packet " + packet);
-           // set packet price
-           packet.setPrice(selectedProductsDTO.getPrice());
+           // set packet price,deliveryPrice and discount
+           packet.setPrice(selectedProductsDTO.getTotalPrice());
+           packet.setDeliveryPrice(selectedProductsDTO.getDeliveryPrice());
+           packet.setDiscount(selectedProductsDTO.getDiscount());
            // set related products references
            String relatedProducts = productsRef.stream().collect(Collectors.joining(" , "));
            packet.setRelatedProducts(relatedProducts);
            packet.setPacketReference(selectedProductsDTO.getPacketRef());
+           packet.setPacketDescription(selectedProductsDTO.getPacketDescription());
            packetRepository.save(packet);
           // findPacketRelatedProducts(packet.getId());
        }
     }
 
-    public List<OfferUpdateDTO> findPacketRelatedProducts(Long idPacket) {
+    public PacketDTO findPacketRelatedProducts(Long idPacket) {
+        PacketDTO packetDTO = new PacketDTO();
         List<OfferUpdateDTO> offerUpdateDTOList = new ArrayList<>();
         OfferUpdateDTO offerUpdateDTO = null;
         Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
         if(optionalPacket.isPresent()) {
             Packet packet = optionalPacket.get();
+            packetDTO.setTotalPrice(packet.getPrice());
+            packetDTO.setDeliveryPrice(packet.getDeliveryPrice());
+            packetDTO.setDiscount(packet.getDiscount());
             String packetReference = packet.getPacketReference();
             //String packetReference= "TE:PUB.XL,PUN.L,SDBLL-TS:SDN.XL,PUN.M";
             System.out.println("packetReference : "  + packetReference);
@@ -147,8 +155,11 @@ public class PacketServiceImpl implements PacketService {
                     for (int i = 0; i < offers.length; i++) {
                         String[] offerProducts = offers[i].split(":");
                         if (offerProducts.length > 0) {
-                            Offer offer = offerRepository.findByName(offerProducts[0]);
-                            offerUpdateDTO = new OfferUpdateDTO(offer.getId(), offer.getName(), offer.getPrice());
+                            System.out.println("offer id  : " + offerProducts[0]);
+                            Optional<Offer> offer = offerRepository.findById(Long.parseLong(offerProducts[0]));
+                            if(offer.isPresent()) {
+                                offerUpdateDTO = new OfferUpdateDTO(offer.get().getId(), offer.get().getName(), offer.get().getPrice());
+                            }
                             String[] productsRef = offerProducts[1].split(",");
                             if (productsRef.length > 0) {
                             List<Product> productList = new ArrayList<>();
@@ -189,8 +200,9 @@ public class PacketServiceImpl implements PacketService {
                     }
                 }
             }
+            packetDTO.setOfferUpdateDTOList(offerUpdateDTOList);
         }
-        return offerUpdateDTOList;
+        return packetDTO;
     }
     @Override
     public void deletePacketById(Long idPacket) {
