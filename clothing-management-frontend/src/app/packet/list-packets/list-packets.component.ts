@@ -387,7 +387,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       "telephone2": this.getPhoneNumber2(packet.customerPhoneNb),
       "nombre_de_colis": 1,
       "prix": this.getValue(packet.price) + this.getValue(packet.deliveryPrice) - this.getValue(packet.discount),
-      "designation": this.getValue(packet.packetDescription?.replace(reg , ", ")),
+      "designation": this.getValue(packet.id) + " " + this.getValue(packet.fbPage?.name) + " | " + this.getValue(packet.packetDescription?.replace(reg , ", ")),
       "commentaire": "Le colis peut etre ouvert lors de la commande du client"
     });
 
