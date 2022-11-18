@@ -130,8 +130,10 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   onEditComplete(packet: any) {
+
     if (this.oldField !== packet.data[packet.field]) {
       if ((packet.field == 'city') || (packet.field == 'fbPage')) {
+        console.log(packet.data)
         this.packetService.updatePacket(packet.data)
           .subscribe((response: any) => {
             console.log(response);

@@ -82,7 +82,7 @@ public class Packet {
 
     public String getAddress() { return address; }
 
-    public void setAddress(String fullAddress) { this.address = address; }
+    public void setAddress(String address) { this.address = address; }
 
     public String getRelatedProducts() { return relatedProducts; }
 
