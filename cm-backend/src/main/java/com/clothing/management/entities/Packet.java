@@ -21,6 +21,7 @@ public class Packet {
     private String relatedProducts;
     private String packetDescription;
     private String packetReference;
+    private String barcode;
     @OneToMany(mappedBy = "packet" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<ProductsPacket> products;
@@ -156,6 +157,13 @@ public class Packet {
         this.discount = discount;
     }
 
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
 
     @Override
     public String toString() {
@@ -175,6 +183,7 @@ public class Packet {
                 ", discount=" + discount +
                 ", date=" + date +
                 ", status='" + status + '\'' +
+                ", barcode='" + barcode + '\'' +
                 '}';
     }
 }

@@ -1,0 +1,8 @@
+{
+    "/api/diggie/*": {
+        "target": "http://pro.tunisiaexpress.tn",
+        "secure": false,
+        "logLevel": "debug",
+        "changeOrigin": true
+    }
+}

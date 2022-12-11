@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { delay, Observable, shareReplay, tap } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
-import { baseUrl } from './constants';
+import { baseUrl,deliveryUrl } from './constants';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +10,7 @@ import { baseUrl } from './constants';
 export class PacketService {
 
   private baseUrl: string = baseUrl+"/packet";
+  private deliveryUrl: string = deliveryUrl;
   public packetsRequest?: Observable<any>;
   public todaysPacketsRequest?: Observable<any>;
   public allPackets: Packet[] = [];
@@ -95,6 +96,15 @@ export class PacketService {
     if (size != null)
       packetDescription += " (" + size + ")";
     packetDescription += " , ";
+  }
+  
+  setDeliveryItem(receivername?: string, date_enlevement?: string, date_livraison?: string, somwhere?: string, gouvernorat_livraison?: number, telephone_de_contact_livraison?: string, code_postal_livraison?: number, nombre_de_colis?: number, libelle?: string, valeur_marchandise?: number) {
+    return this.http.get(this.deliveryUrl + `&destinataire=${receivername}&user_name=diggie&date_enlevement=${date_enlevement}&date_livraison=${date_livraison}&adresse_de_livraison=${somwhere}&gouvernorat_livraison=${gouvernorat_livraison}&telephone_de_contact_livraison=${telephone_de_contact_livraison}&code_postal_livraison=${code_postal_livraison}&nombre_de_colis=${nombre_de_colis}&libelle_de_marchandise=${libelle}&valeur_marchandise=${valeur_marchandise}`);
+  //  return this.http.get(this.deliveryUrl + `&destinataire=${receivername}&user_name=houb&date_enlevement=${date_enlevement}&date_livraison=${date_livraison}&adresse_de_livraison=${somwhere}&gouvernorat_livraison=${gouvernorat_livraison}&telephone_de_contact_livraison=${telephone_de_contact_livraison}&code_postal_livraison=${code_postal_livraison}&nombre_de_colis=${nombre_de_colis}&libelle_de_marchandise=${libelle}&valeur_marchandise=${valeur_marchandise}`);
+  }
+  getTrackingInfo(trackingNumber: string) {
+   // return this.http.get(`http://pro.tunisia-express.tn/api/example/tracking/barcode/${trackingNumber}/api_key/3a824154b16ed7dab899bf000b80eeee/format/json`);
+    return this.http.get(`http://pro.tunisia-express.tn/api/example/tracking/barcode/${trackingNumber}/api_key/dfbe9b469df33a124e07e243d6803c2e/format/json`);
   }
 
 }

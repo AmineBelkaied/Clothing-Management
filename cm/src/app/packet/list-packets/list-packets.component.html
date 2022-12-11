@@ -1,199 +1,428 @@
 <p-toast position="bottom-right"></p-toast>
 <div class="container-fluid">
-    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-        <div class="card-body px-0 py-0">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card-body px-0 py-0">
+      <div class="row mt-3 ml-2 mr-3 mb-3">
+        <div class="col-md-2">
+          <button
+            pButton
+            pRipple
+            icon="pi pi-plus"
+            class="p-button-success mb-2 mt-2 buttonSize"
+            (click)="addNewRow()"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-danger mb-2 ml-2 mt-2 buttonSize"
+            (click)="deleteSelectedPackets()"
+            [disabled]="!selectedPackets || selectedPackets.length == 0"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-refresh"
+            class="p-button-infos mb-2 ml-2 mt-2 buttonSize"
+            (click)="resetTable()"
+          ></button>
+        </div>
+        <div class="col-md-5">
+          <span class="p-input-icon-left ml-auto">
+            <i class="pi pi-search"></i>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="filter"
+              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+              placeholder="Client, Tel, Ville, Adresse, Page"
+            />
+          </span>
+          <p-calendar
+            [(ngModel)]="rangeDates"
+            (ngModelChange)="onChangeEndDate($event)"
+            selectionMode="range"
+            [appendTo]="dt"
+            dateFormat="dd/mm/yy"
+            [readonlyInput]="true"
+            inputId="range"
+            placeholder="Filtrer par date/période"
+            [showClear]="false"
+            (onClearClick)="resetTable()"
+            [showButtonBar]="true"
+            [showIcon]="true"
+            class="ml-4"
+            [style]="{ width: '250px' }"
+          ></p-calendar>
+        </div>
 
-            <div class="row mt-3 ml-2 mr-3 mb-3">
-                <div class="col-md-2">
-                    <button pButton pRipple icon="pi pi-plus" class="p-button-success mb-2 mt-2 buttonSize"
-                        (click)="addNewRow()"></button>
-                    <button pButton pRipple icon="pi pi-trash" class="p-button-danger mb-2 ml-2 mt-2 buttonSize"
-                        (click)="deleteSelectedPackets()"
-                        [disabled]="!selectedPackets || selectedPackets.length == 0"></button>
-                    <button pButton pRipple icon="pi pi-refresh" class="p-button-infos mb-2 ml-2 mt-2 buttonSize"
-                        (click)="resetTable()"></button> 
-                </div>
-                <div class="col-md-5">
-                    <span class="p-input-icon-left ml-auto">
-                        <i class="pi pi-search"></i>
-                        <input pInputText type="text" [(ngModel)]="filter" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-                            placeholder="Client, Tel, Ville, Adresse, Page" />
-                    </span>
-                    <p-calendar [(ngModel)]="rangeDates" (ngModelChange)="onChangeEndDate($event)" selectionMode="range" [appendTo]="dt"
-                         dateFormat="dd/mm/yy"
-                        [readonlyInput]="true" inputId="range" placeholder="Filtrer par date/période" [showClear]="false" (onClearClick)="resetTable()"
-                        [showButtonBar]="true" [showIcon]="true" class="ml-4" [style]="{'width':'250px'}"></p-calendar>
-                </div>
-
-                <div class="col-md-2">
-                    <button type="button" pButton pRipple icon="pi pi-file" (click)="exportCSV()"
-                    class="ml-5 mt-2 buttonSize" pTooltip="CSV" tooltipPosition="bottom"></button>
-                    <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
-                    class="p-button-success ml-2 mr-3 buttonSize" pTooltip="XLS" tooltipPosition="bottom"></button>
-                    {{packets.length}}
-<!--                     <button type="button" pButton pRipple icon="pi pi-filter"
+        <div class="col-md-2">
+          <button
+            type="button"
+            pButton
+            pRipple
+            icon="pi pi-file"
+            (click)="exportCSV()"
+            class="ml-5 mt-2 buttonSize"
+            pTooltip="CSV"
+            tooltipPosition="bottom"
+          ></button>
+          <button
+            type="button"
+            pButton
+            pRipple
+            icon="pi pi-file-excel"
+            (click)="exportExcel()"
+            class="p-button-success ml-2 mr-3 buttonSize"
+            pTooltip="XLS"
+            tooltipPosition="bottom"
+          ></button>
+          {{ packets.length }}
+          <!--                     <button type="button" pButton pRipple icon="pi pi-filter"
                         (click)="dt.exportCSV({selectionOnly:true})" class="p-button-info buttonSize ml-2"
                         pTooltip="Selection Only" tooltipPosition="bottom"></button> -->
-                </div>
-                <div class="col-md-3">
-                    <p-multiSelect [options]="statusList" [(ngModel)]="selectedStatus" name="sizes" (onChange)="selectStatus()" (onClear)="clearStatus()"
-                    defaultLabel="-- Filtrer par statut --" [showClear]="true" [showHeader]="false" selectedItemsLabel="{0} status sélectionnés"  class="pull-right" appendTo="body"></p-multiSelect>
-                </div>
-            </div>
-
         </div>
+        <div class="col-md-3">
+          <p-multiSelect
+            [options]="statusList"
+            [(ngModel)]="selectedStatus"
+            name="sizes"
+            (onChange)="selectStatus()"
+            (onClear)="clearStatus()"
+            defaultLabel="-- Filtrer par statut --"
+            [showClear]="true"
+            [showHeader]="false"
+            selectedItemsLabel="{0} status sélectionnés"
+            class="pull-right"
+            appendTo="body"
+          ></p-multiSelect>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
-<p-table #dt [columns]="cols" [value]="packets" styleClass="p-datatable-gridlines p-datatable-sm mb-1"
-    class="table table-hover" selectionMode="multiple" 
-    [(selection)]="selectedPackets" responsiveLayout="scroll" [exportHeader]="'customExportHeader'"
-    (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" dataKey="id" [rowTrackBy]="trackByFunction" 
-     [globalFilterFields]="['customerName', 'customerPhoneNb' ,'city.name', 'city.governorate.name' , 'fbPage.name' , 'address', 'relatedProducts']"  [paginator]="packets.length > 100 ? true : false" [rows]="100"
-    [showCurrentPageReport]="true"  currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} commandes" [rowsPerPageOptions]="[25,50,100,200]">
-    <ng-template pTemplate="header" let-columns>
-        <tr>
-            <th style="width: 3rem;" class="align-center">
-                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-            </th>
-            <th *ngFor="let col of columns" [pSortableColumn]="col.field" class="align-center">
-                {{col.header}}<p-sortIcon [field]="col.field"></p-sortIcon>
-            </th>
-        </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-packet>
-        <tr [ngClass]="{'row-accessories': packet.relatedProducts?.includes('?')}">
-            <td>
-                <p-tableCheckbox [value]="packet"></p-tableCheckbox>
-            </td>
-            <td>{{packet.id}}</td>
-            <td>{{packet.date | date : 'dd/MM'}} </td>
-            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'fbPage'" style="cursor: pointer;max-width: 150px;">
-                <p-cellEditor>
-                    <ng-template pTemplate="input">
-                        <p-dropdown [options]="fbPages" [(ngModel)]="packet.fbPage" optionLabel="name"  placeholder="-- Page --"
-                    [style]="{ width: '90%' }" [panelStyle]="{ width: '10%' }" class="p-inputtext-sm" 
-                            appendTo="body">
-                            <ng-template let-packet pTemplate="group">
-                                <div class="p-d-flex p-ai-center">
-                                    <span>{{ packet.fbPage?.name }}</span>
-                                </div>
-                            </ng-template>
-                        </p-dropdown>
-
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                        {{packet.fbPage?.name}}
-                    </ng-template>
-                </p-cellEditor>
-            </td>
-            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'customerName'"
-                style="cursor: pointer;" class="breakWord">
-                <p-cellEditor>
-                    <ng-template pTemplate="input">
-                        <input pInputText type="text" [(ngModel)]="packet.customerName" class="p-inputtext-sm" >
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                        {{packet.customerName}}
-                    </ng-template>
-                </p-cellEditor>
-            </td>
-            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'customerPhoneNb'"
-                style="cursor: pointer;">
-                <p-cellEditor>
-                    <ng-template pTemplate="input">
-                        <input pInputText type="text" [(ngModel)]="packet.customerPhoneNb" pattern="((\+|00)216)?[0-9]{8}(/[0-9]{8})?"  maxlength="17" class="p-inputtext-sm" placeholder="(+216)">
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                        {{packet.customerPhoneNb}}
-                    </ng-template>
-                </p-cellEditor>
-            </td>
-            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'city'" style="cursor: pointer;">
-                <p-cellEditor>
-                    <ng-template pTemplate="input">
-                        <p-dropdown [options]="groupedCities" [(ngModel)]="packet.city" placeholder="Choisr la ville"
-                            [group]="true" [filter]="true" filterBy="label,value,governorate" [style]="{ width: '100%' }" class="p-inputtext-sm" 
-                            [panelStyle]="{ width: '12%' }" appendTo="body">
-                            <ng-template let-city pTemplate="group">
-                                <div class="p-d-flex p-ai-center">
-                                    <span>{{ city.label }}</span>
-                                </div>
-                            </ng-template>
-                        </p-dropdown>
-
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                       <span *ngIf="packet.city != null">{{packet.city?.governorate.name}} - {{packet.city?.name}}</span>
-                    </ng-template>
-                </p-cellEditor>
-            </td>
-            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'address'" class="breakWord">
-                <p-cellEditor>
-                    <ng-template pTemplate="input">
-                        <textarea [rows]="3" [cols]="25" class="p-inputtext-sm" pInputTextarea [(ngModel)]="packet.address" [autoResize]="true"></textarea>
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                       {{packet.address}}
-                    </ng-template>
-                </p-cellEditor>
-            </td>
-            <td style="max-width: 250px">
-                <ng-container *ngIf="packet.packetDescription != '';else addMode">
-                    <p changeColor (click)="editProducts(packet)" style="cursor: pointer;" class="mt-2">
-                      {{packet.packetDescription}} <i class="pi pi-pencil" style="color: red;font-size: 14.5px;padding-left: 10px;"></i>
-                    </p>
-                    <br>
-                </ng-container>
-                <ng-template #addMode>
-                    <button pButton pRipple (click)="openNew(packet)" icon="pi pi-plus"
-                        style="font-size:2px;width: 5px;" class="p-button-primary p-button-sm"></button>
-                </ng-template>
-
-            </td>
-            <td>
-                {{getPrice(packet.price, packet.deliveryPrice, packet.discount)}}
-            </td>
-            <td pEditableColumn [pEditableColumn]="packet" [pEditableColumnField]="'status'" style="cursor: pointer;max-width: 160px;">
-                <p-cellEditor>
-                    <ng-template pTemplate="input">
-                        <p-dropdown [options]="statusList" [(ngModel)]="packet.status" class="p-inputtext-sm" placeholder="-- Statut --"
-                    [style]="{ width: '90%' }" [panelStyle]="{ width: '10%' }"
-                            appendTo="body">
-                            <ng-template let-packet pTemplate="group">
-                                <div class="p-d-flex p-ai-center">
-                                    <span>{{ packet.status }}</span>
-                                </div>
-                            </ng-template>
-                        </p-dropdown>
-
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                        {{packet.status}}
-                    </ng-template>
-                </p-cellEditor>
-            </td>
-        </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage" let-columns>
-        <tr>
-          <td [attr.colspan]="cols.length + 1">
-            <ng-container *ngIf="selectedStatus.length > 0 || this.rangeDates[1] != null;else emptyList">
-                <label>Il n'y a pas de commandes qui correspondent aux filtres choisies</label>
-            </ng-container>
-            <ng-template #emptyList>
-                <label>Veuillez ajouter les commandes d'aujourd'hui</label>
-            </ng-template>
-          </td>
-        </tr>
-      </ng-template>
+<p-table
+  #dt
+  [columns]="cols"
+  [value]="packets"
+  styleClass="p-datatable-gridlines p-datatable-sm mb-1"
+  class="table table-hover"
+  selectionMode="multiple"
+  [(selection)]="selectedPackets"
+  responsiveLayout="scroll"
+  [exportHeader]="'customExportHeader'"
+  (onEditInit)="onEditInit($event)"
+  (onEditComplete)="onEditComplete($event)"
+  dataKey="id"
+  [rowTrackBy]="trackByFunction"
+  [globalFilterFields]="[
+    'customerName',
+    'customerPhoneNb',
+    'city.name',
+    'city.governorate.name',
+    'fbPage.name',
+    'address',
+    'relatedProducts'
+  ]"
+  [paginator]="packets.length > 100 ? true : false"
+  [rows]="100"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} commandes"
+  [rowsPerPageOptions]="[25, 50, 100, 200]"
+>
+  <ng-template pTemplate="header" let-columns>
+    <tr>
+      <th style="width: 3rem" class="align-center">
+        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+      </th>
+      <th
+        *ngFor="let col of columns"
+        [pSortableColumn]="col.field"
+        class="align-center"
+      >
+        {{ col.header }}<p-sortIcon [field]="col.field"></p-sortIcon>
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-packet>
+    <tr
+      [ngClass]="{ 'row-accessories': packet.relatedProducts?.includes('?') }"
+    >
+      <td>
+        <p-tableCheckbox [value]="packet"></p-tableCheckbox>
+      </td>
+      <td>{{ packet.id }}</td>
+      <td>{{ packet.date | date : "dd/MM" }}</td>
+      <td
+        pEditableColumn
+        [pEditableColumn]="packet"
+        [pEditableColumnField]="'fbPage'"
+        style="cursor: pointer; max-width: 150px"
+      >
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-dropdown
+              [options]="fbPages"
+              [(ngModel)]="packet.fbPage"
+              optionLabel="name"
+              placeholder="-- Page --"
+              [style]="{ width: '90%' }"
+              [panelStyle]="{ width: '10%' }"
+              class="p-inputtext-sm"
+              appendTo="body"
+            >
+              <ng-template let-packet pTemplate="group">
+                <div class="p-d-flex p-ai-center">
+                  <span>{{ packet.fbPage?.name }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{ packet.fbPage?.name }}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td
+        pEditableColumn
+        [pEditableColumn]="packet"
+        [pEditableColumnField]="'customerName'"
+        style="cursor: pointer"
+        class="breakWord"
+      >
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="packet.customerName"
+              class="p-inputtext-sm"
+            />
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{ packet.customerName }}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td
+        pEditableColumn
+        [pEditableColumn]="packet"
+        [pEditableColumnField]="'customerPhoneNb'"
+        style="cursor: pointer"
+      >
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="packet.customerPhoneNb"
+              pattern="((\+|00)216)?[0-9]{8}(/[0-9]{8})?"
+              maxlength="17"
+              class="p-inputtext-sm"
+              placeholder="(+216)"
+            />
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{ packet.customerPhoneNb }}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td
+        pEditableColumn
+        [pEditableColumn]="packet"
+        [pEditableColumnField]="'city'"
+        style="cursor: pointer"
+      >
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-dropdown
+              [options]="groupedCities"
+              [(ngModel)]="packet.city"
+              placeholder="Choisr la ville"
+              [group]="true"
+              [filter]="true"
+              filterBy="label,value,governorate"
+              [style]="{ width: '100%' }"
+              class="p-inputtext-sm"
+              [panelStyle]="{ width: '12%' }"
+              appendTo="body"
+            >
+              <ng-template let-city pTemplate="group">
+                <div class="p-d-flex p-ai-center">
+                  <span>{{ city.label }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </ng-template>
+          <ng-template pTemplate="output">
+            <span *ngIf="packet.city != null"
+              >{{ packet.city?.governorate.name }} -
+              {{ packet.city?.name }}</span
+            >
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td
+        pEditableColumn
+        [pEditableColumn]="packet"
+        [pEditableColumnField]="'address'"
+        class="breakWord"
+      >
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <textarea
+              [rows]="3"
+              [cols]="25"
+              class="p-inputtext-sm"
+              pInputTextarea
+              [(ngModel)]="packet.address"
+              [autoResize]="true"
+            ></textarea>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{ packet.address }}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td style="max-width: 250px">
+        <ng-container *ngIf="packet.packetDescription != ''; else addMode">
+          <p
+            changeColor
+            (click)="editProducts(packet)"
+            style="cursor: pointer"
+            class="mt-2"
+          >
+            {{ packet.packetDescription }}
+            <i
+              class="pi pi-pencil"
+              style="color: red; font-size: 14.5px; padding-left: 10px"
+            ></i>
+          </p>
+          <br />
+        </ng-container>
+        <ng-template #addMode>
+          <button
+            pButton
+            pRipple
+            (click)="openNew(packet)"
+            icon="pi pi-plus"
+            style="font-size: 2px; width: 5px"
+            class="p-button-primary p-button-sm"
+          ></button>
+        </ng-template>
+      </td>
+      <td>
+        {{ getPrice(packet.price, packet.deliveryPrice, packet.discount) }}
+      </td>
+      <td
+        pEditableColumn
+        [pEditableColumn]="packet"
+        [pEditableColumnField]="'status'"
+        style="cursor: pointer; max-width: 160px"
+      >
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-dropdown
+              [options]="statusList"
+              [(ngModel)]="packet.status"
+              class="p-inputtext-sm"
+              placeholder="-- Statut --"
+              [style]="{ width: '90%' }"
+              [panelStyle]="{ width: '10%' }"
+              appendTo="body"
+            >
+              <ng-template let-packet pTemplate="group">
+                <div class="p-d-flex p-ai-center">
+                  <span>{{ packet.status }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{ packet.status }}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td>
+        <ng-container
+          *ngIf="
+            packet.barcode != '' && packet.barcode != null;
+            else elseNotDone
+          "
+        >
+          <button
+            pButton
+            type="button"
+            (click)="showDialog(packet.barcode)"
+            class="p-button-warning"
+            icon="pi pi-info-circle"
+            label="{{ packet.barcode }}"
+          ></button>
+        </ng-container>
+        <ng-template #elseNotDone>
+          <button
+            pButton
+            pRipple
+            [loading]="isLoading && selectedPacket == packet.id"
+            icon="pi pi-refresh"
+            class="p-button-success mb-2 mt-2 buttonSize"
+            (click)="deliveryPacket(packet)"
+          ></button>
+        </ng-template>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage" let-columns>
+    <tr>
+      <td [attr.colspan]="cols.length + 1">
+        <ng-container
+          *ngIf="
+            selectedStatus.length > 0 || this.rangeDates[1] != null;
+            else emptyList
+          "
+        >
+          <label
+            >Il n'y a pas de commandes qui correspondent aux filtres
+            choisies</label
+          >
+        </ng-container>
+        <ng-template #emptyList>
+          <label>Veuillez ajouter les commandes d'aujourd'hui</label>
+        </ng-template>
+      </td>
+    </tr>
+  </ng-template>
 </p-table>
-<p-dialog [(visible)]="modelDialog" [style]="{width: '75%'}"
-    header="{{editMode ? 'Mettre à jour les articles' : 'Ajouter des articles'}}" [modal]="true" appendTo="body"
-    (onHide)="hideDialog()">
-    <ng-template pTemplate="content">
-        <app-add-packet [packet]="packet" (submitEvent)="OnSubmit($event)" [offersList]="offersList"
-            [editMode]="editMode"></app-add-packet>
-    </ng-template>
+<p-dialog
+  [(visible)]="modelDialog"
+  [style]="{ width: '75%' }"
+  header="{{
+    editMode ? 'Mettre à jour les articles' : 'Ajouter des articles'
+  }}"
+  [modal]="true"
+  appendTo="body"
+  (onHide)="hideDialog()"
+>
+  <ng-template pTemplate="content">
+    <app-add-packet
+      [packet]="packet"
+      (submitEvent)="OnSubmit($event)"
+      [offersList]="offersList"
+      [editMode]="editMode"
+    ></app-add-packet>
+  </ng-template>
 </p-dialog>
-<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-dialog header="Suivi" [(visible)]="display">
+  <p-timeline [value]="events">
+    <ng-template pTemplate="content" let-event>
+      <!-- Check if the event object is defined before accessing its properties -->
+      <small class="p-text-secondary" *ngIf="event">{{ event.date }}</small>
+    </ng-template>
+    <ng-template pTemplate="opposite" let-event>
+      <!-- Check if the event object is defined before accessing its properties -->
+      <span *ngIf="event">{{ event.status }}</span>
+    </ng-template>
+  </p-timeline>
+</p-dialog>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

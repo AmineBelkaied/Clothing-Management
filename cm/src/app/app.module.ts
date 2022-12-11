@@ -47,7 +47,7 @@ import { StockComponent } from './stock/stock.component';
 import { ListModelsComponent } from './model/list-models/list-models.component';
 import { AddSizeComponent } from './config/size/add-size/add-size.component';
 import { ListSizesComponent } from './config/size/list-sizes/list-sizes.component';
-
+import { TimelineModule } from 'primeng/timeline';
 
 @NgModule({
   declarations: [
@@ -79,7 +79,7 @@ import { ListSizesComponent } from './config/size/list-sizes/list-sizes.componen
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    AppRoutingModule,
+    AppRoutingModule, TimelineModule,
     InputTextModule,
     InputSwitchModule,
     MultiSelectModule,
