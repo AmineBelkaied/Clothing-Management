@@ -13,6 +13,7 @@ public class PacketDetails {
     private int quantity;
     private String colors;
     private String sizes;
+    private String barcode;
 
     public PacketDetails() {
     }
@@ -74,6 +75,14 @@ public class PacketDetails {
         this.sizes = sizes;
     }
 
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+
     @Override
     public String toString() {
         return "PacketDetails{" +
@@ -83,6 +92,7 @@ public class PacketDetails {
                 ", quantity=" + quantity +
                 ", colors='" + colors + '\'' +
                 ", sizes='" + sizes + '\'' +
+                ", barcode='" + barcode + '\'' +
                 '}';
     }
 }

@@ -21,6 +21,7 @@ public class Packet {
     private String relatedProducts;
     private String packetDescription;
     private String packetReference;
+    private String barcode;
     @OneToMany(mappedBy = "packet" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<ProductsPacket> products;
@@ -34,12 +35,10 @@ public class Packet {
     private Date date;
     private String status;
 
-    private String barrecode;
-
     public Packet() {
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetDescription, String packetReference, Set<ProductsPacket> products, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, String barrecode) {
+    public Packet(Long id, String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetDescription, String packetReference, Set<ProductsPacket> products, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, String barcode) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -55,16 +54,9 @@ public class Packet {
         this.discount = discount;
         this.date = date;
         this.status = status;
-        this.barrecode = barrecode;
+        this.barcode = barcode;
     }
 
-    public String getBarrecode() {
-        return barrecode;
-    }
-
-    public void setBarrecode(String barrecode) {
-        this.barrecode = barrecode;
-    }
 
     public Long getId() {
         return id;
@@ -170,6 +162,14 @@ public class Packet {
         this.discount = discount;
     }
 
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+
     @Override
     public String toString() {
         return "Packet{" +
@@ -188,7 +188,7 @@ public class Packet {
                 ", discount=" + discount +
                 ", date=" + date +
                 ", status='" + status + '\'' +
-                ", barrecode='" + barrecode + '\'' +
+                ", barcode='" + barcode + '\'' +
                 '}';
     }
 }
