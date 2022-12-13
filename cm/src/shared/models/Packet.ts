@@ -17,4 +17,5 @@ export interface Packet {
     packetDescription?: string;
     status: any;
     confirmation?: boolean;
+    barrecode?: string;
 }

@@ -34,22 +34,36 @@ public class Packet {
     private Date date;
     private String status;
 
+    private String barrecode;
+
     public Packet() {
     }
 
-    public Packet(String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetReference, String packetDescription, Set<ProductsPacket> products, FbPage fbPage, double price, boolean confirmation, String status, Date date) {
+    public Packet(Long id, String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetDescription, String packetReference, Set<ProductsPacket> products, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, String barrecode) {
+        this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
         this.city = city;
         this.address = address;
         this.relatedProducts = relatedProducts;
-        this.packetReference = packetReference;
         this.packetDescription = packetDescription;
+        this.packetReference = packetReference;
         this.products = products;
         this.fbPage = fbPage;
         this.price = price;
-        this.status = status;
+        this.deliveryPrice = deliveryPrice;
+        this.discount = discount;
         this.date = date;
+        this.status = status;
+        this.barrecode = barrecode;
+    }
+
+    public String getBarrecode() {
+        return barrecode;
+    }
+
+    public void setBarrecode(String barrecode) {
+        this.barrecode = barrecode;
     }
 
     public Long getId() {
@@ -156,7 +170,6 @@ public class Packet {
         this.discount = discount;
     }
 
-
     @Override
     public String toString() {
         return "Packet{" +
@@ -175,6 +188,7 @@ public class Packet {
                 ", discount=" + discount +
                 ", date=" + date +
                 ", status='" + status + '\'' +
+                ", barrecode='" + barrecode + '\'' +
                 '}';
     }
 }

@@ -11,7 +11,7 @@
                         (click)="deleteSelectedPackets()"
                         [disabled]="!selectedPackets || selectedPackets.length == 0"></button>
                     <button pButton pRipple icon="pi pi-refresh" class="p-button-infos mb-2 ml-2 mt-2 buttonSize"
-                        (click)="resetTable()"></button> 
+                        (click)="resetTable()"></button>
                 </div>
                 <div class="col-md-5">
                     <span class="p-input-icon-left ml-auto">
@@ -46,9 +46,9 @@
 </div>
 
 <p-table #dt [columns]="cols" [value]="packets" styleClass="p-datatable-gridlines p-datatable-sm mb-1"
-    class="table table-hover" selectionMode="multiple" 
+    class="table table-hover" selectionMode="multiple"
     [(selection)]="selectedPackets" responsiveLayout="scroll" [exportHeader]="'customExportHeader'"
-    (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" dataKey="id" [rowTrackBy]="trackByFunction" 
+    (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" dataKey="id" [rowTrackBy]="trackByFunction"
      [globalFilterFields]="['customerName', 'customerPhoneNb' ,'city.name', 'city.governorate.name' , 'fbPage.name' , 'address', 'relatedProducts']"  [paginator]="packets.length > 100 ? true : false" [rows]="100"
     [showCurrentPageReport]="true"  currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} commandes" [rowsPerPageOptions]="[25,50,100,200]">
     <ng-template pTemplate="header" let-columns>
@@ -72,7 +72,7 @@
                 <p-cellEditor>
                     <ng-template pTemplate="input">
                         <p-dropdown [options]="fbPages" [(ngModel)]="packet.fbPage" optionLabel="name"  placeholder="-- Page --"
-                    [style]="{ width: '90%' }" [panelStyle]="{ width: '10%' }" class="p-inputtext-sm" 
+                    [style]="{ width: '90%' }" [panelStyle]="{ width: '10%' }" class="p-inputtext-sm"
                             appendTo="body">
                             <ng-template let-packet pTemplate="group">
                                 <div class="p-d-flex p-ai-center">
@@ -113,7 +113,7 @@
                 <p-cellEditor>
                     <ng-template pTemplate="input">
                         <p-dropdown [options]="groupedCities" [(ngModel)]="packet.city" placeholder="Choisr la ville"
-                            [group]="true" [filter]="true" filterBy="label,value,governorate" [style]="{ width: '100%' }" class="p-inputtext-sm" 
+                            [group]="true" [filter]="true" filterBy="label,value,governorate" [style]="{ width: '100%' }" class="p-inputtext-sm"
                             [panelStyle]="{ width: '12%' }" appendTo="body">
                             <ng-template let-city pTemplate="group">
                                 <div class="p-d-flex p-ai-center">
@@ -172,6 +172,11 @@
                         {{packet.status}}
                     </ng-template>
                 </p-cellEditor>
+            </td>
+            <td>
+                    <button pButton pRipple (click)="sendToExpress(packet)" icon="pi pi-refresh"
+                        style="font-size:2px;width: 5px;" class="p-button-primary p-button-sm"></button>
+                {{packet.barrecode}}
             </td>
         </tr>
     </ng-template>

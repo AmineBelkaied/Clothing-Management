@@ -11,6 +11,7 @@ import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../../../shared/services/fb-page.service';
 import { filter, map, Subject, takeUntil, tap } from 'rxjs';
 import { Offer } from 'src/shared/models/Offer';
+import { ExpressItem } from 'src/shared/models/ExpressItem';
 var jsPDF: any; // Important
 
 @Component({
@@ -66,7 +67,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   @ViewChild('dt') dt?: Table;
   @ViewChild('calendar')
   calendar: any;
-  reg = /,/gi; 
+  reg = /,/gi;
   constructor(private messageService: MessageService, private packetService: PacketService,
     private confirmationService: ConfirmationService, private offerService: OfferService, private cityService: CityService,
     private fbPageService: FbPageService, private filterService: FilterService, public datePipe: DatePipe, private cdRef: ChangeDetectorRef) {
@@ -86,7 +87,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.packetService.findAllTodaysPackets().subscribe((allPackets: any) => {
      this.packets = allPackets;
      this.packets.map(packet => packet.packetDescription = packet.packetDescription?.replace(this.reg , "\n"));
-     console.log(this.packets);
+     //console.log(this.packets);
      this.packetsByDate = this.packets.slice();
     });
 
@@ -100,7 +101,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       { field: 'address', header: 'Adresse' },
       { field: 'relatedProducts', header: 'Articles' },
       { field: 'price', header: 'Prix' },
-      { field: 'status', header: 'Statut' }
+      { field: 'status', header: 'Statut' },
+      { field: 'barrecode', header: 'Barrecode' }
     ];
 
     this.exportColumns = this.cols.map(col => ({ title: col.header, dataKey: col.field }));
@@ -151,6 +153,21 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     }
   }
 
+  expressItem(): ExpressItem {
+    return {
+      api_key: "dfbe9b469df33a124e07e243d6803c2e",
+      destinataire: 'diggie',
+      user_name: "",
+      date_enlevement: "",
+      date_livraison: "",
+      adresse_de_livraison: "",
+      gouvernorat_livraison: "",
+      telephone_de_contact_livraison: "",
+      code_postal_livraison: "",
+      nombre_de_colis: 1
+    }
+  }
+
   newPacket(): Packet {
     return {
       date: this.getDate(new Date()),
@@ -161,7 +178,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       packetReference: "",
       packetDescription: "",
       price: 0,
-      status: "Non confirmée"
+      status: "Non confirmée",
+      barrecode:"aaaaa"
     }
   }
 
@@ -186,10 +204,13 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'عملية ناجحة', life: 1000 });
       });
   }
+  sendToExpress(packet: any){
+    console.log("express",packet.id);
+  }
 
   deletePacket(packet: any) {
     console.log(packet.id);
-    
+
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer cette commande ?',
       header: 'Confirmation',
@@ -261,7 +282,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     packet.price = $event.packet.totalPrice;
     packet.deliveryPrice = $event.packet.deliveryPrice;
     packet.discount = $event.packet.discount;
-    //packet.packetReference = $event.packet.packetReference;
+    //packet.packetReference = $event.packet.packetReference;//ahmed
     this.packets.splice(pos, 1, packet);
     this.packetService.allPackets.splice(posAllPackets, 1, packet);
     this.packetsByDate = this.packets.slice();
@@ -287,18 +308,18 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.packets = this.packetService.allPackets.filter((packet: any) => this.getDate(packet.date) >= this.getDate(startDate) && this.getDate(packet.date) <= this.getDate(endDate))
     // save packetsByDate state
     this.packetsByDate = [...this.packets]//console.log(this.packets);
-    if(this.selectedStatus.length > 0) 
+    if(this.selectedStatus.length > 0)
       this.selectStatus();
   }
 
   selectStatus() {
     if(this.rangeDates[0] != null) {
-      if (this.selectedStatus.length === 0) 
+      if (this.selectedStatus.length === 0)
       this.packets = this.packetsByDate.slice();
     else
       this.packets = this.packetsByDate.filter((packet: Packet) => this.selectedStatus.indexOf(packet.status) > -1);
     } else {
-      if (this.selectedStatus.length === 0) 
+      if (this.selectedStatus.length === 0)
       this.packets = this.packetService.allPackets.slice();
     else
       this.packets = this.packetService.allPackets.filter((packet: Packet) => this.selectedStatus.indexOf(packet.status) > -1);
@@ -367,7 +388,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   exportCSV() {
-    let reg = /\n/gi; 
+    let reg = /\n/gi;
     let packets: any [] = [];
     let selectedPackets = this.selectedPackets.map(p => p.id);
     packets = this.packets.slice();
@@ -412,13 +433,13 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     for (let i = 0; i < cols.length; i++) {
         if (cols[i].field) {
             csv += cols[i].field;
-  
+
             if (i < (cols.length - 1)) {
                 csv += csvSeparator;
             }
         }
     }
-    //body        
+    //body
     packets?.forEach((record: any, j) => {
         csv += '\n';
         for (let i = 0; i < cols.length; i++) {
@@ -434,22 +455,22 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     });
     this.download(csv, 'first - ' + this.transformDate(new Date()));
   }
-  
+
   download(text: any, filename: any) {
     let element = document.createElement('a');
     element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', filename);
-  
+
     element.style.display = 'none';
     document.body.appendChild(element);
-  
+
     element.click();
-  
+
     document.body.removeChild(element);
   }
-  
+
   getValue(fieldName: any) {
-    return (fieldName != null && fieldName!= undefined && fieldName != NaN) ? fieldName : '';
+    return (fieldName != null && fieldName!= undefined) ? fieldName : '';
   }
 
   exportPdf() {
@@ -469,7 +490,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   filterPackets(packets: any) {
     return packets.filter((packet: any)  => packet.customerName?.includes(this.filter)
     || packet.customerPhoneNb?.includes(this.filter) || packet.city?.name.includes(this.filter) ||
-    packet.city?.governorate?.name.includes(this.filter) || packet.address?.includes(this.filter) || packet.fbPage?.name.includes(this.filter));    
+    packet.city?.governorate?.name.includes(this.filter) || packet.address?.includes(this.filter) || packet.fbPage?.name.includes(this.filter));
   }
 
   getDate(date: Date) : any {
@@ -510,10 +531,10 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     return newText;
     }
     console.log(text);
-    
+
   return text;
   } */
-  
+
 /*  transformProducts(packetReference: string) {
     let refsArray = packetReference.split("-");
     let displayedProducts = "";

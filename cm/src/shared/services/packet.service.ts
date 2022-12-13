@@ -65,16 +65,17 @@ export class PacketService {
   }
 
   updatePacket(packet: Packet) {
+    console.log('new packetbefore update',packet);
     return this.http.put(this.baseUrl + "/update", packet, { headers: { 'content-type': 'application/json' } })
   }
 
   patchPacket(idPacket: any, packet: any) {
-    console.log(packet);
+    console.log('new packetbefore patch',packet);
     return this.http.patch(this.baseUrl + "/patch/" + idPacket, packet, { headers: { 'content-type': 'application/json' } })
   }
 
   addProductsToPacket(selectedProducts: any) {
-    console.log(selectedProducts);
+    console.log('selectedProducts',selectedProducts);
     return this.http.post(this.baseUrl + "/addProducts", selectedProducts, { headers: { 'content-type': 'application/json' } })
   }
 
@@ -96,5 +97,4 @@ export class PacketService {
       packetDescription += " (" + size + ")";
     packetDescription += " , ";
   }
-
 }
