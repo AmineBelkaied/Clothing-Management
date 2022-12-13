@@ -104,7 +104,7 @@ export class PacketService {
   }
   getTrackingInfo(trackingNumber: string) {
    // return this.http.get(`http://pro.tunisia-express.tn/api/example/tracking/barcode/${trackingNumber}/api_key/3a824154b16ed7dab899bf000b80eeee/format/json`);
-    return this.http.get(`http://pro.tunisia-express.tn/api/example/tracking/barcode/${trackingNumber}/api_key/dfbe9b469df33a124e07e243d6803c2e/format/json`);
+    return this.http.get(`http://pro.tunisia-express.tn/api/diggie/tracking/barcode/${trackingNumber}/api_key/dfbe9b469df33a124e07e243d6803c2e/format/json`);
   }
 
 }
