@@ -68,6 +68,7 @@ export class ListPacketsComponent
   exportColumns: any[] = [];
   rangeDates: Date[] = [];
   editMode = false;
+  countRows = 0;
   isLoading = false;
   selectedPacket?: string = '';
   modelDialog!: boolean;
@@ -279,7 +280,7 @@ export class ListPacketsComponent
         packet.customerPhoneNb,
         packet.city?.postalCode,
         1,
-        packet.packetReference,
+        this.getValue(packet.id) +' '+this.getValue(packet.fbPage?.name) +' | ' +this.getValue(packet.packetDescription?.replace(this.reg, ', ')),
         this.getPriceValue(packet.price, packet.deliveryPrice, packet.discount)
       )
       .subscribe((response: any) => {
@@ -720,6 +721,11 @@ export class ListPacketsComponent
   ngOnDestroy() {
     this.subcriber.next();
     this.subcriber.complete();
+  }
+  filterGlobal(a: any,b: any,dt: Table){
+    dt.filterGlobal(a,b);
+    let aa = dt.totalRecords;
+    console.log("count", aa);
   }
 
   /*   transformAddress(text: any, nbr: number) {
