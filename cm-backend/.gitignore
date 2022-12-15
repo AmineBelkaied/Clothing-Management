@@ -17,6 +17,7 @@ gradle-app.setting
 
 ## Directory-based project format:
 .idea/
+.idea/**
 # if you remove the above rule, at least ignore the following:
 
 # User-specific stuff:
@@ -122,7 +123,7 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
-
+/target/**
 
 ### Grails template
 # .gitignore for Grails 1.2 and 1.3

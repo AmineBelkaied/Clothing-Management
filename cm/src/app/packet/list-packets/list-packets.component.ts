@@ -722,11 +722,6 @@ export class ListPacketsComponent
     this.subcriber.next();
     this.subcriber.complete();
   }
-  filterGlobal(a: any,b: any,dt: Table){
-    dt.filterGlobal(a,b);
-    let aa = dt.totalRecords;
-    console.log("count", aa);
-  }
 
   /*   transformAddress(text: any, nbr: number) {
     let newText = "";
