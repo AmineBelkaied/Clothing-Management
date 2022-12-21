@@ -18,4 +18,5 @@ export interface Packet {
     status?: any;
     confirmation?: boolean;
     barcode?: any;
+    lastDeliveryStatus?: any;
 }

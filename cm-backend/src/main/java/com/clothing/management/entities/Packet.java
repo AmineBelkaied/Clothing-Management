@@ -22,6 +22,7 @@ public class Packet {
     private String packetDescription;
     private String packetReference;
     private String barcode;
+    private String lastDeliveryStatus;
     @OneToMany(mappedBy = "packet" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<ProductsPacket> products;
@@ -38,7 +39,7 @@ public class Packet {
     public Packet() {
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetDescription, String packetReference, Set<ProductsPacket> products, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, String barcode) {
+    public Packet(Long id, String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetDescription, String packetReference, Set<ProductsPacket> products, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, String barcode, String lastDeliveryStatus) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -55,6 +56,7 @@ public class Packet {
         this.date = date;
         this.status = status;
         this.barcode = barcode;
+        this.lastDeliveryStatus = lastDeliveryStatus;
     }
 
 
@@ -189,6 +191,15 @@ public class Packet {
                 ", date=" + date +
                 ", status='" + status + '\'' +
                 ", barcode='" + barcode + '\'' +
+                ", lastDeliveryStatus='" + lastDeliveryStatus + '\'' +
                 '}';
+    }
+
+    public String getLastDeliveryStatus() {
+        return lastDeliveryStatus;
+    }
+
+    public void setLastDeliveryStatus(String lastDeliveryStatus) {
+        this.lastDeliveryStatus = lastDeliveryStatus;
     }
 }

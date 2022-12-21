@@ -57,6 +57,7 @@ export class ListPacketsComponent
     price: 0,
     status: 'NOTCONFIRMED',
     barcode: '',
+    lastDeliveryStatus: '',
   };
   @ViewChild('dt') private _table: Table | undefined;
   packetsClone: Packet[] = [];
@@ -201,22 +202,67 @@ export class ListPacketsComponent
           });
       } else {
         let updatedField = { [packet.field]: packet.data[packet.field] };
-        console.log(updatedField);
         this.packetService
           .patchPacket(packet['data'].id, updatedField)
           .subscribe((response: any) => {
-            console.log(response);
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
               detail: 'Le champ a été modifié avec succés',
             });
+            if (response.status == 'Confirmée') {
+              this.selectedPacket = response.id;
+              this.isLoading = true;
+              this.packetService
+                .setDeliveryItem(
+                  response.customerName,
+                  this.getDate(new Date()),
+                  this.getDate(new Date()),
+                  response.address,
+                  response.city?.governorate.delivery_id,
+                  response.customerPhoneNb,
+                  response.city?.postalCode,
+                  1,
+                  this.getValue(response.id) +
+                    ' ' +
+                    this.getValue(response.fbPage?.name) +
+                    ' | ' +
+                    this.getValue(
+                      response.packetDescription?.replace(this.reg, ', ')
+                    ),
+                  this.getPriceValue(
+                    response.price,
+                    response.deliveryPrice,
+                    response.discount
+                  )
+                )
+                .subscribe((res: any) => {
+                  console.log(res);
+                  console.log(res.Barcode);
+                  response.barcode = res.Barcode;
+                  this.packetService
+                    .updatePacket(response)
+                    .subscribe((newpacket: any) => {
+                      this.isLoading = false;
+                      this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Le barcode à été ajouter avec succés',
+                      });
+                      let pos = this.packets.indexOf(packet.data);
+                      this.packets = this.packets.filter(
+                        (item) => item.id !== packet.id
+                      ); // delete row
+                      this.packets.splice(pos, 1, newpacket);
+                    });
+                });
+            }
           });
       }
     }
   }
 
-/*   expressItem(): ExpressItem {
+  /*   expressItem(): ExpressItem {
     return {
       api_key: "dfbe9b469df33a124e07e243d6803c2e",
       destinataire: 'diggie',
@@ -243,13 +289,14 @@ export class ListPacketsComponent
       price: 0,
       status: 'Non confirmée',
       barcode: '',
+      lastDeliveryStatus: '',
     };
   }
-  showDialog(barcodes: string) {
-    this.packetService.getTrackingInfo(barcodes).subscribe((response: any) => {
+  showDialog(packet: Packet) {
+    this.packetService.getTrackingInfo(packet.barcode).subscribe((response: any) => {
       console.log(response);
       this.events = [];
-      if (response != null) {
+      if (response != null && response.length>0) {
         response.forEach((element: any) => {
           this.events.push({
             status: element.status_label,
@@ -258,6 +305,22 @@ export class ListPacketsComponent
             color: '#9C27B0',
           });
         });
+        let laststatus=response[response.length-1].status_label
+        let updatedField = { "lastDeliveryStatus": laststatus };
+        this.packetService
+          .patchPacket(packet.id, updatedField)
+          .subscribe((newpacket: any) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Le champ a été modifié avec succés',
+            });
+            let pos = this.packets.indexOf(packet);
+            this.packets = this.packets.filter(
+              (item) => item.id !== packet.id
+            ); // delete row
+            this.packets.splice(pos, 1, newpacket);
+      })
       }
 
       this.cdRef.detectChanges();
@@ -280,7 +343,11 @@ export class ListPacketsComponent
         packet.customerPhoneNb,
         packet.city?.postalCode,
         1,
-        this.getValue(packet.id) +' '+this.getValue(packet.fbPage?.name) +' | ' +this.getValue(packet.packetDescription?.replace(this.reg, ', ')),
+        this.getValue(packet.id) +
+          ' ' +
+          this.getValue(packet.fbPage?.name) +
+          ' | ' +
+          this.getValue(packet.packetDescription?.replace(this.reg, ', ')),
         this.getPriceValue(packet.price, packet.deliveryPrice, packet.discount)
       )
       .subscribe((response: any) => {
@@ -289,7 +356,6 @@ export class ListPacketsComponent
         this.packetService.updatePacket(packet).subscribe((response: any) => {
           console.log(response);
         });
-        console.log(response);
       });
   }
 
@@ -326,8 +392,8 @@ export class ListPacketsComponent
         });
       });
   }
-  sendToExpress(packet: any){
-    console.log("express",packet.id);
+  sendToExpress(packet: any) {
+    console.log('express', packet.id);
   }
 
   deletePacket(packet: any) {
@@ -427,7 +493,7 @@ export class ListPacketsComponent
     packet.price = $event.packet.totalPrice;
     packet.deliveryPrice = $event.packet.deliveryPrice;
     packet.discount = $event.packet.discount;
-    packet.packetReference = $event.packet.packetReference;
+    packet.packetReference = $event.packet.packetRef;
     this.packets.splice(pos, 1, packet);
     this.packetService.allPackets.splice(posAllPackets, 1, packet);
     this.packetsByDate = this.packets.slice();
@@ -660,9 +726,7 @@ export class ListPacketsComponent
   }
 
   getValue(fieldName: any) {
-    return fieldName != null && fieldName != undefined
-      ? fieldName
-      : '';
+    return fieldName != null && fieldName != undefined ? fieldName : '';
   }
 
   exportPdf() {

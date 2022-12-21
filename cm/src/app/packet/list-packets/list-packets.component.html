@@ -129,7 +129,7 @@
   [rows]="100"
   [showCurrentPageReport]="true"
   currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} commandes"
-  [rowsPerPageOptions]="[25, 50, 100, 200, 500, 1000]"
+  [rowsPerPageOptions]="[25, 50, 100, 200, 500, 1000]" 
 >
   <ng-template pTemplate="header" let-columns>
     <tr>
@@ -245,7 +245,7 @@
               filterBy="label,value,governorate"
               [style]="{ width: '100%' }"
               class="p-inputtext-sm"
-              [panelStyle]="{ width: '12%' }"
+              [panelStyle]="{ width: '100%' }"
               appendTo="body"
             >
               <ng-template let-city pTemplate="group">
@@ -329,7 +329,7 @@
               class="p-inputtext-sm"
               placeholder="-- Statut --"
               [style]="{ width: '90%' }"
-              [panelStyle]="{ width: '10%' }"
+              [panelStyle]="{ width: '100%' }"
               appendTo="body"
             >
               <ng-template let-packet pTemplate="group">
@@ -354,11 +354,13 @@
           <button
             pButton
             type="button"
-            (click)="showDialog(packet.barcode)"
+            (click)="showDialog(packet)"
             class="p-button-warning"
             icon="pi pi-info-circle"
             label="{{ packet.barcode }}"
           ></button>
+          <label>  {{ packet.lastDeliveryStatus }}</label>
+          
         </ng-container>
         <ng-template #elseNotDone>
           <button
@@ -413,7 +415,8 @@
     ></app-add-packet>
   </ng-template>
 </p-dialog>
-<p-dialog header="Suivi" [(visible)]="display">
+<p-dialog header="Suivi" 
+[modal]="true" [(visible)]="display">
   <p-timeline [value]="events">
     <ng-template pTemplate="content" let-event>
       <!-- Check if the event object is defined before accessing its properties -->
