@@ -376,7 +376,12 @@
           ></button>
         </ng-template>
       </td>
-      <td>
+      <td> 
+        {{getDate(packet.confirmationDate)}}
+      
+        </td>
+      <td> 
+        {{getDate(packet.lastUpdateDate)}}
           <button
           pButton
           type="button"

@@ -38,6 +38,8 @@ public class Packet {
     private double discount;
     private Date date;
     private String status;
+    private Date lastUpdateDate;
+    private Date confirmationDate;
 
     public Packet() {
     }
@@ -173,6 +175,22 @@ public class Packet {
 
     public void setBarcode(String barcode) {
         this.barcode = barcode;
+    }
+
+    public Date getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setLastUpdateDate(Date lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public Date getConfirmationDate() {
+        return confirmationDate;
+    }
+
+    public void setConfirmationDate(Date confirmationDate) {
+        this.confirmationDate = confirmationDate;
     }
 
     @Override

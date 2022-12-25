@@ -19,4 +19,6 @@ export interface Packet {
     confirmation?: boolean;
     barcode?: any;
     lastDeliveryStatus?: any;
+    lastUpdateDate?: any;
+    confirmationDate?: any;
 }

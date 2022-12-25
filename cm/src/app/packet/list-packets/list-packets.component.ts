@@ -60,6 +60,8 @@ export class ListPacketsComponent
     status: 'NOTCONFIRMED',
     barcode: '',
     lastDeliveryStatus: '',
+    lastUpdateDate: '',
+    confirmationDate: '',
   };
   @ViewChild('dt') private _table: Table | undefined;
   packetsClone: Packet[] = [];
@@ -124,6 +126,8 @@ export class ListPacketsComponent
       'Annulée',
       'Injoignable',
       'Echange',
+      'Échange livré',
+      'Retour reçu',
     ];
   }
 
@@ -160,6 +164,7 @@ export class ListPacketsComponent
       { field: 'price', header: 'Prix' },
       { field: 'status', header: 'Statut' },
       { field: 'barcode', header: 'Barcode' },
+      { field: 'confirmationDate', header: 'Date Confirmation' },
       { field: 'status', header: 'Status' },
     ];
 
@@ -205,7 +210,7 @@ export class ListPacketsComponent
           });
       } else {
         let updatedField = { [packet.field]: packet.data[packet.field] };
-        let oldStatus=packet['data'].status;
+        let oldStatus = packet['data'].status;
         this.packetService
           .patchPacket(packet['data'].id, updatedField)
           .subscribe((response: any) => {
@@ -215,8 +220,20 @@ export class ListPacketsComponent
               detail: 'Le champ a été modifié avec succés',
             });
             if (response.status !== this.oldField) {
+              response.lastUpdateDate=new Date();
               this.packetService
-              .updatePacketStatus(packet['data'].id,response.status).subscribe((response: any) => {});
+                .updatePacketStatus(packet['data'].id, response.status)
+                .subscribe((response: any) => {});
+                this.packetService
+                .updatePacket(response)
+                .subscribe((newpacket: any) => {
+                  let pos = this.packets.indexOf(packet['data']);
+                  this.packets = this.packets.filter(
+                    (item) => item.id !== packet['data'].id
+                  ); // delete row
+                  this.packets.splice(pos, 1, newpacket);
+                })
+                
             }
             if (response.status == 'Confirmée') {
               this.selectedPacket = response.id;
@@ -245,9 +262,8 @@ export class ListPacketsComponent
                   )
                 )
                 .subscribe((res: any) => {
-                  console.log(res);
-                  console.log(res.Barcode);
                   response.barcode = res.Barcode;
+                  response.confirmationDate = new Date();
                   this.packetService
                     .updatePacket(response)
                     .subscribe((newpacket: any) => {
@@ -263,6 +279,13 @@ export class ListPacketsComponent
                       ); // delete row
                       this.packets.splice(pos, 1, newpacket);
                     });
+                },
+                (err) => {
+                  this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Erreur creation barcode :'+err.error,
+                  });
                 });
             }
           });
@@ -302,88 +325,91 @@ export class ListPacketsComponent
   }
   showDialog(packet: Packet) {
     try {
-    this.packetService.getTrackingInfo(packet.barcode).subscribe((response: any) => {
-      this.events = [];
-      this.suiviHeader="Suivi barcode :"+packet.barcode+" de packet num :"+packet.id;
-      if (response != null && response.length>0) {
-        response.forEach((element: any) => {
-          this.events.push({
-            status: element.status_label,
-            date: element.update_date,
-            icon: PrimeIcons.ENVELOPE,
-            color: '#9C27B0',
-          });
-        });
-        let laststatus=response[response.length-1].status_label
-        let updatedField = { "lastDeliveryStatus": laststatus };
-        this.packetService
-          .patchPacket(packet.id, updatedField)
-          .subscribe((newpacket: any) => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Le champ a été modifié avec succés',
+      this.packetService.getTrackingInfo(packet.barcode).subscribe(
+        (response: any) => {
+          this.events = [];
+          this.suiviHeader =
+            'Suivi barcode :' + packet.barcode + ' de packet num :' + packet.id;
+          if (response != null && response.length > 0) {
+            response.forEach((element: any) => {
+              this.events.push({
+                status: element.status_label,
+                date: element.update_date,
+                icon: PrimeIcons.ENVELOPE,
+                color: '#9C27B0',
+              });
             });
-            let pos = this.packets.indexOf(packet);
-            this.packets = this.packets.filter(
-              (item) => item.id !== packet.id
-            ); // delete row
-            this.packets.splice(pos, 1, newpacket);
-      })
-      }
+            let laststatus = response[response.length - 1].status_label;
+            let updatedField = { lastDeliveryStatus: laststatus };
+            this.packetService
+              .patchPacket(packet.id, updatedField)
+              .subscribe((newpacket: any) => {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Success',
+                  detail: 'Le champ a été modifié avec succés',
+                });
+                let pos = this.packets.indexOf(packet);
+                this.packets = this.packets.filter(
+                  (item) => item.id !== packet.id
+                ); // delete row
+                this.packets.splice(pos, 1, newpacket);
+              });
+          }
 
-      this.cdRef.detectChanges();
-      this.display = true;
-      console.log(this.events);
-    },(err) => {
+          this.cdRef.detectChanges();
+          this.display = true;
+          console.log(this.events);
+        },
+        (err) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'BarCode pas encore traité',
+          });
+        }
+      );
+    } catch (error) {
+      console.log('response' + error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'BarCode pas encore traité',
+        detail: 'BarCode pas encore traité' + error,
       });
-    });
-  }
-  catch(error) {
-    console.log("response"+error);
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'BarCode pas encore traité'+error,
-    });
-  }
+    }
   }
   showDialogStatus(packet: Packet) {
     try {
-    this.packetService.getAllPacketStatus(packet.id).subscribe((response: any) => {
-      this.statusEvents = [];
-      console.log(response);
-      this.suiviHeader="Suivi Status de packet num :"+packet.id;
-      if (response != null && response.length>0) {
-        response.forEach((element: any) => {
-          this.statusEvents.push({
-            status: element.status,
-            date: element.date,
-            icon: PrimeIcons.ENVELOPE,
-            color: '#9C27B0',
-          });
-        });
-     
-      }
+      this.packetService.getAllPacketStatus(packet.id).subscribe(
+        (response: any) => {
+          this.statusEvents = [];
+          console.log(response);
+          this.suiviHeader = 'Suivi Status de packet num :' + packet.id;
+          if (response != null && response.length > 0) {
+            response.forEach((element: any) => {
+              this.statusEvents.push({
+                status: element.status,
+                date: element.date,
+                icon: PrimeIcons.ENVELOPE,
+                color: '#9C27B0',
+              });
+            });
+          }
 
-      this.cdRef.detectChanges();
-      this.display = true;
-    },(err) => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Erreur dans le status',
-      });
-    });
-  }
-  catch(error) {
-    console.log("response"+error);
-  
-  }
+          this.cdRef.detectChanges();
+          this.display = true;
+        },
+        (err) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Erreur dans le status',
+          });
+        }
+      );
+    } catch (error) {
+      console.log('response' + error);
+    }
   }
   deliveryPacket(packet: Packet) {
     // Insert a new row
@@ -808,7 +834,7 @@ export class ListPacketsComponent
         packet.city?.name.includes(this.filter) ||
         packet.city?.governorate?.name.includes(this.filter) ||
         packet.address?.includes(this.filter) ||
-        packet.fbPage?.name.includes(this.filter)||
+        packet.fbPage?.name.includes(this.filter) ||
         packet.barcode?.includes(this.filter)
     );
   }
@@ -843,6 +869,13 @@ export class ListPacketsComponent
   ngOnDestroy() {
     this.subcriber.next();
     this.subcriber.complete();
+  }
+  getLastStatusDate(array: any) {
+    let lastDate = '';
+    array.forEach((element: any) => {
+      lastDate = element.date;
+    });
+    return lastDate;
   }
 
   /*   transformAddress(text: any, nbr: number) {
