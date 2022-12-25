@@ -3,6 +3,7 @@ package com.clothing.management.services;
 import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.dto.SelectedProductsDTO;
 import com.clothing.management.entities.Packet;
+import com.clothing.management.entities.PacketStatus;
 
 import java.util.Date;
 import java.util.List;
@@ -22,4 +23,6 @@ public interface PacketService {
     public void addProductsToPacket(SelectedProductsDTO selectedProductsDTO);
     public void deletePacketById(Long idPacket);
     public void deleteSelectedPackets(List<Long> packetsId);
+    public void updatePacketStatus(Long idPacket ,String status);
+    public List<PacketStatus> findPacketStatusById(Long idPacket);
 }

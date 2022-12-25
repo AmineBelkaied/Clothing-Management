@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -26,7 +27,9 @@ public class Packet {
     @OneToMany(mappedBy = "packet" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<ProductsPacket> products;
-
+    @JsonIgnore
+    @OneToMany(mappedBy = "packet")
+    List<PacketStatus> packetStatus;
     @ManyToOne
     @JoinColumn(name = "fbpage_id")
     private FbPage fbPage;
@@ -201,5 +204,13 @@ public class Packet {
 
     public void setLastDeliveryStatus(String lastDeliveryStatus) {
         this.lastDeliveryStatus = lastDeliveryStatus;
+    }
+
+    public List<PacketStatus> getPacketStatus() {
+        return packetStatus;
+    }
+
+    public void setPacketStatus(List<PacketStatus> packetStatus) {
+        this.packetStatus = packetStatus;
     }
 }

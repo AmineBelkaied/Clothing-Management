@@ -108,5 +108,10 @@ export class PacketService {
    // return this.http.get(`http://pro.tunisia-express.tn/api/example/tracking/barcode/${trackingNumber}/api_key/3a824154b16ed7dab899bf000b80eeee/format/json`);
     return this.http.get(this.deliveryUrl + `example/tracking/barcode/${trackingNumber}/api_key/` + this.clientApiCode +`/format/json`);
   }
-
+  updatePacketStatus(idPacket: any, status: string) { 
+    return this.http.post(this.baseUrl + "/updateStatus/" + idPacket+"/"+status, { headers: { 'content-type': 'application/json' } })
+  }
+  getAllPacketStatus(idPacket: any) { 
+    return this.http.get(this.baseUrl + "/findPacketStatus/" + idPacket, { headers: { 'content-type': 'application/json' } })
+  }
 }

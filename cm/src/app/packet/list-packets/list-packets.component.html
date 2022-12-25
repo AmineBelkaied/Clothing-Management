@@ -123,7 +123,8 @@
     'city.governorate.name',
     'fbPage.name',
     'address',
-    'relatedProducts'
+    'relatedProducts',
+    'barcode'
   ]"
   [paginator]="packets.length > 100 ? true : false"
   [rows]="100"
@@ -334,12 +335,14 @@
             >
               <ng-template let-packet pTemplate="group">
                 <div class="p-d-flex p-ai-center">
+              
                   <span>{{ packet.status }}</span>
                 </div>
               </ng-template>
             </p-dropdown>
           </ng-template>
           <ng-template pTemplate="output">
+        
             {{ packet.status }}
           </ng-template>
         </p-cellEditor>
@@ -373,6 +376,16 @@
           ></button>
         </ng-template>
       </td>
+      <td>
+          <button
+          pButton
+          type="button"
+          (click)="showDialogStatus(packet)"
+          class="p-button-success"
+          label="{{ packet.status }}"
+        ></button>
+      
+        </td>
     </tr>
   </ng-template>
   <ng-template pTemplate="emptymessage" let-columns>
@@ -415,9 +428,22 @@
     ></app-add-packet>
   </ng-template>
 </p-dialog>
-<p-dialog header="Suivi" 
+<p-dialog [header]="suiviHeader" 
 [modal]="true" [(visible)]="display">
   <p-timeline [value]="events">
+    <ng-template pTemplate="content" let-event>
+      <!-- Check if the event object is defined before accessing its properties -->
+      <small class="p-text-secondary" *ngIf="event">{{ event.date }}</small>
+    </ng-template>
+    <ng-template pTemplate="opposite" let-event>
+      <!-- Check if the event object is defined before accessing its properties -->
+      <span *ngIf="event">{{ event.status }}</span>
+    </ng-template>
+  </p-timeline>
+</p-dialog>
+<p-dialog [header]="suiviHeader" 
+[modal]="true" [(visible)]="display">
+  <p-timeline [value]="statusEvents">
     <ng-template pTemplate="content" let-event>
       <!-- Check if the event object is defined before accessing its properties -->
       <small class="p-text-secondary" *ngIf="event">{{ event.date }}</small>

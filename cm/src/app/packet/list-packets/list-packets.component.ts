@@ -42,7 +42,9 @@ export class ListPacketsComponent
   implements OnInit, AfterViewChecked, OnDestroy
 {
   display: boolean = false;
+  suiviHeader: string = 'Suivi';
   events: any[] = [];
+  statusEvents: any[] = [];
   packets: Packet[] = [];
   packet: Packet = {
     id: '',
@@ -158,6 +160,7 @@ export class ListPacketsComponent
       { field: 'price', header: 'Prix' },
       { field: 'status', header: 'Statut' },
       { field: 'barcode', header: 'Barcode' },
+      { field: 'status', header: 'Status' },
     ];
 
     this.exportColumns = this.cols.map((col) => ({
@@ -202,6 +205,7 @@ export class ListPacketsComponent
           });
       } else {
         let updatedField = { [packet.field]: packet.data[packet.field] };
+        let oldStatus=packet['data'].status;
         this.packetService
           .patchPacket(packet['data'].id, updatedField)
           .subscribe((response: any) => {
@@ -210,6 +214,10 @@ export class ListPacketsComponent
               summary: 'Success',
               detail: 'Le champ a été modifié avec succés',
             });
+            if (response.status !== this.oldField) {
+              this.packetService
+              .updatePacketStatus(packet['data'].id,response.status).subscribe((response: any) => {});
+            }
             if (response.status == 'Confirmée') {
               this.selectedPacket = response.id;
               this.isLoading = true;
@@ -293,9 +301,10 @@ export class ListPacketsComponent
     };
   }
   showDialog(packet: Packet) {
+    try {
     this.packetService.getTrackingInfo(packet.barcode).subscribe((response: any) => {
-      console.log(response);
       this.events = [];
+      this.suiviHeader="Suivi barcode :"+packet.barcode+" de packet num :"+packet.id;
       if (response != null && response.length>0) {
         response.forEach((element: any) => {
           this.events.push({
@@ -326,7 +335,55 @@ export class ListPacketsComponent
       this.cdRef.detectChanges();
       this.display = true;
       console.log(this.events);
+    },(err) => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'BarCode pas encore traité',
+      });
     });
+  }
+  catch(error) {
+    console.log("response"+error);
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'BarCode pas encore traité'+error,
+    });
+  }
+  }
+  showDialogStatus(packet: Packet) {
+    try {
+    this.packetService.getAllPacketStatus(packet.id).subscribe((response: any) => {
+      this.statusEvents = [];
+      console.log(response);
+      this.suiviHeader="Suivi Status de packet num :"+packet.id;
+      if (response != null && response.length>0) {
+        response.forEach((element: any) => {
+          this.statusEvents.push({
+            status: element.status,
+            date: element.date,
+            icon: PrimeIcons.ENVELOPE,
+            color: '#9C27B0',
+          });
+        });
+     
+      }
+
+      this.cdRef.detectChanges();
+      this.display = true;
+    },(err) => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Erreur dans le status',
+      });
+    });
+  }
+  catch(error) {
+    console.log("response"+error);
+  
+  }
   }
   deliveryPacket(packet: Packet) {
     // Insert a new row
@@ -751,7 +808,8 @@ export class ListPacketsComponent
         packet.city?.name.includes(this.filter) ||
         packet.city?.governorate?.name.includes(this.filter) ||
         packet.address?.includes(this.filter) ||
-        packet.fbPage?.name.includes(this.filter)
+        packet.fbPage?.name.includes(this.filter)||
+        packet.barcode?.includes(this.filter)
     );
   }
 

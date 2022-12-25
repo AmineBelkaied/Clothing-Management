@@ -4,6 +4,7 @@ import com.clothing.management.dto.OfferUpdateDTO;
 import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.dto.SelectedProductsDTO;
 import com.clothing.management.entities.Packet;
+import com.clothing.management.entities.PacketStatus;
 import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
@@ -78,5 +79,14 @@ public class PacketController {
     @DeleteMapping(value = "/deleteSelectedPackets/{packetsId}" , produces = "application/json")
     public void deleteSelectedPackets(@PathVariable List<Long> packetsId) {
         packetService.deleteSelectedPackets(packetsId);
+    }
+
+    @PostMapping(value = "/updateStatus/{idPacket}/{status}")
+    public void updatePacketStatus(@PathVariable Long idPacket , @PathVariable String status) {
+          packetService.updatePacketStatus(idPacket , status);
+    }
+    @GetMapping(path = "/findPacketStatus/{idPacket}")
+    public List<PacketStatus> findAllPacketStatus(@PathVariable Long idPacket) {
+        return packetService.findPacketStatusById(idPacket);
     }
 }
