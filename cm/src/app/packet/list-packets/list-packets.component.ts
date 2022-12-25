@@ -195,6 +195,7 @@ export class ListPacketsComponent
   }
 
   onEditComplete(packet: any) {
+    let oldpacket=packet.data;
     if (this.oldField !== packet.data[packet.field]) {
       if (packet.field == 'city' || packet.field == 'fbPage') {
         console.log(packet.data);
@@ -211,6 +212,7 @@ export class ListPacketsComponent
       } else {
         let updatedField = { [packet.field]: packet.data[packet.field] };
         let oldStatus = packet['data'].status;
+        let pos=-1;
         this.packetService
           .patchPacket(packet['data'].id, updatedField)
           .subscribe((response: any) => {
@@ -227,7 +229,7 @@ export class ListPacketsComponent
                 this.packetService
                 .updatePacket(response)
                 .subscribe((newpacket: any) => {
-                  let pos = this.packets.indexOf(packet['data']);
+                  pos = this.packets.indexOf(packet['data']);
                   this.packets = this.packets.filter(
                     (item) => item.id !== packet['data'].id
                   ); // delete row
@@ -245,7 +247,7 @@ export class ListPacketsComponent
                   this.getDate(new Date()),
                   response.address,
                   response.city?.governorate.delivery_id,
-                  response.customerPhoneNb,
+                  this.getPhoneNumber1(response.customerPhoneNb),
                   response.city?.postalCode,
                   1,
                   this.getValue(response.id) +
@@ -273,9 +275,10 @@ export class ListPacketsComponent
                         summary: 'Success',
                         detail: 'Le barcode à été ajouter avec succés',
                       });
-                      let pos = this.packets.indexOf(packet.data);
-                      this.packets = this.packets.filter(
-                        (item) => item.id !== packet.id
+                 //     let pos = this.packets.indexOf(oldpacket);
+                  
+                       this.packets = this.packets.filter(
+                        (item) => item.id !== packet.data.id
                       ); // delete row
                       this.packets.splice(pos, 1, newpacket);
                     });
@@ -423,7 +426,7 @@ export class ListPacketsComponent
         this.getDate(new Date()),
         packet.address,
         packet.city?.governorate.delivery_id,
-        packet.customerPhoneNb,
+        this.getPhoneNumber1(packet.customerPhoneNb||""),
         packet.city?.postalCode,
         1,
         this.getValue(packet.id) +
