@@ -20,5 +20,4 @@ export interface Packet {
     barcode?: any;
     lastDeliveryStatus?: any;
     lastUpdateDate?: any;
-    confirmationDate?: any;
 }

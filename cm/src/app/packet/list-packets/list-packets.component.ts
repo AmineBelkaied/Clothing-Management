@@ -42,6 +42,7 @@ export class ListPacketsComponent
   implements OnInit, AfterViewChecked, OnDestroy
 {
   display: boolean = false;
+  displayStatus: boolean = false;
   suiviHeader: string = 'Suivi';
   events: any[] = [];
   statusEvents: any[] = [];
@@ -60,8 +61,7 @@ export class ListPacketsComponent
     status: 'NOTCONFIRMED',
     barcode: '',
     lastDeliveryStatus: '',
-    lastUpdateDate: '',
-    confirmationDate: '',
+    lastUpdateDate: ''
   };
   @ViewChild('dt') private _table: Table | undefined;
   packetsClone: Packet[] = [];
@@ -138,11 +138,14 @@ export class ListPacketsComponent
     this.packetService.findAllTodaysPackets().subscribe((allPackets: any) => {
       this.packets = allPackets;
       this.packets.map(
-        (packet) =>
-          (packet.packetDescription = packet.packetDescription?.replace(
+        (packet) =>{
+          packet.packetDescription = packet.packetDescription?.replace(
             this.reg,
             '\n'
-          ))
+          );
+          packet.price=packet.price!+ packet.deliveryPrice! -packet.discount!        }
+        
+
       );
       console.log(this.packets);
       this.packetsByDate = this.packets.slice();
@@ -164,8 +167,6 @@ export class ListPacketsComponent
       { field: 'price', header: 'Prix' },
       { field: 'status', header: 'Statut' },
       { field: 'barcode', header: 'Barcode' },
-      { field: 'confirmationDate', header: 'Date Confirmation' },
-      { field: 'status', header: 'Status' },
     ];
 
     this.exportColumns = this.cols.map((col) => ({
@@ -221,7 +222,7 @@ export class ListPacketsComponent
               summary: 'Success',
               detail: 'Le champ a été modifié avec succés',
             });
-            if (response.status !== this.oldField) {
+            if (packet.field == 'status') {
               response.lastUpdateDate=new Date();
               this.packetService
                 .updatePacketStatus(packet['data'].id, response.status)
@@ -265,7 +266,7 @@ export class ListPacketsComponent
                 )
                 .subscribe((res: any) => {
                   response.barcode = res.Barcode;
-                  response.confirmationDate = new Date();
+                  response.date = new Date(); 
                   this.packetService
                     .updatePacket(response)
                     .subscribe((newpacket: any) => {
@@ -284,6 +285,7 @@ export class ListPacketsComponent
                     });
                 },
                 (err) => {
+                  this.isLoading = false;
                   this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
@@ -324,6 +326,7 @@ export class ListPacketsComponent
       status: 'Non confirmée',
       barcode: '',
       lastDeliveryStatus: '',
+      confirmation:false
     };
   }
   showDialog(packet: Packet) {
@@ -400,7 +403,7 @@ export class ListPacketsComponent
           }
 
           this.cdRef.detectChanges();
-          this.display = true;
+          this.displayStatus = true;
         },
         (err) => {
           this.messageService.add({
@@ -458,7 +461,10 @@ export class ListPacketsComponent
           detail: 'La commande est ajoutée avec succés',
           life: 1000,
         });
-        this.packets.unshift(response);
+        this.packetService
+        .updatePacketStatus(response.id, "Date Creation")
+        .subscribe((response: any) => {});
+          this.packets.unshift(response);
         this.packetService.allPackets.unshift(response);
         this.packetsByDate = this.packets.slice();
       });
@@ -666,7 +672,9 @@ export class ListPacketsComponent
   }
 
   exportExcel() {
-    let packets: any[] = [];
+    console.log(this.dt?._totalRecords)
+    console.log(this.dt?.totalRecords)
+     let packets: any[] = [];
     let selectedPackets = this.selectedPackets.map((p) => p.id);
     packets = this.packets.slice();
     if (this.filter != '' && this.filter != null)
@@ -862,8 +870,8 @@ export class ListPacketsComponent
 
   getPrice(price: any, deliveryPrice: any, dicount: any) {
     return price != null && price != ''
-      ? price + deliveryPrice - dicount + ' DT'
-      : '';
+      ? price + deliveryPrice - dicount 
+      : 0;
   }
 
   getPriceValue(price: any, deliveryPrice: any, dicount: any) {

@@ -169,7 +169,7 @@
               optionLabel="name"
               placeholder="-- Page --"
               [style]="{ width: '90%' }"
-              [panelStyle]="{ width: '10%' }"
+              [panelStyle]="{ width: '100%' }"
               class="p-inputtext-sm"
               appendTo="body"
             >
@@ -314,7 +314,7 @@
         </ng-template>
       </td>
       <td>
-        {{ getPrice(packet.price, packet.deliveryPrice, packet.discount) }}
+        {{ packet.price }} DT
       </td>
       <td
         pEditableColumn
@@ -343,9 +343,17 @@
           </ng-template>
           <ng-template pTemplate="output">
         
-            {{ packet.status }}
+            {{ packet.status }}     <i
+            (click)="showDialogStatus(packet)" 
+            class="pi pi-info-circle"
+          ></i>
           </ng-template>
         </p-cellEditor>
+        <div>
+
+          {{getDate(packet.lastUpdateDate)}}
+        </div>
+     
       </td>
       <td>
         <ng-container
@@ -376,22 +384,8 @@
           ></button>
         </ng-template>
       </td>
-      <td> 
-        {{getDate(packet.confirmationDate)}}
-      
-        </td>
-      <td> 
-        {{getDate(packet.lastUpdateDate)}}
-          <button
-          pButton
-          type="button"
-          (click)="showDialogStatus(packet)"
-          class="p-button-success"
-          label="{{ packet.status }}"
-        ></button>
-      
-        </td>
-    </tr>
+  
+        </tr>
   </ng-template>
   <ng-template pTemplate="emptymessage" let-columns>
     <tr>
@@ -447,7 +441,7 @@
   </p-timeline>
 </p-dialog>
 <p-dialog [header]="suiviHeader" 
-[modal]="true" [(visible)]="display">
+[modal]="true" [(visible)]="displayStatus">
   <p-timeline [value]="statusEvents">
     <ng-template pTemplate="content" let-event>
       <!-- Check if the event object is defined before accessing its properties -->
