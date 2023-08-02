@@ -1,0 +1,95 @@
+<p-toast position="bottom-right"></p-toast>
+
+<div class="container-fluid">
+    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5>Liste des offres</h5>
+                </div>
+                <div class="col-md-4">
+                    <button pButton pRipple icon="pi pi-plus" class="p-button-success mr-2 buttonSize pull-right"
+                        (click)="openNew()"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-danger mr-3 buttonSize pull-right"
+                        (click)="deleteSelectedOffers()"
+                        [disabled]="!selectedOffers || !selectedOffers.length"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--         <ng-template pTemplate="right">
+            <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+            <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"></button>
+        </ng-template> -->
+    <!--     </p-toolbar> -->
+
+    <p-table #dt [value]="offers" [rows]="10" responsiveLayout="scroll" [(selection)]="selectedOffers" [rowHover]="true"
+        dataKey="offerId">
+        <!--         <ng-template pTemplate="caption">
+            <div class="flex align-items-center justify-content-between">
+                <h5 class="m-0">Manage Models</h5>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template> -->
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
+                </th>
+                <th pSortableColumn="models">Modèles <p-sortIcon field="models"></p-sortIcon>
+                </th>
+                <th pSortableColumn="price">Prix <p-sortIcon field="price"></p-sortIcon>
+                </th>
+                <th pSortableColumn="enabled">Activé <p-sortIcon field="enabled"></p-sortIcon>
+                </th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-offer>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="offer"></p-tableCheckbox>
+                </td>
+                <td>{{offer.name}}</td>
+                <td>{{displayOfferModels(offer.modelQuantities)}}</td>
+                <td>{{offer.price}} DT</td>
+                <td>
+                    <ng-container *ngIf="offer.enabled;else disabled">
+                        <i class="fa fa-unlock" style="color: green;font-size: 17px;"></i>
+                    </ng-container>
+                    <ng-template #disabled>
+                        <i class="fa fa-lock" style="color: red;font-size: 17px;"></i>
+                    </ng-template>
+                </td>
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil"
+                        class="p-button-rounded p-button-warning mr-2 buttonSize" (click)="editOffer(offer)"></button>
+                    <!--   <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteOffer(offer)"></button> -->
+                </td>
+            </tr>
+        </ng-template>
+        <!--         <ng-template pTemplate="summary">
+            <div class="flex align-items-center justify-content-between">
+                En total il y a {{offers ? offers.length : 0 }} offres.
+            </div>
+        </ng-template> -->
+    </p-table>
+    <ng-container *ngIf="offers.length === 0">
+        <p class="mt-4" style="text-align: center;font-size: medium">Veuillez ajouter des offres</p>
+    </ng-container>
+</div>
+
+<p-dialog [(visible)]="offerDialog" [style]="{width: '60%'}" header="Détails de l'offre" [modal]="true"
+    styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <app-add-offer [offerModelDTO]="offer" [modelList]="models" [editMode]="editMode"
+            (submitEvent)="OnSubmit($event)"></app-add-offer>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

@@ -1,0 +1,118 @@
+<div class="container">
+  <div class="row">
+    <form [formGroup]="packetForm">
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title mb-2">
+            <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-7">
+                <span style="font-size: smaller;color: rgb(155, 154, 154)"  *ngIf="packetDescription != ''">Articles : </span>
+                <span style="font-size: 13.5px;font-family: Segoe UI', Tahoma, Geneva, Verdana, sans-serif', serif;font-weight: 550;">{{ packetDescription }} </span>
+              </div>
+              <div class="col-md-4" >
+                  <span style="font-size: smaller;color: rgb(155, 154, 154)" *ngIf="packetDescription != ''">Références : </span>
+                  <label style="font-size: 12.5px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-weight: 520;">{{ productReferences }}</label>
+              </div>
+              <div class="col-md-1">
+                <button pButton pRipple icon="pi pi-plus" class="p-button-success p-button-sm buttonSize pull-right mb-3 mr-3"
+                (click)="addOffer()"></button>
+              </div>
+            </div>
+            </div>
+          </div>
+          <div class="card-text">
+            <div class="container-fluid">
+              <table class="table table-bordered" style="background-color: #fcfcfc" formArrayName="offers">
+                <thead align="center">
+                  <th>Offres</th>
+                  <th>Modèles - Articles</th>
+                  <th></th>
+                </thead>
+                <tr *ngFor="let offer of offers().controls; let i=index" [formGroupName]="i" class="mt-4">
+                  <td>
+                    <p-dropdown [options]="offersList" (onChange)="onOfferChange($event.value, i)" optionLabel="name"
+                      formControlName="name" optionValue="name" [style]="{ width: '200px'}"
+                      [panelStyle]="{ width: '200px' }" [showClear]="true" placeholder="Choisir l'offre" appendTo="body">
+                    </p-dropdown>
+                    <!--                     <p *ngIf="offer.get('models')?.value != ''" class="mt-2">
+                      <span>Modèles associés : {{offer.get('models')?.value}}</span>
+                    </p> -->
+                  </td>
+                  <td formArrayName="models">
+                <tr *ngFor="let model of models(i).controls; let j=index" [formGroupName]="j" class="mt-3"  style="max-width: 100%;">
+                  <td style="text-align:center;vertical-align: middle;background-color: aliceblue;width: 20%;">
+                    <small style="font-style: normal;font-size: 14.3px">{{model.get("name")?.value}}</small>
+                  </td>
+                  <td>
+                    <p-dropdown [options]="model.get('colors')?.value" (ngModelChange)="setSelectedProductValue(model, j, offer)" optionLabel="name"
+                      formControlName="selectedColor" [style]="{ width: '300px'}" [panelStyle]="{ width: '300px' }" [showClear]="true" appendTo="body"
+                      placeholder="Choisir la couleur">
+                    </p-dropdown>
+                  </td>
+                  <td>
+                    <p-dropdown [options]="model.get('sizes')?.value" (ngModelChange)="setSelectedProductValue(model, j, offer)" optionLabel="reference" formControlName="selectedSize" [style]="{ width: '200px'}" appendTo="body"
+                      [panelStyle]="{ width: '200px' }" [showClear]="true" placeholder="Choisir la taille">
+                    </p-dropdown>
+                  </td>
+                </tr>
+                </td>
+                <td style="text-align: center">
+                  <button pButton pRipple icon="pi pi-trash" class="p-button-danger p-button-sm buttonSize"
+                    (click)="removeOffer(offer , i)"></button>
+                   <!--  <button pButton pRipple icon="pi pi-refresh" class="p-button-text p-button buttonSize mt-2"
+                    (click)="clearModel(offer.get('name')?.value,i)"></button> -->
+                </td>
+                </tr>
+              </table>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+
+      <div *ngIf="totalPrice > 0" class="row mt-3">
+<!--         <div class="col-md-2" >
+          <button pButton pRipple label="Annuler" icon="pi pi-times"  class="p-button-text p-button-sm" (click)="hideDialog()"></button>
+        </div> -->
+        <div class="col-md-3" align="center">
+          <span style="font-size: 15px;font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;font-weight: 580;color: blue">Prix Articles : </span>
+          <label style="font-weight: bold">{{totalPrice}} DT</label>
+        </div>
+        <div class="col-md-3">
+          <div class="row">
+            <div class="col-md-5">
+              <small>Prix Livraison</small>
+              </div>
+              <div class="col-md-4">
+                <input type="number" class="form-control form-control-sm" (change)="calculatePacketPrice()" style="height: 10px !important" min="0" placeholder="Liivraison"
+                name="deliveryPrice" formControlName="deliveryPrice" />
+              </div>
+             </div>
+          </div>
+        <div class="col-md-2">
+          <div class="row">
+            <div class="col-md-5">
+          <small>Remise</small>
+          </div>
+          <div class="col-md-6">
+            <input type="number" class="form-control form-control-sm" (change)="calculatePacketPrice()" style="height: 10px !important" id="price" min="0" placeholder="Remise"
+            name="discount" formControlName="discount"/>
+          </div>
+         </div>
+        </div>
+        <div class="col-md-2" align="center">
+          <span style="font-size: 15px;font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;font-weight: 580;color: #22C55E">Prix Total : </span>
+          <label style="font-weight: bold">{{packetPrice}} DT</label>
+        </div>
+        <div class="col-md-2" style="margin-left:85%">
+          <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text" (click)="onSubmit()"></button>
+        </div>
+        </div>
+      <!-- <button type="submit" class="btn btn-success" >Valider</button> -->
+
+    </form>
+
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<div class="container-fluid">
+    <div class="row mt-3 mb-3">
+        <div class="col-md-8">
+            <button pButton pRipple icon="pi pi-plus" class="p-button-success p-button-sm mb-2 mr-2 mt-2 buttonSize"
+                (click)="addNewRow()"></button>
+            <button pButton pRipple icon="pi pi-trash" class="p-button-danger p-button-sm mb-2 ml-2 mt-2 buttonSize"
+                (click)="deleteSelectedGovernorates()"
+                [disabled]="!selectedGovernorates || !selectedGovernorates.length"></button>
+        </div>
+    </div>
+    <div class="mb-4">
+        <p-table #dt [value]="governorates" styleClass="p-datatable-gridlines p-datatable-sm" class="table table-hover"
+            [autoLayout]="true" selectionMode="multiple" [(selection)]="selectedGovernorates" responsiveLayout="scroll"
+            (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" dataKey="id">
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th style="width: 3rem;" class="align-center">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
+                    </th>
+                    <!--  <th>Actions</th> -->
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-governorate>
+                <tr>
+                    <td>
+                        <p-tableCheckbox [value]="governorate"></p-tableCheckbox>
+                    </td>
+                    <td pEditableColumn [pEditableColumn]="governorate" [pEditableColumnField]="'name'"
+                        style="cursor: pointer;">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input pInputText type="text" [(ngModel)]="governorate.name">
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{governorate.name}}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

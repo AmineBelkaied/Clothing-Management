@@ -1,0 +1,39 @@
+<h5 class="mb-3 ml-3 mt-4">Ajouter une page facebook</h5>
+<div class="card ml-4 mt-4 mb-4" style="width: 90%;">
+  <div class="card-body">
+    <div class="card-text">
+      <form #modelForm="ngForm" (ngSubmit)="addFbPage(modelForm)">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="name" class="form-label">Nom</label>
+              <input type="text" class="form-control" id="name" placeholder="Nom de la page facebook" name="name"
+                [(ngModel)]="fbPage.name" />
+            </div>
+            <div class="col-md-6">
+              <label for="link" class="form-label">Lien</label>
+              <input type="text" class="form-control" id="link" placeholder="Lien de la page facebook" name="link"
+                [(ngModel)]="fbPage.link" />
+            </div>
+          </div>
+          <br>
+          <div class="col-md-12 mt-2 pull-left">
+            <ng-container *ngIf="fbPageService.editMode;else addMode">
+              <div class="row">
+                <div class="col-md-3">
+                  <button type="submit" class="btn btn-success">Modifier</button>
+                </div>
+                <div class="col-md-9">
+                  <button type="button" class="btn btn-info" (click)="reset(modelForm)">Reset</button>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #addMode>
+              <button type="submit" class="btn btn-primary">Ajouter</button>
+            </ng-template>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

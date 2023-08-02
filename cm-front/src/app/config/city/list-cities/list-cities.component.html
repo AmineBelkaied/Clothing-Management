@@ -1,0 +1,93 @@
+
+<div class="container-fluid">
+    <div class="card ml-3 mr-3 mt-2 mb-3" style="background-color: #ffffff">
+        <div class="card-body">
+        <div class="row">
+            <div class="col-md-7">  
+                <h5>Liste des villes</h5>
+            </div>
+            <div class="col-md-3">
+                <span class="p-input-icon-left ml-auto">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="search(dt , $event)" class="p-inputtext-sm"  placeholder="Rechercher .." />
+                </span>
+            </div>
+            <div class="col-md-2">
+                <button pButton pRipple icon="pi pi-plus" class="p-button-success p-button-sm  mr-4 buttonSize" (click)="openNew()"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-danger p-button-sm   buttonSize" (click)="deleteSelectedCities()" [disabled]="!selectedCities || !selectedCities.length"></button>
+            </div>
+        </div>
+    </div>
+    <div class="ml-5 mb-4" style="width: 90%;">
+        <p-table #dt [value]="cities" styleClass="p-datatable-gridlines p-datatable-sm mb-1"  groupRowsBy="governorate.name" dataKey="id" sortField="gouvernorat.name"  [scrollable]="true" scrollHeight="500px" rowGroupMode="subheader"
+            sortMode="single" selectionMode="multiple" [(selection)]="selectedCities"  responsiveLayout="scroll"  (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)"  [globalFilterFields]="['governorate.name', 'name' , 'postalCode']">
+            <ng-template pTemplate="header">
+                <tr>
+<!--                     <th>Gouvernorat</th> -->
+                    <th>Ville</th>
+                    <th>Code Postal</th>
+            <th style="width: 10px;" class="align-center">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="groupheader" let-city>
+                <tr pRowGroupHeader style="background-color: #dee2e6;">
+                    <td colspan="3" style="text-align: left !important">
+                        <span class="font-bold ml-2">{{city.governorate?.name}}</span>
+                    </td>
+                </tr>
+            </ng-template>
+<!--             <ng-template pTemplate="groupfooter" let-city>
+                <tr>
+                    <td style="text-align: right;font-weight: bold;background-color: lightgray;" class="font-bold pr-6">{{city.model.description}} - {{product.model.reference}}</td>
+                </tr>
+            </ng-template> -->
+            <ng-template pTemplate="body" let-city>
+                <tr>
+<!--                     <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
+                        <span class="font-bold ml-2">{{city.governorate?.name}}</span>
+                    </td> -->
+                    <td pEditableColumn [pEditableColumn]="city" [pEditableColumnField]="'name'" style="cursor: pointer;">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input pInputText type="text" [(ngModel)]="city.name">
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{city.name}}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td pEditableColumn [pEditableColumn]="city" [pEditableColumnField]="'postalCode'" style="cursor: pointer;">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input pInputText type="text" [(ngModel)]="city.postalCode">
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{city.postalCode}}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td>
+                        <p-tableCheckbox [value]="city"></p-tableCheckbox>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <ng-container *ngIf="cities.length === 0">
+            <p class="mt-4" style="text-align: center;font-size: medium">Veuillez ajouter des offres</p>
+        </ng-container>
+    </div>
+</div>
+
+<p-dialog [(visible)]="cityDialog" [style]="{width: '60%'}" header="Détails de la ville" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <app-add-city [city]="city" [governorates]="governorates"></app-add-city>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+<!--         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button> -->
+        <button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'" [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"  class="p-button-text" (click)="saveCity()"></button>
+    </ng-template>
+</p-dialog>
+

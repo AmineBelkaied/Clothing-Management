@@ -1,0 +1,110 @@
+<p-toast position="bottom-right"></p-toast>
+<div class="container-fluid">
+    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+        <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Stock</h5>
+            </div>
+            <div class="col-md-5">
+                <span class="p-input-icon-left ml-auto">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" style="width: 150%" placeholder="Référence, Modèle, Couleur, Taille.." />
+                    <!--(input)="search($event)"-->
+                </span>
+            </div>
+            <div class="col-md-3">
+                <button pButton pRipple icon="pi pi-trash" class="p-button-danger mb-2 mt-2 buttonSize pull-right"
+                (click)="deleteSelectedProducts()"
+                [disabled]="!selectedProducts || !selectedProducts.length"></button>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="mb-4">
+<p-table [columns]="cols" [value]="models"  responsiveLayout="scroll"  dataKey="id" >
+    <ng-template pTemplate="header" let-columns>
+        <tr>
+            <th></th>
+            <th>Modèle</th>
+        </tr>
+    </ng-template>
+<!--     <ng-template pTemplate="groupheader" let-product>
+        <tr pRowGroupHeader style="background-color: #13aa4b;color: white">
+            <td colspan="5">
+                <span class="font-bold ml-2">{{product.model.name}}</span>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="groupfooter" let-product>
+        <tr>
+            <td style="text-align: right;font-weight: bold;background-color: lightgray;" class="font-bold pr-6">{{product.model.description}} - {{product.model.reference}}</td>
+        </tr>
+    </ng-template> -->
+
+    <ng-template pTemplate="body" let-model let-expanded="expanded">
+        <tr [ngClass]="[expanded ? 'expand-model' : '']">
+            <td style="width: 2px;"  (click)="getProducts(model.id)">
+                <button type="button" pButton  pRipple [pRowToggler]="model" class="p-button-text p-button-rounded p-button-plain p-button-sm" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" ></button>
+            </td>
+            <td>
+                <span>{{model.name}}</span>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="rowexpansion" let-product>
+        <tr>
+            <td colspan="7">
+                <div class="p-3">
+<!--             <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
+                <span class="font-bold ml-2">{{product.model?.name}}</span>
+            </td>  -->
+            <p-table #dt [columns]="cols" [value]="products" styleClass="p-datatable-gridlines p-datatable-sm mb-1" [(selection)]="selectedProducts"  responsiveLayout="scroll"
+            (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)" dataKey="id"
+            [globalFilterFields]="['reference', 'model.name' , 'color.name' ,'size.reference']" rowGroupMode="rowspan" groupRowsBy="color.name" id="table">
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                            <th *ngFor="let col of columns" [pSortableColumn]="col.field" class="align-center">
+                                {{col.header}}<p-sortIcon [field]="col.field"></p-sortIcon>
+                            </th>
+                            <th style="width: 3rem;" class="align-center">
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-product let-rowIndex="rowIndex" let-rowgroup="rowgroup" let-rowspan="rowspan">
+                    <tr>
+                        <td *ngIf="rowgroup" [attr.rowspan]="rowspan" style="background-color: #fbfbfb;border-width: 0.07cm;border-color: rgb(221, 221, 221);">
+                            <span class="font-bold ml-2">{{product.color?.name}}</span>
+                        </td>
+                        <td [ngClass]="[product.quantity <= 0 ? 'no-products' : '',  product.quantity <= 3 && product.quantity >0 ? 'warning-product' : '']">{{product.size?.reference}}</td>
+            <!--             <td [ngClass]="[product.quantity == 0 ? 'no-products' : '',  product.quantity <= 3 && product.quantity >0 ? 'warning-product' : '']">{{product.id}}</td> -->
+                        <td pEditableColumn [pEditableColumn]="product" [pEditableColumnField]="'quantity'"
+                            style="cursor: pointer;width: 210px;" [ngClass]="[product.quantity <= 0 ? 'no-products' : '',  product.quantity <= 3 && product.quantity >0 ? 'warning-product' : '']">
+                            <p-cellEditor>
+                                <ng-template pTemplate="input">
+                                    <input pInputText type="number" [(ngModel)]="product.quantity">
+                                </ng-template>
+                                <ng-template pTemplate="output" >
+                                    {{product.quantity}}
+                                </ng-template>
+                            </p-cellEditor>
+                        </td>
+                        <td [ngClass]="[product.quantity <= 0 ? 'no-products' : '',  product.quantity <= 3 && product.quantity >0 ? 'warning-product' : '']">{{product.reference}}</td>
+                        <td style="width: 20%;text-align: center;">{{product.date | date : 'dd/MM'}} </td>
+                        <td style="max-width: 50px" >
+                            <p-tableCheckbox [value]="product"></p-tableCheckbox>
+                        </td>
+                    </tr>
+                </ng-template>
+
+            </p-table>
+        </div>
+    </td>
+</tr>
+</ng-template>
+</p-table>
+</div>
+</div>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

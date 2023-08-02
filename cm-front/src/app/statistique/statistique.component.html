@@ -1,0 +1,176 @@
+<!--<table width="100%">
+  <tr>
+    <td colspan="2">
+      <h5>totalRow</h5>
+    </td>
+    <td colspan="2">
+      <h5>qtePerSizeColumn</h5>
+    </td>
+    <td colspan="2">
+      <h5>totalPerDayColumn</h5>
+    </td>
+    <td colspan="2">
+      <h5>totalPerDayColorColumn</h5>
+    </td>
+    <td colspan="2">
+      <h5>Model</h5>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <p-inputSwitch
+        (onChange)="handleChange()"
+        [(ngModel)]="totalRow"
+      ></p-inputSwitch>
+    </td>
+    <td colspan="2">
+      <p-inputSwitch
+        (onChange)="handleChange()"
+        [(ngModel)]="qtePerSizeColumn"
+      ></p-inputSwitch>
+    </td>
+    <td colspan="2">
+      <p-inputSwitch
+        (onChange)="handleChange()"
+        [(ngModel)]="totalPerDayColumn"
+      ></p-inputSwitch>
+    </td>
+    <td colspan="2">
+      <p-inputSwitch
+        (onChange)="handleChange()"
+        [(ngModel)]="totalPerDayColorColumn"
+      ></p-inputSwitch>
+    </td>
+    <td colspan="2">
+      <p-dropdown [options]="models" [(ngModel)]="selectedModel" (onChange)="handleChange()" [placeholder]="selectedModel"></p-dropdown>
+    </td>
+  </tr>
+</table>
+
+<p-table [value]="statTab" styleClass="p-datatable-gridlines">
+  <ng-template pTemplate="header">
+    <tr>
+      <th rowspan="3">Day</th>
+      <th colspan="40">{{ selectedModel }}</th>
+    </tr>
+    <tr *ngIf="qtePerSizeColumn">
+      <th [attr.colspan]="columnPerColor" *ngFor="let color of colors">
+        {{ color }}
+      </th>
+    </tr>
+    <tr>
+      <th *ngFor="let size of sizesRow">{{ size }}</th>
+      <th *ngIf="totalPerDayColumn">tot/jour</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-stat>
+    <tr>
+      <td *ngFor="let x of stat">{{ x }}</td>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <tr *ngIf="totalRow">
+      <td>total</td>
+      <td *ngFor="let x of totalPerSize">{{ x }}</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<table>
+    <tr>
+      <td>Sizes</td>
+      <td *ngFor="let x of sizes">{{ x }}</td>
+    </tr>
+  <tr>
+    <td>totalPerSizeRow</td>
+    <td *ngFor="let x of totalPerSizeRow">{{ x }}</td>
+  </tr>
+</table>-->
+{{ citys.length }}
+
+<!-- <div class="card">
+  <p-chart type="bar" [data]="basicData" [options]="basicOptions"></p-chart>
+</div>
+ -->
+
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card-body px-0 py-0">
+      <div class="row mt-3 ml-2 mr-3 mb-3">
+        <div class="col-md-5">
+          <p-calendar
+            [(ngModel)]="rangeDates"
+            (ngModelChange)="onChangeEndDate($event)"
+            selectionMode="range"
+            [appendTo]="chartContainer"
+            dateFormat="dd/mm/yy"
+            [readonlyInput]="true"
+            inputId="range"
+            placeholder="Filtrer par date/période"
+            [showClear]="false"
+            (onClearClick)="resetTable()"
+            [showButtonBar]="true"
+            [showIcon]="true"
+            class="ml-4"
+            [style]="{ width: '300px', 'z-index': 100 }"
+          ></p-calendar>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card" #chartContainer>
+      <p-chart
+        type="bar"
+        [data]="StatesData"
+        [options]="StatesOptions"
+      ></p-chart>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card">
+      <p-chart
+        type="line"
+        [data]="DatesData"
+        [options]="DatesOptions"
+      ></p-chart>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div
+      class="card flex justify-content-center"
+      style="height: 400px; width: 400px"
+    >
+      <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
+    </div>
+  </div>
+</div>
+<!--
+ <div class="card">
+  <p-treeTable [value]="counts" [columns]="cols">
+    <ng-template pTemplate="header" let-columns>
+        <tr>
+            <th *ngFor="let col of columns">
+                {{col.header}}
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+        <tr>
+            <td *ngFor="let col of columns; let i = index">
+                <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+                {{rowData[col.field]}}
+            </td>
+        </tr>
+    </ng-template>
+</p-treeTable>
+</div>
+-->

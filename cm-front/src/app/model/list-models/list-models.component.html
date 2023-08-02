@@ -1,0 +1,86 @@
+<p-toast position="bottom-right"></p-toast>
+<!-- 
+<div class="row mb-5">
+    <app-add-model [model]="model"></app-add-model>
+</div> -->
+
+<div class="container-fluid">
+<!--     <p-toolbar styleClass="mb-4"> -->
+    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+        <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <h5>Liste des modèles</h5>
+            </div>
+            <div class="col-md-4">
+                <button pButton pRipple icon="pi pi-plus" class="p-button-success mr-2 buttonSize pull-right" (click)="openNew()"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-danger mr-3 buttonSize pull-right" (click)="deleteSelectedModels()" [disabled]="!selectedModels || selectedModels.length == 0"></button>
+            </div>
+        </div>
+    </div>
+    </div>
+<!--         <ng-template pTemplate="right">
+            <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+            <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"></button>
+        </ng-template> -->
+<!--     </p-toolbar> -->
+
+    <p-table #dt [value]="models" [rows]="10" responsiveLayout="scroll" [(selection)]="selectedModels" [rowHover]="true" dataKey="id">
+<!--         <ng-template pTemplate="caption">
+            <div class="flex align-items-center justify-content-between">
+                <h5 class="m-0">Manage Models</h5>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template> -->
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon></th>
+                <th pSortableColumn="reference">Référence <p-sortIcon field="reference"></p-sortIcon></th>
+                <th pSortableColumn="colors">Couleurs <p-sortIcon field="colors"></p-sortIcon></th>
+                <th pSortableColumn="size">Taille (Max) <p-sortIcon field="size"></p-sortIcon></th>
+                <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-model>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="model"></p-tableCheckbox>
+                </td>
+                <td>{{model.name}}</td>
+                <td>{{model.reference}}</td>
+                <td>{{modelColorsDisplay(model.colors)}}</td>
+                <td>{{modelSizesDisplay(model.sizes)}}</td>
+                <td>{{model.description}}</td>
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2 buttonSize" (click)="editModel(model)"></button>
+<!--                     <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteModel(model)"></button> -->
+                </td>
+            </tr>
+        </ng-template>
+<!--         <ng-template p -->Template="summary">
+<!--             <div class -->="flex align-items-center justify-content-between" style="font-size: small !important">
+<!--                 En tot -->al il y a {{models ? models.length : 0 }} modèles
+<!--             </div> -->
+<!--         </ng-template> -->
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="modelDialog" [style]="{width: '60%'}" header="Détails du modèle" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <app-add-model [model]="model" [colors]="colors" [sizes]="sizes" [editMode]="editMode"></app-add-model>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+<!--         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button> -->
+        <button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'" [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"  class="p-button-text" (click)="saveModel()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

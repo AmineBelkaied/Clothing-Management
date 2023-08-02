@@ -1,0 +1,100 @@
+<div class="card" style="width: 100%">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Offre</h5>
+      <div class="card-text">
+        <form [formGroup]="offerForm">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-5">
+                <label for="name" class="form-label">Nom</label>
+                <input type="text" class="form-control" id="name" placeholder="Nom de l'offre" name="name" formControlName="name"/>
+              </div>
+              <div class="col-md-5">
+                <label for="price" class="form-label">Prix</label>
+                <input type="number" class="form-control" id="price" min="1" placeholder="Prix de l'offre"
+                  name="price" formControlName="price" />
+              </div>
+              <div class="col-md-2">
+                <div class="row ml-3">
+                    <label for="enabled" class="form-label">Activé</label>
+                    <p-inputSwitch formControlName="enabled"></p-inputSwitch>
+                </div>
+
+              </div>
+            </div>
+  
+            <!--  -->
+<!--             <div class="row mt-4">
+              <div class="col-md-9">
+                <p-multiSelect [options]="models" [(ngModel)]="offer.models" name="models" display="chip" [style]="{ width: '100%' }"
+                  [panelStyle]="{ width: '100%' }" [placeholder]="'Modèles'" optionLabel="models"></p-multiSelect>
+              </div>
+              <div class="col-md-1">
+                <label for="name" class="form-label">Quan (Max)</label>
+              </div>
+              <div class="col-md-2">
+                <p-dropdown [options]="sizes" [(ngModel)]="model.size" name="size" [style]="{ width: '100%' }" [panelStyle]="{ width: '100%' }"></p-dropdown>
+              </div>
+            </div> -->
+                <div class="row mt-5">
+                    <div class="card" style="width: 100%;">
+                      <div class="card-body">
+                        <div class="card-title">
+                          <p>
+                            <button pButton pRipple icon="pi pi-plus" class="p-button-success p-button-sm buttonSize pull-right mb-3 mr-3"
+                              (click)="addModelQuantity()"></button>
+                          </p>
+            
+                        </div>
+                        <div class="card-text">
+                          <div class="container-fluid">
+                            <table class="table table-bordered" style="background-color: #fcfcfc" formArrayName="modelQuantities">
+                              <thead align="center">
+                                <th>Modèle</th>
+                                <th>Quantité</th>
+                                <th></th>
+                              </thead>
+                              <tr *ngFor="let modelQuantity of modelQuantities().controls; let i=index" [formGroupName]="i" class="mt-4">
+                                <td align="center">
+                                  <p-dropdown [options]="modelList"  optionLabel="name" dataKey="id"
+                                    formControlName="model" [style]="{ width: '70%'}"
+                                    [panelStyle]="{ width: '10%' }" [showClear]="true" placeholder="Choisir le modèle" appendTo="body">
+                                  </p-dropdown>
+
+                                </td>
+                              <td align="center">
+                                  <input type="number" class="form-control mt-4" style="width: 50%;border-width: thin" min="1" id="quantity" placeholder="Quantité"
+                                  name="quantity" formControlName="quantity" />
+                              </td>
+                              <td align="center">
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-danger p-button-sm buttonSize mt-4"
+                                (click)="removeModelQuantity(i)"></button>
+                              </td>
+                              </tr>
+                            </table>
+                            <ng-container *ngIf="modelQuantities().controls.length === 0">
+                              <p style="text-align: center;">Ajouter un modèle pour cette offre</p> 
+                            </ng-container>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+   <!--                  <br>
+                    <div class="row">
+                      <div class="col-md-2" style="margin-left:80%">
+                        <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text p-button-sm" (click)="onSubmit()"></button>
+                      </div>
+                    </div> -->
+                    <div  class="col-md-3 mt-3" style="margin-left:80%">
+<!--                     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button> -->
+                    <button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'" [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'" class="p-button-text" (click)="saveOffer()"></button>
+                  </div>
+            <br>
+  
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
