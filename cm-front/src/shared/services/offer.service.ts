@@ -18,6 +18,10 @@ export class OfferService {
     return this.http.get(this.baseUrl + "/findAll");
   }
 
+  findAllOffersModelQuantities() {
+    return this.http.get(this.baseUrl + "/findAllOffersModelQuantities");
+  }
+
   findOfferById(id: number) {
     return this.http.get(this.baseUrl + "/findById/" + id);
   }

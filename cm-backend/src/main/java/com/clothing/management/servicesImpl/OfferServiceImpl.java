@@ -56,6 +56,30 @@ public class OfferServiceImpl implements OfferService {
         return offerModelsListDTO;
     }
 
+    @Override
+    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() {
+        Map<Offer, List<OfferModel>> offerListMap = offerModelRepository.findAll()
+                .stream()
+                .collect(groupingBy(OfferModel::getOffer));
+
+        List<OfferModelQuantitiesDTO> offerModelListDTO = new ArrayList<>();
+        OfferModelQuantitiesDTO offerModelDTO = null;
+
+        for (Offer offer : offerListMap.keySet()) {
+            offerModelDTO = new OfferModelQuantitiesDTO(offer.getId(), offer.getName() , offer.getPrice() , offer.isEnabled());
+            List<OfferModel> offerModels= offerListMap.get(offer);
+            List<ModelQuantity> modelQuantities = new ArrayList<>();
+            for(OfferModel offerModel : offerModels) {
+                Model model = mapToModel(offerModel.getModel());
+                ModelQuantity modelQuantity = new ModelQuantity(offerModel.getQuantity() , model);
+                modelQuantities.add(modelQuantity);
+            }
+            offerModelDTO.setModelQuantities(modelQuantities);
+            offerModelListDTO.add(offerModelDTO);
+        }
+        return offerModelListDTO;
+    }
+
     private Model mapToModel(Model model) {
         Model newModel = new Model();
         newModel.setId(model.getId());

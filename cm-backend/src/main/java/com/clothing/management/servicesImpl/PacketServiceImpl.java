@@ -107,9 +107,9 @@ public class PacketServiceImpl implements PacketService {
                 System.out.println("field.get(firstKey) : " + field.get(firstKey));
                 ReflectionUtils.setField(fieldPacket, packet, field.get(firstKey));
                 if (firstKey.equals("status")) {
-                    if (field.get(firstKey).equals("Confirmée") || field.get(firstKey).equals("Retour") || field.get(firstKey).equals("Echange")) {
+                    if (field.get(firstKey).equals("Confirmée") || field.get(firstKey).equals("Retour reçu") || field.get(firstKey).equals("Echange")) {
                         if(field.get(firstKey).equals("Echange"))packet.setExchange(true);
-                        if (!field.get(firstKey).equals("Retour"))
+                        if (!field.get(firstKey).equals("Retour reçu"))
                             createBarCode(packet, DeliveryCompany.FIRST.toString());
                         System.out.println("packet confirmé ou echange: " + packet);
                         updateProductQuantity(packet, field, firstKey);
@@ -125,19 +125,17 @@ public class PacketServiceImpl implements PacketService {
     }
 
     private void updateProductQuantity(Packet packet,  Map<String, Object> field,String firstKey) {
-        // iterate through all productsRef
-        String[] relatedProductRefs = packet.getRelatedProducts().split(" , ");
-        for (String productRef : relatedProductRefs) {
-            Product product = productRepository.findByReference(productRef);
-            if (product != null) {
-                // reduce product qte
-                if (field.get(firstKey).equals("Confirmée")||field.get(firstKey).equals("Echange")) {
-                    product.setQuantity(product.getQuantity() - 1);
+        List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
+        for (ProductsPacket productsPacket : productsPackets) {
+            Optional<Product> product = productRepository.findById(productsPacket.getProduct().getId());
+            if (product.isPresent()) {
+                if (field.get(firstKey).equals("Confirmée") || field.get(firstKey).equals("Echange")) {
+                    product.get().setQuantity(product.get().getQuantity() - 1);
                 } else {
-                    product.setQuantity(product.getQuantity() + 1);
+                    product.get().setQuantity(product.get().getQuantity() + 1);
                 }
-                product.setDate(new Date());
-                productRepository.save(product);
+                product.get().setDate(new Date());
+                productRepository.save(product.get());
             }
             // add the products of the packet inside historic table
             // productsPacketRepository.save(new ProductsPacket(product, packet, new Date()));

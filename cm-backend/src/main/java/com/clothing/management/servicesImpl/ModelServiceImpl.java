@@ -40,10 +40,12 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public Model addModel(Model model) {
-        Color color1 = colorRepository.findByReference("?");
-        model.getColors().add(color1);
-        model.getSizes().add(sizeRepository.findByReference("?"));
-      Model modelResponse = modelRepository.save(model);
+        if(model.getColors().stream().noneMatch(color -> color.getReference().equals("?"))
+                && model.getSizes().stream().noneMatch(size -> size.getReference().equals("?"))) {
+            model.getColors().add(colorRepository.findByReference("?"));
+            model.getSizes().add(sizeRepository.findByReference("?"));
+        }
+        Model modelResponse = modelRepository.save(model);
       // Generate products
       if(model.getColors().size() > 0) {
           for(Color color : model.getColors()) {
@@ -52,7 +54,6 @@ public class ModelServiceImpl implements ModelService {
                       String productRef = model.getReference().concat(color.getReference()).concat(size.getReference());
                       if(productRepository.findByReference(productRef) == null) {
                           Product product = new Product(productRef, size, color, 0, new Date(), null, modelResponse);
-                          System.out.println("product -- " + productRef);
                           productRepository.save(product);
                       }
                   }

@@ -121,17 +121,4 @@ public class Model {
                 ", sizes=" + sizes +
                 '}';
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Model)) return false;
-        Model model = (Model) o;
-        return getId().equals(model.getId()) && getName().equals(model.getName()) && getProducts().equals(model.getProducts()) && getReference().equals(model.getReference()) && getDescription().equals(model.getDescription()) && getColors().equals(model.getColors()) && getSizes().equals(model.getSizes()) && getModelOffers().equals(model.getModelOffers());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getName(), getProducts(), getReference(), getDescription(), getColors(), getSizes(), getModelOffers());
-    }
 }

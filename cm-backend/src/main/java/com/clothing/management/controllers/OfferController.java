@@ -23,6 +23,11 @@ public class OfferController {
         return offerService.findAllOffers();
     }
 
+    @GetMapping(path = "/findAllOffersModelQuantities")
+    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() {
+        return offerService.findAllOffersModelQuantities();
+    }
+
     @GetMapping(path = "/findById/{id}")
     public Optional<Offer> findByIdOffer(@PathVariable Long idOffer) {
         return offerService.findOfferById(idOffer);

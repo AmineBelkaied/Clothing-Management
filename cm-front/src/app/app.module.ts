@@ -50,6 +50,7 @@ import { ListModelsComponent } from './model/list-models/list-models.component';
 import { AddSizeComponent } from './config/size/add-size/add-size.component';
 import { ListSizesComponent } from './config/size/list-sizes/list-sizes.component';
 import { ChartModule } from 'primeng/chart';
+import { ToggleButtonModule } from 'primeng/togglebutton';
 import { CityTreeService } from 'src/shared/services/cityTree.service';
 import { StatistiqueComponent } from './statistique/statistique.component';
 
@@ -105,6 +106,7 @@ import { StatistiqueComponent } from './statistique/statistique.component';
     InputTextareaModule,
     HttpClientModule,
     ChartModule,
+    ToggleButtonModule,
     TreeTableModule
   ],
   providers: [MessageService, ConfirmationService,CityTreeService ],

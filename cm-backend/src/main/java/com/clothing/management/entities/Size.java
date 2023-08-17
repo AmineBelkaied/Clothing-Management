@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class Size {
+public class Size implements Comparable<Size> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,5 +69,10 @@ public class Size {
                 ", reference='" + reference + '\'' +
                 ", description='" + description + '\'' +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Size o) {
+        return 0;
     }
 }

@@ -1,11 +1,14 @@
 package com.clothing.management.controllers;
 
+import com.clothing.management.dto.ProductQuantity;
+import com.clothing.management.dto.StockDTO;
 import com.clothing.management.entities.Product;
 import com.clothing.management.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -44,5 +47,15 @@ public class ProductController {
     @DeleteMapping(value = "/deleteSelectedProducts/{productsId}" , produces = "application/json")
     public void deleteSelectedPackets(@PathVariable List<Long> productsId) {
         productService.deleteSelectedProducts(productsId);
+    }
+
+    @GetMapping(path = "/getStock/{modelId}")
+    public StockDTO getStock(@PathVariable Long modelId) {
+        return productService.getStock(modelId);
+    }
+
+    @PostMapping(path = "/addStock" , produces = "application/json")
+    public void getStock(@RequestBody List<ProductQuantity> products) {
+        productService.addStock(products);
     }
 }

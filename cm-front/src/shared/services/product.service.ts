@@ -7,7 +7,7 @@ import { baseUrl } from '../../assets/constants';
 })
 export class ProductService {
 
-  private baseUrl: string = baseUrl+"/product";
+  private baseUrl: string = baseUrl + "/product";
 
   constructor(private http: HttpClient) { }
 
@@ -23,4 +23,11 @@ export class ProductService {
     return this.http.put(this.baseUrl + "/update", product, { headers: { 'content-type': 'application/json' } })
   }
 
+  getStock(modelId: number) {
+    return this.http.get(this.baseUrl + "/getStock/" + modelId);
+  }
+
+  addStock(products: any) {
+    return this.http.post(this.baseUrl + "/addStock", products);
+  }
 }

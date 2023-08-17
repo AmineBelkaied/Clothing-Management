@@ -240,12 +240,10 @@ public class Packet {
                 ", customerPhoneNb='" + customerPhoneNb + '\'' +
                 ", city=" + city +
                 ", address='" + address + '\'' +
-                ", relatedProducts='" + relatedProducts + '\'' +
                 ", packetDescription='" + packetDescription + '\'' +
                 ", packetReference='" + packetReference + '\'' +
                 ", barcode='" + barcode + '\'' +
                 ", lastDeliveryStatus='" + lastDeliveryStatus + '\'' +
-                ", packetStatus=" + packetStatus +
                 ", fbPage=" + fbPage +
                 ", price=" + price +
                 ", deliveryPrice=" + deliveryPrice +

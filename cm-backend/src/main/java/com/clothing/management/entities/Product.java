@@ -54,6 +54,11 @@ public class Product {
         this.size = size;
     }
 
+    public Product(Long id, int quantity) {
+        this.id = id;
+        this.quantity = quantity;
+    }
+
     public Long getId() {
         return id;
     }
@@ -128,16 +133,4 @@ public class Product {
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Product)) return false;
-        Product product = (Product) o;
-        return getQuantity() == product.getQuantity() && getId().equals(product.getId()) && getReference().equals(product.getReference()) && getSize().equals(product.getSize()) && getColor().equals(product.getColor()) && getDate().equals(product.getDate()) && getCommands().equals(product.getCommands()) && getModel().equals(product.getModel());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getReference(), getSize(), getColor(), getQuantity(), getDate(), getCommands(), getModel());
-    }
 }

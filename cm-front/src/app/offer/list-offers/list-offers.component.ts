@@ -40,7 +40,7 @@ export class ListOffersComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.offerService.findAllOffers().subscribe((offerList: any) => {
+    this.offerService.findAllOffersModelQuantities().subscribe((offerList: any) => {
       this.offers = offerList;
       console.log(this.offers)
     });
