@@ -91,6 +91,7 @@ public class PacketServiceImpl implements PacketService {
     public Packet updatePacket(Packet packet) {
         return packetRepository.save(packet);
     }
+
     @Override
     public Packet patchPacket(Long idPacket, Map<String, Object> field) throws IOException {
         Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
@@ -103,15 +104,15 @@ public class PacketServiceImpl implements PacketService {
                 System.out.println("firstKey : " + firstKey);
                 Field fieldPacket = ReflectionUtils.findField(Packet.class, (String) firstKey);
                 fieldPacket.setAccessible(true);
-                System.out.println("fieldPacket : " + fieldPacket.toString());
-                System.out.println("field.get(firstKey) : " + field.get(firstKey));
+                //System.out.println("fieldPacket : " + fieldPacket.toString());
+                //System.out.println("field.get(firstKey) : " + field.get(firstKey));
                 ReflectionUtils.setField(fieldPacket, packet, field.get(firstKey));
                 if (firstKey.equals("status")) {
-                    if (field.get(firstKey).equals("Confirmée") || field.get(firstKey).equals("Retour reçu") || field.get(firstKey).equals("Echange")) {
-                        if(field.get(firstKey).equals("Echange"))packet.setExchange(true);
+                    if (field.get(firstKey).equals("Confirmée") || field.get(firstKey).equals("Retour reçu")) {
+                        //if(field.get(firstKey).equals("Echange"))packet.setExchange(true);
                         if (!field.get(firstKey).equals("Retour reçu"))
                             createBarCode(packet, DeliveryCompany.FIRST.toString());
-                        System.out.println("packet confirmé ou echange: " + packet);
+                        System.out.println("packet confirmé ou Retour reçu: " + packet);
                         updateProductQuantity(packet, field, firstKey);
                     }
                     // updatePacketStatus
@@ -125,15 +126,27 @@ public class PacketServiceImpl implements PacketService {
     }
 
     private void updateProductQuantity(Packet packet,  Map<String, Object> field,String firstKey) {
-        List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
+        Long id= packet.getId();
+        if(packet.isExchange() && field.get(firstKey).equals("Retour reçu")) {
+            int idString = packet.getCustomerName().indexOf("id: ");
+            if (idString != -1) {
+                String idSubstring = packet.getCustomerName().substring(idString + 4); // +4 to skip "id: "
+                id = Long.valueOf(idSubstring.trim());
+                System.out.println("ID Number: " + id);
+            }
+        }
+
+        List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(id);
         for (ProductsPacket productsPacket : productsPackets) {
             Optional<Product> product = productRepository.findById(productsPacket.getProduct().getId());
+            //System.out.println("avant modification quantité: " + product);
             if (product.isPresent()) {
-                if (field.get(firstKey).equals("Confirmée") || field.get(firstKey).equals("Echange")) {
+                if (field.get(firstKey).equals("Confirmée")) {
                     product.get().setQuantity(product.get().getQuantity() - 1);
                 } else {
                     product.get().setQuantity(product.get().getQuantity() + 1);
                 }
+                //System.out.println("apres modification product: " + product);
                 product.get().setDate(new Date());
                 productRepository.save(product.get());
             }
@@ -141,7 +154,6 @@ public class PacketServiceImpl implements PacketService {
             // productsPacketRepository.save(new ProductsPacket(product, packet, new Date()));
         }
     }
-
 
     @Override
     public void addProductsToPacket(SelectedProductsDTO selectedProductsDTO) {

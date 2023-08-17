@@ -140,15 +140,14 @@ export class ListPacketsComponent
       'Annulée'
     ];
     this.statusListLivree = ['Payée'];
-    this.statusListRetour = ['Retour reçu'];
+    this.statusListRetour = ['Retour reçu','Retour Expediteur'];
     this.statesList = [
       'Bureau',
       'Ramassage',
       'En Cours',
       'Livrée',
       'Terminé',
-      'Retour',
-      'Retour Expediteur',
+      'Retour'
     ];
   }
 
@@ -433,7 +432,7 @@ export class ListPacketsComponent
       .duplicatePacket(packet.id)
       .subscribe((response: any) => {
         console.log(response);
-        
+
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -532,6 +531,11 @@ export class ListPacketsComponent
   }
 
   filterChange($event: string) {
+    if($event == 'clear'){
+      this.selectedStates = [];
+      this.selectedStatusList = this.statusList;
+      this.selectedStatus.setValue([]);
+    }
     if ($event == 'states') {
       this.selectedStatus.setValue([]);
       this.selectedStatusList = [];
@@ -562,11 +566,7 @@ export class ListPacketsComponent
         this.selectedStatusList = this.statusListLivree;
       }
       if (this.selectedStates.indexOf('Retour') > -1) {
-        this.selectedStatus.patchValue(['Retour']);
-        this.selectedStatusList = this.statusListRetour;
-      }
-      if (this.selectedStates.indexOf('Retour Expediteur') > -1) {
-        this.selectedStatus.patchValue(['Retour Expediteur']);
+        this.selectedStatus.patchValue(['Retour','Retour Expediteur']);
         this.selectedStatusList = this.statusListRetour;
       }
       if (this.selectedStates.indexOf('Terminé') > -1) {
@@ -585,7 +585,7 @@ export class ListPacketsComponent
       }
     }
     let rangeDateExist = this.rangeDates[0] !== null && this.rangeDates[0] !== undefined;
-
+    if(this.selectedStatus.value == null)this.selectedStatus.setValue([]);
     this.packets = this.packetService.allPackets.filter((packet: any) =>
       (rangeDateExist
         ? this.getDate(packet.date) >= this.getDate(startDate) &&
@@ -603,7 +603,7 @@ export class ListPacketsComponent
     this.selectedStates = [];
     this.selectedPackets = [];
     this.selectedStatus.setValue([]);
-    this.filterChange('date');
+    this.filterChange('global');
   }
 
   changeColor(this: any) {

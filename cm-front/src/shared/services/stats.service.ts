@@ -45,7 +45,7 @@ export class StatsService {
         if (packet.status == 'Payée' || packet.status == 'Livrée') {
           dateCounts[date].payed++;
         }
-        if (packet.status == 'Payée' || packet.status == 'Retour' || packet.status == 'Retour Expediteur' || packet.status == 'Retour reçu' || packet.status == 'En cours (1)' ||
+        if (packet.status == 'Confirmée' || packet.status == 'Payée' || packet.status == 'Livrée' || packet.status == 'Retour' || packet.status == 'Retour Expediteur' || packet.status == 'Retour reçu' || packet.status == 'En cours (1)' ||
         packet.status == 'En cours (2)' || packet.status == 'En cours (3)' || packet.status == 'En cours') {
           //|| packet.status.substring(0,7) == 'En Cours'
           dateCounts[date].out++;
@@ -68,7 +68,7 @@ export class StatsService {
           cityCounts[packet.city?.governorate.name] = { count: 1, confirm: 0 ,citys:{}};
           cityCounts[packet.city?.governorate.name].citys[packet.city.name] = { count: 1, confirm: 0 };
         }
-        if (packet.status == 'Payée') {
+        if (packet.status == 'Payée' || packet.status == 'Livrée') {
           cityCounts[packet.city?.governorate.name].confirm++;
           cityCounts[packet.city?.governorate.name].citys[packet.city.name].confirm++;
         }

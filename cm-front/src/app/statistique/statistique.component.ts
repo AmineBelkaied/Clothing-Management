@@ -91,7 +91,7 @@ export class StatistiqueComponent implements OnInit {
     this.pagesCounts = counts.pageCounts;
     //console.table(JSON.stringify(this.cityCounts));
     this.createPageStatChart(this.pagesCounts);
- 
+
     this.datesCounts = counts.dateCounts;
     //console.table(JSON.stringify(this.cityCounts));
     this.createDateStatChart(this.datesCounts);
