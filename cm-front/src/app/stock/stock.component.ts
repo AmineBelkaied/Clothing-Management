@@ -8,10 +8,9 @@ import { Model } from 'src/shared/models/Model';
 @Component({
   selector: 'app-stock',
   templateUrl: './stock.component.html',
-  styleUrls: ['./stock.component.scss']
+  styleUrls: ['./stock.component.scss'],
 })
 export class StockComponent implements OnInit {
-
   products: any[] = [];
   models: Model[] = [];
   selectedProducts: number[] = [];
@@ -22,121 +21,120 @@ export class StockComponent implements OnInit {
   @ViewChild('el') el!: ElementRef;
   sizes: any[] = [];
   selectAll: boolean = false;
-  selectedModel: string = "";
-  constructor(private productService: ProductService, private modelService: ModelService, private messageService: MessageService, private confirmationService: ConfirmationService) { }
+  selectedModel: string = '';
+  constructor(
+    private productService: ProductService,
+    private modelService: ModelService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
+  ) {}
 
   ngOnInit(): void {
-    this.modelService.findAllModels()
-      .subscribe((result: any) => {
-        this.models = result;
-        this.selectedModel = this.models[0].id;
-        this.getStockByModelId(this.models[0].id);
-      });
-  }
-
-  onCellClick(product: any, event: any, index: number) {
-    if (product.quantity == null) {
-      const foundArray = this.products.find((subArray: any) =>
-        subArray.some((item: any) => item.name == product.name)
-      );
-      let productsIds = foundArray.filter((product: any) => product.quantity != null).map((product: any) => product.id)
-      if (productsIds.every((id: number) => this.selectedProducts.includes(id)))
-        this.deleteItemsFromArray(productsIds);
-      else
-        this.selectedProducts.push(...productsIds);
-
-      let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
-      for (var i = 1; i < rows[index].cells.length; i++) {
-        rows[index].cells[i].style.backgroundColor === "rgb(220, 231, 243)" ? rows[index].cells[i].style.backgroundColor = "rgb(255, 255, 255)" : rows[index].cells[i].style.backgroundColor = "rgb(220, 231, 243)";
-      }
-    } else {
-      event.target.style.backgroundColor === "rgb(220, 231, 243)" ? event.target.style.backgroundColor = "rgb(255, 255, 255)" : event.target.style.backgroundColor = "rgb(220, 231, 243)";
-      if (this.selectedProducts.includes(product.id)) {
-        this.selectedProducts.splice(this.selectedProducts.indexOf(product.id), 1);
-      }
-      else {
-        this.selectedProducts.push(product.id);
-      }
-    }
-    console.log(this.selectedProducts);
-  }
-
-  deleteItemsFromArray(items: any): void {
-    items.forEach((element: any) => {
-      this.selectedProducts.splice(this.selectedProducts.indexOf(element), 1);
+    this.modelService.findAllModels().subscribe((result: any) => {
+      this.models = result;
+      this.selectedModel = this.models[0].id;
+      this.getStockByModelId(this.models[0].id);
     });
   }
 
-  selectMultiple(c: any, $event: any, index: number) {
-    if (this.isMultiple)
-      this.onCellClick(c, $event, index)
+  getStockByModelId(modelId: number) {
+    this.productService.getStock(modelId).subscribe((result: any) => {
+      console.log(result);
+      this.products = result.productsByColor;
+      this.sizes = result.sizes;
+    });
   }
 
-  handleSizeClick(index: number, size: any) {
-    let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
-    for (var i = 0; i < rows.length; i++) {
-      rows[i].cells[index + 1].style.backgroundColor === "rgb(220, 231, 243)" ? rows[i].cells[index + 1].style.backgroundColor = "rgb(255, 255, 255)" : rows[i].cells[index + 1].style.backgroundColor = "rgb(220, 231, 243)";
-      if (this.selectedProducts.includes(this.products[i][index + 1].id)) {
-        this.selectedProducts.splice(this.selectedProducts.indexOf(this.products[i][index + 1].id), 1);
-      }
-      else {
-        this.selectedProducts.push(this.products[i][index + 1].id)
-      }
+  onCellClick(product: any, event: any, j: number) {
+    if (product.quantity == null)
+      if (this.selectedProducts.includes(this.products[j][1].id))
+        for (var i = 1; i < this.products[j].length; i++)
+          this.unSelectProduct(j, i, this.products[j][i].id);
+      else
+        for (var i = 1; i < this.products[j].length; i++)
+          this.selectProduct(j, i, this.products[j][i].id);
+    else {
+      const i = this.products[j].findIndex(
+        (item: { id: number }) => item.id === product.id
+      );
+      if (this.selectedProducts.includes(product.id))
+        this.unSelectProduct(j, i, this.products[j][i].id);
+      else this.selectProduct(j, i, this.products[j][i].id);
     }
     console.log(this.selectedProducts);
   }
 
-  getStockByModelId(modelId: number) {
-    this.productService.getStock(modelId)
-      .subscribe((result: any) => {
-        console.log(result);
-        this.products = result.productsByColor;
-        this.sizes = result.sizes;
-      });
+  selectMultiple(c: any, $event: any, index: number) {
+    if (this.isMultiple) this.onCellClick(c, $event, index);
+  }
+
+  handleSizeClick(index: number, size: any) {
+    let i = index + 1;
+    if (this.selectedProducts.includes(this.products[0][i].id))
+      for (var j = 0; j < this.products.length; j++)
+        this.unSelectProduct(j, i, this.products[j][i].id);
+    else
+      for (var j = 0; j < this.products.length; j++)
+        this.selectProduct(j, i, this.products[j][i].id);
+    console.log(this.selectedProducts);
   }
 
   onModelChange($event: any) {
     this.getStockByModelId($event);
     console.log(this.selectedModel);
     this.selectedModel = $event;
+    this.selectedProducts = [];
   }
 
   add() {
-    let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr')
+    let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
     let productsQuantities = [];
     for (var i = 0; i < this.selectedProducts.length; i++) {
       const foundArray = this.products.find((subArray: any) =>
         subArray.some((item: any) => item.id == this.selectedProducts[i])
       );
       const rowIndex = this.products.indexOf(foundArray);
-      const columnIndex = foundArray.map((el: any) => el.id).indexOf(this.selectedProducts[i]);
-      console.log(`Element ${this.selectedProducts[i]} found at row ${rowIndex} and column ${columnIndex}.`);
+      const columnIndex = foundArray
+        .map((el: any) => el.id)
+        .indexOf(this.selectedProducts[i]);
+      console.log(
+        `Element ${this.selectedProducts[i]} found at row ${rowIndex} and column ${columnIndex}.`
+      );
       if (this.products[rowIndex][columnIndex].quantity != undefined) {
         this.products[rowIndex][columnIndex].quantity += this.qte;
-        rows[rowIndex].cells[columnIndex].style.backgroundColor = "rgb(152,251,152)"
+        rows[rowIndex].cells[columnIndex].style.backgroundColor =
+          'rgb(152,251,152)';
       }
-      productsQuantities.push({ id: this.selectedProducts[i], quantity: this.products[rowIndex][columnIndex].quantity })
+      productsQuantities.push({
+        id: this.selectedProducts[i],
+        quantity: this.products[rowIndex][columnIndex].quantity,
+      });
     }
     this.productService.addStock(productsQuantities).subscribe(() => {
       this.selectedProducts = [];
       this.selectAll = false;
-    })
-
+    });
   }
 
   selectAllProducts() {
-    let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
-    for (var i = 0; i < rows.length; i++) {
-      for (var j = 1; j < rows[i].cells.length; j++) {
-        if (this.selectAll) {
-          rows[i].cells[j].style.backgroundColor = "rgb(220, 231, 243)";
-          this.selectedProducts.push(this.products[i][j].id);
-        } else {
-          rows[i].cells[j].style.backgroundColor = "rgb(255, 255, 255)";
-          this.selectedProducts = [];
-        }
-      }
-    }
+    for (var j = 0; j < this.products.length; j++)
+      for (var i = 1; i < this.products[j].length; i++)
+        if (this.selectAll)
+          this.selectProduct(j, i, this.products[j][i].id);
+        else
+          this.unSelectProduct(j, i, this.products[j][i].id);
   }
 
+  selectProduct( row: number, column: number, productId: any) {
+    let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
+    if (!this.selectedProducts.some((selectedProduct) => selectedProduct === productId)) {
+      rows[row].cells[column].style.backgroundColor = 'rgb(220, 231, 243)';
+      this.selectedProducts.push(productId);
+    }
+  }
+  unSelectProduct(row: number, column: number, productId: any) {
+    let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
+    rows[row].cells[column].style.backgroundColor = 'rgb(255, 255, 255)';
+    this.selectedProducts.splice(this.selectedProducts.indexOf(productId), 1);
+  }
 }
