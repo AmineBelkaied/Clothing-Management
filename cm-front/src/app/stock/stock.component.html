@@ -1,11 +1,22 @@
 <div class="container-fluid">
-  <div class="row ml-3 mt-3">
-    <p-dropdown [options]="models" (onChange)="onModelChange($event.value)" optionLabel="name"
-     optionValue="id" [style]="{ width: '200px'}" [(ngModel)]="selectedModel"
-    [panelStyle]="{ width: '200px' }" [showClear]="true" placeholder="Choisir le modèle" appendTo="body">
-  </p-dropdown>
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card-body">
+  <div class="row ml-3">
+    <div class="col-md-7">
+        <p-dropdown [options]="models" (onChange)="onModelChange($event.value)" optionLabel="name"
+          optionValue="id" [style]="{ width: '200px'}" [(ngModel)]="selectedModel"
+          [panelStyle]="{ width: '200px' }" [showClear]="true" placeholder="Choisir le modèle" appendTo="body">
+        </p-dropdown>
+        <p-toggleButton [(ngModel)]="isMultiple" onLabel="SelectionLibre" offLabel="Sélection/Produit" class="pr-2 pl-5"></p-toggleButton>
+        <p-toggleButton [(ngModel)]="selectAll" onLabel="UnSelect-All" offLabel="Select-All" (click)="selectAllProducts()"></p-toggleButton>
+    </div>
+    <div class="col-md-5">
+      <p-inputNumber [(ngModel)]="qte" mode="decimal" inputId="withoutgrouping" [useGrouping]="false" (keyup.enter)="add()" class="pr-4"> </p-inputNumber>
+      <p-button label="Ajouter du stock" icon="pi pi-check" iconPos="right" (click)="add()"></p-button> 
+    </div>
+  </div>  
   </div>
-
+  </div>
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
     <div class="card-body">
       <div class="row">
@@ -29,16 +40,18 @@
 </div>
 
 <div class="col-md-3">
-  <p-toggleButton [(ngModel)]="isMultiple" onLabel="selection-libre" offLabel="Selection/Produit" class="mb-4"></p-toggleButton>
-  <br><br>
-  <p-toggleButton [(ngModel)]="selectAll" onLabel="UnselectAll" offLabel="Select-All" (click)="selectAllProducts()"></p-toggleButton>
-  <br><br>
-  <p-inputNumber [(ngModel)]="qte" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"> </p-inputNumber>
-<br><br>
-  <p-button label="Ajouter du stock" icon="pi pi-check" iconPos="right" (click)="add()"></p-button> 
+  <app-stock-history [productsHistory]="productsHistory" [modelId]="selectedModel"></app-stock-history>
+
 </div>
 
 </div>
 </div>
 </div>
+<div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+  <div class="card-body">
+      <div class="row">
+       
+        </div>
+        </div>
+        </div>
 </div>

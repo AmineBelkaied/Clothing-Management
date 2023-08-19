@@ -4,6 +4,8 @@ import { Table } from 'primeng/table';
 import { ModelService } from 'src/shared/services/model.service';
 import { ProductService } from '../../shared/services/product.service';
 import { Model } from 'src/shared/models/Model';
+import { ProductHistoryService } from 'src/shared/services/product-history.service';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-stock',
@@ -14,6 +16,7 @@ export class StockComponent implements OnInit {
 
   products: any[] = [];
   models: Model[] = [];
+  productsHistory: any;
   selectedProducts: number[] = [];
   isRowSelectable = true;
   isMultiple = false;
@@ -23,7 +26,7 @@ export class StockComponent implements OnInit {
   sizes: any[] = [];
   selectAll: boolean = false;
   selectedModel: string = "";
-  constructor(private productService: ProductService, private modelService: ModelService, private messageService: MessageService, private confirmationService: ConfirmationService) { }
+  constructor(private productService: ProductService, private productHistoryService: ProductHistoryService, private modelService: ModelService, private messageService: MessageService, private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
     this.modelService.findAllModels()
@@ -32,6 +35,11 @@ export class StockComponent implements OnInit {
         this.selectedModel = this.models[0].id;
         this.getStockByModelId(this.models[0].id);
       });
+      this.productHistoryService.findAll(this.selectedModel)
+      .subscribe((result: any) =>  {
+        console.log(result);
+        this.productsHistory = result;
+      })
   }
 
   onCellClick(product: any, event: any, index: number) {
@@ -89,7 +97,6 @@ export class StockComponent implements OnInit {
   getStockByModelId(modelId: number) {
     this.productService.getStock(modelId)
       .subscribe((result: any) => {
-        console.log(result);
         this.products = result.productsByColor;
         this.sizes = result.sizes;
       });
@@ -115,13 +122,13 @@ export class StockComponent implements OnInit {
         this.products[rowIndex][columnIndex].quantity += this.qte;
         rows[rowIndex].cells[columnIndex].style.backgroundColor = "rgb(152,251,152)"
       }
-      productsQuantities.push({ id: this.selectedProducts[i], quantity: this.products[rowIndex][columnIndex].quantity })
+      productsQuantities.push({ id: this.selectedProducts[i], quantity: this.products[rowIndex][columnIndex].quantity, enteredQuantity: this.qte, reference : this.products[rowIndex][columnIndex].reference })
     }
-    this.productService.addStock(productsQuantities).subscribe(() => {
+    this.productService.addStock(productsQuantities).pipe(switchMap(() => {
       this.selectedProducts = [];
       this.selectAll = false;
-    })
-
+      return this.productHistoryService.findAll(this.selectedModel)
+    })).subscribe((result: any) => this.productsHistory = result);
   }
 
   selectAllProducts() {

@@ -53,6 +53,8 @@ import { ChartModule } from 'primeng/chart';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { CityTreeService } from 'src/shared/services/cityTree.service';
 import { StatistiqueComponent } from './statistique/statistique.component';
+import { StockHistoryComponent } from './stock-history/stock-history.component';
+import { PaginatorModule } from 'primeng/paginator';
 
 
 @NgModule({
@@ -78,7 +80,8 @@ import { StatistiqueComponent } from './statistique/statistique.component';
     AddFbpageComponent,
     ListFbpagesComponent,
     StockComponent,
-    StatistiqueComponent
+    StatistiqueComponent,
+    StockHistoryComponent
   ],
   imports: [
     BrowserModule,
@@ -107,7 +110,8 @@ import { StatistiqueComponent } from './statistique/statistique.component';
     HttpClientModule,
     ChartModule,
     ToggleButtonModule,
-    TreeTableModule
+    TreeTableModule,
+    PaginatorModule
   ],
   providers: [MessageService, ConfirmationService,CityTreeService ],
   bootstrap: [AppComponent]
