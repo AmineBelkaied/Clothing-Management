@@ -33,12 +33,12 @@ export class StockComponent implements OnInit {
         this.models = result;
         this.selectedModel = this.models[0].id;
         this.getStockByModelId(this.models[0].id);
+        this.productHistoryService.findAll(this.selectedModel)
+        .subscribe((result: any) =>  {
+          console.log(result);
+          this.productsHistory = result;
+        })
       });
-      this.productHistoryService.findAll(this.selectedModel)
-      .subscribe((result: any) =>  {
-        //console.log(result);
-        this.productsHistory = result;
-      })
   }
 
   onCellClick(product: any, event: any, j: number) {
@@ -140,16 +140,29 @@ export class StockComponent implements OnInit {
     this.selectedProducts.splice(this.selectedProducts.indexOf(productId), 1);
   }
 
-  totalRow(sizes: any[]){
-    let qtes : number[] = sizes.flatMap((item)=> item.quantity);
+  totalRow(row: any[]){
+/*     let qtes : number[] = sizes.flatMap((item)=> item.quantity);
     qtes.splice(0,1);
-    let totalQuantity = qtes.reduce((sum, quantity) => sum + quantity, 0);
-    return totalQuantity;
+    let totalQuantity = qtes.reduce((sum, quantity) => sum + quantity, 0); */
+
+    let totRow = 0
+    for (var i = 1; i < row.length; i++)
+      totRow += row[i].quantity;
+    return totRow;
   }
 
-  totalColumn(j:number){
-    let totalColumn =0;
-    for (var i = 1; i < this.products[j].length; i++)
-      totalColumn += this.products[j][i];
+  totalColumn(i:number){
+    let totColumn =0;
+    for (var j = 0; j < this.products.length; j++)
+      totColumn += this.products[j][i+1].quantity;
+    return totColumn;
+  }
+
+  totalTable(){
+    let tot =0;
+    for (var j = 0; j < this.products.length; j++)
+      for (var i = 1; i < this.products[j].length; i++)
+      tot += this.products[j][i].quantity;
+    return tot;
   }
 }

@@ -36,7 +36,7 @@
       <ng-template #colors> {{productSize.name}}</ng-template>
       </td>
       <td>{{ totalRow(productSizes)}}</td>
-      </tr>
+    </tr>
     </ng-template>
     <ng-template pTemplate="footer">
       <tr>
@@ -44,8 +44,9 @@
           Total Size
         </td>
         <td  *ngFor="let size of sizes;let index=index">
-          <!-- {{ totalColumn(index) }} -->
+          {{ totalColumn(index) }}
         </td>
+        <td>{{ totalTable()}}</td>
       </tr>
     </ng-template>
   </p-table>

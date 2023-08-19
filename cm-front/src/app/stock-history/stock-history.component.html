@@ -13,7 +13,7 @@ styleClass="p-datatable-sm">
     <ng-template pTemplate="body" let-productHistory>
         <tr>
             <td>{{productHistory.reference}}</td>
-            <td  style="font-weight: bold;"><span [ngStyle]="{'color': productHistory.quantity > 0 ? 'green' : 'red'}">{{productHistory.quantity}}</span></td>
+            <td  style="font-weight: bold;"><span [ngStyle]="{'color': productHistory.quantity > 0 ? 'green' : 'red'}">{{displayQuantity(productHistory.quantity)}}</span></td>
             <td>{{productHistory.lastModificationDate | date : "dd/MM/YY hh:mm:ss"}}</td>
 <!--             <td>
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-4 buttonSize"
@@ -27,6 +27,6 @@ styleClass="p-datatable-sm">
 
 <p-paginator
   [rows]="6"
-  [totalRecords]="16"
+  [totalRecords]="productsHistory?.totalItems"
   (onPageChange)="onPageChange($event)">
 </p-paginator>
