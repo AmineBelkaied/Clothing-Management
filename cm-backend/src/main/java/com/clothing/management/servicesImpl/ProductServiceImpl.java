@@ -5,6 +5,7 @@ import com.clothing.management.dto.StockDTO;
 import com.clothing.management.entities.*;
 import com.clothing.management.repository.IModelRepository;
 import com.clothing.management.repository.IOfferRepository;
+import com.clothing.management.repository.IProductHistoryRepository;
 import com.clothing.management.repository.IProductRepository;
 import com.clothing.management.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     IOfferRepository offerRepository;
-
+    @Autowired
+    IProductHistoryRepository productHistoryRepository;
     @Override
     public List<Product> findAllProducts() {
         return productRepository.findAll().stream().map(product -> mapToProduct(product)).collect(Collectors.toList());
@@ -143,11 +145,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public void addStock(List<ProductQuantity> productsQuantities) {
-        productsQuantities.stream().forEach(productQuantity -> {
+        productsQuantities.forEach(productQuantity -> {
             Optional<Product> product = findProductById(productQuantity.getId());
             if(product.isPresent()) {
                 product.get().setQuantity(productQuantity.getQuantity());
                 updateProduct(product.get());
+                ProductHistory productHistory = new ProductHistory(productQuantity.getId(), productQuantity.getReference(), productQuantity.getEnteredQuantity(), new Date(), product.get().getModel());
+                productHistoryRepository.save(productHistory);
             }
         });
     }

@@ -35,7 +35,9 @@ public class Model {
     @JsonIgnore
     private Set<OfferModel> modelOffers = new HashSet<>();
 
-
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ProductHistory> productHistories;
     public Model() {
     }
 
