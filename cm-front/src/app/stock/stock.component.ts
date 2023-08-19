@@ -146,4 +146,11 @@ export class StockComponent implements OnInit {
     }
   }
 
+  getStyle(quantity: any) {
+    return {
+      'background-color':  (quantity == null || quantity > 10) ? 'white' : 'salmon',
+      'cursor': 'pointer'
+      }
+  }
+
 }
