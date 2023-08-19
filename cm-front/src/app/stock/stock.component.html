@@ -26,6 +26,7 @@
       <tr>
         <th>Colors</th>
         <th *ngFor="let size of sizes;let index=index" (click)="handleSizeClick(index, size)" style="cursor: pointer;">{{ size.reference }}</th>
+        <th>Total Couleur</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-productSizes let-ri="rowIndex">
@@ -34,6 +35,17 @@
         <ng-container *ngIf="productSize.quantity != null;else colors">   {{productSize.quantity}}</ng-container>
       <ng-template #colors> {{productSize.name}}</ng-template>
       </td>
+      <td>{{ totalRow(productSizes)}}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <tr>
+        <td>
+          Total Size
+        </td>
+        <td  *ngFor="let size of sizes;let index=index">
+          <!-- {{ totalColumn(index) }} -->
+        </td>
       </tr>
     </ng-template>
   </p-table>
@@ -46,12 +58,4 @@
 
 </div>
 </div>
-</div>
-<div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-  <div class="card-body">
-      <div class="row">
-
-        </div>
-        </div>
-        </div>
 </div>

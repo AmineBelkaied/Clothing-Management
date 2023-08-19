@@ -36,7 +36,7 @@ export class StockComponent implements OnInit {
       });
       this.productHistoryService.findAll(this.selectedModel)
       .subscribe((result: any) =>  {
-        console.log(result);
+        //console.log(result);
         this.productsHistory = result;
       })
   }
@@ -138,5 +138,18 @@ export class StockComponent implements OnInit {
     let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
     rows[row].cells[column].style.backgroundColor = 'rgb(255, 255, 255)';
     this.selectedProducts.splice(this.selectedProducts.indexOf(productId), 1);
+  }
+
+  totalRow(sizes: any[]){
+    let qtes : number[] = sizes.flatMap((item)=> item.quantity);
+    qtes.splice(0,1);
+    let totalQuantity = qtes.reduce((sum, quantity) => sum + quantity, 0);
+    return totalQuantity;
+  }
+
+  totalColumn(j:number){
+    let totalColumn =0;
+    for (var i = 1; i < this.products[j].length; i++)
+      totalColumn += this.products[j][i];
   }
 }
