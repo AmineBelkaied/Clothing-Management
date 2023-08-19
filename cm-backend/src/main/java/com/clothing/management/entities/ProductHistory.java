@@ -1,5 +1,7 @@
 package com.clothing.management.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -15,6 +17,7 @@ public class ProductHistory {
     private Date lastModificationDate;
     @ManyToOne
     @JoinColumn(name = "model_id")
+    @JsonIgnore
     Model model;
     public ProductHistory() {
     }

@@ -34,12 +34,12 @@ export class StockComponent implements OnInit {
         this.models = result;
         this.selectedModel = this.models[0].id;
         this.getStockByModelId(this.models[0].id);
+        this.productHistoryService.findAll(this.selectedModel)
+        .subscribe((result: any) =>  {
+          console.log(result);
+          this.productsHistory = result;
+        })
       });
-      this.productHistoryService.findAll(this.selectedModel)
-      .subscribe((result: any) =>  {
-        console.log(result);
-        this.productsHistory = result;
-      })
   }
 
   onCellClick(product: any, event: any, index: number) {

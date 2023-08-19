@@ -15,7 +15,9 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
     @Query(value = "select * from product_history p order by p.last_modification_date LIMIT :limit OFFSET :skip", nativeQuery = true)
     public List<ProductHistory> findAllProductsHistory(@Param("limit") int limit, @Param("skip") int skip);
 
-    @Query(value = "select * from product_history p where p.model_id = :modelId", nativeQuery = true)
+    @Query(value = "select * from product_history pr where pr.model_id = :modelId",
+            countQuery = "select count(*) from product_history pr where pr.model_id = :modelId",
+            nativeQuery = true)
     public Page<ProductHistory> findAll(@Param("modelId") Long modelId, Pageable pageable);
 
 }

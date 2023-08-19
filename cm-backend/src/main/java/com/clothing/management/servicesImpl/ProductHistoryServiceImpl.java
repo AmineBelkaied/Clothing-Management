@@ -5,9 +5,12 @@ import com.clothing.management.repository.IProductHistoryRepository;
 import com.clothing.management.services.ProductHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,8 +21,9 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
     IProductHistoryRepository productHistoryRepository;
 
     @Override
-    public Page<ProductHistory> findAllProductsHistory(Long modelId , Pageable pageable) {
-        return productHistoryRepository.findAll(modelId, pageable);
+    public Page<ProductHistory> findAllProductsHistory(Long modelId , int page, int size) {
+        Pageable paging = PageRequest.of(page, size, Sort.by("last_modification_date").descending());
+        return productHistoryRepository.findAll(modelId, paging);
     }
     @Override
     public List<ProductHistory> findAllProductsHistory(int limit, int skip) {

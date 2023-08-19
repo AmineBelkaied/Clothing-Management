@@ -29,17 +29,9 @@ public class ProductHistoryController {
         @RequestParam(defaultValue = "6") int size
       ) {
             try {
-                List<ProductHistory> productHistories = new ArrayList<>();
-                Pageable paging = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "lastModificationDate"));
-
-                Page<ProductHistory> pageProductHistory = null;
-                if (title == null)
-                    pageProductHistory = productHistoryService.findAllProductsHistory(modelId, paging);
-
-                productHistories = pageProductHistory.getContent();
-
+                Page<ProductHistory> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size);
                 Map<String, Object> response = new HashMap<>();
-                response.put("productHistories", productHistories);
+                response.put("productHistories", pageProductHistory.getContent());
                 response.put("currentPage", pageProductHistory.getNumber());
                 response.put("totalItems", pageProductHistory.getTotalElements());
                 response.put("totalPages", pageProductHistory.getTotalPages());

@@ -31,5 +31,8 @@ export class StockHistoryComponent implements OnInit {
     
   }
 
+  displayQuantity(quantity: number) {
+   return quantity > 0 ? "+" + quantity : quantity;
+  }
   
 }
