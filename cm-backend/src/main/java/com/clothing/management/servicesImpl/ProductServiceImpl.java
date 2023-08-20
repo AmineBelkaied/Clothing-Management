@@ -2,6 +2,7 @@ package com.clothing.management.servicesImpl;
 
 import com.clothing.management.dto.ProductQuantity;
 import com.clothing.management.dto.StockDTO;
+import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.*;
 import com.clothing.management.repository.IModelRepository;
 import com.clothing.management.repository.IOfferRepository;
@@ -9,6 +10,10 @@ import com.clothing.management.repository.IProductHistoryRepository;
 import com.clothing.management.repository.IProductRepository;
 import com.clothing.management.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,11 +34,12 @@ public class ProductServiceImpl implements ProductService {
     IOfferRepository offerRepository;
     @Autowired
     IProductHistoryRepository productHistoryRepository;
+    private Long productModel;
+
     @Override
     public List<Product> findAllProducts() {
         return productRepository.findAll().stream().map(product -> mapToProduct(product)).collect(Collectors.toList());
     }
-
     private Product mapToProduct(Product product) {
         Product newProduct = new Product();
         newProduct.setId(product.getId());
@@ -144,15 +150,19 @@ public class ProductServiceImpl implements ProductService {
         return -1; // Default index if not found (shouldn't happen in this example)
     }
 
-    public void addStock(List<ProductQuantity> productsQuantities) {
-        productsQuantities.forEach(productQuantity -> {
-            Optional<Product> product = findProductById(productQuantity.getId());
+    public Page<ProductHistory> addStock(StockUpdateDto updateIdSockList) {
+        updateIdSockList.getProductsId().forEach(productId -> {
+            Optional<Product> product = findProductById(productId);
             if(product.isPresent()) {
-                product.get().setQuantity(productQuantity.getQuantity());
+                productModel = product.get().getModel().getId();
+                product.get().setQuantity(product.get().getQuantity()+updateIdSockList.getQte());
                 updateProduct(product.get());
-                ProductHistory productHistory = new ProductHistory(productQuantity.getId(), productQuantity.getReference(), productQuantity.getEnteredQuantity(), new Date(), product.get().getModel());
+                ProductHistory productHistory = new ProductHistory(productId, product.get().getReference(), updateIdSockList.getQte(), new Date(), product.get().getModel());
                 productHistoryRepository.save(productHistory);
             }
         });
+
+        Pageable paging = PageRequest.of(0, 10, Sort.by("last_modification_date").descending());
+        return productHistoryRepository.findAll(updateIdSockList.getModelId(),paging);
     }
 }

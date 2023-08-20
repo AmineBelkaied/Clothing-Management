@@ -2,7 +2,10 @@ package com.clothing.management.services;
 
 import com.clothing.management.dto.ProductQuantity;
 import com.clothing.management.dto.StockDTO;
+import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.Product;
+import com.clothing.management.entities.ProductHistory;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Map;
@@ -18,5 +21,6 @@ public interface ProductService {
     public void deleteProduct(Product product);
     void deleteSelectedProducts(List<Long> productsId);
     StockDTO getStock(Long modelId);
-    void addStock(List<ProductQuantity> products);
+    Page<ProductHistory> addStock(StockUpdateDto updateStock);
+    //void addStock(List<ProductQuantity> products);
 }

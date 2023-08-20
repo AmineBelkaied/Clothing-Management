@@ -92,31 +92,47 @@ export class StockComponent implements OnInit {
 
   add() {
     let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
-    let productsQuantities = [];
-    for (var i = 0; i < this.selectedProducts.length; i++) {
+
+    this.productService
+      .addStock(this.selectedProducts, this.qte,+this.selectedModel)
+      .subscribe((result: any) => {
+        console.log('result',result);
+
+        for (var j = 0; j < this.products.length; j++)
+          for (var i = 1; i < this.products[j].length; i++)
+            if (this.selectedProducts.includes(this.products[j][i].id)) {
+              this.products[j][i].quantity += this.qte;
+              rows[j].cells[i].style.backgroundColor = 'rgb(152,251,152)';
+            }
+        this.productsHistory = result;
+        this.selectedProducts = [];
+        this.selectAll = false;
+      });
+  }
+
+
+  /*   for (var i = 0; i < this.selectedProducts.length; i++) {
       const foundArray = this.products.find((subArray: any) =>
         subArray.some((item: any) => item.id == this.selectedProducts[i])
       );
       const rowIndex = this.products.indexOf(foundArray);
+
       const columnIndex = foundArray
         .map((el: any) => el.id)
         .indexOf(this.selectedProducts[i]);
-      console.log(
-        `Element ${this.selectedProducts[i]} found at row ${rowIndex} and column ${columnIndex}.`
-      );
-      if (this.products[rowIndex][columnIndex].quantity != undefined) {
+
         this.products[rowIndex][columnIndex].quantity += this.qte;
-        rows[rowIndex].cells[columnIndex].style.backgroundColor =
-          'rgb(152,251,152)';
-      }
+      //this.updateQte(rowIndex,columnIndex);
+
       productsQuantities.push({ id: this.selectedProducts[i], quantity: this.products[rowIndex][columnIndex].quantity, enteredQuantity: this.qte, reference : this.products[rowIndex][columnIndex].reference })
     }
+
     this.productService.addStock(productsQuantities).pipe(switchMap(() => {
       this.selectedProducts = [];
       this.selectAll = false;
       return this.productHistoryService.findAll(this.selectedModel)
-    })).subscribe((result: any) => this.productsHistory = result);
-  }
+    })).subscribe((result: any) => this.productsHistory = result); */
+
 
   selectAllProducts() {
     for (var j = 0; j < this.products.length; j++)
