@@ -21,9 +21,18 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
     IProductHistoryRepository productHistoryRepository;
 
     @Override
-    public Page<ProductHistory> findAllProductsHistory(Long modelId , int page, int size) {
+    public Page<ProductHistory> findAllProductsHistory(Long modelId , int page, int size, String reference, String beginDate, String endDate) {
         Pageable paging = PageRequest.of(page, size, Sort.by("last_modification_date").descending());
-        return productHistoryRepository.findAll(modelId, paging);
+        if(beginDate.isEmpty() && endDate.isEmpty()) {
+            if(reference.isEmpty())
+                return productHistoryRepository.findAll(modelId, paging);
+            else
+                return productHistoryRepository.findAllByReference(modelId, reference, paging);
+        } else {
+            if(!reference.isEmpty())
+                return productHistoryRepository.findAllByDateRangeAndReference(modelId, reference, beginDate, endDate, paging);
+            return productHistoryRepository.findAllByDateRange(modelId, beginDate, endDate, paging);
+        }
     }
     @Override
     public List<ProductHistory> findAllProductsHistory(int limit, int skip) {

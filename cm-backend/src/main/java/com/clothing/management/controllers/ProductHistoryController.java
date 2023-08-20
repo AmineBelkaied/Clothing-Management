@@ -24,12 +24,14 @@ public class ProductHistoryController {
     @GetMapping(path = "/findAllByModelId/{modelId}")
     public ResponseEntity<Map<String, Object>> findAllProductsHistory(
         @PathVariable Long modelId,
-        @RequestParam(required = false) String title,
+        @RequestParam(required = false) String beginDate,
+        @RequestParam(required = false) String endDate,
+        @RequestParam(required = false) String reference,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "6") int size
+        @RequestParam(defaultValue = "10") int size
       ) {
             try {
-                Page<ProductHistory> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size);
+                Page<ProductHistory> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size, reference, beginDate, endDate);
                 Map<String, Object> response = new HashMap<>();
                 response.put("productHistories", pageProductHistory.getContent());
                 response.put("currentPage", pageProductHistory.getNumber());

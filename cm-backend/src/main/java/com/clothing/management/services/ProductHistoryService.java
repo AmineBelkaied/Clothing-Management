@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface ProductHistoryService {
 
-    public Page<ProductHistory> findAllProductsHistory(Long modelId, int page, int size);
+    public Page<ProductHistory> findAllProductsHistory(Long modelId, int page, int size, String reference, String beginDate, String endDate);
     public List<ProductHistory> findAllProductsHistory(int limit, int skip);
     public Optional<ProductHistory> findProductHistoryById(Long idProductHistory);
     public ProductHistory addProductHistory(ProductHistory productHistory);

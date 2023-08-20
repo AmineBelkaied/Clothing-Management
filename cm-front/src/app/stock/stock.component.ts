@@ -25,6 +25,10 @@ export class StockComponent implements OnInit {
   sizes: any[] = [];
   selectAll: boolean = false;
   selectedModel: string = "";
+  
+  rangeDates: Date[] = [];
+
+  searchField: string = "";
   constructor(private productService: ProductService, private productHistoryService: ProductHistoryService, private modelService: ModelService, private messageService: MessageService, private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
@@ -181,11 +185,39 @@ export class StockComponent implements OnInit {
       tot += this.products[j][i].quantity;
     return tot;
   }
+  
   getStyle(quantity: any) {
     return {
-      'background-color':  (quantity == null || quantity > 10) ? 'white' : 'salmon',
+      'background-color':  (quantity == null || quantity > 10) ? 'white' : '#D7A4A3',
       'cursor': 'pointer'
       }
   }
 
+  filterChange(event:any) {
+    this.onClearCalendar();
+    this.productHistoryService.findAll(this.selectedModel, this.searchField, this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : null , this.rangeDates[1] != null ? this.convertDateToString(this.rangeDates[1]) : null)
+    .subscribe((result: any) => {
+      this.productsHistory = result
+    })
+  }
+
+  onClearCalendar() {
+    if(this.rangeDates == null)
+      this.rangeDates = [];
+  }
+
+  search() {
+    this.productHistoryService.findAll(this.selectedModel, this.searchField, this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : null , this.rangeDates[1] != null ? this.convertDateToString(this.rangeDates[1]) : null)
+    .subscribe((result: any) => this.productsHistory = result)
+  }
+
+  convertDateToString(date: Date) {
+    if(date != null) {
+      let day = date.getDate();
+      let month = date.getMonth() + 1; // add 1 because months are indexed from 0
+      let year = date.getFullYear();
+      return year + "-" + month + "-" + day;
+    }
+    return;
+  }
 }

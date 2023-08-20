@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -20,4 +21,18 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
             nativeQuery = true)
     public Page<ProductHistory> findAll(@Param("modelId") Long modelId, Pageable pageable);
 
+    @Query(value = "select * from product_history pr where pr.model_id = :modelId and pr.reference = :reference",
+            countQuery = "select count(*) from product_history pr where pr.model_id = :modelId and pr.reference LIKE %:reference%",
+            nativeQuery = true)
+    public Page<ProductHistory> findAllByReference(@Param("modelId") Long modelId, @Param("reference") String reference, Pageable pageable);
+
+    @Query(value = "select * from product_history pr where pr.model_id = :modelId and DATE(pr.last_modification_date) >= :beginDate and DATE(pr.last_modification_date) <= :endDate",
+            countQuery = "select count(*) from product_history pr where pr.model_id = :modelId and DATE(pr.last_modification_date) >= :beginDate and DATE(pr.last_modification_date) <= :endDate",
+            nativeQuery = true)
+    public Page<ProductHistory> findAllByDateRange(@Param("modelId") Long modelId, @Param("beginDate") String beginDate, @Param("endDate") String endDate, Pageable pageable);
+
+    @Query(value = "select * from product_history pr where pr.model_id = :modelId and pr.reference LIKE %:reference% and DATE(pr.last_modification_date) >= :beginDate and DATE(pr.last_modification_date) <= :endDate",
+            countQuery = "select count(*) from product_history pr where pr.model_id = :modelId and pr.reference LIKE %:reference% and DATE(pr.last_modification_date) >= :beginDate and DATE(pr.last_modification_date) <= :endDate",
+            nativeQuery = true)
+    public Page<ProductHistory> findAllByDateRangeAndReference(@Param("modelId") Long modelId, @Param("reference") String reference, @Param("beginDate") String beginDate, @Param("endDate") String endDate, Pageable pageable);
 }
