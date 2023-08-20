@@ -12,12 +12,16 @@ export class ProductHistoryService {
 
   constructor(private http: HttpClient) { }
 
-  findAllProductsHistory(modelId: any, page: number, size: number): Observable<any> {
-    return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId + "?page=" + page + "&size=" + size);
+  findAllProductsHistory(modelId: any, page: number, size: number, reference?: string): Observable<any> {
+    if(reference === undefined)
+      reference = ""
+    return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId + "?page=" + page + "&size=" + size + "&reference=" + reference);
   }
 
-  findAll(modelId: any): Observable<any> {
-    return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId);
+  findAll(modelId: any, reference?: string): Observable<any> {
+    if(reference === undefined)
+      reference = ""
+    return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId + "?reference=" + reference);
   }
 
   addProductsHistory(productHistory: any[]): Observable<any> {

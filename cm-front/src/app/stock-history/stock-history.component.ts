@@ -14,6 +14,8 @@ export class StockHistoryComponent implements OnInit {
   @Input()
   modelId!: string;
 
+  searchField: string = "";
+
   constructor(private productHistoryService: ProductHistoryService) { }
 
   ngOnInit(): void {
@@ -28,11 +30,14 @@ export class StockHistoryComponent implements OnInit {
     this.productHistoryService.findAllProductsHistory(this.modelId, $event.page, $event.rows)
     .subscribe((result: any) => this.productsHistory = result)
     
-    
   }
 
   displayQuantity(quantity: number) {
    return quantity > 0 ? "+" + quantity : quantity;
   }
   
+  search() {
+    this.productHistoryService.findAll(this.modelId, this.searchField)
+    .subscribe((result: any) => this.productsHistory = result)
+  }
 }

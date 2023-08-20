@@ -1,3 +1,11 @@
+<input
+pInputText
+type="text"
+[(ngModel)]="searchField"
+placeholder="Référence"
+/>
+<button pButton pRipple icon="pi pi-search" class="p-button-success p-button-sm ml-2"
+(click)="search()"></button>
 <p-table #dt [value]="productsHistory?.productHistories" responsiveLayout="scroll" [rowHover]="true" dataKey="id"
 styleClass="p-datatable-sm">
     <ng-template pTemplate="header">
