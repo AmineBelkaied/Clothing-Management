@@ -7,14 +7,22 @@
           optionValue="id" [style]="{ width: '200px'}" [(ngModel)]="selectedModel"
           [panelStyle]="{ width: '200px' }" [showClear]="true" placeholder="Choisir le modèle" appendTo="body">
         </p-dropdown>
-        <p-toggleButton [(ngModel)]="isMultiple" onLabel="SelectionLibre" offLabel="Sélection/Produit" class="pr-2 pl-5"></p-toggleButton>
-        <p-toggleButton [(ngModel)]="selectAll" onLabel="UnSelect-All" offLabel="Select-All" (click)="selectAllProducts()"></p-toggleButton>
-    </div>
+<!--         <p-toggleButton [(ngModel)]="isMultiple" onLabel="SelectionLibre" offLabel="Sélection/Produit" class="pr-2 pl-5"></p-toggleButton> -->
+        <p-toggleButton [(ngModel)]="selectAll" onLabel="UnSelect-All" offLabel="Select-All" (click)="selectAllProducts()" class="pl-2"></p-toggleButton>
+        <p-inputNumber [(ngModel)]="qte" mode="decimal" inputId="withoutgrouping" [useGrouping]="false" (keyup.enter)="add()" class="pr-4 pl-5"> </p-inputNumber>
+        <p-button label="Ajouter" icon="pi pi-check" iconPos="right" (click)="add()"></p-button>
+      </div>
     <div class="col-md-5">
-      <p-inputNumber [(ngModel)]="qte" mode="decimal" inputId="withoutgrouping" [useGrouping]="false" (keyup.enter)="add()" class="pr-4"> </p-inputNumber>
-      <p-button label="Ajouter du stock" icon="pi pi-check" iconPos="right" (click)="add()"></p-button> 
+
+      <button pButton pRipple icon="pi pi-search" class="p-button-success p-button-sm"
+      (click)="search()"></button>
+      <input pInputText type="text" [(ngModel)]="searchField" placeholder="Référence produit" class="mr-3 ml-3" (keyup.enter)="search()"/>
+      <p-calendar [(ngModel)]="rangeDates" (ngModelChange)="filterChange('date')" selectionMode="range" dateFormat="dd/mm"
+        [readonlyInput]="true" inputId="range" placeholder="Filtrer par date/période" [showClear]="true"
+        [showButtonBar]="true" [showIcon]="true" class="ml-0" [style]="{ width: '250px' }"></p-calendar>
+
     </div>
-  </div>  
+  </div>
   </div>
   </div>
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
@@ -26,14 +34,27 @@
       <tr>
         <th>Colors</th>
         <th *ngFor="let size of sizes;let index=index" (click)="handleSizeClick(index, size)" style="cursor: pointer;">{{ size.reference }}</th>
+        <th>Total Couleur</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-productSizes let-ri="rowIndex">
       <tr>
        <td *ngFor="let productSize of productSizes" pEditableColumn [ngStyle]="getStyle(productSize.quantity)" (click)="onCellClick(productSize, $event, ri)" (mouseenter)="selectMultiple(productSize, $event, ri)">
-        <ng-container *ngIf="productSize.quantity != null;else colors"> {{productSize.quantity}}</ng-container>  
+        <ng-container *ngIf="productSize.quantity != null;else colors"> {{productSize.quantity}}</ng-container>
       <ng-template #colors> {{productSize.name}}</ng-template>
       </td>
+      <td>{{ totalRow(productSizes)}}</td>
+    </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <tr>
+        <td>
+          Total Size
+        </td>
+        <td  *ngFor="let size of sizes;let index=index">
+          {{ totalColumn(index) }}
+        </td>
+        <td>{{ totalTable()}}</td>
       </tr>
     </ng-template>
   </p-table>
@@ -46,12 +67,4 @@
 
 </div>
 </div>
-</div>
-<div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-  <div class="card-body">
-      <div class="row">
-       
-        </div>
-        </div>
-        </div>
 </div>

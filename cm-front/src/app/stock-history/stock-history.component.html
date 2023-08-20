@@ -1,29 +1,23 @@
-<input
-pInputText
-type="text"
-[(ngModel)]="searchField"
-placeholder="Référence"
-/>
-<button pButton pRipple icon="pi pi-search" class="p-button-success p-button-sm ml-2"
-(click)="search()"></button>
 <p-table #dt [value]="productsHistory?.productHistories" responsiveLayout="scroll" [rowHover]="true" dataKey="id"
-styleClass="p-datatable-sm">
+    styleClass="p-datatable-sm">
     <ng-template pTemplate="header">
         <tr>
-            <th pSortableColumn="reference"> Référence<p-sortIcon field="reference"></p-sortIcon>
+            <th> Référence
             </th>
-            <th pSortableColumn="quantity">Quantité <p-sortIcon field="quantity"></p-sortIcon>
+            <th >Quantité
             </th>
-            <th pSortableColumn="lastModificationDate">Date <p-sortIcon field="lastModificationDate"></p-sortIcon>
-           <!--  <th>Actions</th> -->
+            <th >Date</th>
+                <!--  <th>Actions</th> -->
         </tr>
     </ng-template>
     <ng-template pTemplate="body" let-productHistory>
         <tr>
             <td>{{productHistory.reference}}</td>
-            <td  style="font-weight: bold;"><span [ngStyle]="{'color': productHistory.quantity > 0 ? 'green' : 'red'}">{{displayQuantity(productHistory.quantity)}}</span></td>
-            <td>{{productHistory.lastModificationDate | date : "dd/MM/YY hh:mm:ss"}}</td>
-<!--             <td>
+            <td style="font-weight: bold;"><span
+                    [ngStyle]="{'color': productHistory.quantity > 0 ? 'green' : 'red'}">{{displayQuantity(productHistory.quantity)}}</span>
+            </td>
+            <td>{{productHistory.lastModificationDate | date : "dd/MM/yyyy hh:mm:ss"}}</td>
+            <!--             <td>
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-4 buttonSize"
                     (click)="editColor(color)"></button>
                 <button pButton pRipple icon="pi pi-trash" class="p-bu  tton-rounded p-button-danger buttonSize"
@@ -33,8 +27,5 @@ styleClass="p-datatable-sm">
     </ng-template>
 </p-table>
 
-<p-paginator
-  [rows]="6"
-  [totalRecords]="productsHistory?.totalItems"
-  (onPageChange)="onPageChange($event)">
+<p-paginator [rows]="10" [totalRecords]="productsHistory?.totalItems" (onPageChange)="onPageChange($event)">
 </p-paginator>

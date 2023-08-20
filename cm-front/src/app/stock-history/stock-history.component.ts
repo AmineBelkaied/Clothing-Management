@@ -14,30 +14,31 @@ export class StockHistoryComponent implements OnInit {
   @Input()
   modelId!: string;
 
+  rangeDates: Date[] = [];
+
   searchField: string = "";
 
   constructor(private productHistoryService: ProductHistoryService) { }
 
-  ngOnInit(): void {
-    console.log(this.productsHistory);
-    
-  }
+  ngOnInit(): void {  }
 
   onPageChange($event: any){
-
-    console.log($event);
-    
-    this.productHistoryService.findAllProductsHistory(this.modelId, $event.page, $event.rows)
+    this.productHistoryService.findAllProductsHistory(this.modelId, $event.page, $event.rows, this.searchField,
+      this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : null , this.rangeDates[1] != null ? this.convertDateToString(this.rangeDates[1]) : null)
     .subscribe((result: any) => this.productsHistory = result)
-    
   }
 
   displayQuantity(quantity: number) {
    return quantity > 0 ? "+" + quantity : quantity;
   }
-  
-  search() {
-    this.productHistoryService.findAll(this.modelId, this.searchField)
-    .subscribe((result: any) => this.productsHistory = result)
+
+  convertDateToString(date: Date) {
+    if(date != null) {
+      let day = date.getDate();
+      let month = date.getMonth() + 1; // add 1 because months are indexed from 0
+      let year = date.getFullYear();
+      return year + "-" + month + "-" + day;
+    }
+    return;
   }
 }
