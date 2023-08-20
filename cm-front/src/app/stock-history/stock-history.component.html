@@ -1,3 +1,18 @@
+<p-calendar
+[(ngModel)]="rangeDates"
+(ngModelChange)="filterChange('date')"
+selectionMode="range"
+dateFormat="yy-mm-dd"
+dataType="string"
+[readonlyInput]="true"
+inputId="range"
+placeholder="Filtrer par date/période"
+[showClear]="false"
+[showButtonBar]="true"
+[showIcon]="true"
+class="ml-0"
+[style]="{ width: '250px' }"
+></p-calendar>
 <p-table #dt [value]="productsHistory?.productHistories" responsiveLayout="scroll" [rowHover]="true" dataKey="id"
 styleClass="p-datatable-sm">
     <ng-template pTemplate="header">

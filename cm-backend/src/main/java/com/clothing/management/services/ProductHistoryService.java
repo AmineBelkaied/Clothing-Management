@@ -7,13 +7,14 @@ import com.clothing.management.entities.ProductHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public interface ProductHistoryService {
 
-    public Page<ProductHistory> findAllProductsHistory(Long modelId, int page, int size);
+    public Page<ProductHistory> findAllProductsHistory(Long modelId, int page, int size, String beginDate, String endDate);
     public List<ProductHistory> findAllProductsHistory(int limit, int skip);
     public Optional<ProductHistory> findProductHistoryById(Long idProductHistory);
     public ProductHistory addProductHistory(ProductHistory productHistory);

@@ -14,6 +14,8 @@ export class StockHistoryComponent implements OnInit {
   @Input()
   modelId!: string;
 
+  rangeDates: any;
+
   constructor(private productHistoryService: ProductHistoryService) { }
 
   ngOnInit(): void {
@@ -33,6 +35,13 @@ export class StockHistoryComponent implements OnInit {
 
   displayQuantity(quantity: number) {
    return quantity > 0 ? "+" + quantity : quantity;
+  }
+  
+  filterChange(event:any) {
+    console.log(this.rangeDates);
+    
+    this.productHistoryService.findAll(this.modelId, this.rangeDates[0], this.rangeDates[1] != null ? this.rangeDates[1] : null)
+    .subscribe((result: any) => this.productsHistory = result)
   }
   
 }

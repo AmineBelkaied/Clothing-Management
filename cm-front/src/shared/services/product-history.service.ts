@@ -12,12 +12,16 @@ export class ProductHistoryService {
 
   constructor(private http: HttpClient) { }
 
-  findAllProductsHistory(modelId: any, page: number, size: number): Observable<any> {
+  findAllProductsHistory(modelId: any, page: number, size: number, beginDate?: string, endDate?: string): Observable<any> {
     return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId + "?page=" + page + "&size=" + size);
   }
 
-  findAll(modelId: any): Observable<any> {
-    return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId);
+  findAll(modelId: any, beginDate?: string, endDate?: string): Observable<any> {
+    if(beginDate == undefined)
+      beginDate = "";
+    if(endDate == undefined)
+      endDate = "";
+    return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId + "?beginDate=" + beginDate + "&endDate=" + endDate);
   }
 
   addProductsHistory(productHistory: any[]): Observable<any> {

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +22,11 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
     IProductHistoryRepository productHistoryRepository;
 
     @Override
-    public Page<ProductHistory> findAllProductsHistory(Long modelId , int page, int size) {
+    public Page<ProductHistory> findAllProductsHistory(Long modelId , int page, int size, String beginDate, String endDate) {
         Pageable paging = PageRequest.of(page, size, Sort.by("last_modification_date").descending());
-        return productHistoryRepository.findAll(modelId, paging);
+        if(beginDate.isEmpty() && endDate.isEmpty())
+            return productHistoryRepository.findAll(modelId, paging);
+        return productHistoryRepository.findAllByDateRange(modelId, beginDate, endDate, paging);
     }
     @Override
     public List<ProductHistory> findAllProductsHistory(int limit, int skip) {

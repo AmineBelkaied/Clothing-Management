@@ -165,9 +165,10 @@ export class StockComponent implements OnInit {
       tot += this.products[j][i].quantity;
     return tot;
   }
+  
   getStyle(quantity: any) {
     return {
-      'background-color':  (quantity == null || quantity > 10) ? 'white' : 'salmon',
+      'background-color':  (quantity == null || quantity > 10) ? 'white' : '#D7A4A3',
       'cursor': 'pointer'
       }
   }
