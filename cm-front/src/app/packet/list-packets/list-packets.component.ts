@@ -143,7 +143,6 @@ export class ListPacketsComponent
     this.statusListRetour = ['Retour reçu','Retour Expediteur'];
     this.statesList = [
       'Bureau',
-      'Ramassage',
       'En Cours',
       'Livrée',
       'Terminé',
@@ -545,12 +544,9 @@ export class ListPacketsComponent
           'En rupture',
           'Injoignable',
           'Annulée',
+          'Confirmée'
         ]);
         this.selectedStatusList = this.statusListEtat0;
-      }
-      if (this.selectedStates.indexOf('Ramassage') > -1) {
-        this.selectedStatus.patchValue(['Confirmée']);
-        this.selectedStatusList = this.statusList;
       }
       if (this.selectedStates.indexOf('En Cours') > -1) {
         this.selectedStatus.patchValue([

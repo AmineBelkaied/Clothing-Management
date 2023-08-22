@@ -11,7 +11,6 @@ import java.util.List;
 
 @Repository
 public interface IPacketRepository extends JpaRepository<Packet, Long> {
-
     @Query(value=" SELECT * FROM packet p WHERE DATEDIFF(NOW() , p.date) < 2", nativeQuery = true)
     public List<Packet> findAllByDate(@Param("date") Date d);
 
@@ -20,6 +19,4 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
 
     @Query(value="SELECT * FROM packet p WHERE p.id > 7317 and p.last_delivery_status != 'Livrer' and p.status != 'Payée' and p.status != 'Supprimé' and  p.last_delivery_status != 'Retour reçu' and  p.status != 'Retour reçu' and  p.last_delivery_status != 'Retour Expediteur' and  p.status != 'Retour Expediteur' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
     public List<Packet> findAllDiggiePackets();
-
-
 }
