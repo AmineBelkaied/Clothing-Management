@@ -1,0 +1,41 @@
+
+
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card-body">
+      <div class="row">
+  <div class="card flex justify-content-center">
+    <div class="flex flex-wrap gap-3">
+      <div class="flex align-items-center">
+        <p-radioButton value="Payée" [(ngModel)]="type" inputId="Payed"></p-radioButton>
+        <label for="ingredient1" class="ml-2">Payée</label>
+      </div>
+      <div class="flex align-items-center">
+        <p-radioButton value="Retour reçu" [(ngModel)]="type" inputId="Return"></p-radioButton>
+        <label for="ingredient2" class="ml-2">Retour</label>
+      </div>
+    </div>
+  </div>
+  </div></div></div>
+
+
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-9">
+          <textarea rows="15" cols="200" pInputTextarea
+            [(ngModel)]="text"
+            placeholder="Paste your text here"
+          ></textarea>
+          <button (click)="extractBarcodes()">Extract Barcodes</button>
+          <div *ngIf="extractedBarcodes.length > 0">
+            <h3>Extracted Barcodes:</h3>
+            <ul>
+              <li *ngFor="let barcode of extractedBarcodes">{{ barcode }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

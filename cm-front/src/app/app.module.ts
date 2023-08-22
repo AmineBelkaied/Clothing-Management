@@ -28,6 +28,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ChangeColorDirective } from 'src/shared/directives/change-color.directive';
 import { TimelineModule } from 'primeng/timeline';
 import { TreeTableModule } from 'primeng/treetable';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 // import components
 import { AppComponent } from './app.component';
@@ -55,6 +56,7 @@ import { CityTreeService } from 'src/shared/services/cityTree.service';
 import { StatistiqueComponent } from './statistique/statistique.component';
 import { StockHistoryComponent } from './stock-history/stock-history.component';
 import { PaginatorModule } from 'primeng/paginator';
+import { PayedReturnComponent } from './payed-return/payed-return.component';
 
 
 @NgModule({
@@ -81,7 +83,8 @@ import { PaginatorModule } from 'primeng/paginator';
     ListFbpagesComponent,
     StockComponent,
     StatistiqueComponent,
-    StockHistoryComponent
+    StockHistoryComponent,
+    PayedReturnComponent
   ],
   imports: [
     BrowserModule,
@@ -111,7 +114,8 @@ import { PaginatorModule } from 'primeng/paginator';
     ChartModule,
     ToggleButtonModule,
     TreeTableModule,
-    PaginatorModule
+    PaginatorModule,
+    RadioButtonModule
   ],
   providers: [MessageService, ConfirmationService,CityTreeService ],
   bootstrap: [AppComponent]

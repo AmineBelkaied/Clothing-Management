@@ -11,7 +11,6 @@ import java.util.List;
 
 @Repository
 public interface IPacketRepository extends JpaRepository<Packet, Long> {
-
     @Query(value=" SELECT * FROM packet p WHERE DATEDIFF(NOW() , p.date) < 2", nativeQuery = true)
     public List<Packet> findAllByDate(@Param("date") Date d);
 
