@@ -163,6 +163,6 @@ public class ProductServiceImpl implements ProductService {
         });
 
         Pageable paging = PageRequest.of(0, 10, Sort.by("last_modification_date").descending());
-        return productHistoryRepository.findAll(updateIdSockList.getModelId(),paging);
+        return productHistoryRepository.findAll(updateIdSockList.getModelId(), paging);
     }
 }

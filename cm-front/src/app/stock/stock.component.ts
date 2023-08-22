@@ -54,6 +54,8 @@ export class StockComponent implements OnInit {
   getStockByModelId(modelId: number) {
     this.productService.getStock(modelId).subscribe((result: any) => {
       this.products = result.productsByColor;
+      console.log(this.products);
+      
       this.sizes = result.sizes;
     });
   }
@@ -159,6 +161,11 @@ export class StockComponent implements OnInit {
         this.productsHistory = result;
         this.selectedProducts = [];
         this.selectAll = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Le stock a été modifié avec succés',
+        });
       });
   }
 
@@ -236,8 +243,18 @@ export class StockComponent implements OnInit {
         }
     return false; // No common items found
   }
+
   hideRow(j:number){
     if(this.totalRow(j)==0)
     this.products.splice(j,1);
+  }
+
+  onDeleteProductsHistory($event: any): void {
+    $event.products.forEach((product: any) => {
+      for (var j = 0; j < this.products.length; j++)
+        for (var i = 0; i < this.products[j].length; i++)
+        if(product.productId == this.products[j][i].id)
+          this.products[j][i].quantity = this.products[j][i].quantity - product.quantity;
+    });        
   }
 }

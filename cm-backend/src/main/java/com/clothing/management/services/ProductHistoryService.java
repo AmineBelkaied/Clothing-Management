@@ -20,4 +20,5 @@ public interface ProductHistoryService {
     public List<ProductHistory> addManyProductHistory(List<ProductHistory> productsHistory);
     public ProductHistory updateProductHistory(ProductHistory productHistory);
     public void deleteProductHistory(ProductHistory productHistory);
+    Page<ProductHistory> deleteProductsHistory(List<ProductHistory> productsHistory, Long modelId, int page);
 }

@@ -5,14 +5,11 @@ import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
 import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -108,5 +105,10 @@ public class PacketController {
     @GetMapping(path = "/duplicatePacket/{idPacket}")
     public Packet duplicatePacket(@PathVariable Long idPacket) {
         return packetService.duplicatePacket(idPacket);
+    }
+
+    @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")
+    public void updatePacketsByBarCode(@RequestBody BarCodeStatusDTO barCodeStatusDTO) {
+        packetService.updatePacketsByBarCode(barCodeStatusDTO);
     }
 }

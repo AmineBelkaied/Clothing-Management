@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ProductHistoryService } from 'src/shared/services/product-history.service';
 
 @Component({
@@ -18,11 +18,19 @@ export class StockHistoryComponent implements OnInit {
 
   searchField: string = "";
 
+  selectedProductsHistory = [];
+
+  currentPage: number = 0;
+
+  @Output()
+  deleteProductsHistoryEvent: EventEmitter<any> = new EventEmitter();
+
   constructor(private productHistoryService: ProductHistoryService) { }
 
   ngOnInit(): void {  }
 
   onPageChange($event: any){
+    this.currentPage = $event.page;
     this.productHistoryService.findAllProductsHistory(this.modelId, $event.page, $event.rows, this.searchField,
       this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : null , this.rangeDates[1] != null ? this.convertDateToString(this.rangeDates[1]) : null)
     .subscribe((result: any) => this.productsHistory = result)
@@ -40,5 +48,14 @@ export class StockHistoryComponent implements OnInit {
       return year + "-" + month + "-" + day;
     }
     return;
+  }
+
+  deleteSelectedProductsHistory() {
+    this.productHistoryService.deleteProductsHistory(this.selectedProductsHistory, this.modelId, this.currentPage)
+    .subscribe((result: any) => {
+      this.productsHistory = result;
+      this.deleteProductsHistoryEvent.emit({products: this.selectedProductsHistory});
+      this.selectedProductsHistory = [];
+    })
   }
 }

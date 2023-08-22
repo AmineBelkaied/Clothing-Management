@@ -1,7 +1,9 @@
 package com.clothing.management.servicesImpl;
 
+import com.clothing.management.entities.Product;
 import com.clothing.management.entities.ProductHistory;
 import com.clothing.management.repository.IProductHistoryRepository;
+import com.clothing.management.repository.IProductRepository;
 import com.clothing.management.services.ProductHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +21,9 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
 
     @Autowired
     IProductHistoryRepository productHistoryRepository;
+
+    @Autowired
+    IProductRepository productRepository;
 
     @Override
     public Page<ProductHistory> findAllProductsHistory(Long modelId , int page, int size, String reference, String beginDate, String endDate) {
@@ -62,6 +67,20 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
     @Override
     public void deleteProductHistory(ProductHistory productHistory) {
         productHistoryRepository.delete(productHistory);
+    }
+
+    @Override
+    public Page<ProductHistory> deleteProductsHistory(List<ProductHistory> productsHistory, Long modelId, int page) {
+        productsHistory.forEach(productHistory -> {
+           Optional<Product> optionalProduct = productRepository.findById(productHistory.getProductId());
+           optionalProduct.ifPresent(product -> {
+               product.setQuantity(product.getQuantity() - productHistory.getQuantity());
+               productRepository.save(product);
+           });
+           productHistoryRepository.deleteById(productHistory.getId());
+        });
+        Pageable paging = PageRequest.of(page, 10, Sort.by("last_modification_date").descending());
+        return productHistoryRepository.findAll(modelId, paging);
     }
 
 }

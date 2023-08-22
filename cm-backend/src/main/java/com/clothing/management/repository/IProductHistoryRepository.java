@@ -21,7 +21,7 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
             nativeQuery = true)
     public Page<ProductHistory> findAll(@Param("modelId") Long modelId, Pageable pageable);
 
-    @Query(value = "select * from product_history pr where pr.model_id = :modelId and pr.reference = :reference",
+    @Query(value = "select * from product_history pr where pr.model_id = :modelId and pr.reference LIKE %:reference%",
             countQuery = "select count(*) from product_history pr where pr.model_id = :modelId and pr.reference LIKE %:reference%",
             nativeQuery = true)
     public Page<ProductHistory> findAllByReference(@Param("modelId") Long modelId, @Param("reference") String reference, Pageable pageable);

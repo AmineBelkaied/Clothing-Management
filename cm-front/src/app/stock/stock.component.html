@@ -1,29 +1,30 @@
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
     <div class="card-body">
-  <div class="row ml-3">
-    <div class="col-md-7">
-        <p-dropdown [options]="models" (onChange)="onModelChange($event.value)" optionLabel="name"
-          optionValue="id" [style]="{ width: '200px'}" [(ngModel)]="selectedModel"
-          [panelStyle]="{ width: '200px' }" [showClear]="true" placeholder="Choisir le modèle" appendTo="body">
-        </p-dropdown>
-<!--         <p-toggleButton [(ngModel)]="isMultiple" onLabel="SelectionLibre" offLabel="Sélection/Produit" class="pr-2 pl-5"></p-toggleButton> -->
-        <p-toggleButton [(ngModel)]="selectAll" onLabel="UnSelect-All" offLabel="Select-All" (click)="selectAllProducts()" class="pl-2"></p-toggleButton>
-        <p-inputNumber [(ngModel)]="qte" mode="decimal" inputId="withoutgrouping" [useGrouping]="false" (keyup.enter)="add()" class="pr-4 pl-5"> </p-inputNumber>
-        <p-button label="Ajouter" icon="pi pi-check" iconPos="right" (click)="add()"></p-button>
+      <div class="row ml-3">
+        <div class="col-md-7">
+          <p-dropdown [options]="models" (onChange)="onModelChange($event.value)" optionLabel="name" optionValue="id"
+            [style]="{ width: '200px'}" [(ngModel)]="selectedModel" [panelStyle]="{ width: '200px' }" [showClear]="true"
+            placeholder="Choisir le modèle" appendTo="body">
+          </p-dropdown>
+          <!--         <p-toggleButton [(ngModel)]="isMultiple" onLabel="SelectionLibre" offLabel="Sélection/Produit" class="pr-2 pl-5"></p-toggleButton> -->
+          <p-toggleButton [(ngModel)]="selectAll" onLabel="UnSelect-All" offLabel="Select-All"
+            (click)="selectAllProducts()" class="pl-2"></p-toggleButton>
+          <p-inputNumber [(ngModel)]="qte" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"
+            (keyup.enter)="add()" class="pr-4 pl-5"> </p-inputNumber>
+          <p-button label="Ajouter" icon="pi pi-check" iconPos="right" (click)="add()"></p-button>
+        </div>
+        <div class="col-md-5">
+          <button pButton pRipple icon="pi pi-search" class="p-button-success p-button-sm" (click)="search()"></button>
+          <input pInputText type="text" [(ngModel)]="searchField" placeholder="Référence produit" class="mr-3 ml-2"
+            (keyup.enter)="search()" />
+          <p-calendar [(ngModel)]="rangeDates" (ngModelChange)="filterChange('date')" selectionMode="range"
+            dateFormat="dd/mm" [readonlyInput]="true" inputId="range" placeholder="Filtrer par date/période"
+            [showClear]="true" [showButtonBar]="true" [showIcon]="true" class="ml-0"
+            [style]="{ width: '250px' }"></p-calendar>
+        </div>
       </div>
-    <div class="col-md-5">
-
-      <button pButton pRipple icon="pi pi-search" class="p-button-success p-button-sm"
-      (click)="search()"></button>
-      <input pInputText type="text" [(ngModel)]="searchField" placeholder="Référence produit" class="mr-3 ml-3" (keyup.enter)="search()"/>
-      <p-calendar [(ngModel)]="rangeDates" (ngModelChange)="filterChange('date')" selectionMode="range" dateFormat="dd/mm"
-        [readonlyInput]="true" inputId="range" placeholder="Filtrer par date/période" [showClear]="true"
-        [showButtonBar]="true" [showIcon]="true" class="ml-0" [style]="{ width: '250px' }"></p-calendar>
-
     </div>
-  </div>
-  </div>
   </div>
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
     <div class="card-body">
@@ -62,10 +63,11 @@
 </div>
 
 <div class="col-md-3">
-  <app-stock-history [productsHistory]="productsHistory" [modelId]="selectedModel"></app-stock-history>
+  <app-stock-history [productsHistory]="productsHistory" [modelId]="selectedModel" (deleteProductsHistoryEvent)="onDeleteProductsHistory($event)"></app-stock-history>
 
 </div>
 
 </div>
 </div>
 </div>
+<p-toast position="bottom-right"></p-toast>

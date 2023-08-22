@@ -1,5 +1,6 @@
 package com.clothing.management.services;
 
+import com.clothing.management.dto.BarCodeStatusDTO;
 import com.clothing.management.dto.DeliveryResponseFirst;
 import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.dto.SelectedProductsDTO;
@@ -30,6 +31,6 @@ public interface PacketService {
     public List<PacketStatus> findPacketStatusById(Long idPacket);
     DeliveryResponseFirst createBarCode(Packet packet, String deliveryCompany) throws IOException, InterruptedException;
     Packet getLastStatus(Packet packet, String deliveryCompany) throws Exception;
-
     Packet duplicatePacket(Long idPacket);
+    void updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO);
 }

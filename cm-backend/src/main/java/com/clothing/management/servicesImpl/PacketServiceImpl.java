@@ -10,20 +10,14 @@ import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
 
 @Service
 public class PacketServiceImpl implements PacketService {
@@ -478,5 +472,16 @@ public class PacketServiceImpl implements PacketService {
             });
         }
         return response;
+    }
+
+    @Override
+    public void updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO) {
+        barCodeStatusDTO.getBarCodes().forEach(barCode -> {
+            Packet packet = packetRepository.findByBarCode(barCode);
+            if(packet != null) {
+                packet.setStatus(barCodeStatusDTO.getStatus());
+                packetRepository.save(packet);
+            }
+        });
     }
 }

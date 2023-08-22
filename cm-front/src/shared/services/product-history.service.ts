@@ -40,4 +40,7 @@ export class ProductHistoryService {
     return this.http.put(this.baseUrl + "/updateProductHistory", productHistory, { headers: { 'content-type': 'application/json' } })
   }
 
+  deleteProductsHistory(productsHistory: any[],modelId: string, page: number): Observable<any> {
+    return this.http.post(this.baseUrl + "/deleteProductsHistory/"+ modelId + "?page=" + page , productsHistory);
+  }
 }
