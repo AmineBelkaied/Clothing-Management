@@ -103,7 +103,7 @@ public class ProductServiceImpl implements ProductService {
 
             groupedProducts.forEach((color, products) -> {
                 List<Object> objects = new ArrayList<>();
-                objects.add(color);
+                //objects.add(color);
                 objects.addAll(sortProductBySize((products.stream().map(product -> mapToProduct(product)).collect(Collectors.toList()))));
                 productsByColors.add(objects);
             });

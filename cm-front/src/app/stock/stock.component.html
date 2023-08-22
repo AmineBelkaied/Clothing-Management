@@ -33,17 +33,18 @@
     <ng-template pTemplate="header">
       <tr>
         <th>Colors</th>
-        <th *ngFor="let size of sizes;let index=index" (click)="handleSizeClick(index, size)" style="cursor: pointer;">{{ size.reference }}</th>
+        <th *ngFor="let size of sizes;let index=index" (click)="handleSizeClick(index)" style="cursor: pointer;">{{ size.reference }}</th>
         <th>Total Couleur</th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-productSizes let-ri="rowIndex">
+    <ng-template pTemplate="body" let-productSizes let-j="rowIndex">
       <tr>
-       <td *ngFor="let productSize of productSizes" pEditableColumn [ngStyle]="getStyle(productSize.quantity)" (click)="onCellClick(productSize, $event, ri)" (mouseenter)="selectMultiple(productSize, $event, ri)">
+        <td (click)="handleColorClick(j)">{{products[j][0].color.name}}</td>
+       <td *ngFor="let productSize of productSizes" pEditableColumn [ngStyle]="getStyle(productSize.quantity)" (click)="onCellClick(productSize, $event, j)">
         <ng-container *ngIf="productSize.quantity != null;else colors"> {{productSize.quantity}}</ng-container>
       <ng-template #colors> {{productSize.name}}</ng-template>
       </td>
-      <td>{{ totalRow(productSizes)}}</td>
+      <td style="background-color: #fafafa;" (click)="hideRow(j)">{{ totalRow(j) }}</td>
     </tr>
     </ng-template>
     <ng-template pTemplate="footer">
@@ -51,7 +52,7 @@
         <td>
           Total Size
         </td>
-        <td  *ngFor="let size of sizes;let index=index">
+        <td *ngFor="let size of sizes;let index=index">
           {{ totalColumn(index) }}
         </td>
         <td>{{ totalTable()}}</td>
