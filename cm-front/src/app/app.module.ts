@@ -29,6 +29,9 @@ import { ChangeColorDirective } from 'src/shared/directives/change-color.directi
 import { TimelineModule } from 'primeng/timeline';
 import { TreeTableModule } from 'primeng/treetable';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { TagModule } from 'primeng/tag';
+
+import { CheckboxModule } from 'primeng/checkbox';
 
 // import components
 import { AppComponent } from './app.component';
@@ -115,7 +118,9 @@ import { PayedReturnComponent } from './payed-return/payed-return.component';
     ToggleButtonModule,
     TreeTableModule,
     PaginatorModule,
-    RadioButtonModule
+    RadioButtonModule,
+    TagModule,
+    CheckboxModule
   ],
   providers: [MessageService, ConfirmationService,CityTreeService ],
   bootstrap: [AppComponent]
