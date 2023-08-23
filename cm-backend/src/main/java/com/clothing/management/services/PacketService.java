@@ -6,7 +6,6 @@ import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.dto.SelectedProductsDTO;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.Date;
@@ -33,5 +32,5 @@ public interface PacketService {
     DeliveryResponseFirst createBarCode(Packet packet, String deliveryCompany) throws IOException, InterruptedException;
     Packet getLastStatus(Packet packet, String deliveryCompany) throws Exception;
     Packet duplicatePacket(Long idPacket);
-    String updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO);
+    List<String> updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO);
 }

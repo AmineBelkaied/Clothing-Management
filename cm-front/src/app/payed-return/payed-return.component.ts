@@ -26,12 +26,30 @@ export class PayedReturnComponent implements OnInit {
     console.log(this.type);
     this.packetService.updateStatus(this.extractedBarcodes,this.type)
       .subscribe((result: any) => {
-        console.log('result', result);
-        /* this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: result,
-        }); */
+        if(result.length > 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: this.createErrorMessage(result),
+          life: 3000
+        },);
+        } else {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succés',
+            detail: "Le status des commandes a été modifié avec succés",
+          });
+        }
       });
+  }
+
+  createErrorMessage(result: string[]) {
+    let errorMessage = "Les code à barres suivants sont introuvables : ";
+    result.forEach((element, index) => {
+      errorMessage += element;
+        if(index < result.length - 1)
+          errorMessage += " , ";
+    });
+    return errorMessage;
   }
 }
