@@ -55,7 +55,7 @@ export class StockComponent implements OnInit {
     this.productService.getStock(modelId).subscribe((result: any) => {
       this.products = result.productsByColor;
       console.log(this.products);
-      
+
       this.sizes = result.sizes;
     });
   }
@@ -255,6 +255,6 @@ export class StockComponent implements OnInit {
         for (var i = 0; i < this.products[j].length; i++)
         if(product.productId == this.products[j][i].id)
           this.products[j][i].quantity = this.products[j][i].quantity - product.quantity;
-    });        
+    });
   }
 }

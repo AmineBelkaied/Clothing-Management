@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ProductService } from 'src/shared/services/product.service';
+import { MessageService } from 'primeng/api';
+import { PacketService } from 'src/shared/services/packet.service';
 
 @Component({
   selector: 'app-payed-return',
@@ -11,7 +12,7 @@ export class PayedReturnComponent implements OnInit {
   extractedBarcodes: string[] = [];
   type!: string;
 
-  constructor(private productService: ProductService) {
+  constructor(private packetService: PacketService,private messageService: MessageService) {
 
   }
 
@@ -23,9 +24,32 @@ export class PayedReturnComponent implements OnInit {
     this.extractedBarcodes = this.text.match(barcodeRegex) || [];
     console.log(this.extractedBarcodes);
     console.log(this.type);
-    this.productService.updateStatus(this.extractedBarcodes,this.type)
+    this.packetService.updateStatus(this.extractedBarcodes,this.type)
       .subscribe((result: any) => {
-        console.log('result', result);
+        if(result.length > 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: this.createErrorMessage(result),
+          life: 3000
+        },);
+        } else {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succés',
+            detail: "Le status des commandes a été modifié avec succés",
+          });
+        }
       });
+  }
+
+  createErrorMessage(result: string[]) {
+    let errorMessage = "Les code à barres suivants sont introuvables : ";
+    result.forEach((element, index) => {
+      errorMessage += element;
+        if(index < result.length - 1)
+          errorMessage += " , ";
+    });
+    return errorMessage;
   }
 }

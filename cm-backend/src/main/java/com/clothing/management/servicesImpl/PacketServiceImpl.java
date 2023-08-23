@@ -477,12 +477,15 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public List<String> updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO) {
         List<String> errors = new ArrayList<>();
+        System.out.println(barCodeStatusDTO);
         barCodeStatusDTO.getBarCodes().forEach(barCode -> {
             try {
                 Packet packet = packetRepository.findByBarCode(barCode);
                 if(packet != null) {
                     packet.setStatus(barCodeStatusDTO.getStatus());
                     packetRepository.save(packet);
+                } else {
+                    errors.add(barCode);
                 }
             } catch(Exception e){
                 errors.add(barCode);
