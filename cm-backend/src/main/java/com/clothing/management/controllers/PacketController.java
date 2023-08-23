@@ -108,7 +108,11 @@ public class PacketController {
     }
 
     @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")
-    public void updatePacketsByBarCode(@RequestBody BarCodeStatusDTO barCodeStatusDTO) {
-        packetService.updatePacketsByBarCode(barCodeStatusDTO);
+    public ResponseEntity<List<String>> updatePacketsByBarCode(@RequestBody BarCodeStatusDTO barCodeStatusDTO) {
+        try {
+            return new ResponseEntity<>(packetService.updatePacketsByBarCode(barCodeStatusDTO), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(packetService.updatePacketsByBarCode(barCodeStatusDTO), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

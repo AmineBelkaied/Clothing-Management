@@ -475,13 +475,20 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public void updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO) {
+    public List<String> updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO) {
+        List<String> errors = new ArrayList<>();
         barCodeStatusDTO.getBarCodes().forEach(barCode -> {
-            Packet packet = packetRepository.findByBarCode(barCode);
-            if(packet != null) {
-                packet.setStatus(barCodeStatusDTO.getStatus());
-                packetRepository.save(packet);
+            try {
+                Packet packet = packetRepository.findByBarCode(barCode);
+                if(packet != null) {
+                    packet.setStatus(barCodeStatusDTO.getStatus());
+                    packetRepository.save(packet);
+                }
+            } catch(Exception e){
+                errors.add(barCode);
+                e.printStackTrace();
             }
         });
+        return errors;
     }
 }
