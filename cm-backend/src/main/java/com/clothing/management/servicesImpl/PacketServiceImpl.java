@@ -8,6 +8,7 @@ import com.clothing.management.entities.*;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -475,7 +476,8 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public void updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO) {
+    public String updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO) {
+        try{
         barCodeStatusDTO.getBarCodes().forEach(barCode -> {
             Packet packet = packetRepository.findByBarCode(barCode);
             if(packet != null) {
@@ -483,5 +485,9 @@ public class PacketServiceImpl implements PacketService {
                 packetRepository.save(packet);
             }
         });
+            return "aaaa";
+        }catch (Exception e ) {
+            return "aaaa";
+        }
     }
 }

@@ -7,11 +7,6 @@ import { baseUrl } from '../../assets/constants';
 })
 export class ProductService {
 
-  updateStatus(extractedBarcodes: string[], type: string) {
-    let updateStock = {'extractedBarcodes': extractedBarcodes,'type':type}
-    return this.http.post(this.baseUrl + "/updateStatus", updateStock);
-  }
-
   private baseUrl: string = baseUrl + "/product";
 
   constructor(private http: HttpClient) { }

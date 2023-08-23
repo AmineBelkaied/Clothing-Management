@@ -31,6 +31,11 @@ export class PacketService {
       })
   }
 
+  public updateStatus(extractedBarcodes: string[], type: string){
+    let updateStock = {'barCodes': extractedBarcodes,'status':type}
+    return this.http.post(this.baseUrl + "/updatePacketsByBarCode", updateStock);
+  }
+
   // Call this method whenever you want to access the "cached" request
   public findAllPackets(): Observable<any> {
     // only create a new request if you don't already have one stored

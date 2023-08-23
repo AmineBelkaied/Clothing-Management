@@ -3,20 +3,20 @@
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
     <div class="card-body">
-      <div class="row">
-  <div class="card flex justify-content-center">
-    <div class="flex flex-wrap gap-3">
-      <div class="flex align-items-center">
-        <p-radioButton value="Payée" [(ngModel)]="type" inputId="Payed"></p-radioButton>
-        <label for="ingredient1" class="ml-2">Payée</label>
-      </div>
-      <div class="flex align-items-center">
-        <p-radioButton value="Retour reçu" [(ngModel)]="type" inputId="Return"></p-radioButton>
-        <label for="ingredient2" class="ml-2">Retour</label>
+      <div class="d-flex justify-content-center align-items-center">
+        <div class="d-flex gap-3"> <!-- Changed flex-column to flex -->
+          <div class="d-flex align-items-center">
+            <p-radioButton value="Payée" [(ngModel)]="type"></p-radioButton>
+            <label for="Payed" class="ml-2">Payée</label>
+          </div>
+          <div class="d-flex align-items-center">
+            <p-radioButton value="Retour reçu" [(ngModel)]="type"></p-radioButton>
+            <label for="Return" class="ml-2">Retour reçu</label>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  </div></div></div>
 
 
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
@@ -27,13 +27,7 @@
             [(ngModel)]="text"
             placeholder="Paste your text here"
           ></textarea>
-          <button (click)="extractBarcodes()">Extract Barcodes</button>
-          <div *ngIf="extractedBarcodes.length > 0">
-            <h3>Extracted Barcodes:</h3>
-            <ul>
-              <li *ngFor="let barcode of extractedBarcodes">{{ barcode }}</li>
-            </ul>
-          </div>
+          <button pButton pRipple label="Send to {{type}}" class="p-button-success" (click)="extractBarcodes()"></button>
         </div>
       </div>
     </div>

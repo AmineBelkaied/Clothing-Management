@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ProductService } from 'src/shared/services/product.service';
+import { MessageService } from 'primeng/api';
+import { PacketService } from 'src/shared/services/packet.service';
 
 @Component({
   selector: 'app-payed-return',
@@ -11,7 +12,7 @@ export class PayedReturnComponent implements OnInit {
   extractedBarcodes: string[] = [];
   type!: string;
 
-  constructor(private productService: ProductService) {
+  constructor(private packetService: PacketService,private messageService: MessageService) {
 
   }
 
@@ -23,9 +24,14 @@ export class PayedReturnComponent implements OnInit {
     this.extractedBarcodes = this.text.match(barcodeRegex) || [];
     console.log(this.extractedBarcodes);
     console.log(this.type);
-    this.productService.updateStatus(this.extractedBarcodes,this.type)
+    this.packetService.updateStatus(this.extractedBarcodes,this.type)
       .subscribe((result: any) => {
         console.log('result', result);
+        /* this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: result,
+        }); */
       });
   }
 }
