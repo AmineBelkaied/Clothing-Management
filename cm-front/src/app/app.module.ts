@@ -30,6 +30,9 @@ import { TimelineModule } from 'primeng/timeline';
 import { TreeTableModule } from 'primeng/treetable';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
+import { TagModule } from 'primeng/tag';
+
+import { CheckboxModule } from 'primeng/checkbox';
 
 // import components
 import { AppComponent } from './app.component';
@@ -117,7 +120,9 @@ import { PayedReturnComponent } from './payed-return/payed-return.component';
     TreeTableModule,
     PaginatorModule,
     RadioButtonModule,
-    FileUploadModule
+    FileUploadModule,
+    TagModule,
+    CheckboxModule
   ],
   providers: [MessageService, ConfirmationService,CityTreeService ],
   bootstrap: [AppComponent]

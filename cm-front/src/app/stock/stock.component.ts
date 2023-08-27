@@ -25,6 +25,7 @@ export class StockComponent implements OnInit {
   sizes: any[] = [];
   selectAll: boolean = false;
   selectedModel: string = '';
+  hide0 : boolean = false;
 
   rangeDates: Date[] = [];
 
@@ -40,8 +41,8 @@ export class StockComponent implements OnInit {
   ngOnInit(): void {
     this.modelService.findAllModels().subscribe((result: any) => {
       this.models = result;
-      this.selectedModel = this.models[0].id;
-      this.getStockByModelId(this.models[0].id);
+      this.selectedModel = this.models[4].id;
+      this.getStockByModelId(this.models[4].id);
       this.productHistoryService
         .findAll(this.selectedModel)
         .subscribe((result: any) => {
@@ -169,18 +170,6 @@ export class StockComponent implements OnInit {
       });
   }
 
-  getStyle(quantity: any) {
-    if (quantity < 10)
-    return {
-      'background-color':'#D7A4A3',
-      cursor: 'pointer',
-    };
-    else
-    return {
-      cursor: 'pointer'
-    };
-  }
-
   filterChange(event: any) {
     this.onClearCalendar();
     this.productHistoryService
@@ -246,8 +235,16 @@ export class StockComponent implements OnInit {
 
   hideRow(j:number){
     if(this.totalRow(j)==0)
-    this.products.splice(j,1);
+      this.products.splice(j,1);
   }
+
+/*   hideColumn(i:number){
+    console.log('hide column',i);
+
+    if(this.totalColumn(i)==0)
+    for (var j = 0; j < this.products.length; j++)
+      this.products[j].splice(i,1);
+  } */
 
   onDeleteProductsHistory($event: any): void {
     $event.products.forEach((product: any) => {
@@ -257,4 +254,40 @@ export class StockComponent implements OnInit {
           this.products[j][i].quantity = this.products[j][i].quantity - product.quantity;
     });
   }
+
+/*   getStyle(quantity: any) {
+    if (quantity < 10)
+    return {
+      'background-color':'#D7A4A3',
+      cursor: 'pointer',
+    };
+    else
+    return {
+      cursor: 'pointer'
+    };
+  } */
+
+  getSeverity(product: any,button:boolean) {
+    if (button)
+    switch (true) {
+      case product.quantity <1:
+        return 'danger';
+
+        case product.quantity < 10:
+            return 'warning';
+
+        default:
+            return 'success';
+    }
+    else switch (true) {
+      case product.quantity <1:
+        return 'RUPTURE';
+
+        case product.quantity < 10:
+            return 'LOW STOCK';
+
+        default:
+            return 'EN STOCK';
+    }
+}
 }

@@ -186,7 +186,7 @@ export class AddPacketComponent implements OnInit {
 
   setOfferModelsValues(index: number): void {
     this.setOfferControlValues(this.offers().at(index), this.selectedOffer);
-    for (var i = 0; i < this.selectedOffer.models.length; i++) { 
+    for (var i = 0; i < this.selectedOffer.models.length; i++) {
       this.addModel(index);
       this.setModelControlValues(this.models(index).controls[i], this.selectedOffer.models[i]);
       this.createPacketDescription();
@@ -208,11 +208,13 @@ export class AddPacketComponent implements OnInit {
   setSelectedProductValue(selectedModel: AbstractControl, index: number, selectedOffer: AbstractControl): void {
     if (this.editMode)
       this.selectedOffer = this.offersList.find(offer => offer.offerId == selectedOffer.get('offerId')?.value)
-    
+
     this.setNoChoiceColorSize(selectedModel, index);
     let selectedProduct = this.selectedOffer.models[index].products.find((product: any) => product.color.id == selectedModel.get('selectedColor')?.value.id && product.size.id == selectedModel.get('selectedSize')?.value.id);
     selectedModel.get('selectedProduct')?.setValue(selectedProduct);
     this.createPacketDescription();
+    console.log('selectedModel',selectedModel);
+
   }
 
   setNoChoiceColorSize(selectedModel: AbstractControl, index: number): void {

@@ -18,7 +18,7 @@ public class UpdateStatusScheduler {
     @Autowired
     PacketService packetService;
 
-    @Scheduled(cron = "0 1 3 ? * *")
+    @Scheduled(cron = "0 40 8 ? * *")
     public void cronJobSch() throws Exception{
         System.out.println("CRON STARTED");
         List<Packet> packets = Collections.synchronizedList(packetService.findAllDiggiePackets());

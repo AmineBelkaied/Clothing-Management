@@ -125,12 +125,11 @@ export class ListPacketsComponent
       'En cours (3)',
       'Livrée',
       'Payée',
-      'Retour',
-      'Echange',
-      'Échange livré',
       'Retour Expediteur',
-      'Retour reçu',
       'A verifier',
+      'Retour',
+      'Retour Echange',
+      'Retour reçu',
       'Supprimé',
     ];
     this.statusListEtat0 = [
@@ -144,9 +143,8 @@ export class ListPacketsComponent
     this.statesList = [
       'Bureau',
       'En Cours',
-      'Livrée',
+      'Retour',
       'Terminé',
-      'Retour'
     ];
   }
 
@@ -217,8 +215,7 @@ export class ListPacketsComponent
         let msg = 'Le champ a été modifié avec succés';
         if (
           packet.field == 'status' &&
-          (packet.data[packet.field] == 'Confirmée' ||
-            packet.data[packet.field] == 'Echange')
+          (packet.data[packet.field] == 'Confirmée')
         ) {
           if (!this.checkPacketValidity(packet.data)) {
             this.messageService.add({
@@ -247,16 +244,20 @@ export class ListPacketsComponent
             })
           )
           .subscribe((responsePacket: Packet) => {
-            if (
-              packet.field == 'status' &&
-              (packet.data[packet.field] == 'Confirmée' ||
-                packet.data[packet.field] == 'Echange')
-            ) {
-              this.isLoading = false;
+            console.log('responsePacket0',responsePacket);
+            console.log('packet.data[packet.field]',packet.data[packet.field]);
+            console.log('packet.field == status',packet.field);
+            if (packet.field === 'status' && ((packet.data[packet.field] === 'Confirmée') || (packet.data[packet.field] === 'Retour Echange'))) {
+              console.log('packet.data[packet.field]');
+
+              if((packet.data[packet.field] === 'Confirmée') || (packet.data[packet.field] === 'Retour Echange')){
+                console.log('responsePacket.barcode',responsePacket.barcode);
+                this.isLoading = false;
               if (responsePacket.barcode != null) {
                 let pos = this.packetService.allPackets
                   .map((packet) => packet.id)
-                  .indexOf(packet['data'].id);
+                  .indexOf(responsePacket.id);
+                  console.log('pos',pos);
                 this.packetService.allPackets.splice(pos, 1, responsePacket);
                 this.packetService.allPacketsReadySubject.next(true);
                 msg = 'Le barcode a été crée avec succés';
@@ -267,6 +268,11 @@ export class ListPacketsComponent
                   detail: 'Erreur lors de la creation du barcode',
                 });
               }
+              if(packet.data[packet.field] === 'Retour Echange'){
+                packet.data[packet.field] = "Livrée";
+              }
+              }
+
             }
             this.messageService.add({
               severity: 'success',
@@ -331,7 +337,7 @@ export class ListPacketsComponent
   }
 
   getLastStatus(packet: Packet) {
-    if (packet.status != 'Payée' && packet.status != 'Retour reçu')
+    if (packet.status != 'Payée' && packet.status != 'Retour reçu'&& packet.status != 'Retour Expediteur' && packet.status != 'Livrée')
       this.packetService.getLastFirstStatus(packet);
   }
 

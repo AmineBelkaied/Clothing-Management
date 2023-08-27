@@ -27,10 +27,11 @@ public interface PacketService {
     public void addProductsToPacket(SelectedProductsDTO selectedProductsDTO);
     public void deletePacketById(Long idPacket);
     public void deleteSelectedPackets(List<Long> packetsId);
-    public void updatePacketStatus(Long idPacket ,String status);
+    public void savePacketStatusToHistory(Long idPacket ,String status);
     public List<PacketStatus> findPacketStatusById(Long idPacket);
     DeliveryResponseFirst createBarCode(Packet packet, String deliveryCompany) throws IOException, InterruptedException;
     Packet getLastStatus(Packet packet, String deliveryCompany) throws Exception;
     Packet duplicatePacket(Long idPacket);
     List<String> updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO);
+    Long getExchangeId(Packet packet);
 }

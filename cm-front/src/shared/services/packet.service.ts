@@ -97,39 +97,15 @@ export class PacketService {
   duplicatePacket(idPacket: any) {
     return this.http.get(this.baseUrl + '/duplicatePacket/' + idPacket);
   }
-  /*
 
-  getPacketDescription(
-    packetDescription: any,
-    modelName: any,
-    color: any,
-    size: any
-  ) {
-    if (modelName != null) packetDescription += modelName;
-    if (color != null) packetDescription += ' ' + color;
-    if (size != null) packetDescription += ' (' + size + ')';
-    packetDescription += ' , ';
-  }
-
-  updatePacketStatus(idPacket: any, status: string) {
-    return this.http.post(
-      this.baseUrl + '/updateStatus/' + idPacket + '/' + status,
-      { headers: { 'content-type': 'application/json' } }
-    );
-  }
-  */
   getPacketAllStatus(idPacket: any) {
     return this.http.get(this.baseUrl + '/findPacketStatus/' + idPacket);
   }
 
-  /*createBarCode(packet : Packet, deliveryCompany?: string) {
-    return this.http.post(this.baseUrl + '/createBarCode?deliveryCompany=' + deliveryCompany, packet)
-  }*/
-
   getLastFirstStatus(packet: Packet) {
     console.log('packet', packet);
     //this.isLoading = true;
-    if (packet.status != 'Payée' && packet.status != 'Retour reçu')
+    if (packet.status != 'Payée' && packet.status != 'Retour reçu' && packet.status != 'Retour Expediteur'&& packet.status != 'Livrée')
       this.getLastStatus(packet, 'FIRST')
         .subscribe(
           {
@@ -164,5 +140,4 @@ export class PacketService {
       return errorMessage;
     });
   }
-
 }

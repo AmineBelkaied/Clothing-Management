@@ -24,6 +24,14 @@ export class PayedReturnComponent implements OnInit {
     this.extractedBarcodes = this.text.match(barcodeRegex) || [];
     console.log(this.extractedBarcodes);
     console.log(this.type);
+    if(this.type==null)
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: "Veiller selectionnée le type",
+      life: 3000
+    })
+    else
     this.packetService.updateStatus(this.extractedBarcodes,this.type)
       .subscribe((result: any) => {
         if(result.length > 0) {
