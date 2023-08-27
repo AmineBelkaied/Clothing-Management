@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -185,7 +187,13 @@ public class PacketServiceImpl implements PacketService {
                         .collect(groupingBy(ProductsPacket::getPacketOfferId));
                 offerListMap.forEach((offer, productsPacket) -> {
                     Offer firstOffer = productsPacket.get(0).getOffer();
-                    OfferUpdateDTO offerUpdateDTO = new OfferUpdateDTO(firstOffer.getId(), firstOffer.getName(), firstOffer.getPrice(), firstOffer.isEnabled(), productsPacket.stream().map(productPacket -> mapToProduct(productPacket.getProduct())).collect(Collectors.toList()));
+                    OfferUpdateDTO offerUpdateDTO = new OfferUpdateDTO(firstOffer.getId(), firstOffer.getName(), firstOffer.getPrice(), firstOffer.isEnabled(), productsPacket.stream().map(productPacket -> {
+                        try {
+                            return mapToProduct(productPacket.getProduct());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }).collect(Collectors.toList()));
                     offerUpdateDTOList.add(offerUpdateDTO);
                 });
             }
@@ -194,7 +202,7 @@ public class PacketServiceImpl implements PacketService {
         return packetDTO;
     }
 
-    private Product mapToProduct(Product product) {
+    private Product mapToProduct(Product product) throws IOException {
         Product newProduct = new Product();
         newProduct.setId(product.getId());
         newProduct.setColor(product.getColor());
@@ -206,7 +214,7 @@ public class PacketServiceImpl implements PacketService {
         return newProduct;
     }
 
-    private Model mapToModel(Model model) {
+    private Model mapToModel(Model model) throws IOException {
         Model newModel = new Model();
         newModel.setId(model.getId());
         newModel.setColors(model.getColors());
@@ -214,6 +222,8 @@ public class PacketServiceImpl implements PacketService {
         newModel.setDescription(model.getDescription());
         newModel.setName(model.getName());
         newModel.setReference(model.getReference());
+        if(model.getImage() != null)
+            newModel.setBytes(Files.readAllBytes(new File(model.getImage().getImagePath()).toPath()));
         return newModel;
     }
 
@@ -303,28 +313,16 @@ public class PacketServiceImpl implements PacketService {
         if(deliveryCompany.equals(DeliveryCompany.FIRST.toString())) {
             try {
                 DeliveryResponseFirst deliveryResponse = this.firstApiService.getLastStatus(packet.getBarcode());
-                System.out.println("PSIdeliveryResponse"+deliveryResponse.toString());
 
                 if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {
                     String diggieStatus = DiggieStatus.A_VERIFIER.getStatus();
-                    System.out.println("PSIdeliveryResponse.getStatus()"+deliveryResponse.getStatus());
                     if (deliveryResponse.getStatus()==404 || deliveryResponse.getResult().getState() == null || deliveryResponse.getResult().getState().equals("")) {
                         packet.setStatus(DiggieStatus.A_VERIFIER.getStatus());
                         packet.setLastDeliveryStatus("Code à barre incorrect");
                         diggieStatus = DiggieStatus.A_VERIFIER.getStatus();
-                        System.out.println("PSI404");
                     }else if (deliveryResponse.getStatus()>199) {
-                        System.out.println("PSI>199");
                         diggieStatus = mapFirstToDiggieStatus(deliveryResponse.getResult().getState());
                         packet.setLastDeliveryStatus(deliveryResponse.getResult().getState());
-                        System.out.println("deliveryResponse.getEtat() : " + deliveryResponse.getResult().getState());
-                        System.out.println("packet.getStatus() : " + packet.getStatus());
-                        /*if(packet.getStatus().equals(DiggieStatus.EXCHANGE.getStatus()))
-                            packet.setStatus(
-                                    !diggieStatus.equals(DiggieStatus.RETOUR_RECU.getStatus()) && !diggieStatus.equals(DiggieStatus.RETOUR_EXPEDITEUR.getStatus())
-                                            ? DiggieStatus.EXCHANGE.getStatus() : diggieStatus
-                            );
-                        else */
 
                         if(
                                 !packet.getStatus().equals(DiggieStatus.RETOUR_RECU.getStatus())

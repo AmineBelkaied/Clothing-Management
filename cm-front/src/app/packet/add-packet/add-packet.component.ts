@@ -73,6 +73,8 @@ export class AddPacketComponent implements OnInit {
   getSelectedProducts(): void {
     this.packetService.findPacketRelatedProducts(this.packet.id)
       .subscribe((packet: any) => {
+        console.log(packet);
+        
         let offers = packet.offerUpdateDTOList;
         for (var index = 0; index < offers.length; index++) {
           this.addSelectedOffer(offers[index].offerId, offers[index].name, offers[index].price);
@@ -97,7 +99,9 @@ export class AddPacketComponent implements OnInit {
       sizes: [],
       selectedColor: '',
       selectedSize: '',
-      selectedProduct: ''
+      selectedProduct: '',
+      image: '',
+      bytes: ''
     })
     return model;
   }
@@ -152,9 +156,9 @@ export class AddPacketComponent implements OnInit {
     this.noChoiceSize = modelValue.sizes.find((size: Size) => size.reference === "?");
     let sizes = modelValue.sizes.filter((size: Size) => size.reference != "?");
     this.setControlValue(modelControl, 'sizes', sizes);
-
     this.setControlValue(modelControl, 'name', modelValue.name);
     this.setControlValue(modelControl, 'reference', modelValue.reference);
+    this.setControlValue(modelControl, 'image', modelValue.bytes);
 
     let defaultProduct = modelValue.products?.find((product: any) => product.reference === modelValue.reference + "??");
     this.setControlValue(modelControl, 'selectedProduct', defaultProduct);

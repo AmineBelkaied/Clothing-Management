@@ -1,3 +1,4 @@
+import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Color } from 'src/shared/models/Color';
@@ -6,6 +7,7 @@ import { Size } from 'src/shared/models/Size';
 import { ColorService } from 'src/shared/services/color.service';
 import { ModelService } from 'src/shared/services/model.service';
 import { SizeService } from 'src/shared/services/size.service';
+import { UploadFileService } from 'src/shared/services/upload.service';
 
 @Component({
   selector: 'app-list-models',
@@ -22,19 +24,22 @@ export class ListModelsComponent implements OnInit {
     "reference": "",
     "description": "",
     "colors": [],
-    "sizes": []
+    "sizes": [] 
   }
   editMode = false;
+  image: any;
 
   colors: Color[] = [];
   sizes: Size[] = [];
   selectedModels: Model[] = [];
 
   submitted: boolean = false;
+  selectedFile: any;
 
-  constructor(private modelService: ModelService, private messageService: MessageService,
+  constructor(private modelService: ModelService, private messageService: MessageService,private uploadService: UploadFileService,
      private confirmationService: ConfirmationService, private colorService: ColorService, private sizeService: SizeService) {
   }
+
 
   ngOnInit() {
 
@@ -50,6 +55,8 @@ export class ListModelsComponent implements OnInit {
     })
     this.modelService.findAllModels().subscribe((data: any) => {
       this.models = data;
+      console.log(this.models);
+      this.models.map(model => model.image = 'data:image/jpeg;base64,' + model.bytes)
     });
   }
 
@@ -88,6 +95,7 @@ export class ListModelsComponent implements OnInit {
     this.model = { ...model };
     this.model.colors = this.model.colors.filter((color: Color) => color.reference != "?");
     this.model.sizes = this.model.sizes.filter((size: Size) => size.reference != "?");
+    this.model.image = null;
     this.modelDialog = true;
     this.editMode = true;
   }
@@ -120,10 +128,11 @@ export class ListModelsComponent implements OnInit {
       if (this.model.id) {
         this.modelService.updateModel(this.model)
           .subscribe({
-            next: response => {
+            next: (response: any) => {
               console.log(response);
               this.models[this.findIndexById(this.model.id)] = this.model;
               this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Le modèle a été mis à jour avec succés', life: 3000 });
+              this.uploadFile(this.model);
             }
           });
       }
@@ -132,12 +141,13 @@ export class ListModelsComponent implements OnInit {
         //this.model.colors = this.model.colors.map((color: any) => {return  {"code" : color.code , "name" : color.name}});
         this.modelService.addModel(this.model)
           .subscribe({
-            next: response => {
+            next: (response: any) => {
               console.log(response);
               //this.model.id = this.createId();
               //this.model.image = 'model-placeholder.svg';
               this.models.push(response);
               this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Le modèle a été crée avec succés', life: 3000 });
+              this.uploadFile(response);
             },
             error: error => {
 
@@ -201,5 +211,28 @@ export class ListModelsComponent implements OnInit {
         sizeDisplay += "-";
     });
     return sizeDisplay;
+  }
+
+  onUpload($event: any) {
+    this.selectedFile = $event;
+    console.log(this.selectedFile);
+    
+  }
+
+  uploadFile(model: Model) {
+    this.uploadService.upload(this.selectedFile, model.id).subscribe(
+      (      event: any) => {
+        if (event.type === HttpEventType.UploadProgress) {
+         // this.progress = Math.round(100 * event.loaded / event.total);
+        } else if (event instanceof HttpResponse) {
+          console.log(event.body);
+        model.image = 'data:image/jpeg;base64,' + event.body.bytes;
+        }
+      },
+      (      err: any) => {
+       // this.message = 'Could not upload the file!';
+      });
+  
+    this.selectedFile = undefined;
   }
 }

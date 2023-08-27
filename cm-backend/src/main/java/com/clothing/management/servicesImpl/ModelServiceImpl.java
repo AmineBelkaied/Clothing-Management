@@ -12,7 +12,11 @@ import com.clothing.management.services.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ModelServiceImpl implements ModelService {
@@ -30,7 +34,15 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public List<Model> findAllModels() {
-        return modelRepository.findAll();
+        return modelRepository.findAll().stream().peek(model ->
+        {
+            try {
+                if (model.getImage() != null)
+                    model.setBytes(Files.readAllBytes(new File(model.getImage().getImagePath()).toPath()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -40,12 +52,8 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public Model addModel(Model model) {
-        if(model.getColors().stream().noneMatch(color -> color.getReference().equals("?"))
-                && model.getSizes().stream().noneMatch(size -> size.getReference().equals("?"))) {
-            model.getColors().add(colorRepository.findByReference("?"));
-            model.getSizes().add(sizeRepository.findByReference("?"));
-        }
-        Model modelResponse = modelRepository.save(model);
+      addUnknownColorsAndSizes(model);
+      Model modelResponse = modelRepository.save(model);
       // Generate products
       if(model.getColors().size() > 0) {
           for(Color color : model.getColors()) {
@@ -61,6 +69,14 @@ public class ModelServiceImpl implements ModelService {
             }
          }
         return modelResponse;
+    }
+
+    private void addUnknownColorsAndSizes(Model model) {
+        if(model.getColors().stream().noneMatch(color -> color.getReference().equals("?"))
+                && model.getSizes().stream().noneMatch(size -> size.getReference().equals("?"))) {
+            model.getColors().add(colorRepository.findByReference("?"));
+            model.getSizes().add(sizeRepository.findByReference("?"));
+        }
     }
 
     @Override

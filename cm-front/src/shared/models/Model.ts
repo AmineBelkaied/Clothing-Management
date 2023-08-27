@@ -6,4 +6,6 @@ export interface Model {
     colors: any[];
     sizes: any[];
     products?: any[];
+    image?: any;
+    bytes?: any[];
 }

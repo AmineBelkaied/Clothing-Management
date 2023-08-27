@@ -38,17 +38,28 @@ public class Model {
     @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<ProductHistory> productHistories;
+
+    @OneToOne(mappedBy = "model", cascade = CascadeType.ALL)
+    private ModelImage image;
+    @Transient
+    private byte[] bytes;
     public Model() {
     }
 
-    public Model(String name, List<Product> products, String reference, String description, Set<Color> colors,Set<Size> sizes, Set<OfferModel> modelOffers) {
+    public Model(Long id) {
+        this.id = id;
+    }
+
+    public Model(String name, List<Product> products, String reference, String description, Set<Color> colors, Set<Size> sizes, Set<OfferModel> modelOffers, List<ProductHistory> productHistories, ModelImage image) {
         this.name = name;
         this.products = products;
         this.reference = reference;
         this.description = description;
         this.colors = colors;
-        this.modelOffers = modelOffers;
         this.sizes = sizes;
+        this.modelOffers = modelOffers;
+        this.productHistories = productHistories;
+        this.image = image;
     }
 
     public Long getId() {
@@ -111,6 +122,21 @@ public class Model {
         this.sizes = sizes;
     }
 
+    public ModelImage getImage() {
+        return image;
+    }
+
+    public void setImage(ModelImage image) {
+        this.image = image;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
 
     @Override
     public String toString() {

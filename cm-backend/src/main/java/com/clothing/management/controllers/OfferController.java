@@ -7,6 +7,7 @@ import com.clothing.management.services.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,12 +20,12 @@ public class OfferController {
     OfferService offerService;
 
     @GetMapping(path = "/findAll")
-    public List<OfferModelsDTO> findAllOffers() {
+    public List<OfferModelsDTO> findAllOffers() throws IOException {
         return offerService.findAllOffers();
     }
 
     @GetMapping(path = "/findAllOffersModelQuantities")
-    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() {
+    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() throws IOException {
         return offerService.findAllOffersModelQuantities();
     }
 

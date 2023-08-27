@@ -13,6 +13,9 @@ import com.clothing.management.services.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +34,7 @@ public class OfferServiceImpl implements OfferService {
     IOfferModelRepository offerModelRepository;
 
     @Override
-    public List<OfferModelsDTO> findAllOffers() {
+    public List<OfferModelsDTO> findAllOffers() throws IOException {
         Map<Offer, List<OfferModel>> offerListMap = offerModelRepository.findAll()
                 .stream()
                 .collect(groupingBy(OfferModel::getOffer));
@@ -57,7 +60,7 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() {
+    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() throws IOException {
         Map<Offer, List<OfferModel>> offerListMap = offerModelRepository.findAll()
                 .stream()
                 .collect(groupingBy(OfferModel::getOffer));
@@ -80,7 +83,7 @@ public class OfferServiceImpl implements OfferService {
         return offerModelListDTO;
     }
 
-    private Model mapToModel(Model model) {
+    private Model mapToModel(Model model) throws IOException {
         Model newModel = new Model();
         newModel.setId(model.getId());
         newModel.setColors(model.getColors());
@@ -88,7 +91,9 @@ public class OfferServiceImpl implements OfferService {
         newModel.setDescription(model.getDescription());
         newModel.setName(model.getName());
         newModel.setReference(model.getReference());
-        newModel.setProducts(model.getProducts().stream().map(product -> mapToProduct(product)).collect(Collectors.toList()));
+        newModel.setProducts(model.getProducts().stream().map(this::mapToProduct).collect(Collectors.toList()));
+        if(model.getImage() != null)
+            newModel.setBytes(Files.readAllBytes(new File(model.getImage().getImagePath()).toPath()));
         return newModel;
     }
 

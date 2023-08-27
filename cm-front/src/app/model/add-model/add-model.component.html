@@ -7,17 +7,18 @@
           <div class="row">
             <div class="col-md-4">
               <label for="name" class="form-label">Nom</label>
-              <input type="text" class="form-control" id="name" placeholder="Nom du modèle" name="name" [(ngModel)]="model.name"/>
+              <input type="text" class="form-control" id="name" placeholder="Nom du modèle" name="name"
+                [(ngModel)]="model.name" />
             </div>
             <div class="col-md-4">
               <label for="reference" class="form-label">Référence</label>
-              <input type="text" class="form-control" id="reference" placeholder="Référence du modèle"
-                name="reference" [(ngModel)]="model.reference" minlength="2" maxlength="2" [disabled]="editMode"/>
+              <input type="text" class="form-control" id="reference" placeholder="Référence du modèle" name="reference"
+                [(ngModel)]="model.reference" minlength="2" maxlength="2" [disabled]="editMode" />
             </div>
             <div class="col-md-4">
               <label for="description" class="form-label">Description</label>
               <input type="text" class="form-control" id="description" placeholder="Description du modèle"
-                name="description" [(ngModel)]="model.description"/>
+                name="description" [(ngModel)]="model.description" />
             </div>
           </div>
 
@@ -25,20 +26,32 @@
           <div class="row mt-4">
             <div class="col-md-12">
               <label for="colors" class="form-label">Couleurs</label>
-              <p-multiSelect [options]="colors" [(ngModel)]="model.colors" name="colors" display="chip" [style]="{ width: '100%' }"
-                [panelStyle]="{ width: '50%' }" [placeholder]="'-- Choisir les couleurs --'" optionLabel="name" appendTo="body"></p-multiSelect>
+              <p-multiSelect [options]="colors" [(ngModel)]="model.colors" name="colors" display="chip"
+                [style]="{ width: '100%' }" [panelStyle]="{ width: '50%' }" [placeholder]="'-- Choisir les couleurs --'"
+                optionLabel="name" appendTo="body"></p-multiSelect>
             </div>
-<!--             <div class="col-md-1">
+            <!--             <div class="col-md-1">
               <button type="submit" class="btn btn-primary float-end">Ajouter</button>
             </div> -->
           </div>
           <div class="row mt-4">
-          <div class="col-md-12">
-            <label for="size" class="form-label">Tailles</label>
-          <p-multiSelect [options]="sizes" [(ngModel)]="model.sizes" name="sizes" display="chip" [style]="{ width: '100%' }"
-          [panelStyle]="{ width: '50%' }" [placeholder]="'-- Choisir les tailles --'" optionLabel="reference" appendTo="body"></p-multiSelect>
+            <div class="col-md-12">
+              <label for="size" class="form-label">Tailles</label>
+              <p-multiSelect [options]="sizes" [(ngModel)]="model.sizes" name="sizes" display="chip"
+                [style]="{ width: '100%' }" [panelStyle]="{ width: '50%' }" [placeholder]="'-- Choisir les tailles --'"
+                optionLabel="reference" appendTo="body"></p-multiSelect>
+            </div>
           </div>
-        </div>
+          <div class="row mt-4">
+            <div class="col-md-12">
+              <p-fileUpload [customUpload]="true"  chooseLabel="Choisir une image" accept="image/*" [maxFileSize]="1000000" [multiple]="false" [auto]="true"
+                (uploadHandler)="selectFile($event)" [previewWidth]="150">
+                <ng-template pTemplate="content" let-files >
+                  <div *ngIf="image != null && selectedFile == null"><img [src]="image" alt="Image"></div>
+              </ng-template>
+              </p-fileUpload>
+            </div>
+          </div>
           <br>
 
         </div>

@@ -43,6 +43,7 @@
                 <tr *ngFor="let model of models(i).controls; let j=index" [formGroupName]="j" class="mt-3"  style="max-width: 100%;">
                   <td style="text-align:center;vertical-align: middle;background-color: aliceblue;width: 20%;">
                     <small style="font-style: normal;font-size: 14.3px">{{model.get("name")?.value}}</small>
+                    <img *ngIf="model.get('image')?.value != null" [src]="'data:image/jpeg;base64,' + model.get('image')?.value" width="60" height="60" class="shadow-4" />
                   </td>
                   <td>
                     <p-dropdown [options]="model.get('colors')?.value" (ngModelChange)="setSelectedProductValue(model, j, offer)" optionLabel="name"
