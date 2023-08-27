@@ -19,6 +19,11 @@ public enum DiggieStatus {
     PAYEE("Payée"),
 
     EXCHANGE("Echange"),
+
+    RETOUR_EXCHANGE("Retour Echange"),
+    INCORRECT_BARCODE("Code à barre incorrect"),
+
+    DELETED("Supprimé"),
     OTHER_STATUS();
 
     private String status;

@@ -3,6 +3,7 @@ package com.clothing.management.controllers;
 import com.clothing.management.dto.*;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
+import com.clothing.management.scheduler.UpdateStatusScheduler;
 import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,9 @@ public class PacketController {
 
     @Autowired
     PacketService packetService;
+
+    @Autowired
+    UpdateStatusScheduler updateStatusScheduler;
 
     @GetMapping(path = "/findAll")
     public List<Packet> findAllPackets() {
@@ -80,7 +84,7 @@ public class PacketController {
 
     @PostMapping(value = "/updateStatus/{idPacket}/{status}")
     public void updatePacketStatus(@PathVariable Long idPacket , @PathVariable String status) {
-          packetService.updatePacketStatus(idPacket , status);
+          packetService.savePacketStatusToHistory(idPacket , status);
     }
     @GetMapping(path = "/findPacketStatus/{idPacket}")
     public List<PacketStatus> findAllPacketStatus(@PathVariable Long idPacket) {
@@ -102,9 +106,14 @@ public class PacketController {
                 HttpStatus.OK);
     }
 
+
     @GetMapping(path = "/duplicatePacket/{idPacket}")
     public Packet duplicatePacket(@PathVariable Long idPacket) {
         return packetService.duplicatePacket(idPacket);
+    }
+    @GetMapping(path = "/syncAllPacketsStatus")
+    public void synchronizeAllPacketsStatus() throws Exception {
+        updateStatusScheduler.cronJobSch();
     }
 
     @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")

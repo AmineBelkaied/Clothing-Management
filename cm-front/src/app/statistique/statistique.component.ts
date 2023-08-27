@@ -244,9 +244,9 @@ export class StatistiqueComponent implements OnInit {
       (obj) => obj.count - obj.confirm
     );
     const label: string[] = Object.keys(dataCount);
-    console.log('label:', label);
+/*     console.log('label:', label);
     console.log('confirmed', confirmed);
-    console.log('tot:', totCmd);
+    console.log('tot:', totCmd); */
     this.StatesData = {
       labels: label,
       datasets: [

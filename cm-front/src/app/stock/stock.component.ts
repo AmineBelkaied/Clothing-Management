@@ -41,8 +41,8 @@ export class StockComponent implements OnInit {
   ngOnInit(): void {
     this.modelService.findAllModels().subscribe((result: any) => {
       this.models = result;
-      this.selectedModel = this.models[0].id;
-      this.getStockByModelId(this.models[0].id);
+      this.selectedModel = this.models[4].id;
+      this.getStockByModelId(this.models[4].id);
       this.productHistoryService
         .findAll(this.selectedModel)
         .subscribe((result: any) => {
@@ -238,13 +238,13 @@ export class StockComponent implements OnInit {
       this.products.splice(j,1);
   }
 
-  hideColumn(i:number){
+/*   hideColumn(i:number){
     console.log('hide column',i);
 
     if(this.totalColumn(i)==0)
     for (var j = 0; j < this.products.length; j++)
       this.products[j].splice(i,1);
-  }
+  } */
 
   onDeleteProductsHistory($event: any): void {
     $event.products.forEach((product: any) => {

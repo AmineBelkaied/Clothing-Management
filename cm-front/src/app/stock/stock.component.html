@@ -13,8 +13,9 @@
           <p-inputNumber [(ngModel)]="qte" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"
             (keyup.enter)="add()" class="pr-4 pl-5"> </p-inputNumber>
           <p-button label="Ajouter" icon="pi pi-check" iconPos="right" (click)="add()"></p-button>
-          <p-checkbox [binary]="true" inputId="binary" [(ngModel)]="hide0" ></p-checkbox>
-          <label for="ny">Hide 0</label>
+            <p-checkbox class="ml-4 mt-2" [binary]="true" inputId="binary" [(ngModel)]="hide0" ></p-checkbox>
+            <label class="ml-2 mt-3" for="ny">Hide 0</label>
+
         </div>
         <div class="col-md-5">
           <button pButton pRipple icon="pi pi-search" class="p-button-success p-button-sm" (click)="search()"></button>

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IPacketRepository extends JpaRepository<Packet, Long> {
@@ -17,10 +18,10 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value=" SELECT * FROM packet p WHERE DATE(p.date) = DATE(NOW()) ORDER BY p.id DESC", nativeQuery = true)
     public List<Packet> findAllTodayPackets();
 
-    @Query(value="SELECT * FROM packet p WHERE p.id > 7317 and p.last_delivery_status != 'Livrer' and p.status != 'Payée' and p.status != 'Supprimé' and  p.last_delivery_status != 'Retour reçu' and  p.status != 'Retour reçu' and  p.last_delivery_status != 'Retour Expediteur' and  p.status != 'Retour Expediteur' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
+    @Query(value="SELECT * FROM packet p WHERE p.id > 7317 and p.status != 'Retour Echange' and p.status != 'Payée' and p.status != 'Retour reçu' and p.status != 'Supprimé' p.status != 'Retour Expediteur' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
     public List<Packet> findAllDiggiePackets();
 
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
-    public Packet findByBarCode(@Param("barCode") String barCode);
+    public Optional<Packet> findByBarCode(@Param("barCode") String barCode);
 
 }
