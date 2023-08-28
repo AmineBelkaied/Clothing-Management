@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NO_ERRORS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 // import modules, directives and services
@@ -31,8 +31,8 @@ import { TreeTableModule } from 'primeng/treetable';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TagModule } from 'primeng/tag';
-
 import { CheckboxModule } from 'primeng/checkbox';
+
 
 // import components
 import { AppComponent } from './app.component';
@@ -61,7 +61,6 @@ import { StatistiqueComponent } from './statistique/statistique.component';
 import { StockHistoryComponent } from './stock-history/stock-history.component';
 import { PaginatorModule } from 'primeng/paginator';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
-
 
 @NgModule({
   declarations: [
@@ -124,7 +123,7 @@ import { PayedReturnComponent } from './payed-return/payed-return.component';
     TagModule,
     CheckboxModule
   ],
-  providers: [MessageService, ConfirmationService,CityTreeService ],
+  providers: [MessageService, ConfirmationService, CityTreeService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

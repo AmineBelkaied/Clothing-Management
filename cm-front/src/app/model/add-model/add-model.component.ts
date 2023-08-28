@@ -46,12 +46,8 @@ export class AddModelComponent implements OnInit{
   selectedFileEvent: EventEmitter<any> = new EventEmitter();
   
   constructor(private uploadFileService: UploadFileService, private sanitizer: DomSanitizer) {
-
-    console.log(this.model);
-    
-    console.log(this.editMode);
-
   }
+  
   ngOnInit(): void {
     if(this.editMode) {
       this.uploadFileService.getImage(this.model.id)

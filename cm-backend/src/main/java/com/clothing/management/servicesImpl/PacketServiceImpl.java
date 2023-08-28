@@ -105,7 +105,7 @@ public class PacketServiceImpl implements PacketService {
                 Field fieldPacket = ReflectionUtils.findField(Packet.class, (String) firstKey);
                 fieldPacket.setAccessible(true);
 
-                if(firstKey.equals("status") && !field.get(firstKey).equals(DiggieStatus.RETOUR_EXCHANGE.getStatus()))
+                if(!field.get(firstKey).equals(DiggieStatus.RETOUR_EXCHANGE.getStatus()))
                 ReflectionUtils.setField(fieldPacket, packet, field.get(firstKey));
                 if (firstKey.equals("status")) {
                     if (field.get(firstKey).equals(DiggieStatus.CONFIRMEE.getStatus()) || field.get(firstKey).equals(DiggieStatus.RETOUR_RECU.getStatus()) || field.get(firstKey).equals(DiggieStatus.RETOUR_EXCHANGE.getStatus())) {

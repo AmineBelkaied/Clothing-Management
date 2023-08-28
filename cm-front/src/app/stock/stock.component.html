@@ -3,18 +3,18 @@
     <div class="card-body">
       <div class="row ml-3">
         <div class="col-md-7 d-flex align-items-center">
-          <p-dropdown [options]="models" (onChange)="onModelChange($event.value)" optionLabel="name" optionValue="id"
-            [style]="{ width: '200px'}" [(ngModel)]="selectedModel" [panelStyle]="{ width: '200px' }" [showClear]="true"
+<!--           <p-dropdown [options]="models" (onChange)="onModelChange($event.value)" optionLabel="name" optionValue="id"
+            [style]="{ width: '200px'}" [(ngModel)]="modelId" [panelStyle]="{ width: '200px' }" [showClear]="true"
             placeholder="Choisir le modèle" appendTo="body">
-          </p-dropdown>
+          </p-dropdown> -->
           <!--         <p-toggleButton [(ngModel)]="isMultiple" onLabel="SelectionLibre" offLabel="Sélection/Produit" class="pr-2 pl-5"></p-toggleButton> -->
-          <p-toggleButton [(ngModel)]="selectAll" onLabel="UnSelect-All" offLabel="Select-All"
+          <p-toggleButton [(ngModel)]="selectAll" [onLabel]="'Déselectionner tout'" offLabel="Sélectionner tout"
             (click)="selectAllProducts()" class="pl-2"></p-toggleButton>
           <p-inputNumber [(ngModel)]="qte" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"
             (keyup.enter)="add()" class="pr-4 pl-5"> </p-inputNumber>
           <p-button label="Ajouter" icon="pi pi-check" iconPos="right" (click)="add()"></p-button>
             <p-checkbox class="ml-4 mt-2" [binary]="true" inputId="binary" [(ngModel)]="hide0" ></p-checkbox>
-            <label class="ml-2 mt-3" for="ny">Hide 0</label>
+            <label class="ml-2 mt-3" for="ny">Masquer 0</label>
 
         </div>
         <div class="col-md-5">
@@ -83,7 +83,7 @@
 </div>
 
 <div class="col-md-3">
-  <app-stock-history [productsHistory]="productsHistory" [modelId]="selectedModel" (deleteProductsHistoryEvent)="onDeleteProductsHistory($event)"></app-stock-history>
+  <app-stock-history [productsHistory]="productsHistory" [modelId]="modelId" (deleteProductsHistoryEvent)="onDeleteProductsHistory($event)"></app-stock-history>
 
 </div>
 

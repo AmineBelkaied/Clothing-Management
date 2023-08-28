@@ -15,7 +15,7 @@ const routes: Routes = [
   { path: "models", "component": ListModelsComponent },
   { path: "offers", "component": ListOffersComponent },
   { path: "config", "component": ConfigComponent },
-  { path: "stock", "component": StockComponent },
+  { path: "stock/:id", "component": StockComponent },
   { path: "sizes", "component": ListSizesComponent },
   { path: "statistique", "component": StatistiqueComponent },
   { path: "payed-return", "component": PayedReturnComponent },

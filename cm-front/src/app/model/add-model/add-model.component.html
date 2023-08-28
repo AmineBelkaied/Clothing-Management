@@ -47,7 +47,7 @@
               <p-fileUpload [customUpload]="true"  chooseLabel="Choisir une image" accept="image/*" [maxFileSize]="1000000" [multiple]="false" [auto]="true"
                 (uploadHandler)="selectFile($event)" [previewWidth]="150">
                 <ng-template pTemplate="content" let-files >
-                  <div *ngIf="image != null && selectedFile == null"><img [src]="image" alt="Image"></div>
+                  <div *ngIf="image != null && selectedFile == null"><img [src]="image" alt="Image" width="250" height="250" class="shadow-4"></div>
               </ng-template>
               </p-fileUpload>
             </div>

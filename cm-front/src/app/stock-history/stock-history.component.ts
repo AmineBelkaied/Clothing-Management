@@ -12,7 +12,7 @@ export class StockHistoryComponent implements OnInit {
   productsHistory: any;
 
   @Input()
-  modelId!: string;
+  modelId!: number;
 
   rangeDates: Date[] = [];
 
