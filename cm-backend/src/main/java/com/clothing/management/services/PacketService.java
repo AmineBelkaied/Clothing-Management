@@ -6,6 +6,7 @@ import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.dto.SelectedProductsDTO;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
+import org.springframework.data.domain.Page;
 
 import java.io.IOException;
 import java.util.Date;
@@ -16,6 +17,8 @@ import java.util.Optional;
 public interface PacketService {
 
     public List<Packet> findAllPackets();
+    public List<Packet> findAllPackets(String searchText, String startDate, String endDate);
+    //public Page<Packet> findAllPackets(String searchText, int page, int size);
     public List<Packet> findAllTodaysPackets();
     public List<Packet> findAllPacketsByDate(Date date);
     public List<Packet> findAllDiggiePackets();

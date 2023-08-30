@@ -3,11 +3,16 @@ import com.clothing.management.dto.*;
 import com.clothing.management.enums.DeliveryCompany;
 import com.clothing.management.enums.DiggieStatus;
 import com.clothing.management.enums.FirstStatus;
+import com.clothing.management.repository.Implementation.PacketRepositoryImpl;
 import com.clothing.management.servicesImpl.api.FirstApiService;
 import com.clothing.management.entities.*;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -27,31 +32,22 @@ public class PacketServiceImpl implements PacketService {
     private final IPacketRepository packetRepository;
     private final IProductRepository productRepository;
     private final IProductsPacketRepository productsPacketRepository;
-    private final IOfferRepository offerRepository;
-    private final IModelRepository modelRepository;
-    private final IColorRepository colorRepository;
-    private final ISizeRepository sizeRepository;
     private final IPacketStatusRepository packetStatusRepository;
     private final FirstApiService firstApiService;
+
+    @Autowired
+    PacketRepositoryImpl packetRepositoryImp;
     @Autowired
     public PacketServiceImpl(
             IPacketRepository packetRepository,
             IProductRepository productRepository,
             IProductsPacketRepository productsPacketRepository,
-            IOfferRepository offerRepository,
-            IModelRepository modelRepository,
-            IColorRepository colorRepository,
-            ISizeRepository sizeRepository,
             IPacketStatusRepository packetStatusRepository,
             FirstApiService firstApiService
     ) {
         this.packetRepository = packetRepository;
         this.productRepository = productRepository;
         this.productsPacketRepository = productsPacketRepository;
-        this.offerRepository = offerRepository;
-        this.modelRepository = modelRepository;
-        this.colorRepository = colorRepository;
-        this.sizeRepository = sizeRepository;
         this.packetStatusRepository = packetStatusRepository;
         this.firstApiService = firstApiService;
     }
@@ -61,6 +57,12 @@ public class PacketServiceImpl implements PacketService {
                 .sorted(Comparator.comparingLong(Packet::getId).reversed())
                 .collect(Collectors.toList());
         return sortedPackets;
+    }
+
+
+    public List<Packet> findAllPackets(String searchText, String startDate, String endDate) {
+       // Pageable paging = PageRequest.of(page, size);
+        return packetRepositoryImp.findAllPackets(searchText, startDate, endDate);
     }
 
     @Override

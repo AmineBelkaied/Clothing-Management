@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.clothing.management.models.ResponseMessage;
 import com.clothing.management.services.ModelImageService;
-import com.clothing.management.servicesImpl.ModelImageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,7 +26,6 @@ public class ModelImageController {
         String message = "";
         try {
             modelImageService.uploadImage(file, modelId);
-
             message = "Uploaded the file successfully: " + file.getOriginalFilename();
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message, file.getBytes()));
         } catch (Exception e) {

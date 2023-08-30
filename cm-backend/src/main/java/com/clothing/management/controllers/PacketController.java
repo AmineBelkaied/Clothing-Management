@@ -32,6 +32,13 @@ public class PacketController {
         return packetService.findAllPackets();
     }
 
+    @GetMapping(path = "/findAllPaginatedPackets")
+    public List<Packet> findAllPaginatedPackets(@RequestParam(required = false) String startDate,
+                                                @RequestParam(required = false) String endDate,
+                                                @RequestParam(required = false) String searchText) {
+        return packetService.findAllPackets(searchText,startDate, endDate);
+    }
+
     @GetMapping(path = "/findAllTodaysPackets")
     public List<Packet> findAllTodaysPackets() {
         return packetService.findAllTodaysPackets();
