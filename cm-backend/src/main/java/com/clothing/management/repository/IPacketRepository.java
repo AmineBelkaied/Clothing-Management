@@ -19,7 +19,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     List<Packet> findAllByDate(@Param("date") Date d);
 
     @Query(value=" SELECT * FROM packet p WHERE DATE(p.date) = DATE(NOW()) ORDER BY p.id DESC", nativeQuery = true)
-    List<Packet> findAllTodayPackets();
+    Page<Packet> findAllTodayPackets(Pageable pageable);
 
     @Query(value="SELECT * FROM packet p WHERE p.id > 7317 and p.status != 'Retour Echange' and p.status != 'Payée' and p.status != 'Retour reçu' and p.status != 'Supprimé' p.status != 'Retour Expediteur' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
     List<Packet> findAllDiggiePackets();

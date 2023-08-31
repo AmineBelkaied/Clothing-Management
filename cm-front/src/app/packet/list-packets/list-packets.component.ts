@@ -155,11 +155,12 @@ export class ListPacketsComponent
   ngOnInit(): void {
     console.log("listPacket|ngOnInit");
 
-    this.packetService.allPacketsReady$
+    this.packetService.findAllTodaysPackets()
       .pipe(takeUntil(this.$unsubscribe))
-      .subscribe(() => {
-        this.packets = this.packetService.allPackets;
-        this.filterChange('date');
+      .subscribe((result: any) => {
+        console.log(result);
+        this.packets = result.packets;
+        //this.filterChange('date');
       });
 
     this.cols = [

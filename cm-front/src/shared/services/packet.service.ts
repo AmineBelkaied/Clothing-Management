@@ -49,34 +49,34 @@ export class PacketService {
     return this.http.get(this.baseUrl + '/findAllTodaysPackets');
   }
 
-  findPacketById(id: number) {
+  findPacketById(id: number): Observable<any> {
     return this.http.get(this.baseUrl + '/findById/' + id);
   }
 
-  findPacketRelatedProducts(id: number) {
+  findPacketRelatedProducts(id: number): Observable<any> {
     return this.http.get(this.baseUrl + '/findPacketRelatedProducts/' + id);
   }
 
-  addPacket(packet: Packet) {
+  addPacket(packet: Packet): Observable<any> {
     console.log('packet front before submit', packet);
     return this.http.post(this.baseUrl + '/add', packet);
   }
 
-  updatePacket(packet: Packet) {
+  updatePacket(packet: Packet): Observable<any> {
     console.log('new packetbefore update', packet);
     return this.http.put(this.baseUrl + '/update', packet, {
       headers: { 'content-type': 'application/json' },
     });
   }
 
-  patchPacket(idPacket: any, packet: any) {
+  patchPacket(idPacket: any, packet: any): Observable<any> {
     console.log('new packetbefore patch', packet);
     return this.http.patch(this.baseUrl + '/patch/' + idPacket, packet, {
       headers: { 'content-type': 'application/json' },
     });
   }
 
-  addProductsToPacket(selectedProducts: any) {
+  addProductsToPacket(selectedProducts: any): Observable<any> {
     console.log('selectedProducts', selectedProducts);
     return this.http.post(this.baseUrl + '/addProducts', selectedProducts, {
       headers: { 'content-type': 'application/json' },

@@ -3,19 +3,21 @@ package com.clothing.management.controllers;
 import com.clothing.management.dto.*;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
+import com.clothing.management.entities.ProductHistory;
 import com.clothing.management.scheduler.UpdateStatusScheduler;
 import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("packet")
@@ -44,8 +46,21 @@ public class PacketController {
     }
 
     @GetMapping(path = "/findAllTodaysPackets")
-    public List<Packet> findAllTodaysPackets() {
-        return packetService.findAllTodaysPackets();
+    public ResponseEntity<Map<String, Object>> findAllTodaysPackets(@RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "500") int size) {
+        try {
+            Pageable paging = PageRequest.of(page, size);
+            Page<Packet> allTodaysPackets = packetService.findAllTodaysPackets(paging);
+            Map<String, Object> response = new HashMap<>();
+            response.put("packets", allTodaysPackets.getContent());
+            response.put("currentPage", allTodaysPackets.getNumber());
+            response.put("totalItems", allTodaysPackets.getTotalElements());
+            response.put("totalPages", allTodaysPackets.getTotalPages());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping(path = "/findAllByDate/{date}")

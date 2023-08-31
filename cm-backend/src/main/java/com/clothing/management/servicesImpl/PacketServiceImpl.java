@@ -9,6 +9,8 @@ import com.clothing.management.entities.*;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -63,8 +65,8 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public List<Packet> findAllTodaysPackets() {
-        return packetRepository.findAllTodayPackets();
+    public Page<Packet> findAllTodaysPackets(Pageable pageable) {
+        return packetRepository.findAllTodayPackets(pageable);
     }
 
     @Override
