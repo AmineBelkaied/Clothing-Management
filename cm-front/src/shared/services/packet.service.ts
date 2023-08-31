@@ -16,7 +16,7 @@ export class PacketService {
   allPacketsReady$ = this.allPacketsReadySubject.asObservable();
 
   constructor(private http: HttpClient) {
-    this.findAllPackets()
+ /*    this.findAllPackets()
       .subscribe({
         next: (allPackets: any) => {
           this.allPackets = allPackets;
@@ -28,7 +28,7 @@ export class PacketService {
         complete: () => {
           console.log('Observable completed-- All Packets From Base --');
         },
-      })
+      }) */
   }
 
   public updateStatus(extractedBarcodes: string[], type: string){
@@ -37,10 +37,17 @@ export class PacketService {
   }
 
   // Call this method whenever you want to access the "cached" request
-  public findAllPackets(): Observable<any> {
+  public findAllPackets(params: any): Observable<any> {
     // only create a new request if you don't already have one stored
     // save your request
-    return this.http.get(this.baseUrl + '/findAll');
+    let path = '/findAllPaginatedPackets?page=' + params.page + "&size=" + params.size;
+    if(params.searchText!= undefined && params.searchText != null)
+      path += "&searchText" + params.searchText;
+    if(params.startDate != undefined && params.endDate != undefined)
+      path += "&startDate=" + params.startDate + "&endDate=" + params.endDate;
+    if(params.status != undefined && params.status != null)
+      path += "&status" + params.status;
+    return this.http.get(this.baseUrl + path);
   }
 
   // Call this method whenever you want to access the "cached" request

@@ -6,7 +6,9 @@ import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.dto.SelectedProductsDTO;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
+import com.clothing.management.models.PaginatedResult;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -18,9 +20,9 @@ import java.util.Optional;
 public interface PacketService {
 
     public List<Packet> findAllPackets();
-    public List<Packet> findAllPackets(int page, int size, String searchText, String startDate, String endDate, String status) throws ParseException;
+    public PaginatedResult<Packet> findAllPackets(int page, int size, String searchText, String startDate, String endDate, String status) throws ParseException;
     //public Page<Packet> findAllPackets(String searchText, int page, int size);
-    public List<Packet> findAllTodaysPackets();
+    public Page<Packet> findAllTodaysPackets(Pageable paging);
     public List<Packet> findAllPacketsByDate(Date date);
     public List<Packet> findAllDiggiePackets();
     public Optional<Packet> findPacketById(Long idPacket);

@@ -1,10 +1,12 @@
 package com.clothing.management.repository.repositoryImpl;
 
 import com.clothing.management.entities.Packet;
+import com.clothing.management.models.PaginatedResult;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.text.ParseException;
 import java.util.List;
@@ -19,23 +21,34 @@ public class PacketRepositoryImpl {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public List<Packet> findAllPackets(int page, int size, String searchText, String startDate, String endDate, String status) throws ParseException {
+    public PaginatedResult<Packet> findAllPackets(int page, int size, String searchText, String startDate, String endDate, String status) throws ParseException {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append(SELECT_PACKET_QUERY);
         TypedQuery<Packet> query = null;
-        if (searchText != null) {
+        if (searchText != null && !status.isEmpty()) {
             query = createSearchByTextQuery(searchText, queryBuilder);
         }
         if (startDate != null && endDate != null) {
             query = createSearchByDateRangeQuery(searchText, startDate, endDate, queryBuilder);
         }
-        if (status != null) {
+        if (status != null && !status.isEmpty()) {
             query = createSearchByStatusQuery(searchText, startDate, endDate, status, queryBuilder);
         }
         int firstResult = page * size;
         query.setFirstResult(firstResult);
         query.setMaxResults(size);
-        return query.getResultList();
+        System.out.println("query : "  + queryBuilder.toString());
+
+        List<Packet> records = query.getResultList();
+
+        // Query to get the total count of records
+        Query countQuery = entityManager.createQuery("SELECT COUNT(e) FROM YourEntity e");
+        long totalRecords = (long) countQuery.getSingleResult();
+
+        // Calculate the total number of pages
+        long totalPages = (totalRecords + size - 1) / size;
+
+        return new PaginatedResult<Packet>(records, totalRecords, totalPages);
     }
 
 

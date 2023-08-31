@@ -154,13 +154,26 @@ export class ListPacketsComponent
 
   ngOnInit(): void {
     console.log("listPacket|ngOnInit");
-
-    this.packetService.allPacketsReady$
+    let params = {
+       page : 0,
+       size: 100, 
+       startDate : this.convertDateToString(new Date()),
+       endDate : this.convertDateToString(new Date())
+      };
+    this.packetService.findAllPackets(params)
       .pipe(takeUntil(this.$unsubscribe))
-      .subscribe(() => {
-        this.packets = this.packetService.allPackets;
-        this.filterChange('date');
-      });
+      .subscribe({   next:(response: any) => {
+        console.log(response);
+        
+        this.packets = response.result;
+        //this.filterChange('date');
+      },
+      error: (error: any) => {
+        console.log('Error:', error);
+      },
+      complete: () => {
+        console.log('Observable completed-- All Packets From Base --');
+      }});
 
     this.cols = [
       //{ field: 'id', header: 'Id' },
@@ -671,5 +684,15 @@ export class ListPacketsComponent
       this.dt!.reset();
       this.dt!.filterGlobal(this.filter, 'contains');
     }
+  }
+
+  convertDateToString(date: Date) {
+    if(date != null) {
+      let day = date.getDate();
+      let month = date.getMonth() + 1; // add 1 because months are indexed from 0
+      let year = date.getFullYear();
+      return year + "-" + month + "-" + day;
+    }
+    return;
   }
 }

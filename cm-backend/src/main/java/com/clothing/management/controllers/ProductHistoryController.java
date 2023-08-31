@@ -1,6 +1,7 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.entities.ProductHistory;
+import com.clothing.management.models.ResponsePage;
 import com.clothing.management.services.ProductHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,7 @@ public class ProductHistoryController {
     ProductHistoryService productHistoryService;
 
     @GetMapping(path = "/findAllByModelId/{modelId}")
-    public ResponseEntity<Map<String, Object>> findAllProductsHistory(
+    public ResponseEntity<ResponsePage> findAllProductsHistory(
         @PathVariable Long modelId,
         @RequestParam(required = false) String beginDate,
         @RequestParam(required = false) String endDate,
@@ -32,15 +33,9 @@ public class ProductHistoryController {
       ) {
             try {
                 Page<ProductHistory> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size, reference, beginDate, endDate);
-                Map<String, Object> response = new HashMap<>();
-                response.put("productHistories", pageProductHistory.getContent());
-                response.put("currentPage", pageProductHistory.getNumber());
-                response.put("totalItems", pageProductHistory.getTotalElements());
-                response.put("totalPages", pageProductHistory.getTotalPages());
-
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                return new ResponseEntity<>(ResponsePage.mapToResponsePage(pageProductHistory), HttpStatus.OK);
             } catch (Exception e) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(new ResponsePage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
     }
     @GetMapping(path = "/findById/{id}")
