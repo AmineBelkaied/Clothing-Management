@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Table(name = "packet")
 public class Packet {
 
     @Id

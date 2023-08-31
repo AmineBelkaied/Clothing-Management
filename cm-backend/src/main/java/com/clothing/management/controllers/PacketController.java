@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +34,13 @@ public class PacketController {
     }
 
     @GetMapping(path = "/findAllPaginatedPackets")
-    public List<Packet> findAllPaginatedPackets(@RequestParam(required = false) String startDate,
+    public List<Packet> findAllPaginatedPackets(@RequestParam(defaultValue = "0") int page,
+                                                @RequestParam(defaultValue = "500") int size,
+                                                @RequestParam(required = false) String searchText,
+                                                @RequestParam(required = false) String startDate,
                                                 @RequestParam(required = false) String endDate,
-                                                @RequestParam(required = false) String searchText) {
-        return packetService.findAllPackets(searchText,startDate, endDate);
+                                                @RequestParam(required = false) String status) throws ParseException {
+        return packetService.findAllPackets(page, size, searchText, startDate, endDate, status);
     }
 
     @GetMapping(path = "/findAllTodaysPackets")

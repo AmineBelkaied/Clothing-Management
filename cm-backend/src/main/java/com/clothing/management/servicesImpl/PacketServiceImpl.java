@@ -3,16 +3,12 @@ import com.clothing.management.dto.*;
 import com.clothing.management.enums.DeliveryCompany;
 import com.clothing.management.enums.DiggieStatus;
 import com.clothing.management.enums.FirstStatus;
-import com.clothing.management.repository.Implementation.PacketRepositoryImpl;
+import com.clothing.management.repository.repositoryImpl.PacketRepositoryImpl;
 import com.clothing.management.servicesImpl.api.FirstApiService;
 import com.clothing.management.entities.*;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -20,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
+import java.text.ParseException;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,9 +57,9 @@ public class PacketServiceImpl implements PacketService {
     }
 
 
-    public List<Packet> findAllPackets(String searchText, String startDate, String endDate) {
+    public List<Packet> findAllPackets(int page, int size, String searchText, String startDate, String endDate, String status) throws ParseException {
        // Pageable paging = PageRequest.of(page, size);
-        return packetRepositoryImp.findAllPackets(searchText, startDate, endDate);
+        return packetRepositoryImp.findAllPackets(page, size, searchText, startDate, endDate, status);
     }
 
     @Override

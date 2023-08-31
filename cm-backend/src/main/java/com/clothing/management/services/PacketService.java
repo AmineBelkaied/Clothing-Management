@@ -9,6 +9,7 @@ import com.clothing.management.entities.PacketStatus;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import java.util.Optional;
 public interface PacketService {
 
     public List<Packet> findAllPackets();
-    public List<Packet> findAllPackets(String searchText, String startDate, String endDate);
+    public List<Packet> findAllPackets(int page, int size, String searchText, String startDate, String endDate, String status) throws ParseException;
     //public Page<Packet> findAllPackets(String searchText, int page, int size);
     public List<Packet> findAllTodaysPackets();
     public List<Packet> findAllPacketsByDate(Date date);
