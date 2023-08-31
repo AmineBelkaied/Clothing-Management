@@ -3,6 +3,7 @@ import com.clothing.management.dto.*;
 import com.clothing.management.enums.DeliveryCompany;
 import com.clothing.management.enums.DiggieStatus;
 import com.clothing.management.enums.FirstStatus;
+import com.clothing.management.models.PaginatedResult;
 import com.clothing.management.repository.repositoryImpl.PacketRepositoryImpl;
 import com.clothing.management.servicesImpl.api.FirstApiService;
 import com.clothing.management.entities.*;
@@ -59,14 +60,13 @@ public class PacketServiceImpl implements PacketService {
     }
 
 
-    public List<Packet> findAllPackets(int page, int size, String searchText, String startDate, String endDate, String status) throws ParseException {
+    public PaginatedResult<Packet> findAllPackets(int page, int size, String searchText, String startDate, String endDate, String status) throws ParseException {
        // Pageable paging = PageRequest.of(page, size);
         return packetRepositoryImp.findAllPackets(page, size, searchText, startDate, endDate, status);
     }
 
-    @Override
-    public Page<Packet> findAllTodaysPackets(Pageable pageable) {
-        return packetRepository.findAllTodayPackets(pageable);
+    public Page<Packet> findAllTodaysPackets(Pageable paging) {
+        return packetRepository.findAllTodayPackets(paging);
     }
 
     @Override
