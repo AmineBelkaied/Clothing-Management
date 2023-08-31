@@ -8,13 +8,17 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "packet")
+@Table(name = "packet", indexes = {
+        @Index(name = "idx_customer_phone_nb", columnList = "customer_phone_nb"),
+        @Index(name = "idx_barcode", columnList = "barcode"),
+})
 public class Packet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String customerName;
+    @Column(name = "customer_phone_nb")
     private String customerPhoneNb;
     @OneToOne
     @JoinColumn(name = "city_id")
