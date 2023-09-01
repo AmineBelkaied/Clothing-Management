@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -23,8 +22,8 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             nativeQuery = true)
     Page<Packet> findAllTodayPackets(Pageable pageable);
 
-    @Query(value="SELECT * FROM packet p WHERE p.id > 7317 and p.status != 'Retour Echange' and p.status != 'Payée' and p.status != 'Retour reçu' and p.status != 'Supprimé' p.status != 'Retour Expediteur' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
-    List<Packet> findAllDiggiePackets();
+    @Query(value="SELECT * FROM packet p WHERE p.id > 7317 and p.status != 'Retour' and p.status != 'Payée' and p.status != 'Livrée' and p.status != 'Retour reçu' and p.status != 'Supprimé' AND p.status != 'Retour Expediteur' AND p.status != 'Rupture' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
+    public List<Packet> findAllDiggiePackets();
 
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
     Optional<Packet> findByBarCode(@Param("barCode") String barCode);

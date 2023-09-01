@@ -15,6 +15,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -36,7 +37,8 @@ public class PacketRepositoryImpl {
                     criteriaBuilder.like(root.get("customerPhoneNb"), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("address"), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("city").get("name"), "%" + searchText + "%"),
-                    criteriaBuilder.like(root.get("fbPage").get("name"), "%" + searchText + "%")
+                    criteriaBuilder.like(root.get("fbPage").get("name"), "%" + searchText + "%"),
+                    criteriaBuilder.like(root.get("packetDescription"), "%" + searchText + "%")
             ));
         }
 
@@ -45,18 +47,33 @@ public class PacketRepositoryImpl {
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(endDate)));
         }
 
-        if(status != null)
-            predicates.add(criteriaBuilder.equal(root.get("status"), status));
+        if(status != null) {
+            List<String> statusList = Arrays.asList(status.split(","));
+            predicates.add(root.get("status").in(statusList));
+        }
 
         criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
-
         TypedQuery<Packet> query = entityManager.createQuery(criteriaQuery);
+        Long totalItems = getResultSizeBeforePagination(criteriaQuery);
 
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
-
         List<Packet> resultList = query.getResultList();
 
-        return new PageImpl<>(resultList, pageable, resultList.size());
+        return new PageImpl<>(resultList, pageable, totalItems);
+    }
+
+
+    public long getResultSizeBeforePagination(CriteriaQuery<Packet> criteriaQuery) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+
+        // Create a subquery to count rows matching the criteria
+        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        Root<Packet> root = countQuery.from(Packet.class);
+        countQuery.select(criteriaBuilder.count(root));
+        countQuery.where(criteriaQuery.getRestriction()); // Copy the same criteria
+
+        TypedQuery<Long> typedCountQuery = entityManager.createQuery(countQuery);
+        return typedCountQuery.getSingleResult();
     }
 }

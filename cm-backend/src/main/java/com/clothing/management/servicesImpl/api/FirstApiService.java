@@ -56,7 +56,7 @@ public class FirstApiService {
         System.out.println("responseMessage:"+responseMessage);
 
         if(responseCode!= 404){
-            System.out.println("!404 ");
+            //System.out.println("!404 ");
             StringBuilder response = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 String line;

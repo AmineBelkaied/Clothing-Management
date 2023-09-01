@@ -8,6 +8,7 @@ import { baseUrl } from '../../assets/constants';
   providedIn: 'root',
 })
 export class PacketService {
+
   private baseUrl: string = baseUrl + '/packet';
   public packetsRequest?: Observable<any>;
   //public todaysPacketsRequest?: Observable<any>;
@@ -36,6 +37,9 @@ export class PacketService {
     return this.http.post(this.baseUrl + "/updatePacketsByBarCode", updateStock);
   }
 
+  public syncAllPacketsFirst() {
+    return this.http.get(this.baseUrl + '/syncAllPacketsStatus');
+  }
   // Call this method whenever you want to access the "cached" request
   public findAllPackets(params: any): Observable<any> {
     // only create a new request if you don't already have one stored

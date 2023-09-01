@@ -21,4 +21,5 @@ export interface Packet {
     lastDeliveryStatus?: any;
     lastUpdateDate?: any;
     exchange?: boolean;
+    exist?: boolean;
 }
