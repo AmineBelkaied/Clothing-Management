@@ -94,8 +94,6 @@ export class ListPacketsComponent
   statusListEtat1: any[] = [];
   statusListEtat2: any[] = [];
   statusListEtat3: any[] = [];
-  statusListLivree: any[] = [];
-  statusListRetour: any[] = [];
   statesList: any[] = [];
   selectedStatus: FormControl = new FormControl();
   selectedStates: any[] = [];
@@ -138,12 +136,9 @@ export class ListPacketsComponent
       'En rupture',
       'Annulée'
     ];
-    this.statusListLivree = ['Payée'];
-    this.statusListRetour = ['Retour reçu','Retour Expediteur'];
     this.statesList = [
       'Bureau',
       'En Cours',
-      'Retour',
       'Terminé',
     ];
   }
@@ -244,13 +239,21 @@ export class ListPacketsComponent
             })
           )
           .subscribe((responsePacket: Packet) => {
-            console.log('responsePacket0',responsePacket);
-            console.log('packet.data[packet.field]',packet.data[packet.field]);
-            console.log('packet.field == status',packet.field);
+            if (packet.field === 'customerPhoneNb'){
+              let count = this.packetService.allPackets
+                  .map((packet) => packet.customerPhoneNb)
+                  .filter(phonenumber => packet.data['customerPhoneNb'] === phonenumber).length;
+              let pos = this.packetService.allPackets
+                  .map((packet) => packet.id)
+                  .indexOf(packet.id);
+                  if (count > 1) {
+                    packet.data['exist'] = true;
+                    //console.log('packet.data',packet.data);
+                    this.packetService.allPackets.splice(pos, 1, packet.data);
+                    this.packetService.allPacketsReadySubject.next(true);
+                  }
+            }
             if (packet.field === 'status' && ((packet.data[packet.field] === 'Confirmée') || (packet.data[packet.field] === 'Retour Echange'))) {
-              console.log('packet.data[packet.field]');
-
-              if((packet.data[packet.field] === 'Confirmée') || (packet.data[packet.field] === 'Retour Echange')){
                 console.log('responsePacket.barcode',responsePacket.barcode);
                 this.isLoading = false;
               if (responsePacket.barcode != null) {
@@ -261,16 +264,17 @@ export class ListPacketsComponent
                 this.packetService.allPackets.splice(pos, 1, responsePacket);
                 this.packetService.allPacketsReadySubject.next(true);
                 msg = 'Le barcode a été crée avec succés';
+                if(packet.data[packet.field] === 'Retour Echange'){
+                  if(this.oldField === 'Payée')
+                  packet.data[packet.field] = "Payée";
+                  else packet.data[packet.field] = "Livrée";
+                }
               } else {
                 this.messageService.add({
                   severity: 'error',
                   summary: 'Error',
                   detail: 'Erreur lors de la creation du barcode',
                 });
-              }
-              if(packet.data[packet.field] === 'Retour Echange'){
-                packet.data[packet.field] = "Livrée";
-              }
               }
 
             }
@@ -339,6 +343,11 @@ export class ListPacketsComponent
   getLastStatus(packet: Packet) {
     if (packet.status != 'Payée' && packet.status != 'Retour reçu'&& packet.status != 'Retour Expediteur' && packet.status != 'Livrée')
       this.packetService.getLastFirstStatus(packet);
+  }
+
+
+  openLinkGetter(code: number) {
+    window.open("https://www.firstdeliverygroup.com/fournisseur/recherche.php?code="+code, '_blank');
   }
 
   openLink(code: string) {
@@ -548,8 +557,7 @@ export class ListPacketsComponent
         this.selectedStatus.patchValue([
           'Non confirmée',
           'En rupture',
-          'Injoignable',
-          'Annulée',
+          'A Verifier',
           'Confirmée'
         ]);
         this.selectedStatusList = this.statusListEtat0;
@@ -562,14 +570,6 @@ export class ListPacketsComponent
           'En cours',
         ]);
         this.selectedStatusList = this.statusList;
-      }
-      if (this.selectedStates.indexOf('Livrée') > -1) {
-        this.selectedStatus.patchValue(['Livrée']);
-        this.selectedStatusList = this.statusListLivree;
-      }
-      if (this.selectedStates.indexOf('Retour') > -1) {
-        this.selectedStatus.patchValue(['Retour','Retour Expediteur']);
-        this.selectedStatusList = this.statusListRetour;
       }
       if (this.selectedStates.indexOf('Terminé') > -1) {
         this.selectedStatus.patchValue(['Payée', 'Retour reçu']);
@@ -588,10 +588,13 @@ export class ListPacketsComponent
     }
     let rangeDateExist = this.rangeDates[0] !== null && this.rangeDates[0] !== undefined;
     if(this.selectedStatus.value == null)this.selectedStatus.setValue([]);
+    console.log('this.filter',this.filter);
+    console.log('this.packets = this.packetService.allPackets',this.packetService.allPackets[0]);
+
     this.packets = this.packetService.allPackets.filter((packet: any) =>
       (rangeDateExist
-        ? this.getDate(packet.date) >= this.getDate(startDate) &&
-        this.getDate(packet.date) <= this.getDate(endDate)
+        ? ((this.getDate(packet.date) >= this.getDate(startDate) &&
+        this.getDate(packet.date) <= this.getDate(endDate)))
         : true) &&
       (this.selectedStatus.value.length === 0
         ? packet.status !== 'Supprimé'

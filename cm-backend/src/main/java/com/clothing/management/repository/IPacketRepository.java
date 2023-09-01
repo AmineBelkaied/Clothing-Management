@@ -18,10 +18,9 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value=" SELECT * FROM packet p WHERE DATE(p.date) = DATE(NOW()) ORDER BY p.id DESC", nativeQuery = true)
     public List<Packet> findAllTodayPackets();
 
-    @Query(value="SELECT * FROM packet p WHERE p.id > 7317 and p.status != 'Retour Echange' and p.status != 'Payée' and p.status != 'Retour reçu' and p.status != 'Supprimé' p.status != 'Retour Expediteur' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
+    @Query(value="SELECT * FROM packet p WHERE p.id > 7317 and p.status != 'Retour' and p.status != 'Payée' and p.status != 'Livrée' and p.status != 'Retour reçu' and p.status != 'Supprimé' AND p.status != 'Retour Expediteur' AND p.status != 'Rupture' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
     public List<Packet> findAllDiggiePackets();
 
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
     public Optional<Packet> findByBarCode(@Param("barCode") String barCode);
-
 }

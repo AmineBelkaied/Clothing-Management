@@ -37,7 +37,7 @@
               (input)="dt.filterGlobal($any($event.target).value, 'contains')"
               placeholder="Client, Tel, Ville, Adresse, Page,Id"
             />
-
+<!--(input)="dt.filterGlobal($any($event.target).value, 'contains')"-->
           </span>
         </div>
       </div>
@@ -264,14 +264,15 @@
         </p-cellEditor>
         <div *ngIf="packet.customerPhoneNb != '' && packet.customerPhoneNb != null" class="mt-2">
           <i
-            (click)="openLink(packet.customerPhoneNb)"
+            (click)="openLinkGetter(packet.customerPhoneNb)"
             class="pi pi-search-plus p-d-flex"
           ></i>
           <i
             (click)="duplicatePacket(packet)"
             class="pi pi-user-plus p-d-flex ml-2"
           ></i>
-        </div>
+          <p-tag *ngIf="packet.exist" severity="warning" value="Warning" [rounded]="true"></p-tag>
+          </div>
       </td>
       <td
         pEditableColumn
@@ -410,7 +411,7 @@
           <button
             pButton
             type="button"
-            (click)="openLink(packet.barcode)"
+            (click)="openLinkGetter(packet.barcode)"
             class="mt-2 p-ai-right buttonSizeMini"
             icon="pi pi-search-plus"
           ></button>
