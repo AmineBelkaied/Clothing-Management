@@ -1,72 +1,65 @@
 package com.clothing.management.models;
 
-import org.springframework.data.domain.Page;
-
 import java.util.List;
-
 
 public class ResponsePage {
 
-    private List result;
-    private int currentPage;
-    private long totalItems;
-    private int totalPages;
+        private List result;
+        private int currentPage;
+        private long totalItems;
+        private int totalPages;
 
-    public ResponsePage() {
-    }
+        private ResponsePage(Builder builder) {
+            this.result = builder.result;
+            this.currentPage = builder.currentPage;
+            this.totalItems = builder.totalItems;
+            this.totalPages = builder.totalPages;
+        }
 
-    public ResponsePage(List result, int currentPage, long totalItems, int totalPages) {
-        this.result = result;
-        this.currentPage = currentPage;
-        this.totalItems = totalItems;
-        this.totalPages = totalPages;
-    }
+        public List getResult() {
+            return result;
+        }
 
-    public List getResult() {
-        return result;
-    }
+        public int getCurrentPage() {
+            return currentPage;
+        }
 
-    public void setResult(List result) {
-        this.result = result;
-    }
+        public long getTotalItems() {
+            return totalItems;
+        }
 
-    public int getCurrentPage() {
-        return currentPage;
-    }
+        public int getTotalPages() {
+            return totalPages;
+        }
 
-    public void setCurrentPage(int currentPage) {
-        this.currentPage = currentPage;
-    }
+        public static class Builder {
+            private List result;
+            private int currentPage;
+            private long totalItems;
+            private int totalPages;
 
-    public long getTotalItems() {
-        return totalItems;
-    }
+            public Builder result(List result) {
+                this.result = result;
+                return this;
+            }
 
-    public void setTotalItems(long totalItems) {
-        this.totalItems = totalItems;
-    }
+            public Builder currentPage(int currentPage) {
+                this.currentPage = currentPage;
+                return this;
+            }
 
-    public int getTotalPages() {
-        return totalPages;
-    }
+            public Builder totalItems(long totalItems) {
+                this.totalItems = totalItems;
+                return this;
+            }
 
-    public void setTotalPages(int totalPages) {
-        this.totalPages = totalPages;
-    }
+            public Builder totalPages(int totalPages) {
+                this.totalPages = totalPages;
+                return this;
+            }
 
-    public static ResponsePage mapToResponsePage(Page page) {
-        return new ResponsePage(page.getContent(), page.getNumber(), page.getTotalElements(), page.getTotalPages());
+            public ResponsePage build() {
+                return new ResponsePage(this);
+            }
+        }
     }
-    public static ResponsePage mapToResponseList(List list, int pageNumber , long totalElements, int totalPages) {
-        return new ResponsePage(list, pageNumber, totalElements, totalPages);
-    }
-    @Override
-    public String toString() {
-        return "ResponsePage{" +
-                "result=" + result +
-                ", currentPage=" + currentPage +
-                ", totalItems=" + totalItems +
-                ", totalPages=" + totalPages +
-                '}';
-    }
-}

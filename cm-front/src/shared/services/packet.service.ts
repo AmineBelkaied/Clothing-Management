@@ -41,12 +41,12 @@ export class PacketService {
     // only create a new request if you don't already have one stored
     // save your request
     let path = '/findAllPaginatedPackets?page=' + params.page + "&size=" + params.size;
-    if(params.searchText!= undefined && params.searchText != null)
-      path += "&searchText" + params.searchText;
+    if(params.searchText != undefined && params.searchText != null)
+      path += "&searchText=" + params.searchText;
     if(params.startDate != undefined && params.endDate != undefined)
       path += "&startDate=" + params.startDate + "&endDate=" + params.endDate;
     if(params.status != undefined && params.status != null)
-      path += "&status" + params.status;
+      path += "&status=" + params.status;
     return this.http.get(this.baseUrl + path);
   }
 

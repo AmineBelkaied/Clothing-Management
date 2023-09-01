@@ -3,8 +3,6 @@ package com.clothing.management.controllers;
 import com.clothing.management.dto.*;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
-import com.clothing.management.entities.ProductHistory;
-import com.clothing.management.models.PaginatedResult;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.scheduler.UpdateStatusScheduler;
 import com.clothing.management.services.PacketService;
@@ -41,16 +39,22 @@ public class PacketController {
 
     @GetMapping(path = "/findAllPaginatedPackets")
     public ResponseEntity<ResponsePage> findAllPaginatedPackets(@RequestParam(defaultValue = "0") int page,
-                                                @RequestParam(defaultValue = "500") int size,
+                                                @RequestParam(defaultValue = "100") int size,
                                                 @RequestParam(required = false) String searchText,
                                                 @RequestParam(required = false) String startDate,
                                                 @RequestParam(required = false) String endDate,
-                                                @RequestParam(required = false) String status) throws ParseException {
+                                                @RequestParam(required = false) String status) {
         try {
-            PaginatedResult<Packet> allPackets = packetService.findAllPackets(page, size, searchText, startDate, endDate, status);
-            return new ResponseEntity<>(ResponsePage.mapToResponseList(allPackets.getData(), page, allPackets.getTotalRecords(), (int) allPackets.getTotalPages()), HttpStatus.OK);
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Packet> allPackets = packetService.findAllPackets(searchText, startDate, endDate, status, pageable);
+            return new ResponseEntity<>(new ResponsePage.Builder()
+                    .result(allPackets.getContent())
+                    .currentPage(allPackets.getNumber())
+                    .totalItems(allPackets.getTotalElements())
+                    .totalPages(allPackets.getTotalPages())
+                    .build(), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ResponsePage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -60,9 +64,14 @@ public class PacketController {
         try {
             Pageable paging = PageRequest.of(page, size);
             Page<Packet> allTodaysPackets = packetService.findAllTodaysPackets(paging);
-            return new ResponseEntity<>(ResponsePage.mapToResponsePage(allTodaysPackets), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponsePage.Builder()
+                    .result(allTodaysPackets.getContent())
+                    .currentPage(allTodaysPackets.getNumber())
+                    .totalItems(allTodaysPackets.getTotalElements())
+                    .totalPages(allTodaysPackets.getTotalPages())
+                    .build(), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ResponsePage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -34,7 +34,7 @@
               pInputText
               type="text"
               [(ngModel)]="filter"
-              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+              (keyup.enter)="filterByText($any($event.target).value)"
               placeholder="Client, Tel, Ville, Adresse, Page,Id"
             />
 

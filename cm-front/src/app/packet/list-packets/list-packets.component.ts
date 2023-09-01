@@ -68,6 +68,8 @@ export class ListPacketsComponent
   statusList: any[] = [];
   selectedPackets: Packet[] = [];
   rangeDates: Date[] = [];
+  startDate: Date = new Date();
+  endDate: Date = new Date();
   editMode = false;
   countRows = 0;
   isLoading = false;
@@ -157,8 +159,8 @@ export class ListPacketsComponent
     let params = {
        page : 0,
        size: 100,
-       startDate : this.convertDateToString(new Date()),
-       endDate : this.convertDateToString(new Date())
+       startDate : this.formatDateToString(new Date()),
+       endDate : this.formatDateToString(new Date())
       };
     this.packetService.findAllPackets(params)
       .pipe(takeUntil(this.$unsubscribe))
@@ -548,6 +550,44 @@ export class ListPacketsComponent
     return false;
   }
 
+  filterByText(text: string){
+    console.log(this.rangeDates);
+    this.createRangeDate();
+    let params = {
+      page : 0,
+      size: 100,
+      searchText: text != null && text != '' ? text : null,
+      startDate : this.rangeDates !== null && this.rangeDates.length > 0 ? this.formatDateToString(this.startDate) : null,
+      endDate : this.rangeDates !== null && this.rangeDates.length > 0 ? this.formatDateToString(this.endDate) : null
+     };
+   this.packetService.findAllPackets(params)
+     .pipe(takeUntil(this.$unsubscribe))
+     .subscribe({   next:(response: any) => {
+       console.log(response);
+
+       this.packets = response.result;
+       //this.filterChange('date');
+     }, 
+     error: (error: any) => {
+       console.log('Error:', error);
+     },
+     complete: () => {
+       console.log('Observable completed-- All Packets From Base --');
+     }});
+
+  }
+
+  createRangeDate() {
+    if (this.rangeDates !== null && this.rangeDates !== undefined) {
+      this.startDate = this.rangeDates[0];
+      if (this.rangeDates[1]) {
+        this.endDate = this.rangeDates[1];
+      } else {
+        this.endDate = this.startDate;
+      }
+    }
+  }
+
   filterChange($event: string) {
     if($event == 'clear'){
       this.selectedStates = [];
@@ -686,13 +726,13 @@ export class ListPacketsComponent
     }
   }
 
-  convertDateToString(date: Date) {
-    if(date != null) {
-      let day = date.getDate();
-      let month = date.getMonth() + 1; // add 1 because months are indexed from 0
-      let year = date.getFullYear();
-      return year + "-" + month + "-" + day;
-    }
-    return;
+  formatDateToString(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
   }
+
+  
 }

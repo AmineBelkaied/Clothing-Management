@@ -33,9 +33,14 @@ public class ProductHistoryController {
       ) {
             try {
                 Page<ProductHistory> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size, reference, beginDate, endDate);
-                return new ResponseEntity<>(ResponsePage.mapToResponsePage(pageProductHistory), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponsePage.Builder()
+                        .result(pageProductHistory.getContent())
+                        .currentPage(pageProductHistory.getNumber())
+                        .totalItems(pageProductHistory.getTotalElements())
+                        .totalPages(pageProductHistory.getTotalPages())
+                        .build(), HttpStatus.OK);
             } catch (Exception e) {
-                return new ResponseEntity<>(new ResponsePage(), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
     }
     @GetMapping(path = "/findById/{id}")
