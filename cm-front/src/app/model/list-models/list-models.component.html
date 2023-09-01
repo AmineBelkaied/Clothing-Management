@@ -59,10 +59,17 @@
                 <td>{{model.reference}}</td>
                 <td>{{modelColorsDisplay(model.colors)}}</td>
                 <td>{{modelSizesDisplay(model.sizes)}}</td>
-                <td>{{model.description}}</td>
+                <td>
+                    <div class="align-items-center gap-3" *ngIf="model.description != ''">
+                        <span class="align-items-center gap-2">
+                            <i class="pi pi-tag"></i>
+                        {{ model.description }}
+                        </span>
+                    </div>
+                </td>
                 <td>
                     <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2 buttonSize" (click)="editModel(model)"></button>
-                    <!--                     <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteModel(model)"></button> -->
+                    <button pButton pRipple icon="pi pi-table" class="p-button-rounded p-button-success mr-2 buttonSize" [routerLink]="['/stock', model.id]"></button>
                 </td>
             </tr>
         </ng-template>

@@ -6,6 +6,7 @@ import { ProductService } from '../../shared/services/product.service';
 import { Model } from 'src/shared/models/Model';
 import { ProductHistoryService } from 'src/shared/services/product-history.service';
 import { switchMap } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-stock',
@@ -24,7 +25,7 @@ export class StockComponent implements OnInit {
   @ViewChild('el') el!: ElementRef;
   sizes: any[] = [];
   selectAll: boolean = false;
-  selectedModel: string = '';
+  modelId: number;
   hide0 : boolean = false;
 
   rangeDates: Date[] = [];
@@ -35,20 +36,19 @@ export class StockComponent implements OnInit {
     private productHistoryService: ProductHistoryService,
     private modelService: ModelService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private router: Router,
+    private activateRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.modelService.findAllModels().subscribe((result: any) => {
-      this.models = result;
-      this.selectedModel = this.models[4].id;
-      this.getStockByModelId(this.models[4].id);
-      this.productHistoryService
-        .findAll(this.selectedModel)
-        .subscribe((result: any) => {
-          console.log(result);
-          this.productsHistory = result;
-        });
+    this.modelId = +this.activateRoute.snapshot.params['id'];
+    this.getStockByModelId(this.modelId);
+    this.productHistoryService
+      .findAll(this.modelId)
+      .subscribe((result: any) => {
+        console.log(result);
+        this.productsHistory = result;
     });
   }
 
@@ -63,8 +63,8 @@ export class StockComponent implements OnInit {
 
   onModelChange($event: any) {
     this.getStockByModelId($event);
-    console.log(this.selectedModel);
-    this.selectedModel = $event;
+    console.log(this.modelId);
+    this.modelId = $event;
     this.selectedProducts = [];
   }
 
@@ -145,7 +145,7 @@ export class StockComponent implements OnInit {
   add() {
     let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
     this.productService
-      .addStock(this.selectedProducts, this.qte, +this.selectedModel)
+      .addStock(this.selectedProducts, this.qte, +this.modelId)
       .subscribe((result: any) => {
         console.log('result', result);
 
@@ -174,7 +174,7 @@ export class StockComponent implements OnInit {
     this.onClearCalendar();
     this.productHistoryService
       .findAll(
-        this.selectedModel,
+        this.modelId,
         this.searchField,
         this.convertDateToString(this.rangeDates[0]) != null
           ? this.convertDateToString(this.rangeDates[0])
@@ -195,7 +195,7 @@ export class StockComponent implements OnInit {
   search() {
     this.productHistoryService
       .findAll(
-        this.selectedModel,
+        this.modelId,
         this.searchField,
         this.convertDateToString(this.rangeDates[0]) != null
           ? this.convertDateToString(this.rangeDates[0])
