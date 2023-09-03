@@ -44,7 +44,7 @@ export class ListPacketsComponent
   events: any[] = [];
   statusEvents: any[] = [];
   packets: any;
-  private static FIRST = 'FIRST';
+  totalItems: number;
   packet: Packet = {
     id: '',
     date: new Date(),
@@ -163,9 +163,9 @@ export class ListPacketsComponent
       .subscribe({
         next: (response: any) => {
           console.log(response);
-
-          this.packets = response;
-          //this.filterChange('date');
+          this.packets = response.result;
+          this.totalItems = response.totalItems;
+          console.log(this.totalItems);
         },
         error: (error: any) => {
           console.log('Error:', error);
@@ -266,9 +266,7 @@ export class ListPacketsComponent
                 .indexOf(packet.id);
               if (count > 1) {
                 packet.data['exist'] = true;
-                //console.log('packet.data',packet.data);
-                this.packetService.allPackets.splice(pos, 1, packet.data);
-                this.packetService.allPacketsReadySubject.next(true);
+                this.packets.splice(pos, 1, packet.data);
               }
             }
             if (packet.field === 'status' && ((packet.data[packet.field] === 'Confirmée') || (packet.data[packet.field] === 'Retour Echange'))) {
@@ -279,8 +277,7 @@ export class ListPacketsComponent
                   .map((packet) => packet.id)
                   .indexOf(responsePacket.id);
                 console.log('pos', pos);
-                this.packetService.allPackets.splice(pos, 1, responsePacket);
-                this.packetService.allPacketsReadySubject.next(true);
+                this.packets.splice(pos, 1, responsePacket);
                 msg = 'Le barcode a été crée avec succés';
                 if (packet.data[packet.field] === 'Retour Echange') {
                   if (this.oldField === 'Payée')
@@ -429,14 +426,13 @@ export class ListPacketsComponent
     this.packetService
       .addPacket(this.newPacket())
       .subscribe((response: any) => {
+        this.packets.unshift(response);
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
           detail: 'La commande est ajoutée avec succés',
           life: 1000,
         });
-        this.packets.result.unshift(response);
-        this.packetService.allPackets.unshift(response);
       });
   }
 
@@ -444,16 +440,13 @@ export class ListPacketsComponent
     this.packetService
       .duplicatePacket(packet.id)
       .subscribe((response: any) => {
-        console.log(response);
-
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
           detail: 'La commande est dupliqué avec succés',
           life: 1000,
         });
-        this.packetService.allPackets.unshift(response);
-        this.packetService.allPacketsReadySubject.next(true);
+        this.packets.unshift(response);
       });
   }
 
@@ -472,11 +465,10 @@ export class ListPacketsComponent
           .deleteSelectedPackets(selectedPacketsById)
           .subscribe((result) => {
             console.log('packets successfully deleted !');
-            this.packetService.allPackets =
-              this.packetService.allPackets.filter(
+            this.packets =
+              this.packets.filter(
                 (packet: Packet) => selectedPacketsById.indexOf(packet.id) == -1
               );
-            this.packetService.allPacketsReadySubject.next(true);
             this.selectedPackets = [];
             this.messageService.add({
               severity: 'success',
@@ -499,8 +491,6 @@ export class ListPacketsComponent
 
   editProducts(packet: Packet) {
     this.packet = Object.assign({}, packet);
-    console.log('edit pproduct');
-    console.log(packet);
     this.submitted = false;
     this.modelDialog = true;
     this.editMode = true;
@@ -513,14 +503,11 @@ export class ListPacketsComponent
 
   OnSubmit($event: any) {
     this.modelDialog = $event.modelDialog;
-    let packet = this.packets.result.filter((p: any) => p.id == $event.packet.idPacket)[0];
-    let posAllPackets = this.packetService.allPackets.indexOf(packet);
+    let packet = this.packets.filter((p: any) => p.id == $event.packet.idPacket)[0];
     packet.packetDescription = $event.packet.packetDescription?.replace(this.reg, '\n');
     packet.price = $event.packet.totalPrice
     packet.deliveryPrice = $event.packet.deliveryPrice
     packet.discount = $event.packet.discount;
-    this.packetService.allPackets.splice(posAllPackets, 1, packet);
-    this.packetService.allPacketsReadySubject.next(true)
     if (!this.editMode)
       this.messageService.add({
         severity: 'info',
@@ -566,9 +553,8 @@ export class ListPacketsComponent
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: any) => {
-          this.packets = response;
-          console.log(response);
-          
+          this.packets = response.result;
+          this.totalItems = response.totalItems;
         },
         error: (error: any) => {
           console.log('Error:', error);
@@ -619,7 +605,7 @@ export class ListPacketsComponent
     this.filterPackets();
   }
 
-  filterChange($event: string) {
+/*   filterChange($event: string) {
     if ($event == 'clear') {
       this.selectedStates = [];
       this.selectedStatusList = this.statusList;
@@ -676,7 +662,7 @@ export class ListPacketsComponent
         : this.selectedStatus.value.indexOf(packet.status) > -1)
     );
     this.packets = [...this.packets];
-  }
+  } */
 
   resetTable() {
     this.rangeDates = [];

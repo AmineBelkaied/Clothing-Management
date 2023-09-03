@@ -16,21 +16,7 @@ export class PacketService {
   public allPacketsReadySubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   allPacketsReady$ = this.allPacketsReadySubject.asObservable();
 
-  constructor(private http: HttpClient) {
- /*    this.findAllPackets()
-      .subscribe({
-        next: (allPackets: any) => {
-          this.allPackets = allPackets;
-          this.allPacketsReadySubject.next(true);
-        },
-        error: (error: any) => {
-          console.log('Error:', error);
-        },
-        complete: () => {
-          console.log('Observable completed-- All Packets From Base --');
-        },
-      }) */
-  }
+  constructor(private http: HttpClient) {}
 
   public updateStatus(extractedBarcodes: string[], type: string){
     let updateStock = {'barCodes': extractedBarcodes,'status':type}
