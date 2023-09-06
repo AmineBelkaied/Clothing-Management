@@ -1,16 +1,5 @@
-import {
-  AfterViewChecked,
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import {
-  ConfirmationService,
-  MessageService,
-  SelectItemGroup,
-} from 'primeng/api';
+import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import { ConfirmationService, MessageService, SelectItemGroup} from 'primeng/api';
 import { Packet } from '../../../shared/models/Packet';
 import { OfferService } from '../../../shared/services/offer.service';
 import { PacketService } from '../../../shared/services/packet.service';
@@ -19,16 +8,14 @@ import { Table } from 'primeng/table';
 import { CityService } from '../../../shared/services/city.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../../../shared/services/fb-page.service';
-import {
-  catchError,
-  Observable,
-  of,
-  Subject,
-  takeUntil,
-} from 'rxjs';
+import { catchError, Observable, of, Subject,takeUntil} from 'rxjs';
 import { Offer } from 'src/shared/models/Offer';
 import { PrimeIcons } from 'primeng/api';
 import { FormControl } from '@angular/forms';
+import { DateUtils } from 'src/shared/utils/date-utils';
+import { A_VERIFIER, BUREAU, CONFIRMEE, EN_COURS, EN_COURS_1, EN_COURS_2, EN_COURS_3, EN_RUPTURE, LIVREE, NON_CONFIRMEE, PAYEE, RETOUR_EXPEDITEUR, RETOUR_RECU, TERMINE, statesList, statusList } from 'src/shared/utils/status-list';
+import { City } from 'src/shared/models/City';
+import { ResponsePage } from 'src/shared/models/ResponsePage';
 
 @Component({
   selector: 'app-list-packets',
@@ -36,77 +23,50 @@ import { FormControl } from '@angular/forms';
   styleUrls: ['./list-packets.component.css'],
   providers: [DatePipe],
 })
-export class ListPacketsComponent
-  implements OnInit, AfterViewChecked, OnDestroy {
+export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy {
+
   display: boolean = false;
   displayStatus: boolean = false;
   suiviHeader: string = 'Suivi';
   events: any[] = [];
   statusEvents: any[] = [];
-  packets: any;
+  packets: Packet[];
   totalItems: number;
-  packet: Packet = {
-    id: '',
-    date: new Date(),
-    customerName: '',
-    customerPhoneNb: '',
-    city: { id: 0 },
-    address: '',
-    relatedProducts: '',
-    packetReference: '',
-    packetDescription: '',
-    price: 0,
-    status: 'Non Confirmé',
-    barcode: '',
-    lastDeliveryStatus: '',
-    lastUpdateDate: '',
-  };
-  @ViewChild('dt') private _table: Table | undefined;
-  packetsClone: Packet[] = [];
-  cols: any[] = [];
-  confirmation: any[] = [];
-  statusList: any[] = [];
+  packet: Packet;
+  cols: object[] = [];
   selectedPackets: Packet[] = [];
   rangeDates: Date[] = [];
   startDate: Date = new Date();
   endDate: Date = new Date();
   editMode = false;
-  countRows = 0;
   isLoading = false;
-  selectedPacket?: string = '';
-  today: Date = new Date();
+  selectedPacket: string = '';
   today_2: Date = new Date(Date.now() - 172800000);
-  
+
   modelDialog!: boolean;
   submitted!: boolean;
 
   first = 0;
   rows = 100;
   currentPage = 0;
-  oldField: any;
+  oldField: string;
   offersList: any[] = [];
   groupedCities: SelectItemGroup[] = [];
   fbPages: FbPage[] = [];
-  selectedCity: any;
-  filter: any;
-  clonedProducts: { [s: string]: Packet } = {};
-  subcriber = new Subject<void>();
+  selectedCity: City;
+  filter: string;
 
-  selectedStatusList: any[] = [];
-  statusListEtat0: any[] = [];
-  statusListEtat1: any[] = [];
-  statusListEtat2: any[] = [];
-  statusListEtat3: any[] = [];
-  statesList: any[] = [];
+  statusList: string[] = [];
+  selectedStatusList: string[] = [];
+  statesList: string[] = [];
   selectedStatus: FormControl = new FormControl();
-  selectedStates: any[] = [];
+  selectedStates: string[] = [];
   $unsubscribe: Subject<void> = new Subject();
 
   @ViewChild('dt') dt?: Table;
-  @ViewChild('calendar')
-  calendar: any;
-  reg = /,/gi;
-  regBS = /\n/gi;
+  private readonly reg: RegExp = /,/gi;
+  private readonly FIRST: string = 'FIRST';
+
   constructor(
     private messageService: MessageService,
     private packetService: PacketService,
@@ -114,36 +74,11 @@ export class ListPacketsComponent
     private offerService: OfferService,
     private cityService: CityService,
     private fbPageService: FbPageService,
-    public datePipe: DatePipe,
+    private dateUtils: DateUtils,
     private cdRef: ChangeDetectorRef
   ) {
-    this.statusList = [
-      'Non confirmée',
-      'Confirmée',
-      'En rupture',
-      'En cours (1)',
-      'En cours (2)',
-      'En cours (3)',
-      'Livrée',
-      'Payée',
-      'Retour Expediteur',
-      'A verifier',
-      'Retour',
-      'Retour Echange',
-      'Retour reçu',
-      'Supprimé',
-    ];
-    this.statusListEtat0 = [
-      'Non confirmée',
-      'Confirmée',
-      'En rupture',
-      'Annulée'
-    ];
-    this.statesList = [
-      'Bureau',
-      'En Cours',
-      'Terminé',
-    ];
+    this.statusList = statusList;
+    this.statesList = statesList;
   }
 
   ngAfterViewChecked() {
@@ -151,32 +86,38 @@ export class ListPacketsComponent
   }
 
   ngOnInit(): void {
-    console.log("listPacket|ngOnInit");
     let params = {
       page: 0,
       size: 100,
-      startDate: this.formatDateToString(new Date()),
-      endDate: this.formatDateToString(new Date())
+      startDate: this.dateUtils.formatDateToString(new Date()),
+      endDate: this.dateUtils.formatDateToString(new Date())
     };
+    this.findAllPackets(params);
+    this.createColumns();
+    this.findAllOffers();
+    this.findAllGroupedCities();
+    this.findAllFbPages();
+    this.rangeDates[0] = new Date();
+    this.selectedStatus.setValue([]);
+    this.selectedStatusList = this.statusList;
+  }
+
+  findAllPackets(params: any): void {
     this.packetService.findAllPackets(params)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
-        next: (response: any) => {
-          console.log(response);
+        next: (response: ResponsePage) => {
           this.packets = response.result;
           this.totalItems = response.totalItems;
-          console.log(this.totalItems);
         },
-        error: (error: any) => {
+        error: (error: Error) => {
           console.log('Error:', error);
-        },
-        complete: () => {
-          console.log('Observable completed-- All Packets From Base --');
         }
       });
+  }
 
+  createColumns(): void {
     this.cols = [
-      //{ field: 'id', header: 'Id' },
       { field: 'date', header: 'Date' },
       { field: 'fbPage.name', header: 'PageFB' },
       {
@@ -193,49 +134,41 @@ export class ListPacketsComponent
       { field: 'Help', header: 'Help' },
       { field: 'barcode', header: 'Barcode' },
     ];
+  }
 
+  findAllOffers(): void {
     this.offerService.findAllOffers().subscribe((offers: any) => {
       this.offersList = offers.filter((offer: Offer) => offer.enabled);
     });
+  }
 
+  findAllGroupedCities(): void {
     this.cityService.findAllGroupedCities().subscribe((groupedCities: any) => {
       this.groupedCities = this.cityService.adaptListToDropDown(groupedCities);
       this.groupedCities = [...new Set(this.groupedCities)];
     });
+  }
 
+  findAllFbPages(): void {
     this.fbPageService.findAllFbPages().subscribe((result: any) => {
       this.fbPages = result;
     });
-
-    this.rangeDates[0] = this.today;
-
-    this.selectedStatus.setValue([]);
-    this.selectedStatusList = this.statusList;
   }
 
-
-
-  onEditInit(packet: any) {
+  onEditInit(packet: any): void {
     this.oldField = packet.data[packet.field];
   }
 
-  onEditComplete(packet: any) {
+  onEditComplete(packet: any): void {
     if (this.oldField !== packet.data[packet.field]) {
       if (packet.field == 'city' || packet.field == 'fbPage') {
         this.updatePacket(packet.data);
       } else {
         let updatedField = { [packet.field]: packet.data[packet.field] };
         let msg = 'Le champ a été modifié avec succés';
-        if (
-          packet.field == 'status' &&
-          (packet.data[packet.field] == 'Confirmée')
-        ) {
+        if ( packet.field == 'status' && (packet.data[packet.field] == CONFIRMEE)) {
           if (!this.checkPacketValidity(packet.data)) {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: 'Veuillez saisir tous les champs',
-            });
+            this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
             packet.data[packet.field] = this.oldField;
             return;
           }
@@ -246,78 +179,40 @@ export class ListPacketsComponent
           .patchPacket(packet['data'].id, updatedField)
           .pipe(
             catchError((err: any, caught: Observable<any>): Observable<any> => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Erreur lors de la mise à jour ' + err.error.message,
-              });
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la mise à jour ' + err.error.message });
               packet.data[packet.field] = this.oldField;
               this.isLoading = false;
               return of();
             })
           )
           .subscribe((responsePacket: Packet) => {
-            if (packet.field === 'customerPhoneNb') {
-              let count = this.packetService.allPackets
-                .map((packet) => packet.customerPhoneNb)
-                .filter(phonenumber => packet.data['customerPhoneNb'] === phonenumber).length;
-              let pos = this.packetService.allPackets
-                .map((packet) => packet.id)
-                .indexOf(packet.id);
-              if (count > 1) {
-                packet.data['exist'] = true;
-                this.packets.splice(pos, 1, packet.data);
-              }
-            }
             if (packet.field === 'status' && ((packet.data[packet.field] === 'Confirmée') || (packet.data[packet.field] === 'Retour Echange'))) {
-              console.log('responsePacket.barcode', responsePacket.barcode);
               this.isLoading = false;
               if (responsePacket.barcode != null) {
-                let pos = this.packetService.allPackets
-                  .map((packet) => packet.id)
-                  .indexOf(responsePacket.id);
-                console.log('pos', pos);
+                let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
                 this.packets.splice(pos, 1, responsePacket);
                 msg = 'Le barcode a été crée avec succés';
                 if (packet.data[packet.field] === 'Retour Echange') {
-                  if (this.oldField === 'Payée')
-                    packet.data[packet.field] = "Payée";
-                  else packet.data[packet.field] = "Livrée";
+                 this.oldField === PAYEE ? packet.data[packet.field] = PAYEE : packet.data[packet.field] = LIVREE;
                 }
               } else {
-                this.messageService.add({
-                  severity: 'error',
-                  summary: 'Error',
-                  detail: 'Erreur lors de la creation du barcode',
-                });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la creation du barcode' });
               }
-
             }
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: msg,
-            });
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
           });
       }
     }
   }
 
-  checkPacketValidity(packet: Packet) {
-    console.log(packet);
-    return (
-      this.isValid(packet.fbPage) &&
-      this.isValid(packet.address) &&
-      this.isValid(packet.customerName) &&
-      this.isValid(packet.customerPhoneNb) &&
-      this.isValid(packet.city) &&
-      this.isValid(packet.packetDescription)
-    );
+  checkPacketValidity(packet: Packet): boolean {
+    return (this.isValid(packet.fbPage) && this.isValid(packet.address) && this.isValid(packet.customerName) &&
+      this.isValid(packet.customerPhoneNb) && this.isValid(packet.city) && this.isValid(packet.packetDescription));
   }
 
   newPacket(): Packet {
     return {
-      date: this.getDate(new Date()),
+      date: this.dateUtils.getDate(new Date()),
       barcode: '',
       lastDeliveryStatus: '',
       customerName: '',
@@ -332,205 +227,132 @@ export class ListPacketsComponent
     };
   }
 
-  updatePacket(packet: any) {
-    this.packetService
-      .updatePacket(packet)
+  updatePacket(packet: any): void {
+    this.packetService.updatePacket(packet)
       .pipe(
         catchError((err: any, caught: Observable<any>): Observable<any> => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Erreur lors de la mise à jour ' + err.error.message,
-          });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la mise à jour ' + err.error.message });
           packet.data[packet.field] = this.oldField;
           return of();
         })
       )
       .subscribe((response: any) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'La commande est ajoutée avec succés',
-        });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés'});
       });
   }
 
-  getLastStatus(packet: Packet) {
-    if (packet.status != 'Payée' && packet.status != 'Retour reçu' && packet.status != 'Retour Expediteur' && packet.status != 'Livrée')
-      this.packetService.getLastFirstStatus(packet);
+  getLastStatus(packet: Packet): void {
+    if (packet.status != PAYEE && packet.status != RETOUR_RECU && packet.status != RETOUR_EXPEDITEUR && packet.status != LIVREE)
+    this.packetService.getLastStatus(packet, this.FIRST)
+      .subscribe({
+          next: (response: Packet) => {
+            this.packets.splice(this.packets.indexOf(packet), 1, response);
+          },
+          error : (error: Error) => {
+            console.log(error);
+          }
+        });
   }
 
-
-  openLinkGetter(code: number) {
+  openLinkGetter(code: number): void {
     window.open("https://www.firstdeliverygroup.com/fournisseur/recherche.php?code=" + code, '_blank');
   }
 
-  /*   openLink(code: string) {
-      const formData = new FormData();
-      formData.append('code', code);
-      const link = 'https://www.firstdeliverygroup.com/fournisseur/recherche.php';
-      // Create a hidden form
-      const form = document.createElement('form');
-      form.action = link;
-      form.method = 'POST';
-      form.target = '_blank';
-      // Append the form data as hidden fields
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'code';
-      input.value = code.toString();
-      form.appendChild(input);
-      // Append the form to the document and submit it
-      document.body.appendChild(form);
-      form.submit();
-    } */
-
-  printFirst(link: string) {
+  printFirst(link: string): void {
     window.open(link, '_blank');
   }
 
-  showDialogStatus(packet: Packet) {
+  showDialogStatus(packet: Packet): void {
     try {
-      this.packetService.getPacketAllStatus(packet.id).subscribe(
-        (response: any) => {
+      this.packetService.getPacketAllStatus(packet.id).subscribe((response: any) => {
           this.statusEvents = [];
-          console.log(response);
           this.suiviHeader = 'Suivi Status de packet num :' + packet.id;
           if (response != null && response.length > 0) {
             response.forEach((element: any) => {
-              this.statusEvents.push({
-                status: element.status,
-                date: element.date,
-                icon: PrimeIcons.ENVELOPE,
-                color: '#9C27B0',
-              });
+              this.statusEvents.push({status: element.status, date: element.date, icon: PrimeIcons.ENVELOPE, color: '#9C27B0'});
             });
           }
           this.cdRef.detectChanges();
           this.displayStatus = true;
-        },
-        (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Erreur dans le status',
-          });
         }
       );
     } catch (error) {
-      console.log('response' + error);
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur dans le status'});
     }
   }
 
-  addNewRow() {
+  addNewRow(): void {
     this.packetService
       .addPacket(this.newPacket())
-      .subscribe((response: any) => {
+      .subscribe((response: Packet) => {
         this.packets.unshift(response);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'La commande est ajoutée avec succés',
-          life: 1000,
-        });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
       });
   }
 
-  duplicatePacket(packet: Packet) {
+  duplicatePacket(packet: Packet): void {
     this.packetService
       .duplicatePacket(packet.id)
-      .subscribe((response: any) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'La commande est dupliqué avec succés',
-          life: 1000,
-        });
+      .subscribe((response: Packet) => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est dupliqué avec succés', life: 1000});
         this.packets.unshift(response);
       });
   }
 
-  deleteSelectedPackets() {
-    let selectedPacketsById = this.selectedPackets.map(
-      (selectedPacket: Packet) => selectedPacket.id
-    );
-    console.log(selectedPacketsById);
+  deleteSelectedPackets(): void {
+    let selectedPacketsById = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id);
     this.confirmationService.confirm({
-      message:
-        'Êtes-vous sûr de vouloir supprimer les commandes séléctionnées ?',
+      message:'Êtes-vous sûr de vouloir supprimer les commandes séléctionnées ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.packetService
           .deleteSelectedPackets(selectedPacketsById)
-          .subscribe((result) => {
-            console.log('packets successfully deleted !');
-            this.packets =
-              this.packets.filter(
-                (packet: Packet) => selectedPacketsById.indexOf(packet.id) == -1
-              );
+          .subscribe(() => {
+            this.packets = this.packets.filter((packet: Packet) => selectedPacketsById.indexOf(packet.id) == -1);
             this.selectedPackets = [];
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Succés',
-              detail:
-                'Les commandes séléctionnées ont été supprimé avec succés',
-              life: 1000,
-            });
+            this.messageService.add({severity: 'success',summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000});
           });
-      },
+      }
     });
   }
 
-  openNew(packet: Packet) {
+  openNew(packet: Packet): void {
     this.packet = Object.assign({}, packet);
     this.submitted = false;
     this.modelDialog = true;
     this.editMode = false;
   }
 
-  editProducts(packet: Packet) {
+  editProducts(packet: Packet): void {
     this.packet = Object.assign({}, packet);
     this.submitted = false;
     this.modelDialog = true;
     this.editMode = true;
   }
 
-  hideDialog() {
+  hideDialog(): void {
     this.modelDialog = false;
     this.submitted = false;
   }
 
-  OnSubmit($event: any) {
+  OnSubmit($event: any): void {
     this.modelDialog = $event.modelDialog;
     let packet = this.packets.filter((p: any) => p.id == $event.packet.idPacket)[0];
     packet.packetDescription = $event.packet.packetDescription?.replace(this.reg, '\n');
     packet.price = $event.packet.totalPrice
     packet.deliveryPrice = $event.packet.deliveryPrice
     packet.discount = $event.packet.discount;
-    if (!this.editMode)
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Success',
-        detail: 'Les articles ont été ajoutés avec succés',
-        life: 1000,
-      });
-    else
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Success',
-        detail: 'Les articles ont été mis à jour avec succés',
-        life: 1000,
-      });
+    this.editMode ? this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été mis à jour avec succés', life: 1000 }) : this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été ajoutés avec succés', life: 1000 });
   }
 
-  checkValidity(date1: Date, date2: Date, status: String) {
-    if (status != 'Payée' && status != 'Retour reçu')
-      return this.getDate(date1) < this.getDate(date2);
+  checkValidity(date1: Date, date2: Date, status: String): boolean {
+    if (status != PAYEE && status != RETOUR_RECU)
+      return this.dateUtils.getDate(date1) < this.dateUtils.getDate(date2);
     return false;
   }
 
-  filterPackets($event?: string) {
+  filterPackets($event?: string): void {
     this.createRangeDate();
     if ($event == 'states') {
       this.onStateChange();
@@ -545,24 +367,14 @@ export class ListPacketsComponent
       page: this.currentPage,
       size: 100,
       searchText: this.filter != null && this.filter != '' ? this.filter : null,
-      startDate: this.rangeDates !== null && this.rangeDates.length > 0 ? this.formatDateToString(this.startDate) : null,
-      endDate: this.rangeDates !== null && this.rangeDates.length > 0 ? this.formatDateToString(this.endDate) : null,
+      startDate: this.rangeDates !== null && this.rangeDates.length > 0 ? this.dateUtils.formatDateToString(this.startDate) : null,
+      endDate: this.rangeDates !== null && this.rangeDates.length > 0 ? this.dateUtils.formatDateToString(this.endDate) : null,
       status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join()
     };
-    this.packetService.findAllPackets(params)
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe({
-        next: (response: any) => {
-          this.packets = response.result;
-          this.totalItems = response.totalItems;
-        },
-        error: (error: any) => {
-          console.log('Error:', error);
-        }
-      });
+    this.findAllPackets(params);
   }
 
-  createRangeDate() {
+  createRangeDate(): void {
     if (this.rangeDates !== null && this.rangeDates !== undefined) {
       this.startDate = this.rangeDates[0];
       if (this.rangeDates[1]) {
@@ -573,98 +385,28 @@ export class ListPacketsComponent
     }
   }
 
-  onStateChange() {
+  onStateChange(): void {
     this.selectedStatus.setValue([]);
     this.selectedStatusList = [];
-    if (this.selectedStates.indexOf('Bureau') > -1) {
-      this.selectedStatus.patchValue([
-        'Non confirmée',
-        'En rupture',
-        'A Verifier',
-        'Confirmée'
-      ]);
-      this.selectedStatusList = this.statusListEtat0;
+    if (this.selectedStates.indexOf(BUREAU) > -1) {
+      this.selectedStatus.patchValue([ NON_CONFIRMEE, EN_RUPTURE, A_VERIFIER, CONFIRMEE ]);
+      this.selectedStatusList = [ NON_CONFIRMEE, EN_RUPTURE, CONFIRMEE];
     }
-    if (this.selectedStates.indexOf('En Cours') > -1) {
-      this.selectedStatus.patchValue([
-        'En cours (1)',
-        'En cours (2)',
-        'En cours (3)',
-        'En cours',
-      ]);
+    if (this.selectedStates.indexOf(EN_COURS) > -1) {
+      this.selectedStatus.patchValue([ EN_COURS_1, EN_COURS_2, EN_COURS_3 ]);
       this.selectedStatusList = this.statusList;
     }
-    if (this.selectedStates.indexOf('Terminé') > -1) {
-      this.selectedStatus.patchValue(['Payée', 'Retour reçu']);
+    if (this.selectedStates.indexOf(TERMINE) > -1) {
+      this.selectedStatus.patchValue([PAYEE, RETOUR_RECU]);
     }
   }
 
-  onPageChange($event: any) {
-    console.log($event);
+  onPageChange($event: any): void {
     this.currentPage = $event.page;
     this.filterPackets();
   }
 
-/*   filterChange($event: string) {
-    if ($event == 'clear') {
-      this.selectedStates = [];
-      this.selectedStatusList = this.statusList;
-      this.selectedStatus.setValue([]);
-    }
-    if ($event == 'states') {
-      this.selectedStatus.setValue([]);
-      this.selectedStatusList = [];
-      if (this.selectedStates.indexOf('Bureau') > -1) {
-        this.selectedStatus.patchValue([
-          'Non confirmée',
-          'En rupture',
-          'A Verifier',
-          'Confirmée'
-        ]);
-        this.selectedStatusList = this.statusListEtat0;
-      }
-      if (this.selectedStates.indexOf('En Cours') > -1) {
-        this.selectedStatus.patchValue([
-          'En cours (1)',
-          'En cours (2)',
-          'En cours (3)',
-          'En cours',
-        ]);
-        this.selectedStatusList = this.statusList;
-      }
-      if (this.selectedStates.indexOf('Terminé') > -1) {
-        this.selectedStatus.patchValue(['Payée', 'Retour reçu']);
-      }
-    }
-
-    let startDate = new Date();
-    let endDate = new Date();
-    if (this.rangeDates !== null && this.rangeDates !== undefined) {
-      startDate = this.rangeDates[0];
-      if (this.rangeDates[1]) {
-        endDate = this.rangeDates[1];
-      } else {
-        endDate = startDate;
-      }
-    }
-    let rangeDateExist = this.rangeDates[0] !== null && this.rangeDates[0] !== undefined;
-    if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
-    console.log('this.filter', this.filter);
-    console.log('this.packets = this.packetService.allPackets', this.packetService.allPackets[0]);
-
-    this.packets = this.packetService.allPackets.filter((packet: any) =>
-      (rangeDateExist
-        ? ((this.getDate(packet.date) >= this.getDate(startDate) &&
-          this.getDate(packet.date) <= this.getDate(endDate)))
-        : true) &&
-      (this.selectedStatus.value.length === 0
-        ? packet.status !== 'Supprimé'
-        : this.selectedStatus.value.indexOf(packet.status) > -1)
-    );
-    this.packets = [...this.packets];
-  } */
-
-  resetTable() {
+  resetTable(): void{
     this.rangeDates = [];
     this.selectedStates = [];
     this.selectedPackets = [];
@@ -672,15 +414,15 @@ export class ListPacketsComponent
     this.filterPackets('global');
   }
 
-  changeColor(this: any) {
+  changeColor(this: any): void {
     this.style.color = 'red';
   }
 
-  calculatePrice(packet: Packet) {
+  calculatePrice(packet: Packet): number {
     return packet.price! + packet.deliveryPrice! - packet.discount!;
   }
 
-  getValue(fieldName: any) {
+  getValue(fieldName: any): string {
     return fieldName != null && fieldName != undefined ? fieldName : '';
   }
 
@@ -688,47 +430,26 @@ export class ListPacketsComponent
     return field != null && field != undefined && field != '';
   }
 
-  transformDate(date: any) {
-    return this.datePipe.transform(date, 'dd/MM/yyyy');
-  }
-
   trackByFunction = (index: any, item: { id: any }) => {
-    return item.id; // O index
+    return item.id;
   };
 
-  getDate(date: Date): any {
-    return this.datePipe.transform(date, 'yyyy-MM-dd');
-  }
-
-  getPhoneNumber1(phoneNumber1: string) {
+  getPhoneNumber1(phoneNumber1: string): string {
     if (this.getValue(phoneNumber1) != '' && phoneNumber1.includes('/')) {
       return phoneNumber1.substring(0, 8);
     }
     return this.getValue(phoneNumber1);
   }
 
-  getPhoneNumber2(phoneNumber: string) {
+  getPhoneNumber2(phoneNumber: string): string {
     if (this.getValue(phoneNumber) != '' && phoneNumber.includes('/')) {
       return phoneNumber.substring(9, phoneNumber.length);
     }
     return '';
   }
 
-  ngOnDestroy() {
-    this.subcriber.next();
-    this.subcriber.complete();
-  }
-
-  getLastStatusDate(array: any) {
-    let lastDate = '';
-    array.forEach((element: any) => {
-      lastDate = element.date;
-    });
-    return lastDate;
-  }
-
-  clearStatus() {
-    this.selectedStates = [];
+  clearStatus(): void {
+  this.selectedStates = [];
     this.selectedStatusList = this.statusList;
     this.selectedStatus.setValue([]);
     if (this.filter != '' && this.filter != null) {
@@ -737,11 +458,8 @@ export class ListPacketsComponent
     }
   }
 
-  formatDateToString(date: Date): string {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 }

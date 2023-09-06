@@ -9,7 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
@@ -123,7 +123,7 @@ import { PayedReturnComponent } from './payed-return/payed-return.component';
     TagModule,
     CheckboxModule
   ],
-  providers: [MessageService, ConfirmationService, CityTreeService ],
+  providers: [MessageService, ConfirmationService, CityTreeService, DatePipe ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

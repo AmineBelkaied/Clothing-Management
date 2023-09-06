@@ -33,12 +33,14 @@ public class PacketRepositoryImpl {
 
         if(searchText != null) {
             predicates.add(criteriaBuilder.or(
+                    criteriaBuilder.like(root.get("id").as(String.class), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("customerName"), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("customerPhoneNb"), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("address"), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("city").get("name"), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("fbPage").get("name"), "%" + searchText + "%"),
-                    criteriaBuilder.like(root.get("packetDescription"), "%" + searchText + "%")
+                    criteriaBuilder.like(root.get("packetDescription"), "%" + searchText + "%"),
+                    criteriaBuilder.like(root.get("barcode"), "%" + searchText + "%")
             ));
         }
 
@@ -48,8 +50,7 @@ public class PacketRepositoryImpl {
         }
 
         if(status != null) {
-            List<String> statusList = Arrays.asList(status.split(","));
-            predicates.add(root.get("status").in(statusList));
+            predicates.add(root.get("status").in(Arrays.asList(status.split(","))));
         }
 
         criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));

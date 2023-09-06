@@ -99,23 +99,6 @@ export class PacketService {
     return this.http.get(this.baseUrl + '/findPacketStatus/' + idPacket);
   }
 
-  getLastFirstStatus(packet: Packet) {
-    console.log('packet', packet);
-    //this.isLoading = true;
-    if (packet.status != 'Payée' && packet.status != 'Retour reçu' && packet.status != 'Retour Expediteur'&& packet.status != 'Livrée')
-      this.getLastStatus(packet, 'FIRST')
-        .subscribe(
-          {
-            next: (response: any) => {
-              console.log('response', response);
-              let pos = this.allPackets.indexOf(packet);
-              this.allPackets.splice(pos, 1, response);
-              this.allPacketsReadySubject.next(true);
-            },
-            error: (e: any) => {
-            }
-          });
-  }
   getLastStatus(packet: Packet, deliveryCompany?: string) {
     return this.http.post(
       this.baseUrl + '/getLastStatus?deliveryCompany=' + deliveryCompany,
