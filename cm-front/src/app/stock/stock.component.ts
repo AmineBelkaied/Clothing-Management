@@ -5,8 +5,10 @@ import { ModelService } from 'src/shared/services/model.service';
 import { ProductService } from '../../shared/services/product.service';
 import { Model } from 'src/shared/models/Model';
 import { ProductHistoryService } from 'src/shared/services/product-history.service';
-import { switchMap } from 'rxjs';
+import { Subject, switchMap, takeUntil } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { StatsService } from 'src/shared/services/stats.service';
+import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 
 @Component({
   selector: 'app-stock',
@@ -31,6 +33,12 @@ export class StockComponent implements OnInit {
   rangeDates: Date[] = [];
 
   searchField: string = '';
+  $unsubscribe: Subject<void> = new Subject();
+  productsCount: ProductCountDTO[] = [];
+
+  modelName:String;
+  stock:boolean = true;
+
   constructor(
     private productService: ProductService,
     private productHistoryService: ProductHistoryService,
@@ -38,34 +46,59 @@ export class StockComponent implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private router: Router,
-    private activateRoute: ActivatedRoute
+    private activateRoute: ActivatedRoute,
+    private statsService: StatsService
   ) {}
 
   ngOnInit(): void {
     this.modelId = +this.activateRoute.snapshot.params['id'];
     this.getStockByModelId(this.modelId);
+    this.getProductsCountByModel(this.modelId)
+    this.getProductHistoryByModel(this.modelId)
+  }
+
+  getProductHistoryByModel(modelId : number){
     this.productHistoryService
-      .findAll(this.modelId)
+      .findAll(modelId)
       .subscribe((result: any) => {
         console.log(result);
         this.productsHistory = result;
     });
   }
 
+  getProductsCountByModel(modelId : number){
+    this.statsService.productsCount(
+      modelId,
+      this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : "2023-07-01",
+      this.rangeDates[1] != null? this.convertDateToString(this.rangeDates[1]): this.convertDateToString(new Date())
+      )
+    .pipe(takeUntil(this.$unsubscribe))
+    .subscribe({
+      next: (response: any) => {
+        console.log("responseCount",response);
+        this.productsCount = response;
+      },
+      error: (error: any) => {
+        console.log('Error22:', error);
+      },
+      complete: () => {
+        console.log('Observable completed-- All ProductsCount --');
+      }
+    });
+  }
+
   getStockByModelId(modelId: number) {
     this.productService.getStock(modelId).subscribe((result: any) => {
       this.products = result.productsByColor;
-      console.log(this.products);
-
+      this.modelName = this.products[0][0].model.name;
+      console.log('this.products[0]',this.products[0]);
       this.sizes = result.sizes;
     });
   }
 
-  onModelChange($event: any) {
-    this.getStockByModelId($event);
-    console.log(this.modelId);
-    this.modelId = $event;
-    this.selectedProducts = [];
+  getCount(productId:number): string{
+    let productCount = this.productsCount.find(item => item.productId === productId);
+    return (productCount != undefined) ? productCount.count + "" : "0";
   }
 
   onCellClick(product: any, event: any, j: number) :void{
@@ -172,6 +205,7 @@ export class StockComponent implements OnInit {
 
   filterChange(event: any) {
     this.onClearCalendar();
+    this.getProductsCountByModel(this.modelId);
     this.productHistoryService
       .findAll(
         this.modelId,
@@ -214,7 +248,7 @@ export class StockComponent implements OnInit {
       let year = date.getFullYear();
       return year + '-' + month + '-' + day;
     }
-    return;
+    return "2023-07-01";
   }
 
   haveSimilar(index: number, row: boolean):boolean {
@@ -238,14 +272,6 @@ export class StockComponent implements OnInit {
       this.products.splice(j,1);
   }
 
-/*   hideColumn(i:number){
-    console.log('hide column',i);
-
-    if(this.totalColumn(i)==0)
-    for (var j = 0; j < this.products.length; j++)
-      this.products[j].splice(i,1);
-  } */
-
   onDeleteProductsHistory($event: any): void {
     $event.products.forEach((product: any) => {
       for (var j = 0; j < this.products.length; j++)
@@ -254,18 +280,6 @@ export class StockComponent implements OnInit {
           this.products[j][i].quantity = this.products[j][i].quantity - product.quantity;
     });
   }
-
-/*   getStyle(quantity: any) {
-    if (quantity < 10)
-    return {
-      'background-color':'#D7A4A3',
-      cursor: 'pointer',
-    };
-    else
-    return {
-      cursor: 'pointer'
-    };
-  } */
 
   getSeverity(product: any,button:boolean) {
     if (button)
@@ -289,5 +303,24 @@ export class StockComponent implements OnInit {
         default:
             return 'EN STOCK';
     }
-}
+  }
+
+  /*   getStyle(quantity: any) {
+    if (quantity < 10)
+    return {
+      'background-color':'#D7A4A3',
+      cursor: 'pointer',
+    };
+    else
+    return {
+      cursor: 'pointer'
+    };
+  } */
+
+/*   onModelChange($event: any) {
+    this.getStockByModelId($event);
+    console.log(this.modelId);
+    this.modelId = $event;
+    this.selectedProducts = [];
+  } */
 }

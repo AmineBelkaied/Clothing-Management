@@ -1,9 +1,6 @@
 package com.clothing.management.services;
 
-import com.clothing.management.dto.BarCodeStatusDTO;
-import com.clothing.management.dto.DeliveryResponseFirst;
-import com.clothing.management.dto.PacketDTO;
-import com.clothing.management.dto.SelectedProductsDTO;
+import com.clothing.management.dto.*;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
 import org.springframework.data.domain.Page;
@@ -39,4 +36,5 @@ public interface PacketService {
     Packet duplicatePacket(Long idPacket);
     List<String> updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO);
     Long getExchangeId(Packet packet);
+    List<ProductsDayCountDTO> productsCountByDate(Long state, String beginDate, String endDate);
 }

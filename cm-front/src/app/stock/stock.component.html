@@ -1,23 +1,30 @@
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-    <div class="card-body">
-      <div class="row ml-3">
-        <div class="col-md-7 d-flex align-items-center">
-<!--           <p-dropdown [options]="models" (onChange)="onModelChange($event.value)" optionLabel="name" optionValue="id"
-            [style]="{ width: '200px'}" [(ngModel)]="modelId" [panelStyle]="{ width: '200px' }" [showClear]="true"
-            placeholder="Choisir le modèle" appendTo="body">
-          </p-dropdown> -->
-          <!--         <p-toggleButton [(ngModel)]="isMultiple" onLabel="SelectionLibre" offLabel="Sélection/Produit" class="pr-2 pl-5"></p-toggleButton> -->
+    <div class="card-body px-0 py-0 mt-3 ml-2 mr-3 mb-3 d-inline-flex flex-wrap flex-md-no-wrap justify-content-between">
+      <div class="d-flex align-items-center flex-wrap">
+        <div class="d-flex align-items-center flex-wrap w-100">
+            <H1>{{ modelName }}</H1>
+        </div>
+      </div>
+      <div class="d-flex align-items-center flex-wrap">
+        <div class="d-flex align-items-center flex-wrap w-100">
           <p-toggleButton [(ngModel)]="selectAll" [onLabel]="'Déselectionner tout'" offLabel="Sélectionner tout"
             (click)="selectAllProducts()" class="pl-2"></p-toggleButton>
           <p-inputNumber [(ngModel)]="qte" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"
             (keyup.enter)="add()" class="pr-4 pl-5"> </p-inputNumber>
           <p-button label="Ajouter" icon="pi pi-check" iconPos="right" (click)="add()"></p-button>
-            <p-checkbox class="ml-4 mt-2" [binary]="true" inputId="binary" [(ngModel)]="hide0" ></p-checkbox>
-            <label class="ml-2 mt-3" for="ny">Masquer 0</label>
-
         </div>
-        <div class="col-md-5">
+      </div>
+      <div class="d-flex align-items-center flex-wrap">
+        <div class="d-flex flex-wrap align-items-center w-100">
+          <p-checkbox class="ml-4 mt-2" [binary]="true" inputId="binary" [(ngModel)]="hide0" ></p-checkbox>
+          <label class="ml-2 mt-3" for="ny">Masquer 0</label>
+          <p-checkbox class="ml-4 mt-2" [binary]="true" inputId="binary" [(ngModel)]="stock" ></p-checkbox>
+          <label class="ml-2 mt-3" for="ny">stock</label>
+        </div>
+      </div>
+      <div class="d-flex align-items-center flex-wrap">
+        <div class="d-flex flex-wrap align-items-center w-100">
           <button pButton pRipple icon="pi pi-search" class="p-button-success p-button-sm" (click)="search()"></button>
           <input pInputText type="text" [(ngModel)]="searchField" placeholder="Référence produit" class="mr-3 ml-2"
             (keyup.enter)="search()" />
@@ -29,65 +36,92 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="card ml-4 mt-2 mb-3 col-md-8 col-sm-12" style="background-color: #fbfbfb">
+      <div class="card-body">
+            <p-table [value]="products" styleClass="p-datatable-gridlines" [rowSelectable]="isRowSelectable" #dt >
+              <ng-template pTemplate="body" let-productSizes let-j="rowIndex">
+                <tr *ngIf="!(hide0==true && totalRow(j)<1)">
+                  <td style="background-color: #fafafa;" (click)="handleColorClick(j)"><h6>{{products[j][0].color.name + " : " + totalRow(j) }}</h6></td>
+                  <!-- <td (click)="hideRow(j)" (click)="handleColorClick(j)">{{products[j][0].color.name}}</td> -->
+                  <ng-container *ngFor="let productSize of productSizes;let index = index">
+                    <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)">
+                      <td pEditableColumn (click)="onCellClick(productSize, $event, j)">
+                        <ng-container class="d-flex flex-column align-items-center">
+                          <div class="text-center">
+                            <h6>{{ "(" + productSize.color.name + " " + productSize.size.reference + ")" }}</h6>
+                            <h4 *ngIf="stock==false" >{{ getCount(productSize.id) }}</h4>
+                            <h6 *ngIf="stock==true" >{{ productSize.quantity }}</h6>
+                          </div>
+                          <div class="text-center" style="margin-top: 10px;" *ngIf="stock==true">
+                            <p-tag [value]="getSeverity(productSize, false)" [severity]="getSeverity(productSize, true)"></p-tag>
+                          </div>
+                        </ng-container>
+                        <ng-template #colors>{{ productSize.name }}</ng-template>
+                      </td>
+                    </ng-container>
+                  </ng-container>
+                </tr>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                  <tr>
+                    <td>
+                      Total Size {{ totalTable()}}
+                    </td>
+                    <ng-container *ngFor="let size of sizes;let index = index">
+                      <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)">
+                    <td>
+                      {{ totalColumn(index) }}
+                    </td>
+                      </ng-container>
+                    </ng-container>
+                  </tr>
+                </ng-template>
+              </p-table>
+      </div>
+    </div>
+    <div class="card ml-4 mt-2 mb-3 col-md-3 col-sm-12" style="background-color: #fbfbfb">
+      <div class="card-body">
+          <app-stock-history [productsHistory]="productsHistory" [modelId]="modelId" (deleteProductsHistoryEvent)="onDeleteProductsHistory($event)"></app-stock-history>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
     <div class="card-body">
-      <div class="row">
-<div class="col-md-9">
-  <p-table [value]="products" styleClass="p-datatable-gridlines" [rowSelectable]="isRowSelectable" #dt >
-    <!-- <ng-template pTemplate="header">
-      <tr>
-        <th>Colors</th>
-        <th *ngFor="let size of sizes;let index=index" (click)="handleSizeClick(index)" style="cursor: pointer;">{{ size.reference }}</th>
-        <th>Total Couleur</th>
-      </tr>
-    </ng-template> -->
-    <ng-template pTemplate="body" let-productSizes let-j="rowIndex">
-      <tr *ngIf="!(hide0==true && totalRow(j)<1)">
-        <td style="background-color: #fafafa;" (click)="handleColorClick(j)"><h6>{{products[j][0].color.name + " : " + totalRow(j) }}</h6></td>
-        <!-- <td (click)="hideRow(j)" (click)="handleColorClick(j)">{{products[j][0].color.name}}</td> -->
-        <ng-container *ngFor="let productSize of productSizes;let index = index">
-          <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)">
-            <td pEditableColumn (click)="onCellClick(productSize, $event, j)">
-              <ng-container class="d-flex flex-column align-items-center">
-                <div class="text-center">
-                  <h6>{{ "(" + productSize.color.name + " " + productSize.size.reference + ")" }}</h6>
-                  <h6>{{ productSize.quantity }}</h6>
-                </div>
-                <div class="text-center" style="margin-top: 10px;">
-                  <p-tag [value]="getSeverity(productSize, false)" [severity]="getSeverity(productSize, true)"></p-tag>
-                </div>
-              </ng-container>
-              <ng-template #colors>{{ productSize.name }}</ng-template>
-            </td>
-          </ng-container>
-        </ng-container>
+      <div class="row ml-3">
+        <div class="col-md-7 d-flex align-items-center">
+            <p-table [value]="productsCount">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Packet Day</th>
+                  <th>Product ID</th>
+                  <th>Model ID</th>
+                  <th>Color</th>
+                  <th>Size</th>
+                  <th>Count ID</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-rowData>
+                <tr>
+                  <td>{{ rowData.packet_day }}</td>
+                  <td>{{ rowData.product_id }}</td>
+                  <td>{{ rowData.model_id }}</td>
+                  <td>{{ rowData.color }}</td>
+                  <td>{{ rowData.size }}</td>
+                  <td>{{ rowData.countId }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
 
-    </tr>
-    </ng-template>
-    <ng-template pTemplate="footer">
-      <tr>
-        <td>
-          Total Size {{ totalTable()}}
-        </td>
-        <ng-container *ngFor="let size of sizes;let index = index">
-          <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)">
-        <td>
-          {{ totalColumn(index) }}
-        </td>
-          </ng-container>
-        </ng-container>
-<!--         <td>{{ totalTable()}}</td> -->
-      </tr>
-    </ng-template>
-  </p-table>
-</div>
-
-<div class="col-md-3">
-  <app-stock-history [productsHistory]="productsHistory" [modelId]="modelId" (deleteProductsHistoryEvent)="onDeleteProductsHistory($event)"></app-stock-history>
-
-</div>
-
-</div>
-</div>
-</div>
 <p-toast position="bottom-right"></p-toast>

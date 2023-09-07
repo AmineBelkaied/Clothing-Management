@@ -1,13 +1,21 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Packet } from '../models/Packet';
-import { subscribeOn } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, tap, throwError } from 'rxjs';
+import { baseUrl } from '../../assets/constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StatsService {
+  constructor(private http: HttpClient) {
+  }
   //cityTree? : {name:string,occ:number}[];
+  private baseUrl: string = baseUrl+"/packet";
 
+  public productsCount(modelId : number,startDate: String,endDate:String) : Observable<any>{
+    return this.http.get(this.baseUrl + "/productsCount/"+modelId+"?beginDate=" + startDate + "&endDate=" + endDate);
+  }
 
   getStatsTreeNodesData(data: Packet[]) {
 

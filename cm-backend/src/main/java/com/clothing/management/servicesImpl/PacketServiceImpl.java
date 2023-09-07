@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,24 +31,36 @@ public class PacketServiceImpl implements PacketService {
     private final IPacketRepository packetRepository;
     private final IProductRepository productRepository;
     private final IProductsPacketRepository productsPacketRepository;
+    private final IOfferRepository offerRepository;
+    private final IModelRepository modelRepository;
+    private final IColorRepository colorRepository;
+    private final ISizeRepository sizeRepository;
     private final IPacketStatusRepository packetStatusRepository;
     private final FirstApiService firstApiService;
-
-    @Autowired
-    PacketRepositoryImpl packetRepositoryImp;
+    private final PacketRepositoryImpl packetRepositoryImpl;
     @Autowired
     public PacketServiceImpl(
             IPacketRepository packetRepository,
             IProductRepository productRepository,
             IProductsPacketRepository productsPacketRepository,
+            IOfferRepository offerRepository,
+            IModelRepository modelRepository,
+            IColorRepository colorRepository,
+            ISizeRepository sizeRepository,
             IPacketStatusRepository packetStatusRepository,
-            FirstApiService firstApiService
+            FirstApiService firstApiService,
+            PacketRepositoryImpl packetRepositoryImpl
     ) {
         this.packetRepository = packetRepository;
         this.productRepository = productRepository;
         this.productsPacketRepository = productsPacketRepository;
+        this.offerRepository = offerRepository;
+        this.modelRepository = modelRepository;
+        this.colorRepository = colorRepository;
+        this.sizeRepository = sizeRepository;
         this.packetStatusRepository = packetStatusRepository;
         this.firstApiService = firstApiService;
+        this.packetRepositoryImpl = packetRepositoryImpl;
     }
     @Override
     public List<Packet> findAllPackets() {
@@ -57,13 +70,12 @@ public class PacketServiceImpl implements PacketService {
         return sortedPackets;
     }
 
-
     public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable) {
-        return packetRepositoryImp.findAllPackets(searchText, startDate, endDate, status, pageable);
+        return packetRepositoryImpl.findAllPackets(searchText, startDate, endDate, status, pageable);
     }
-
-    public Page<Packet> findAllTodaysPackets(Pageable paging) {
-        return packetRepository.findAllTodayPackets(paging);
+    @Override
+    public Page<Packet> findAllTodaysPackets(Pageable pageable) {
+        return packetRepository.findAllTodayPackets(pageable);
     }
 
     @Override
@@ -134,7 +146,7 @@ public class PacketServiceImpl implements PacketService {
                 productsPacketRepository.deleteAll(existingProductsPacket);
             List<ProductsPacket> newProductsPacket = new ArrayList<>();
             productsOffers.forEach(productOfferDTO -> {
-                newProductsPacket.add(new ProductsPacket(new Product(productOfferDTO.getProductId()), packet, new Date(), new Offer(productOfferDTO.getOfferId()), productOfferDTO.getPacketOfferIndex()));
+                newProductsPacket.add(new ProductsPacket(new Product(productOfferDTO.getProductId()), packet, new Date(), new Offer(productOfferDTO.getOfferId()), productOfferDTO.getPacketOfferIndex(),0));
             });
             productsPacketRepository.saveAll(newProductsPacket);
             packet.setPacketDescription(selectedProductsDTO.getPacketDescription());
@@ -270,10 +282,10 @@ public class PacketServiceImpl implements PacketService {
                         diggieStatus = mapFirstToDiggieStatus(deliveryResponse.getResult().getState());
                         packet.setLastDeliveryStatus(deliveryResponse.getResult().getState());
                         diggieStatus =
-                                    diggieStatus.equals(DiggieStatus.EN_COURS_1.getStatus())//First always return "en cours"
-                                            || diggieStatus.equals(DiggieStatus.EN_COURS_2.getStatus())//not in First System
-                                            || diggieStatus.equals(DiggieStatus.EN_COURS_3.getStatus())//not in First System
-                                            ? upgradeInProgressStatus(packet) : diggieStatus;
+                                diggieStatus.equals(DiggieStatus.EN_COURS_1.getStatus())//First always return "en cours"
+                                        || diggieStatus.equals(DiggieStatus.EN_COURS_2.getStatus())//not in First System
+                                        || diggieStatus.equals(DiggieStatus.EN_COURS_3.getStatus())//not in First System
+                                        ? upgradeInProgressStatus(packet) : diggieStatus;
 
                     }
                     return updatePacketStatus(packet, diggieStatus);
@@ -356,7 +368,7 @@ public class PacketServiceImpl implements PacketService {
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
         if(productsPackets.size()>0) {
             productsPackets.stream().forEach(productsPacket -> {
-                ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response,productsPacket.getPacketDate(), productsPacket.getOffer(), productsPacket.getPacketOfferId());
+                ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response,productsPacket.getPacketDate(), productsPacket.getOffer(), productsPacket.getPacketOfferId(),0);
                 productsPacketRepository.save(newProductsPacket);
             });
         }
@@ -400,35 +412,21 @@ public class PacketServiceImpl implements PacketService {
         //System.out.println("updateProductsQuantityByPacket packet"+packet);
         Long id= packet.getId();
         int quantity = 1;
-
-        if (newState.equals(DiggieStatus.CONFIRMEE.getStatus())){
-            quantity = -1;
-        } else {
+        if (!newState.equals(DiggieStatus.CONFIRMEE.getStatus())){
             //System.out.println("else echange newState"+newState+" st:"+DiggieStatus.RETOUR_EXCHANGE.getStatus());
 
             if (newState.equals(DiggieStatus.RETOUR_EXCHANGE.getStatus())){
                 if(!packet.getStatus().equals(DiggieStatus.PAYEE.getStatus()))
-                updatePacketStatusAndSaveToHistory(packet, DiggieStatus.LIVREE.getStatus());
+                    updatePacketStatusAndSaveToHistory(packet, DiggieStatus.LIVREE.getStatus());
                 System.out.println("retour echange"+id);
                 id = getExchangeId(packet);
                 packet = packetRepository.findById(id).get();
                 newState = DiggieStatus.RETOUR_RECU.getStatus();
             }
         }
-        //System.out.println("update products"+id+" qte "+quantity+"packet" +packet);
-        updatePacketProductsQte(id,quantity);
         return updatePacketStatusAndSaveToHistory(packet, newState);
     }
 
-    private void updatePacketProductsQte(Long id, int quantity){
-        List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(id);
-        for (ProductsPacket productsPacket : productsPackets) {
-            Optional<Product> product = productRepository.findById(productsPacket.getProduct().getId());
-            if (product.isPresent()) {
-                updateProductQuantity(product.get(), quantity);
-            }
-        }
-    }
     private void updateProductQuantity(Product product, int quantityChange) {
         product.setQuantity(product.getQuantity() + quantityChange);
         product.setDate(new Date());
@@ -456,28 +454,66 @@ public class PacketServiceImpl implements PacketService {
         Long id = getExchangeId(packet);
         Optional<Packet> optionalPacket = packetRepository.findById(id);
         packet.setPrice(optionalPacket.get().getPrice()+packet.getPrice());
-            //optionalPacket.get().setStatus(DiggieStatus.RETOUR.getStatus());
+        //optionalPacket.get().setStatus(DiggieStatus.RETOUR.getStatus());
         updatePacketStatusAndSaveToHistory(optionalPacket.get(), DiggieStatus.RETOUR.getStatus());
 
     }
 
     private Packet updatePacketStatusAndSaveToHistory(Packet packet, String status) {
         if (!packet.getStatus().equals(status) && !packet.getStatus().equals(DiggieStatus.RETOUR_RECU.getStatus())){
-        savePacketStatusToHistory(packet,status);
-        packet.setStatus(status);
-        packet.setLastUpdateDate(new Date());
-        return updatePacket(packet);
+            savePacketStatusToHistory(packet,status);
+            packet.setStatus(status);
+            packet.setLastUpdateDate(new Date());
+            return updatePacket(packet);
         }
         return packet;
     }
 
     private void savePacketStatusToHistory(Packet packet, String status) {
+        if(status.equals(DiggieStatus.LIVREE.getStatus())||status.equals(DiggieStatus.PAYEE.getStatus())||status.equals(DiggieStatus.CONFIRMEE.getStatus())||status.equals(DiggieStatus.RETOUR_RECU.getStatus()))
+            updateProductsStatusByPacket(packet.getId(),status);
+        if (status.equals(DiggieStatus.RETOUR_RECU.getStatus())||status.equals(DiggieStatus.CONFIRMEE.getStatus()))
+            updateProductsQuantity(packet.getId(),status);
         PacketStatus packetStatus = new PacketStatus();
         packetStatus.setPacket(packet);
         packetStatus.setStatus(status);
         packetStatus.setDate(new Date());
         packetStatusRepository.save(packetStatus);
     }
+
+    public boolean updateProductsStatusByPacket(Long idPacket,String status) {
+        int x = 0;
+        if (status.equals(DiggieStatus.RETOUR_RECU.getStatus())) x = 0;
+        if (status.equals(DiggieStatus.CONFIRMEE.getStatus())) x = 1;
+        if (status.equals(DiggieStatus.LIVREE.getStatus())||status.equals(DiggieStatus.PAYEE.getStatus())) x = 2;
+
+        List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(idPacket);
+        if(productsPackets.size() > 0) {
+            for (ProductsPacket product : productsPackets) {
+                product.setStatus(x);
+                productsPacketRepository.save(product);
+            };
+        }else return false;
+        return true;
+    }
+
+
+    public boolean updateProductsQuantity(Long idPacket,String status) {
+        int quantity = 0;
+        if (status.equals(DiggieStatus.RETOUR_RECU.getStatus())) quantity = 1;
+        if (status.equals(DiggieStatus.CONFIRMEE.getStatus())) quantity = -1;
+        List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(idPacket);
+        if(productsPackets.size() > 0) {
+            for (ProductsPacket productsPacket : productsPackets) {
+                Optional<Product> product = productRepository.findById(productsPacket.getProduct().getId());
+                if (product.isPresent()) {
+                    updateProductQuantity(product.get(), quantity);
+                }
+            }
+        }else return false;
+        return true;
+    }
+
 
     @Override
     public void savePacketStatusToHistory(Long idPacket, String status) {//unused
@@ -493,4 +529,10 @@ public class PacketServiceImpl implements PacketService {
             packetStatusRepository.save(packetStatus);
         }
     }
+    @Override
+    public List<ProductsDayCountDTO> productsCountByDate(Long state,String beginDate,String endDate){
+        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.productsCountByDate(state, beginDate,endDate);
+        return existingProductsPacket;
+    }
+
 }

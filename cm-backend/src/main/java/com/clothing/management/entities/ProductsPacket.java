@@ -27,6 +27,8 @@ public class ProductsPacket {
 
     Integer packetOfferId;
 
+    Integer status;
+
     public ProductsPacket() {
     }
 
@@ -36,6 +38,16 @@ public class ProductsPacket {
         this.packetDate = packetDate;
         this.offer = offer;
         this.packetOfferId = packetOfferId;
+    }
+
+
+    public ProductsPacket(Product product, Packet packet, Date packetDate, Offer offer, Integer packetOfferId, Integer status) {
+        this.product = product;
+        this.packet = packet;
+        this.packetDate = packetDate;
+        this.offer = offer;
+        this.packetOfferId = packetOfferId;
+        this.status = status;
     }
 
     public Long getId() {
@@ -86,6 +98,14 @@ public class ProductsPacket {
         this.packetOfferId = packetOfferId;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "ProductsPacket{" +
@@ -94,6 +114,8 @@ public class ProductsPacket {
                 ", packet=" + packet +
                 ", packetDate=" + packetDate +
                 ", offer=" + offer +
+                ", packetOfferId=" + packetOfferId +
+                ", status=" + status +
                 '}';
     }
 
