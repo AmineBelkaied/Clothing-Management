@@ -27,10 +27,7 @@ public class UpdateStatusScheduler {
             while (iterator.hasNext()) {
                 Packet packet = iterator.next();
                 try {
-                    if(packet.getBarcode() != null) {
-                      //  System.out.println("CRON " + packet.toString());
                         this.packetService.getLastStatus(packet, DeliveryCompany.FIRST.toString());
-                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {

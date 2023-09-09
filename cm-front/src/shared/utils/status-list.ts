@@ -15,10 +15,11 @@ export const SUPPRIME = 'Supprimé';
 export const BUREAU = 'Bureau';
 export const EN_COURS = 'En Cours';
 export const TERMINE = 'Terminé';
+export const CORBEIL = 'Corbeil';
 
 export const statusList = [
   NON_CONFIRMEE, CONFIRMEE, EN_RUPTURE, EN_COURS_1, EN_COURS_2, EN_COURS_3, LIVREE, PAYEE, RETOUR_EXPEDITEUR, A_VERIFIER, RETOUR, RETOUR_ECHANGE, RETOUR_RECU, SUPPRIME
 ]
 export const statesList = [
-  BUREAU, EN_COURS, TERMINE
+  BUREAU, EN_COURS, TERMINE, CORBEIL
 ]

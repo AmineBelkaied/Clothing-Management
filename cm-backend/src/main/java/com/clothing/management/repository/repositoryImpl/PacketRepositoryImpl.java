@@ -52,6 +52,7 @@ public class PacketRepositoryImpl {
         if(status != null) {
             predicates.add(root.get("status").in(Arrays.asList(status.split(","))));
         }
+        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
 
         criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Packet> query = entityManager.createQuery(criteriaQuery);
@@ -62,6 +63,27 @@ public class PacketRepositoryImpl {
         List<Packet> resultList = query.getResultList();
 
         return new PageImpl<>(resultList, pageable, totalItems);
+    }
+
+    public List<Packet> findAllPacketsByDate( String startDate, String endDate) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Packet> criteriaQuery = criteriaBuilder.createQuery(Packet.class);
+        Root<Packet> root = criteriaQuery.from(Packet.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        if(startDate != null && endDate != null) {
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(startDate)));
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(endDate)));
+        }
+
+        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
+
+        criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
+
+        TypedQuery<Packet> query = entityManager.createQuery(criteriaQuery);
+        return query.getResultList();
     }
 
 

@@ -27,8 +27,11 @@ export class StatsService {
     let cityCounts: CountCity = {};
     let pageCounts: CountPage = {};
     let dateCounts: CountDate = {};
+    console.log('packets',data);
 
     data.forEach((packet) => {
+      //console.log('packet',packet);
+
       if (
         packet.fbPage != undefined
       ){
@@ -83,6 +86,8 @@ export class StatsService {
       }
     });
     let count : Count= { cityCounts, pageCounts, dateCounts}
+    console.log(count);
+
     return count;
   }
 

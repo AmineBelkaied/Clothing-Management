@@ -6,6 +6,7 @@ import com.clothing.management.entities.PacketStatus;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.scheduler.UpdateStatusScheduler;
 import com.clothing.management.services.PacketService;
+import com.sun.xml.bind.v2.runtime.reflect.Lister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,11 +41,11 @@ public class PacketController {
 
     @GetMapping(path = "/findAllPaginatedPackets")
     public ResponseEntity<ResponsePage> findAllPaginatedPackets(@RequestParam(defaultValue = "0") int page,
-                                                @RequestParam(defaultValue = "100") int size,
-                                                @RequestParam(required = false) String searchText,
-                                                @RequestParam(required = false) String startDate,
-                                                @RequestParam(required = false) String endDate,
-                                                @RequestParam(required = false) String status) {
+                                                                @RequestParam(defaultValue = "100") int size,
+                                                                @RequestParam(required = false) String searchText,
+                                                                @RequestParam(required = false) String startDate,
+                                                                @RequestParam(required = false) String endDate,
+                                                                @RequestParam(required = false) String status) {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<Packet> allPackets = packetService.findAllPackets(searchText, startDate, endDate, status, pageable);
@@ -57,6 +58,13 @@ public class PacketController {
         } catch (Exception e) {
             return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping(path = "/findAllPacketsByDate")
+    public List<Packet> findAllPacketsByDate(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+            return packetService.findAllPacketsByDate(startDate, endDate);
     }
 
     @GetMapping(path = "/findAllTodaysPackets")

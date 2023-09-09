@@ -2,9 +2,6 @@ package com.clothing.management.enums;
 
 public enum DiggieStatus {
     LIVREE("Livrée"),
-    RETOUR("Retour"),
-
-    RETOUR_RECU("Retour reçu"),
     CONFIRMEE("Confirmée"),
     EN_COURS_1("En cours (1)"),
     EN_COURS_2("En cours (2)"),
@@ -13,14 +10,15 @@ public enum DiggieStatus {
     AU_MAGASIN("Au magasin"),
 
     A_VERIFIER("A verifier"),
-
+    RETOUR("Retour"),
     RETOUR_EXPEDITEUR("Retour Expediteur"),
+    RETOUR_EXCHANGE("Retour Echange"),
+    RETOUR_RECU("Retour reçu"),
 
     PAYEE("Payée"),
 
     EXCHANGE("Echange"),
 
-    RETOUR_EXCHANGE("Retour Echange"),
     INCORRECT_BARCODE("Code à barre incorrect"),
 
     DELETED("Supprimé"),
