@@ -69,18 +69,17 @@ public class ProductHistoryController {
     }
 
     @PostMapping(value = "/deleteProductsHistory/{modelId}" , produces = "application/json")
-    public ResponseEntity<Map<String, Object>> deleteProductHistory(@RequestBody List<ProductHistory> productsHistory,@PathVariable("modelId")Long modelId, @RequestParam int page) {
+    public ResponseEntity<ResponsePage> deleteProductHistory(@RequestBody List<ProductHistory> productsHistory,@PathVariable("modelId")Long modelId, @RequestParam int page) {
         try {
             Page<ProductHistory> pageProductHistory = productHistoryService.deleteProductsHistory(productsHistory, modelId, page);
-            Map<String, Object> response = new HashMap<>();
-            response.put("productHistories", pageProductHistory.getContent());
-            response.put("currentPage", pageProductHistory.getNumber());
-            response.put("totalItems", pageProductHistory.getTotalElements());
-            response.put("totalPages", pageProductHistory.getTotalPages());
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(new ResponsePage.Builder()
+                    .result(pageProductHistory.getContent())
+                    .currentPage(pageProductHistory.getNumber())
+                    .totalItems(pageProductHistory.getTotalElements())
+                    .totalPages(pageProductHistory.getTotalPages())
+                    .build(), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

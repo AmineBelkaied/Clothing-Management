@@ -27,10 +27,12 @@ export class StockHistoryComponent implements OnInit {
 
   constructor(private productHistoryService: ProductHistoryService) { }
 
-  ngOnInit(): void {  }
+  ngOnInit(): void { }
 
   onPageChange($event: any){
     this.currentPage = $event.page;
+    console.log(this.currentPage);
+    
     this.productHistoryService.findAllProductsHistory(this.modelId, $event.page, $event.rows, this.searchField,
       this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : null , this.rangeDates[1] != null ? this.convertDateToString(this.rangeDates[1]) : null)
     .subscribe((result: any) => this.productsHistory = result)

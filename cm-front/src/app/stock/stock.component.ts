@@ -53,7 +53,7 @@ export class StockComponent implements OnInit {
   ngOnInit(): void {
     this.modelId = +this.activateRoute.snapshot.params['id'];
     this.getStockByModelId(this.modelId);
-    this.getProductsCountByModel(this.modelId)
+   // this.getProductsCountByModel(this.modelId)
     this.getProductHistoryByModel(this.modelId)
   }
 
@@ -66,7 +66,7 @@ export class StockComponent implements OnInit {
     });
   }
 
-  getProductsCountByModel(modelId : number){
+ /*  getProductsCountByModel(modelId : number){
     this.statsService.productsCount(
       modelId,
       this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : "2023-07-01",
@@ -86,7 +86,7 @@ export class StockComponent implements OnInit {
       }
     });
   }
-
+ */
   getStockByModelId(modelId: number) {
     this.productService.getStock(modelId).subscribe((result: any) => {
       this.products = result.productsByColor;
@@ -205,17 +205,13 @@ export class StockComponent implements OnInit {
 
   filterChange(event: any) {
     this.onClearCalendar();
-    this.getProductsCountByModel(this.modelId);
+   // this.getProductsCountByModel(this.modelId);
     this.productHistoryService
       .findAll(
         this.modelId,
         this.searchField,
-        this.convertDateToString(this.rangeDates[0]) != null
-          ? this.convertDateToString(this.rangeDates[0])
-          : null,
-        this.rangeDates[1] != null
-          ? this.convertDateToString(this.rangeDates[1])
-          : null
+        this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]): null,
+        this.rangeDates[1] != null ? this.convertDateToString(this.rangeDates[1]): null
       )
       .subscribe((result: any) => {
         this.productsHistory = result;
@@ -248,10 +244,10 @@ export class StockComponent implements OnInit {
       let year = date.getFullYear();
       return year + '-' + month + '-' + day;
     }
-    return "2023-07-01";
+    return;
   }
 
-  haveSimilar(index: number, row: boolean):boolean {
+  haveSimilar(index: number, row: boolean): boolean {
     if (row) {
       for (var i = 0; i < this.products[index].length; i++)
         if (this.selectedProducts.includes(this.products[index][i].id)){
