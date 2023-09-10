@@ -73,6 +73,10 @@ public class PacketServiceImpl implements PacketService {
     public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable) {
         return packetRepositoryImpl.findAllPackets(searchText, startDate, endDate, status, pageable);
     }
+
+    public List<Packet> findAllPacketsByDate(String startDate, String endDate) {
+        return packetRepositoryImpl.findAllPacketsByDate(startDate, endDate);
+    }
     @Override
     public Page<Packet> findAllTodaysPackets(Pageable pageable) {
         return packetRepository.findAllTodayPackets(pageable);
@@ -275,9 +279,7 @@ public class PacketServiceImpl implements PacketService {
                 if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {
                     String diggieStatus = DiggieStatus.A_VERIFIER.getStatus();
                     if (deliveryResponse.getStatus()==404 || deliveryResponse.getResult().getState() == null || deliveryResponse.getResult().getState().equals("")) {
-                        //System.out.println("throw Exception"+deliveryResponse.getStatus());
                         throw new Exception("Problem API First");
-
                     }else if (deliveryResponse.getStatus()>199) {
                         diggieStatus = mapFirstToDiggieStatus(deliveryResponse.getResult().getState());
                         packet.setLastDeliveryStatus(deliveryResponse.getResult().getState());
@@ -314,8 +316,6 @@ public class PacketServiceImpl implements PacketService {
                 return DiggieStatus.CONFIRMEE.getStatus();
             case A_VERIFIER:
                 return DiggieStatus.A_VERIFIER.getStatus();
-            case AU_MAGASIN:
-                return DiggieStatus.EN_COURS_1.getStatus();
         }
         return DiggieStatus.EN_COURS_1.getStatus();
     }
@@ -332,7 +332,7 @@ public class PacketServiceImpl implements PacketService {
             case EN_COURS_3:
                 return DiggieStatus.A_VERIFIER.getStatus();
             default:
-                return packet.getStatus();
+                return DiggieStatus.EN_COURS_1.getStatus();
         }
     }
 

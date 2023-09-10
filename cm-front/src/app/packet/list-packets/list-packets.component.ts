@@ -8,12 +8,12 @@ import { Table } from 'primeng/table';
 import { CityService } from '../../../shared/services/city.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../../../shared/services/fb-page.service';
-import { catchError, Observable, of, Subject,takeUntil} from 'rxjs';
+import { catchError, identity, Observable, of, Subject,takeUntil} from 'rxjs';
 import { Offer } from 'src/shared/models/Offer';
 import { PrimeIcons } from 'primeng/api';
 import { FormControl } from '@angular/forms';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { A_VERIFIER, BUREAU, CONFIRMEE, EN_COURS, EN_COURS_1, EN_COURS_2, EN_COURS_3, EN_RUPTURE, LIVREE, NON_CONFIRMEE, PAYEE, RETOUR_EXPEDITEUR, RETOUR_RECU, TERMINE, statesList, statusList } from 'src/shared/utils/status-list';
+import { A_VERIFIER, BUREAU, CONFIRMEE, CORBEIL, EN_COURS, EN_COURS_1, EN_COURS_2, EN_COURS_3, EN_RUPTURE, LIVREE, NON_CONFIRMEE, PAYEE, RETOUR_EXPEDITEUR, RETOUR_RECU, SUPPRIME, TERMINE, statesList, statusList } from 'src/shared/utils/status-list';
 import { City } from 'src/shared/models/City';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 
@@ -62,6 +62,10 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   selectedStatus: FormControl = new FormControl();
   selectedStates: string[] = [];
   $unsubscribe: Subject<void> = new Subject();
+  showDeleted : boolean = false;
+  pageSize : number = 100;
+  params : any;
+  loading: boolean = false;
 
   @ViewChild('dt') dt?: Table;
   private readonly reg: RegExp = /,/gi;
@@ -86,13 +90,13 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   ngOnInit(): void {
-    let params = {
+    this.params = {
       page: 0,
-      size: 100,
+      size: this.pageSize,
       startDate: this.dateUtils.formatDateToString(new Date()),
       endDate: this.dateUtils.formatDateToString(new Date())
     };
-    this.findAllPackets(params);
+    this.findAllPackets();
     this.createColumns();
     this.findAllOffers();
     this.findAllGroupedCities();
@@ -102,13 +106,16 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.selectedStatusList = this.statusList;
   }
 
-  findAllPackets(params: any): void {
-    this.packetService.findAllPackets(params)
+  findAllPackets(): void {
+    this.loading = true;
+    this.packetService.findAllPackets(this.params)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: ResponsePage) => {
           this.packets = response.result;
           this.totalItems = response.totalItems;
+          console.log(this.packets[0]);
+          this.loading = false;
         },
         error: (error: Error) => {
           console.log('Error:', error);
@@ -120,11 +127,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.cols = [
       { field: 'date', header: 'Date' },
       { field: 'fbPage.name', header: 'PageFB' },
-      {
-        field: 'customerName',
-        header: 'Client',
-        customExportHeader: 'Product Code',
-      },
+      { field: 'customerName', header: 'Client', customExportHeader: 'Product Code'},
       { field: 'customerPhoneNb', header: 'Téléphone' },
       { field: 'city', header: 'Ville' },
       { field: 'address', header: 'Adresse' },
@@ -363,15 +366,15 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       this.selectedStatus.setValue([]);
     }
     if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
-    const params = {
+    this.params = {
       page: this.currentPage,
-      size: 100,
+      size: this.pageSize,
       searchText: this.filter != null && this.filter != '' ? this.filter : null,
       startDate: this.rangeDates !== null && this.rangeDates.length > 0 ? this.dateUtils.formatDateToString(this.startDate) : null,
       endDate: this.rangeDates !== null && this.rangeDates.length > 0 ? this.dateUtils.formatDateToString(this.endDate) : null,
       status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join()
     };
-    this.findAllPackets(params);
+    this.findAllPackets();
   }
 
   createRangeDate(): void {
@@ -386,8 +389,14 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   onStateChange(): void {
+    this.showDeleted = false;
     this.selectedStatus.setValue([]);
     this.selectedStatusList = [];
+    if (this.selectedStates.indexOf(CORBEIL) > -1) {
+      this.showDeleted = true;
+      this.selectedStatus.patchValue([SUPPRIME]);
+    }
+
     if (this.selectedStates.indexOf(BUREAU) > -1) {
       this.selectedStatus.patchValue([ NON_CONFIRMEE, EN_RUPTURE, A_VERIFIER, CONFIRMEE ]);
       this.selectedStatusList = [ NON_CONFIRMEE, EN_RUPTURE, CONFIRMEE];
@@ -403,7 +412,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   onPageChange($event: any): void {
     this.currentPage = $event.page;
-    this.filterPackets();
+    this.pageSize = $event.rows;
+    this.filterPackets('global');
   }
 
   resetTable(): void{

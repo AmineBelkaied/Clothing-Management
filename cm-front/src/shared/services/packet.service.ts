@@ -40,6 +40,13 @@ export class PacketService {
     return this.http.get(this.baseUrl + path);
   }
 
+  public findAllPacketsByDate(startDate: String,endDate:String): Observable<any> {
+    // only create a new request if you don't already have one stored
+    // save your request
+    let path = '/findAllPacketsByDate?startDate=' + startDate + "&endDate=" + endDate;
+    return this.http.get(this.baseUrl+path);
+  }
+
   // Call this method whenever you want to access the "cached" request
   public findAllTodaysPackets(): Observable<any> {
     // return the saved request

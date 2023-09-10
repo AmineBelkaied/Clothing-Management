@@ -19,6 +19,7 @@ public interface PacketService {
     public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable);
     //public Page<Packet> findAllPackets(String searchText, int page, int size);
     public Page<Packet> findAllTodaysPackets(Pageable paging);
+    public List<Packet> findAllPacketsByDate(String start,String end);
     public List<Packet> findAllPacketsByDate(Date date);
     public List<Packet> findAllDiggiePackets();
     public Optional<Packet> findPacketById(Long idPacket);

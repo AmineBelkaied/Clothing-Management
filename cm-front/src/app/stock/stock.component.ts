@@ -42,10 +42,7 @@ export class StockComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private productHistoryService: ProductHistoryService,
-    private modelService: ModelService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private router: Router,
     private activateRoute: ActivatedRoute,
     private statsService: StatsService
   ) {}
@@ -97,9 +94,11 @@ export class StockComponent implements OnInit {
   }
 
   getCount(productId:number): string{
-    let productCount = this.productsCount.find(item => item.productId === productId);
-    return (productCount != undefined) ? productCount.count + "" : "0";
+    let countProducts = this.productsCount.find(item => item.productId === productId);
+    return (countProducts != undefined) ? countProducts.count + "" : "0";
   }
+
+
 
   onCellClick(product: any, event: any, j: number) :void{
     const i = this.products[j].findIndex(

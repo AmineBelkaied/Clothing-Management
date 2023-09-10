@@ -4,6 +4,9 @@ import { PacketService } from 'src/shared/services/packet.service';
 import { Packet } from 'src/shared/models/Packet';
 import { DatePipe } from '@angular/common';
 import { StatsService } from 'src/shared/services/stats.service';
+import { DateUtils } from 'src/shared/utils/date-utils';
+import { Subject, takeUntil } from 'rxjs';
+import { ResponsePage } from 'src/shared/models/ResponsePage';
 
 @Component({
   selector: 'app-statistique',
@@ -52,17 +55,16 @@ export class StatistiqueComponent implements OnInit {
   cityCounts: CountCitys = {};
   pagesCounts: CountPages = {};
   datesCounts: CountDates = {};
-
+  params : any;
+  $unsubscribe: Subject<void> = new Subject();
+  totalItems: number;
   constructor(
     private packetService: PacketService,
     private statsService: StatsService,
-    public datePipe: DatePipe
+    public datePipe: DatePipe,
+    private dateUtils: DateUtils
   ) {
-    this.packetService.allPacketsReady$.subscribe(
-      {next:() => {
-      this.listPacket = this.packetService.allPackets;
-      }
-    });
+    //this.findAllPackets();
   }
 
   StatesData: any;
@@ -76,6 +78,10 @@ export class StatistiqueComponent implements OnInit {
 
   ngOnInit() {
     this.rangeDates[0] = new Date();
+    // the to/end value might not be set
+    // use the from/start date and add 1 day
+    // or the to/end date and add 1 day
+
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color');
     const textColorSecondary = documentStyle.getPropertyValue(
@@ -176,6 +182,33 @@ export class StatistiqueComponent implements OnInit {
     };
   }
 
+  findAllPackets(startDate : Date ,endDate :Date): void {
+    if (this.rangeDates[1]) {
+      endDate = this.rangeDates[1];
+    } else {
+      endDate = startDate;
+    }
+    //console.log(this.dateUtils.formatDateToString(startDate),'-->',this.dateUtils.formatDateToString(endDate));
+
+    this.packetService.findAllPacketsByDate(this.dateUtils.formatDateToString(startDate),this.dateUtils.formatDateToString(endDate))
+      .pipe(takeUntil(this.$unsubscribe))
+      .subscribe({
+        next: (response: any) => {
+          console.log('response',response);
+
+          this.packets = response;
+          this.totalItems = response.totalItems;
+          let filtredCitysCount = this.statsService.getStatsTreeNodesData(this.packets);
+          this.createCityStatChart(filtredCitysCount.cityCounts);
+          this.createPageStatChart(filtredCitysCount.pageCounts);
+          this.createDateStatChart(filtredCitysCount.dateCounts);
+        },
+        error: (error: Error) => {
+          console.log('Error:', error);
+        }
+      });
+  }
+
   createDateStatChart(dataCount: CountDates){
     const datesData: number[] = Object.values(dataCount).flatMap(
       (obj) => obj.count
@@ -236,7 +269,6 @@ export class StatistiqueComponent implements OnInit {
     };
   }
   createCityStatChart(dataCount: CountCitys) {
-    console.log('createCityStatChart');
     const confirmed: number[] = Object.values(dataCount).flatMap(
       (obj) => obj.confirm
     );
@@ -244,9 +276,6 @@ export class StatistiqueComponent implements OnInit {
       (obj) => obj.count - obj.confirm
     );
     const label: string[] = Object.keys(dataCount);
-/*     console.log('label:', label);
-    console.log('confirmed', confirmed);
-    console.log('tot:', totCmd); */
     this.StatesData = {
       labels: label,
       datasets: [
@@ -277,23 +306,12 @@ export class StatistiqueComponent implements OnInit {
     } else {
       endDate = startDate;
     }
-    //console.log('start', startDate);
-    //console.log('this.filteredBydatePackets',this.filterBydatePackets(startDate, endDate));
-    let filtredCitysCount = this.statsService.getStatsTreeNodesData(
-      this.filterBydatePackets(startDate, endDate)
-    );
-    //console.log('filtredDataCount',filtredDataCount)
-    this.createCityStatChart(filtredCitysCount.cityCounts);
-    this.createPageStatChart(filtredCitysCount.pageCounts);
-    this.createDateStatChart(filtredCitysCount.dateCounts);
+    this.findAllPackets(startDate,endDate);
   }
 
   filterBydatePackets(startDate: Date, endDate: Date) {
-    //console.log('p3000', this.listPacket[3000].date);
-
     let filterBydatePackets = this.listPacket.filter((packet) => {
       const packetDate = this.getDate(packet.date);
-      //return dob >= startDate && dob <= endDate;
       return (
         packetDate >= this.getDate(startDate) &&
         packetDate <= this.getDate(endDate)
