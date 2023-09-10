@@ -7,7 +7,7 @@ import java.util.*;
 
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id",scope = Model.class)
 public class Model {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

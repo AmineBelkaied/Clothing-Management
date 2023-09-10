@@ -1,5 +1,6 @@
-export const baseUrl = "http://localhost:2233";
-//export const baseUrl = "https://diggie.jvmhost.net/cmb";
+//export const baseUrl = "http://localhost:2233";
+export const baseUrl = "https://diggie.jvmhost.net/cmb";
+//export const baseUrl = "https://lyft.jvmhost.net/lyft";
 //export const baseUrlfirst = "https://diggie.jvmhost.net/apifirst";
 //export let deliveryAPi = "first"
 //export const deliveryUrlExpress="https://pro.tunisia-express.tn/api/";

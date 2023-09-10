@@ -64,10 +64,15 @@ export class StockComponent implements OnInit {
   }
 
   getProductsCountByModel(modelId : number){
+    let startDate = this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : "2023-01-01";
+    let endDate = this.rangeDates[1] != null? this.convertDateToString(this.rangeDates[1]):
+    this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) :this.convertDateToString(new Date());
+    console.log(startDate,"-->",endDate);
+
     this.statsService.productsCount(
       modelId,
-      this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : "2023-07-01",
-      this.rangeDates[1] != null? this.convertDateToString(this.rangeDates[1]): this.convertDateToString(new Date())
+      startDate,
+      endDate
       )
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
@@ -111,7 +116,7 @@ export class StockComponent implements OnInit {
   }
 
   handleColorClick(j: number) {
-    if (this.haveSimilar(j, true))
+    if (this.haveSelectedItems(j, true))
       for (var i = 0; i < this.products[j].length; i++)
         this.unSelectProduct(j, i, this.products[j][i].id);
     else
@@ -121,7 +126,7 @@ export class StockComponent implements OnInit {
   }
 
   handleSizeClick(i: number) :void{
-    if (this.haveSimilar(i, false))
+    if (this.haveSelectedItems(i, false))
       for (var j = 0; j < this.products.length; j++)
         this.unSelectProduct(j, i, this.products[j][i].id);
     else
@@ -222,7 +227,7 @@ export class StockComponent implements OnInit {
   }
 
   onClearCalendar() {
-    if (this.rangeDates == null) this.rangeDates = [];
+    if (this.rangeDates == null) this.rangeDates = [new Date("2023-01-01"),new Date()];
   }
 
   search() {
@@ -247,10 +252,10 @@ export class StockComponent implements OnInit {
       let year = date.getFullYear();
       return year + '-' + month + '-' + day;
     }
-    return "2023-07-01";
+    return "2023-01-01";
   }
 
-  haveSimilar(index: number, row: boolean):boolean {
+  haveSelectedItems(index: number, row: boolean):boolean {
     if (row) {
       for (var i = 0; i < this.products[index].length; i++)
         if (this.selectedProducts.includes(this.products[index][i].id)){

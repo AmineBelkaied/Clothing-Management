@@ -72,8 +72,8 @@
                       Total Size {{ totalTable()}}
                     </td>
                     <ng-container *ngFor="let size of sizes;let index = index">
-                      <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)">
-                    <td>
+                      <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)" >
+                    <td (click)="handleSizeClick(index)">
                       {{ totalColumn(index) }}
                     </td>
                       </ng-container>

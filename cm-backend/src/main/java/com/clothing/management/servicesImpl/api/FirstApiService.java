@@ -21,7 +21,8 @@ public class FirstApiService {
     public static final String reg = "/,/gi";
     public static final String regBS = "/\\n/gi";
 
-    public static final String bearerToken = "af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";
+    //public static final String bearerToken = "af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";
+    public static final String bearerToken = "198de763-841f-4b3f-96b0-dcbfa4a6b369";
 
     public FirstApiService() {
     }
