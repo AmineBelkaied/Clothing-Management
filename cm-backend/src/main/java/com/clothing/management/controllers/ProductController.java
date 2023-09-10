@@ -5,6 +5,7 @@ import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.Product;
 import com.clothing.management.entities.ProductHistory;
+import com.clothing.management.models.ResponsePage;
 import com.clothing.management.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -61,18 +62,17 @@ public class ProductController {
     }
 
     @PostMapping(path = "/addStock" , produces = "application/json")
-    public ResponseEntity<Map<String, Object>>  getStock(@RequestBody StockUpdateDto updateIdSockList) {
+    public ResponseEntity<ResponsePage>  getStock(@RequestBody StockUpdateDto updateIdSockList) {
         try {
             Page<ProductHistory> pageProductHistory = productService.addStock(updateIdSockList);
-            Map<String, Object> response = new HashMap<>();
-            response.put("productHistories", pageProductHistory.getContent());
-            response.put("currentPage", pageProductHistory.getNumber());
-            response.put("totalItems", pageProductHistory.getTotalElements());
-            response.put("totalPages", pageProductHistory.getTotalPages());
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(new ResponsePage.Builder()
+                    .result(pageProductHistory.getContent())
+                    .currentPage(pageProductHistory.getNumber())
+                    .totalItems(pageProductHistory.getTotalElements())
+                    .totalPages(pageProductHistory.getTotalPages())
+                    .build(), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

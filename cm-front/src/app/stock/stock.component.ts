@@ -252,7 +252,7 @@ export class StockComponent implements OnInit {
       let year = date.getFullYear();
       return year + '-' + month + '-' + day;
     }
-    return "2023-01-01";
+    return "2023-07-01";
   }
 
   haveSelectedItems(index: number, row: boolean):boolean {
