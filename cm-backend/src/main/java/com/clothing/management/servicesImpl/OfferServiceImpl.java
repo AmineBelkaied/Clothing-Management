@@ -124,7 +124,7 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferModelQuantitiesDTO addOffer(OfferModelQuantitiesDTO offerModelDTO) {
-        Offer offer = new Offer(offerModelDTO.getName() ,offerModelDTO.getPrice() , offerModelDTO.isEnabled());
+        Offer offer = new Offer(offerModelDTO.getName() ,offerModelDTO.getFbPages(), offerModelDTO.getPrice(), offerModelDTO.isEnabled());
         Offer offerResult = offerRepository.save(offer);
         for(ModelQuantity modelQuantity: offerModelDTO.getModelQuantities()){
             //OfferModel offerModel = new OfferModel(offer, modelQuantity.getModel(), modelQuantity.getQuantity());
@@ -156,7 +156,6 @@ public class OfferServiceImpl implements OfferService {
         }
         offerModelDTO.setOfferId(offerResult.getId());
         return offerModelDTO;
-
     }
 
     @Override

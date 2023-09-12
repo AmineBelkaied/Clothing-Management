@@ -87,7 +87,7 @@
 <p-dialog [(visible)]="offerDialog" [style]="{width: '60%'}" header="Détails de l'offre" [modal]="true"
     styleClass="p-fluid">
     <ng-template pTemplate="content">
-        <app-add-offer [offerModelDTO]="offer" [modelList]="models" [editMode]="editMode"
+        <app-add-offer [offerModelDTO]="offer" [modelList]="models" [fbPages]="fbPages" [editMode]="editMode"
             (submitEvent)="OnSubmit($event)"></app-add-offer>
     </ng-template>
 </p-dialog>

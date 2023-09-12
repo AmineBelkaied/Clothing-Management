@@ -1,3 +1,4 @@
+import { FbPage } from "./FbPage";
 import { ModelQuantity } from "./ModelQuantity";
 
 export interface OfferModelDTO {
@@ -6,4 +7,5 @@ export interface OfferModelDTO {
     price: number;
     enabled?: boolean;
     modelQuantities: ModelQuantity[];
+    fbPages: FbPage[];
 }

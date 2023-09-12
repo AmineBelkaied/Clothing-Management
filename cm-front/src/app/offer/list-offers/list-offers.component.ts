@@ -6,6 +6,8 @@ import { Offer } from 'src/shared/models/Offer';
 import { OfferModelDTO } from 'src/shared/models/OfferModelDTO';
 import { ModelService } from '../../../shared/services/model.service';
 import { OfferService } from '../../../shared/services/offer.service';
+import { FbPage } from 'src/shared/models/FbPage';
+import { FbPageService } from 'src/shared/services/fb-page.service';
 
 @Component({
   selector: 'app-list-offers',
@@ -19,11 +21,13 @@ export class ListOffersComponent implements OnInit {
 
   offers: OfferModelDTO[] = [];
   models: Model[] = [];
+  fbPages: FbPage[];
 
   offer: OfferModelDTO = {
     "offerId": "",
     "name": "",
     "modelQuantities": [],
+    "fbPages" : [],
     "price": 0,
     "enabled": false,
   }
@@ -35,7 +39,7 @@ export class ListOffersComponent implements OnInit {
 
   statuses: any[] = [];
 
-  constructor(private offerService: OfferService, private modelService: ModelService, private messageService: MessageService,
+  constructor(private offerService: OfferService, private modelService: ModelService, private fbPageService: FbPageService, private messageService: MessageService,
     private confirmationService: ConfirmationService) {
   }
 
@@ -47,12 +51,17 @@ export class ListOffersComponent implements OnInit {
     this.modelService.findAllModels().subscribe((modelList: any) => {
       this.models = modelList;
     });
+    this.fbPageService.fbPageSubscriber
+    .subscribe((fbPageList: any) => {
+      this.fbPages = fbPageList;
+    });
   }
 
   openNew() {
     this.offer = {
       "name": "",
       "modelQuantities": [],
+      "fbPages" : [],
       "price": 0,
       "enabled": false,
     }
