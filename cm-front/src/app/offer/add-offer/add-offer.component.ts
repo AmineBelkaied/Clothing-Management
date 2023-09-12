@@ -5,6 +5,7 @@ import { Model } from 'src/shared/models/Model';
 import { Offer } from 'src/shared/models/Offer';
 import { OfferModelDTO } from 'src/shared/models/OfferModelDTO';
 import { OfferService } from '../../../shared/services/offer.service';
+import { FbPage } from 'src/shared/models/FbPage';
 
 @Component({
   selector: 'app-add-offer',
@@ -18,10 +19,12 @@ export class AddOfferComponent implements OnInit {
     "offerId": "",
     "name": "",
     "modelQuantities": [],
+    "fbPages" : [],
     "price": 0,
     "enabled": false,
   }
   @Input() modelList: Model[] = [];
+  @Input() fbPages: FbPage[] = [];
   @Input() editMode!: boolean;
   @Output() submitEvent: EventEmitter<any> = new EventEmitter();
   selectedModels: any[] = [];
@@ -33,6 +36,7 @@ export class AddOfferComponent implements OnInit {
       name: '',
       price: 0,
       enabled: false,
+      fbPages: [],
       modelQuantities: this.fb.array([])
     })
    }
@@ -40,6 +44,8 @@ export class AddOfferComponent implements OnInit {
 
   ngOnInit(): void {
     console.log(this.offerModelDTO)
+    console.log(this.fbPages);
+    
     if(this.editMode) {
       this.offerForm.get('offerId')?.setValue(this.offerModelDTO.offerId);
       this.offerForm.get('name')?.setValue(this.offerModelDTO.name);

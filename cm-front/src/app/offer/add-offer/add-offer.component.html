@@ -80,6 +80,17 @@
                       </div>
                     </div>
                 </div>
+                <div class="row mt-4">
+                  <div class="col-md-12">
+                    <label for="fbPages" class="form-label">Pages Fb</label>
+                    <p-multiSelect [options]="fbPages" formControlName="fbPages" name="fbPages" display="chip"
+                      [style]="{ width: '100%' }" [panelStyle]="{ width: '50%' }" [placeholder]="'-- Choisir les pages fb --'"
+                      optionLabel="name" appendTo="body"></p-multiSelect>
+                  </div>
+                  <!--             <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary float-end">Ajouter</button>
+                  </div> -->
+                </div>
    <!--                  <br>
                     <div class="row">
                       <div class="col-md-2" style="margin-left:80%">
