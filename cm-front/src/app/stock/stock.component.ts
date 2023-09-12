@@ -48,6 +48,7 @@ export class StockComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.rangeDates = [new Date("2023-01-01"), new Date()];
     this.modelId = +this.activateRoute.snapshot.params['id'];
     this.getStockByModelId(this.modelId);
     this.getProductsCountByModel(this.modelId)
@@ -227,7 +228,7 @@ export class StockComponent implements OnInit {
   }
 
   onClearCalendar() {
-    if (this.rangeDates == null) this.rangeDates = [new Date("2023-01-01"),new Date()];
+    if (this.rangeDates == null) this.rangeDates = [new Date("2023-01-01"), new Date()];
   }
 
   search() {

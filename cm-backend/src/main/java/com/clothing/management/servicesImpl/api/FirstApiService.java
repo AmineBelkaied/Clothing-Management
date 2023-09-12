@@ -21,8 +21,8 @@ public class FirstApiService {
     public static final String reg = "/,/gi";
     public static final String regBS = "/\\n/gi";
 
-    //public static final String bearerToken = "af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";
-    public static final String bearerToken = "198de763-841f-4b3f-96b0-dcbfa4a6b369";
+    public static final String bearerToken = "af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";
+    //public static final String bearerToken = "198de763-841f-4b3f-96b0-dcbfa4a6b369";
 
     public FirstApiService() {
     }
@@ -45,16 +45,17 @@ public class FirstApiService {
         connection.setRequestProperty("Authorization", "Bearer " + bearerToken);
         connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
         connection.setDoOutput(true);
-
+        //jsonBody={"Client":{"gouvernerat":"Kairouan","ville":"Bou Hajla","adresse":"azeza","telephone2":"","telephone":"44444444","nom":"test"},"Produit":{"prix":61.0,"nombreEchange":0,"designation":"16023 GoStyle | P1 Lima Noir (S) ","commentaire":"Le colis peut être ouvert à la demande du client","article":"Diggie pants","nombreArticle":1}}
         try (OutputStream outputStream = connection.getOutputStream()) {
             byte[] input = jsonBody.getBytes("utf-8");
             outputStream.write(input, 0, input.length);
         }
         DeliveryResponseFirst deliveryResponse = null;
         int responseCode = connection.getResponseCode();
-        System.out.println("responseCode:"+responseCode);
+        System.out.println("responseCode:"+connection.getResponseCode());
         String responseMessage = connection.getResponseMessage();
         System.out.println("responseMessage:"+responseMessage);
+
 
         if(responseCode!= 404){
             //System.out.println("!404 ");
@@ -70,6 +71,7 @@ public class FirstApiService {
 
             ObjectMapper mapper = new ObjectMapper();
             deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseFirst.class);
+            //System.out.println("responseMessage:"+deliveryResponse.getResult());
             deliveryResponse.setResponseCode(responseCode);
             deliveryResponse.setMessage(responseMessage);
         }else {
@@ -116,7 +118,6 @@ public class FirstApiService {
 
         return json;
     }
-
 
     private String getPhoneNumber1(String telephoneNumber1) {
         if (!this.getValue(telephoneNumber1).isEmpty() && telephoneNumber1.contains("/")) {

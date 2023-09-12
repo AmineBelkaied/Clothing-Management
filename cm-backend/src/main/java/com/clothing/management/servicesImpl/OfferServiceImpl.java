@@ -9,6 +9,7 @@ import com.clothing.management.entities.OfferModel;
 import com.clothing.management.entities.Product;
 import com.clothing.management.repository.IOfferModelRepository;
 import com.clothing.management.repository.IOfferRepository;
+import com.clothing.management.repository.IFbPageRepository;
 import com.clothing.management.services.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,9 @@ public class OfferServiceImpl implements OfferService {
 
     @Autowired
     IOfferModelRepository offerModelRepository;
+
+    @Autowired
+    IOfferModelRepository fbPageRepository;
 
     @Override
     public List<OfferModelsDTO> findAllOffers() throws IOException {
@@ -120,7 +124,7 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferModelQuantitiesDTO addOffer(OfferModelQuantitiesDTO offerModelDTO) {
-        Offer offer = new Offer(offerModelDTO.getName() , offerModelDTO.getPrice() , offerModelDTO.isEnabled());
+        Offer offer = new Offer(offerModelDTO.getName() ,offerModelDTO.getPrice() , offerModelDTO.isEnabled());
         Offer offerResult = offerRepository.save(offer);
         for(ModelQuantity modelQuantity: offerModelDTO.getModelQuantities()){
             //OfferModel offerModel = new OfferModel(offer, modelQuantity.getModel(), modelQuantity.getQuantity());
@@ -140,6 +144,7 @@ public class OfferServiceImpl implements OfferService {
            offerToUpdate.setName(offerModelDTO.getName());
            offerToUpdate.setPrice(offerModelDTO.getPrice());
            offerToUpdate.setEnabled(offerModelDTO.isEnabled());
+           offerToUpdate.setFbPages(offerModelDTO.getFbPages());
            offerResult = offerRepository.save(offerToUpdate);
         }
         // Update the models of the offer and their quantities

@@ -119,7 +119,7 @@ public class PacketServiceImpl implements PacketService {
                 String firstKey = firstKeyOptional.get();
                 Field fieldPacket = ReflectionUtils.findField(Packet.class, (String) firstKey);
                 fieldPacket.setAccessible(true);
-                System.out.println("firstKey:"+firstKey+"/field.get(firstKey:)"+field.get(firstKey));
+                System.out.println("firstKey:"+firstKey+"/field.get(firstKey):"+field.get(firstKey));
 
                 if (firstKey.equals("status")) {
                     if (field.get(firstKey).equals(DiggieStatus.CONFIRMEE.getStatus()) || field.get(firstKey).equals(DiggieStatus.RETOUR_RECU.getStatus()) || field.get(firstKey).equals(DiggieStatus.RETOUR_EXCHANGE.getStatus())) {
@@ -322,7 +322,7 @@ public class PacketServiceImpl implements PacketService {
 
     private String upgradeInProgressStatus(Packet packet) {
         DiggieStatus diggieStatus = DiggieStatus.fromString(packet.getStatus());
-        if (checkSameDateStatus(packet))
+        if (checkSameDateStatus(packet) || packet.getStatus() == DiggieStatus.A_VERIFIER.getStatus())
             return packet.getStatus();
         switch (diggieStatus) {
             case EN_COURS_1:

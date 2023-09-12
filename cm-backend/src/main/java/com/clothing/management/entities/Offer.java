@@ -15,6 +15,15 @@ public class Offer {
     private String name;
     @OneToMany(mappedBy = "offer" , cascade = CascadeType.ALL)
     private Set<OfferModel> offerModels= new HashSet<>();
+
+    @ManyToMany(cascade = { CascadeType.MERGE })
+    @JoinTable(
+            name = "offer_fbPages",
+            joinColumns = { @JoinColumn(name = "offer_id") },
+            inverseJoinColumns = { @JoinColumn(name = "fbPage_id") }
+    )
+    private Set<FbPage> fbPages = new HashSet<>();
+
     private Double price;
     private boolean enabled;
 
@@ -23,6 +32,13 @@ public class Offer {
 
     public Offer(Long id) {
         this.id = id;
+    }
+
+    public Offer(String name, Set<FbPage> fbPages, Double price, boolean enabled) {
+        this.name = name;
+        this.fbPages = fbPages;
+        this.price = price;
+        this.enabled = enabled;
     }
 
     public Offer(String name, Double price, boolean enabled) {
@@ -74,6 +90,14 @@ public class Offer {
     @Override
     public String toString() {
         return name;
+    }
+
+    public Set<FbPage> getFbPages() {
+        return fbPages;
+    }
+
+    public void setFbPages(Set<FbPage> fbPages) {
+        this.fbPages = fbPages;
     }
 
     @Override
