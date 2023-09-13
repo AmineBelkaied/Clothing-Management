@@ -171,6 +171,7 @@ public class PacketController {
             return new ResponseEntity<>(packetService.updatePacketsByBarCode(barCodeStatusDTO), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @GetMapping(path = "/productsCount/{state}")
     public List<ProductsDayCountDTO> productsCount(
             @PathVariable Long state ,

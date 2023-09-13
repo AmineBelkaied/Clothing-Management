@@ -43,6 +43,7 @@ public class ProductHistoryController {
                 return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
     }
+
     @GetMapping(path = "/findById/{id}")
     public Optional<ProductHistory> findByIdProductHistory(@PathVariable Long idProductHistory) {
         return productHistoryService.findProductHistoryById(idProductHistory);

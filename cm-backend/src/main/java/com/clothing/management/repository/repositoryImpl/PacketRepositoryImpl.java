@@ -1,6 +1,7 @@
 package com.clothing.management.repository.repositoryImpl;
 
 import com.clothing.management.entities.Packet;
+import com.clothing.management.enums.DiggieStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +45,7 @@ public class PacketRepositoryImpl {
             ));
         }
 
-        if(startDate != null && endDate != null) {
+        if(startDate != null && endDate != null && searchText!=null && !status.equals(DiggieStatus.RETOUR.getStatus()) && !status.equals(DiggieStatus.A_VERIFIER.getStatus()) && !status.equals(DiggieStatus.DELETED.getStatus())) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(startDate)));
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(endDate)));
         }

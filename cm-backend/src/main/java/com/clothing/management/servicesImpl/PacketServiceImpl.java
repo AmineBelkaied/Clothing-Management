@@ -234,7 +234,7 @@ public class PacketServiceImpl implements PacketService {
             Packet packet = null;
             if (optionalPacket.isPresent()) {
                 packet= optionalPacket.get();
-                if(packet.getCustomerPhoneNb() == null || packet.getCustomerPhoneNb()== "")
+                if(packet.getCustomerPhoneNb() == null || packet.getCustomerPhoneNb().equals(""))
                     packetRepository.deleteById(packetId);
                 else {
                     updatePacketStatusAndSaveToHistory(packet,DiggieStatus.DELETED.getStatus());

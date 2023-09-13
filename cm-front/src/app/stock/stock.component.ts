@@ -51,8 +51,8 @@ export class StockComponent implements OnInit {
     this.rangeDates = [new Date("2023-01-01"), new Date()];
     this.modelId = +this.activateRoute.snapshot.params['id'];
     this.getStockByModelId(this.modelId);
-    this.getProductsCountByModel(this.modelId)
-    this.getProductHistoryByModel(this.modelId)
+    this.getProductsCountByModel(this.modelId);
+    this.getProductHistoryByModel(this.modelId);
   }
 
   getProductHistoryByModel(modelId : number){
@@ -68,7 +68,7 @@ export class StockComponent implements OnInit {
     let startDate = this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : "2023-01-01";
     let endDate = this.rangeDates[1] != null? this.convertDateToString(this.rangeDates[1]):
     this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) :this.convertDateToString(new Date());
-    console.log(startDate,"-->",endDate);
+    //console.log(startDate,"-->",endDate);
 
     this.statsService.productsCount(
       modelId,
@@ -78,7 +78,7 @@ export class StockComponent implements OnInit {
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
       next: (response: any) => {
-        console.log("responseCount",response);
+        //console.log("responseCount",response);
         this.productsCount = response;
       },
       error: (error: any) => {
@@ -99,9 +99,9 @@ export class StockComponent implements OnInit {
     });
   }
 
-  getCount(productId:number): string{
+  getCount(productId:number): number{
     let countProducts = this.productsCount.find(item => item.productId === productId);
-    return (countProducts != undefined) ? countProducts.count + "" : "0";
+    return (countProducts != undefined) ? countProducts.count : 0;
   }
 
 
@@ -161,14 +161,19 @@ export class StockComponent implements OnInit {
   totalRow(j: number) {
     let totRow = 0;
     for (var i = 0; i < this.products[j].length; i++)
-      totRow += this.products[j][i].quantity;
+    {
+      if (this.stock==true)totRow += this.products[j][i].quantity;
+      else totRow += this.getCount(this.products[j][i].id);
+    }
+
     return totRow;
   }
 
   totalColumn(i: number) {
     let totColumn = 0;
     for (var j = 0; j < this.products.length; j++)
-      totColumn += this.products[j][i].quantity;
+    if (this.stock==true)totColumn += this.products[j][i].quantity;
+    else totColumn += this.getCount(this.products[j][i].id);
     return totColumn;
   }
 
