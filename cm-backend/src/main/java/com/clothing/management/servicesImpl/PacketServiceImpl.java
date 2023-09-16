@@ -215,9 +215,7 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public void deletePacketById(Long idPacket) {
         Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
-        if (optionalPacket.isPresent()) {
-            updatePacketStatusAndSaveToHistory(optionalPacket.get(),DiggieStatus.DELETED.getStatus());
-        }
+        optionalPacket.ifPresent(packet -> updatePacketStatusAndSaveToHistory(packet, DiggieStatus.DELETED.getStatus()));
     }
 
     /**
@@ -234,7 +232,7 @@ public class PacketServiceImpl implements PacketService {
             Packet packet = null;
             if (optionalPacket.isPresent()) {
                 packet= optionalPacket.get();
-                if(packet.getCustomerPhoneNb() == null || packet.getCustomerPhoneNb()== "")
+                if(packet.getCustomerPhoneNb() == null || Objects.equals(packet.getCustomerPhoneNb(), ""))
                     packetRepository.deleteById(packetId);
                 else {
                     updatePacketStatusAndSaveToHistory(packet,DiggieStatus.DELETED.getStatus());
@@ -531,8 +529,7 @@ public class PacketServiceImpl implements PacketService {
     }
     @Override
     public List<ProductsDayCountDTO> productsCountByDate(Long state,String beginDate,String endDate){
-        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.productsCountByDate(state, beginDate,endDate);
-        return existingProductsPacket;
+        return productsPacketRepository.productsCountByDate(state, beginDate,endDate);
     }
 
 }
