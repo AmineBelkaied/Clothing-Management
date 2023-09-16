@@ -19,7 +19,7 @@ public class UpdateStatusScheduler {
     PacketService packetService;
 
     @Scheduled(cron = "0 40 8 ? * *")
-    public String cronJobSch() throws Exception{
+    public int cronJobSch() throws Exception{
         System.out.println("CRON STARTED");
         List<Packet> packets = Collections.synchronizedList(packetService.findAllDiggiePackets());
         synchronized (packets) {
@@ -27,7 +27,7 @@ public class UpdateStatusScheduler {
             while (iterator.hasNext()) {
                 Packet packet = iterator.next();
                 try {
-                        this.packetService.getLastStatus(packet, DeliveryCompany.FIRST.toString());
+                     this.packetService.getLastStatus(packet, DeliveryCompany.FIRST.toString());
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -36,7 +36,6 @@ public class UpdateStatusScheduler {
             }
         }
         System.out.println("CRON ENDED");
-        return packets.size()+" packets synchronised";
-
+        return packets.size();
     }
 }

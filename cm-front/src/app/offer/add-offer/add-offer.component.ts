@@ -14,7 +14,7 @@ import { FbPage } from 'src/shared/models/FbPage';
 })
 export class AddOfferComponent implements OnInit {
 
-  
+
   @Input() offerModelDTO: OfferModelDTO = {
     "offerId": "",
     "name": "",
@@ -28,7 +28,7 @@ export class AddOfferComponent implements OnInit {
   @Input() editMode!: boolean;
   @Output() submitEvent: EventEmitter<any> = new EventEmitter();
   selectedModels: any[] = [];
-  
+
   offerForm: FormGroup;
   constructor(private fb: FormBuilder, private offerService: OfferService, private messageService: MessageService) {
     this.offerForm = this.fb.group({
@@ -45,12 +45,13 @@ export class AddOfferComponent implements OnInit {
   ngOnInit(): void {
     console.log(this.offerModelDTO)
     console.log(this.fbPages);
-    
+
     if(this.editMode) {
       this.offerForm.get('offerId')?.setValue(this.offerModelDTO.offerId);
       this.offerForm.get('name')?.setValue(this.offerModelDTO.name);
       this.offerForm.get('price')?.setValue(this.offerModelDTO.price);
       this.offerForm.get('enabled')?.setValue(this.offerModelDTO.enabled);
+      this.offerForm.get('fbPages')?.setValue(this.offerModelDTO.fbPages);
       if(this.offerModelDTO.modelQuantities != null && this.offerModelDTO.modelQuantities.length > 0 )
         for(var i=0 ; i < this.offerModelDTO.modelQuantities.length ; i++) {
             this.addModelQuantity();
@@ -79,7 +80,7 @@ export class AddOfferComponent implements OnInit {
   removeModelQuantity(index: any) {
     this.modelQuantities().removeAt(index);
   }
-  
+
   saveOffer() {
     let offerModelDTO: OfferModelDTO = this.offerForm.value;
     console.log(offerModelDTO);
@@ -137,5 +138,5 @@ export class AddOfferComponent implements OnInit {
       this.offerDialog = false;
       this.offer = Object.assign({}, this.offer);
     } */
-  
+
 }

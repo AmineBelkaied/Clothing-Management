@@ -70,6 +70,21 @@ public class ModelServiceImpl implements ModelService {
          }
         return modelResponse;
     }
+    public void deleteUnusedProducts(Model model){
+        Model oldModel = modelRepository.findById(model.getId()).get();
+        List<Size> oldSizes = oldModel.getSizes();
+        List<Color> oldColors = oldModel.getColors();
+        for (Size size : oldSizes) {
+            if (size != null && !model.getSizes().stream().map(Size::getId).anyMatch(id -> id.equals(size.getId()))) {
+                productRepository.deleteProductsByModelAndSize(model.getId(), size.getId());
+            }
+        }
+        for (Color color : oldColors) {
+            if (color == null && !model.getColors().contains(color) && !color.getReference().equals("?")) {
+                productRepository.deleteProductsByModelAndColor(model.getId(), color.getId());
+            }
+        }
+    }
 
     private void addUnknownColorsAndSizes(Model model) {
         if(model.getColors().stream().noneMatch(color -> color.getReference().equals("?"))
@@ -80,7 +95,9 @@ public class ModelServiceImpl implements ModelService {
     }
 
     @Override
-    public Model updateModel(Model model) { return addModel(model); }
+    public Model updateModel(Model model) {
+        //deleteUnusedProducts(model);
+        return addModel(model); }
 
     @Override
     public void deleteModelById(Long idModel) {

@@ -35,6 +35,7 @@
               type="text"
               [(ngModel)]="filter"
               (keyup.enter)="filterPackets()"
+              (input)="handleInputChange()"
               placeholder="Client, Tel, Ville, Adresse, Page,Id"
             />
 <!--(input)="dt.filterGlobal($any($event.target).value, 'contains')"-->

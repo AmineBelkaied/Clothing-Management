@@ -73,7 +73,7 @@ public class OfferServiceImpl implements OfferService {
         OfferModelQuantitiesDTO offerModelDTO = null;
 
         for (Offer offer : offerListMap.keySet()) {
-            offerModelDTO = new OfferModelQuantitiesDTO(offer.getId(), offer.getName() , offer.getPrice() , offer.isEnabled());
+            offerModelDTO = new OfferModelQuantitiesDTO(offer.getId(), offer.getName() , offer.getPrice() , offer.getFbPages(), offer.isEnabled());
             List<OfferModel> offerModels= offerListMap.get(offer);
             List<ModelQuantity> modelQuantities = new ArrayList<>();
             for(OfferModel offerModel : offerModels) {

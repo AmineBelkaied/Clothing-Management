@@ -23,14 +23,14 @@ public class Model {
             joinColumns = { @JoinColumn(name = "model_id") },
             inverseJoinColumns = { @JoinColumn(name = "color_id") }
     )
-    private Set<Color> colors = new HashSet<>();
+    private List<Color> colors = new ArrayList<>();
     @ManyToMany(cascade = { CascadeType.MERGE })
     @JoinTable(
             name = "model_sizes",
             joinColumns = { @JoinColumn(name = "model_id") },
             inverseJoinColumns = { @JoinColumn(name = "size_id") }
     )
-    private Set<Size> sizes = new HashSet<>();
+    private List<Size> sizes = new ArrayList<>();
     @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<OfferModel> modelOffers = new HashSet<>();
@@ -50,7 +50,7 @@ public class Model {
         this.id = id;
     }
 
-    public Model(String name, List<Product> products, String reference, String description, Set<Color> colors, Set<Size> sizes, Set<OfferModel> modelOffers, List<ProductHistory> productHistories, ModelImage image) {
+    public Model(String name, List<Product> products, String reference, String description, List<Color> colors, List<Size> sizes, Set<OfferModel> modelOffers, List<ProductHistory> productHistories, ModelImage image) {
         this.name = name;
         this.products = products;
         this.reference = reference;
@@ -86,11 +86,11 @@ public class Model {
         this.reference = reference;
     }
 
-    public Set<Color> getColors() {
+    public List<Color> getColors() {
         return colors;
     }
 
-    public void setColors(Set<Color> colors) {
+    public void setColors(List<Color> colors) {
         this.colors = colors;
     }
 
@@ -114,11 +114,11 @@ public class Model {
         this.description = description;
     }
 
-    public Set<Size> getSizes() {
+    public List<Size> getSizes() {
         return sizes;
     }
 
-    public void setSizes(Set<Size> sizes) {
+    public void setSizes(List<Size> sizes) {
         this.sizes = sizes;
     }
 

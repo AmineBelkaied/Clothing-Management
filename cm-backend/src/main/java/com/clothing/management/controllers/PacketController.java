@@ -159,8 +159,9 @@ public class PacketController {
         return packetService.duplicatePacket(idPacket);
     }
     @GetMapping(path = "/syncAllPacketsStatus")
-    public void synchronizeAllPacketsStatus() throws Exception {
-        updateStatusScheduler.cronJobSch();
+    public int synchronizeAllPacketsStatus() throws Exception {
+        return updateStatusScheduler.cronJobSch();
+
     }
 
     @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")
@@ -171,6 +172,7 @@ public class PacketController {
             return new ResponseEntity<>(packetService.updatePacketsByBarCode(barCodeStatusDTO), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @GetMapping(path = "/productsCount/{state}")
     public List<ProductsDayCountDTO> productsCount(
             @PathVariable Long state ,

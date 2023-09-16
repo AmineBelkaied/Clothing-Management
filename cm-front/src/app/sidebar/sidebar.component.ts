@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
+import { Subject, takeUntil } from 'rxjs';
+import { APPNAME } from 'src/assets/constants';
 import { PacketService } from 'src/shared/services/packet.service';
 
 @Component({
@@ -9,9 +11,10 @@ import { PacketService } from 'src/shared/services/packet.service';
 })
 export class SidebarComponent implements OnInit {
 
-
+  $unsubscribe: Subject<void> = new Subject();
   activeClass = false;
   activeRoute = false;
+  appname : String = APPNAME;
 
   constructor(private packetService: PacketService,private messageService: MessageService) { }
 
@@ -32,15 +35,21 @@ export class SidebarComponent implements OnInit {
 
     this.packetService
         .syncAllPacketsFirst()
-        .subscribe((response: any) => {
-          console.log(response);
-
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'La liste est syncronisé',
-            life: 1000,
-          });
+        .pipe(takeUntil(this.$unsubscribe))
+        .subscribe({
+          next: (response: number) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: response+" packets synchronised",
+              life: 1000,
+            });
+          },
+          error: (error: Error) => {
+            console.log('SyncError:', error);
+          }
         });
-  }
+    }
+
+
 }
