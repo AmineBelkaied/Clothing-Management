@@ -159,8 +159,9 @@ public class PacketController {
         return packetService.duplicatePacket(idPacket);
     }
     @GetMapping(path = "/syncAllPacketsStatus")
-    public void synchronizeAllPacketsStatus() throws Exception {
-        updateStatusScheduler.cronJobSch();
+    public int synchronizeAllPacketsStatus() throws Exception {
+        return updateStatusScheduler.cronJobSch();
+
     }
 
     @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")

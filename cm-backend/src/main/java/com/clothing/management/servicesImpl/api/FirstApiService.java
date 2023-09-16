@@ -4,6 +4,7 @@ import com.clothing.management.dto.DeliveryResponseFirst;
 import com.clothing.management.entities.Packet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -18,12 +19,14 @@ public class FirstApiService {
 
     public static final String createBarCodeEndPoint = "https://www.firstdeliverygroup.com/api/v2/create";
     public static final String getLastStatusEndPoint = "https://www.firstdeliverygroup.com/api/v2/etat";
+
+    //public static final String bearerToken = "af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";
+    public static final String bearerToken = "198de763-841f-4b3f-96b0-dcbfa4a6b369";
+
     public static final String reg = "/,/gi";
     public static final String regBS = "/\\n/gi";
-
-    public static final String bearerToken = "af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";
-    //public static final String bearerToken = "198de763-841f-4b3f-96b0-dcbfa4a6b369";
-
+@Value("${first.comment}")
+private String comment;
     public FirstApiService() {
     }
 
@@ -112,7 +115,7 @@ public class FirstApiService {
         produit.put("nombreArticle", 1);
         produit.put("commentaire", "Le colis peut être ouvert à la demande du client");
         produit.put("echange", packet.isExchange()?"oui":"non");
-        produit.put("article", "Diggie pants");
+        produit.put("article", comment);
         produit.put("nombreEchange", packet.isExchange()?1:0);
         json.put("Produit", produit);
 

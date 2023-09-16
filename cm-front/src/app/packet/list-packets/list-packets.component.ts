@@ -25,6 +25,7 @@ import { ResponsePage } from 'src/shared/models/ResponsePage';
 })
 export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy {
 
+
   display: boolean = false;
   displayStatus: boolean = false;
   suiviHeader: string = 'Suivi';
@@ -96,7 +97,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       startDate: this.dateUtils.formatDateToString(new Date()),
       endDate: this.dateUtils.formatDateToString(new Date())
     };
-    this.findAllPackets();
+    //this.findAllPackets();
     this.createColumns();
     this.findAllOffers();
     this.findAllGroupedCities();
@@ -114,7 +115,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         next: (response: ResponsePage) => {
           this.packets = response.result;
           this.totalItems = response.totalItems;
-          console.log(this.packets[0]);
+          //console.log(this.packets[0]);
           this.loading = false;
         },
         error: (error: Error) => {
@@ -353,6 +354,22 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     if (status != PAYEE && status != RETOUR_RECU)
       return this.dateUtils.getDate(date1) < this.dateUtils.getDate(date2);
     return false;
+  }
+
+  handleInputChange() {
+    const inputValue = this.filter;
+    const numbersCount = (inputValue.match(/\d/g) || []).length;
+    if (numbersCount === 5 || numbersCount === 8) {
+      // Trigger your action here
+      console.log(`Action triggered with ${numbersCount} numbers.`);
+    }
+
+    if (this.filter === '' || numbersCount === 5 || numbersCount === 8 || numbersCount === 12  ) {
+      // Handle the event when the input is cleared (value becomes empty)
+      console.log(`Action triggered with ${numbersCount} numbers.`);
+      console.log('Input cleared!');
+      this.filterPackets('global');
+    }
   }
 
   filterPackets($event?: string): void {

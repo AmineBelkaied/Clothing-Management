@@ -308,7 +308,6 @@ public class PacketServiceImpl implements PacketService {
             case LIVREE:
                 return DiggieStatus.LIVREE.getStatus();
             case RETOUR_EXPEDITEUR:
-                return DiggieStatus.RETOUR_EXPEDITEUR.getStatus();
             case RETOUR_DEFINITIF:
             case RETOUR_CLIENT_AGENCE:
                 return DiggieStatus.RETOUR.getStatus();
@@ -322,7 +321,7 @@ public class PacketServiceImpl implements PacketService {
 
     private String upgradeInProgressStatus(Packet packet) {
         DiggieStatus diggieStatus = DiggieStatus.fromString(packet.getStatus());
-        if (checkSameDateStatus(packet) || packet.getStatus() == DiggieStatus.A_VERIFIER.getStatus())
+        if (checkSameDateStatus(packet) || packet.getStatus().equals(DiggieStatus.A_VERIFIER.getStatus()))
             return packet.getStatus();
         switch (diggieStatus) {
             case EN_COURS_1:
@@ -358,6 +357,9 @@ public class PacketServiceImpl implements PacketService {
             newPacket.setAddress(packet.getAddress());
             newPacket.setPacketDescription(packet.getPacketDescription());
             newPacket.setPrice(packet.getPrice());
+            newPacket.setDiscount(packet.getPrice());
+            newPacket.setDeliveryPrice(7);
+            newPacket.setDeliveryPrice(7);
             newPacket.setDate(new Date());
             newPacket.setStatus("Non confirmée");
             newPacket.setFbPage(packet.getFbPage());
@@ -409,13 +411,9 @@ public class PacketServiceImpl implements PacketService {
     }
 
     Packet updateProductsQuantityByPacket(Packet packet, String newState){
-        //System.out.println("updateProductsQuantityByPacket packet"+packet);
         Long id= packet.getId();
-        int quantity = 1;
         if (!newState.equals(DiggieStatus.CONFIRMEE.getStatus())){
-            //System.out.println("else echange newState"+newState+" st:"+DiggieStatus.RETOUR_EXCHANGE.getStatus());
-
-            if (newState.equals(DiggieStatus.RETOUR_EXCHANGE.getStatus())){
+                if (newState.equals(DiggieStatus.RETOUR_EXCHANGE.getStatus())){
                 if(!packet.getStatus().equals(DiggieStatus.PAYEE.getStatus()))
                     updatePacketStatusAndSaveToHistory(packet, DiggieStatus.LIVREE.getStatus());
                 System.out.println("retour echange"+id);

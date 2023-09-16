@@ -25,8 +25,7 @@ public class PacketRepositoryImpl {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable) {CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Packet> criteriaQuery = criteriaBuilder.createQuery(Packet.class);
         Root<Packet> root = criteriaQuery.from(Packet.class);
 
@@ -45,12 +44,25 @@ public class PacketRepositoryImpl {
             ));
         }
 
-        if(startDate != null && endDate != null && searchText!=null && !status.equals(DiggieStatus.RETOUR.getStatus()) && !status.equals(DiggieStatus.A_VERIFIER.getStatus()) && !status.equals(DiggieStatus.DELETED.getStatus())) {
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(startDate)));
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(endDate)));
-        }
+        if(startDate != null && endDate != null && searchText== null)
+            if( (status!= null &&
+                    (
+                            !status.equals(DiggieStatus.RETOUR.getStatus())
+                            && !status.equals(DiggieStatus.A_VERIFIER.getStatus())
+                                    && !status.equals(DiggieStatus.DELETED.getStatus())
+                                    && !status.equals(DiggieStatus.EN_COURS_1.getStatus())
+                                    && !status.equals(DiggieStatus.EN_COURS_2.getStatus())
+                                    && !status.equals(DiggieStatus.EN_COURS_3.getStatus())
+                                    && !status.equals(DiggieStatus.NON_CONFIRMEE.getStatus()))
+                    )
+                    || status== null){
 
-        if(status != null) {
+                    predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(startDate)));
+                    predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(endDate)));
+
+            }
+
+        if(status != null && searchText == null) {
             predicates.add(root.get("status").in(Arrays.asList(status.split(","))));
         }
         criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
