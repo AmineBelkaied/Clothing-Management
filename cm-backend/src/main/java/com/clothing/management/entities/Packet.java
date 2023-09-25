@@ -1,6 +1,8 @@
 package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import net.bytebuddy.implementation.bind.annotation.Default;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -29,6 +31,9 @@ public class Packet {
     private String packetReference;
     private String barcode;
     private String lastDeliveryStatus;
+
+    private int oldClient;
+
     @OneToMany(mappedBy = "packet" , cascade = {CascadeType.PERSIST, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<ProductsPacket> products;
@@ -51,10 +56,11 @@ public class Packet {
     public Packet() {
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, Set<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, Date confirmationDate, String dgStatus, boolean exchange, String printLink) {
+    public Packet(Long id, String customerName, String customerPhoneNb, int oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, Set<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, Date confirmationDate, String dgStatus, boolean exchange, String printLink) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
+        this.oldClient = oldClient;
         this.city = city;
         this.address = address;
         this.relatedProducts = relatedProducts;
@@ -237,12 +243,21 @@ public class Packet {
         this.printLink = printLink;
     }
 
+    public int getOldClient() {
+        return oldClient;
+    }
+
+    public void setOldClient(int oldClient) {
+        this.oldClient = oldClient;
+    }
+
     @Override
     public String toString() {
         return "Packet{" +
                 "id=" + id +
                 ", customerName='" + customerName + '\'' +
                 ", customerPhoneNb='" + customerPhoneNb + '\'' +
+                ", oldClient='" + oldClient + '\'' +
                 ", city=" + city +
                 ", address='" + address + '\'' +
                 ", packetDescription='" + packetDescription + '\'' +

@@ -110,3 +110,11 @@ td {
 
   }
 
+  .p-speedDial-closed {
+    display: none;
+  }
+
+  .p-speedDial-open {
+    display: block;
+  }
+

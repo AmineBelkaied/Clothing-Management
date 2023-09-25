@@ -1,5 +1,5 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { ConfirmationService, MessageService, SelectItemGroup} from 'primeng/api';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import { ConfirmationService, MessageService, SelectItemGroup, PrimeIcons, MenuItem } from 'primeng/api';
 import { Packet } from '../../../shared/models/Packet';
 import { OfferService } from '../../../shared/services/offer.service';
 import { PacketService } from '../../../shared/services/packet.service';
@@ -10,7 +10,6 @@ import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../../../shared/services/fb-page.service';
 import { catchError, identity, Observable, of, Subject,takeUntil} from 'rxjs';
 import { Offer } from 'src/shared/models/Offer';
-import { PrimeIcons } from 'primeng/api';
 import { FormControl } from '@angular/forms';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { A_VERIFIER, BUREAU, CONFIRMEE, CORBEIL, EN_COURS, EN_COURS_1, EN_COURS_2, EN_COURS_3, EN_RUPTURE, LIVREE, NON_CONFIRMEE, PAYEE, RETOUR_EXPEDITEUR, RETOUR_RECU, SUPPRIME, TERMINE, statesList, statusList } from 'src/shared/utils/status-list';
@@ -24,7 +23,6 @@ import { ResponsePage } from 'src/shared/models/ResponsePage';
   providers: [DatePipe],
 })
 export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy {
-
 
   display: boolean = false;
   displayStatus: boolean = false;
@@ -58,12 +56,12 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   filter: string;
 
   statusList: string[] = [];
+  optionButtons: MenuItem[];
   selectedStatusList: string[] = [];
   statesList: string[] = [];
   selectedStatus: FormControl = new FormControl();
   selectedStates: string[] = [];
   $unsubscribe: Subject<void> = new Subject();
-  showDeleted : boolean = false;
   pageSize : number = 100;
   params : any;
   loading: boolean = false;
@@ -91,6 +89,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   ngOnInit(): void {
+    //"Duplicate","Actualiser status","Chercher par telephone","Chercher par telephone First","Ouvrir code a bare First"
+
     this.params = {
       page: 0,
       size: this.pageSize,
@@ -114,6 +114,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       .subscribe({
         next: (response: ResponsePage) => {
           this.packets = response.result;
+
           this.totalItems = response.totalItems;
           //console.log(this.packets[0]);
           this.loading = false;
@@ -135,7 +136,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       { field: 'relatedProducts', header: 'Articles' },
       { field: 'price', header: 'Prix' },
       { field: 'status', header: 'Statut' },
-      { field: 'Help', header: 'Help' },
       { field: 'barcode', header: 'Barcode' },
     ];
   }
@@ -185,6 +185,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
             catchError((err: any, caught: Observable<any>): Observable<any> => {
               this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la mise à jour ' + err.error.message });
               packet.data[packet.field] = this.oldField;
+
               this.isLoading = false;
               return of();
             })
@@ -203,6 +204,12 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la creation du barcode' });
               }
             }
+            else if(responsePacket.oldClient!= undefined && responsePacket.oldClient>0){
+              console.log('responsePacket',responsePacket);
+
+              let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
+                this.packets.splice(pos, 1, responsePacket);
+            };
             this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
           });
       }
@@ -258,7 +265,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         });
   }
 
-  openLinkGetter(code: number): void {
+  openLinkGetter(code: any): void {
     window.open("https://www.firstdeliverygroup.com/fournisseur/recherche.php?code=" + code, '_blank');
   }
 
@@ -266,9 +273,9 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     window.open(link, '_blank');
   }
 
-  showDialogStatus(packet: Packet): void {
+  showTimeLineDialog(packet: Packet): void {
     try {
-      this.packetService.getPacketAllStatus(packet.id).subscribe((response: any) => {
+      this.packetService.getPacketTimeLine(packet.id).subscribe((response: any) => {
           this.statusEvents = [];
           this.suiviHeader = 'Suivi Status de packet num :' + packet.id;
           if (response != null && response.length > 0) {
@@ -359,32 +366,27 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   handleInputChange() {
     const inputValue = this.filter;
     const numbersCount = (inputValue.match(/\d/g) || []).length;
-    if (numbersCount === 5 || numbersCount === 8) {
-      // Trigger your action here
-      console.log(`Action triggered with ${numbersCount} numbers.`);
-    }
-
     if (this.filter === '' || numbersCount === 5 || numbersCount === 8 || numbersCount === 12  ) {
-      // Handle the event when the input is cleared (value becomes empty)
-      console.log(`Action triggered with ${numbersCount} numbers.`);
-      console.log('Input cleared!');
       this.filterPackets('global');
     }
   }
 
   filterPackets($event?: string): void {
     this.createRangeDate();
+    let page = 0;
+
     if ($event == 'states') {
       this.onStateChange();
     }
-    if ($event == 'clear') {
+    else if ($event == 'clear') {
       this.selectedStates = [];
       this.selectedStatusList = this.statusList;
       this.selectedStatus.setValue([]);
-    }
+    }else if($event == 'page')
+    page = this.currentPage;
     if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
     this.params = {
-      page: this.currentPage,
+      page: page,
       size: this.pageSize,
       searchText: this.filter != null && this.filter != '' ? this.filter : null,
       startDate: this.rangeDates !== null && this.rangeDates.length > 0 ? this.dateUtils.formatDateToString(this.startDate) : null,
@@ -406,12 +408,11 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   onStateChange(): void {
-    this.showDeleted = false;
     this.selectedStatus.setValue([]);
     this.selectedStatusList = [];
     if (this.selectedStates.indexOf(CORBEIL) > -1) {
-      this.showDeleted = true;
       this.selectedStatus.patchValue([SUPPRIME]);
+      this.selectedStatusList = [ NON_CONFIRMEE, EN_RUPTURE, CONFIRMEE];
     }
 
     if (this.selectedStates.indexOf(BUREAU) > -1) {
@@ -430,7 +431,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   onPageChange($event: any): void {
     this.currentPage = $event.page;
     this.pageSize = $event.rows;
-    this.filterPackets('global');
+    this.filterPackets('page');
   }
 
   resetTable(): void{
@@ -489,4 +490,74 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.$unsubscribe.next();
     this.$unsubscribe.complete();
   }
+
+  checkCodeABarreExist(packet:Packet){
+    return packet!= undefined && packet.barcode !="" && packet.barcode!= null
+  }
+
+  checkPhoneNbExist(packet:Packet){
+    return packet!= undefined && packet.customerPhoneNb !="" && packet.customerPhoneNb!= null
+  }
+
+  openShowOptionMenu(packet:any) {
+    this.optionButtons = [
+      {
+        label: 'Duplicate',
+        icon: 'pi pi-refresh',
+        disabled:!this.checkCodeABarreExist(packet),
+        command: () => {
+          this.duplicatePacket(packet)
+        }
+      },
+      {
+        label: 'Chercher Tel',
+        icon: 'pi pi-phone',
+        disabled:!this.checkPhoneNbExist(packet),
+        command: () => {
+          this.filter= packet.customerPhoneNb;
+          this.filterPackets('phone');
+        }
+      },
+      {
+        label: 'History',
+        icon: 'pi pi-history',
+        disabled:false,
+        command: () => {
+          this.showTimeLineDialog(packet);
+        }
+      },
+      { separator: true },
+      {
+        label: 'Actualiser status',
+        icon: 'pi pi-sync',
+        disabled:!(this.checkCodeABarreExist(packet)),
+        command: () => {
+          this.getLastStatus(packet);
+        }
+      },
+      {
+        label: 'Tel First',
+        icon: 'pi pi-search-plus',
+        disabled:!(this.checkPhoneNbExist(packet)),
+        command: () => {
+          this.openLinkGetter(packet.customerPhoneNb);
+        }
+      },
+      {
+        label: 'BarreCode First',
+        icon: 'pi pi-qrcode',
+        disabled:!this.checkCodeABarreExist(packet),
+        command: () => {
+          this.openLinkGetter(packet.barcode)
+        }
+      },
+      {
+        label: 'Print First',
+        icon: 'pi pi-print',
+        disabled:!(this.checkCodeABarreExist(packet)),
+        command: () => {
+          this.printFirst(packet.printLink)
+        }
+      }
+  ];                                                                                                                                                                                    }
 }

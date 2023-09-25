@@ -2,6 +2,7 @@ package com.clothing.management.repository.repositoryImpl;
 
 import com.clothing.management.entities.Packet;
 import com.clothing.management.enums.DiggieStatus;
+import com.clothing.management.repository.IPacketRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -36,9 +37,6 @@ public class PacketRepositoryImpl {
                     criteriaBuilder.like(root.get("id").as(String.class), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("customerName"), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("customerPhoneNb"), "%" + searchText + "%"),
-                    criteriaBuilder.like(root.get("address"), "%" + searchText + "%"),
-                    criteriaBuilder.like(root.get("city").get("name"), "%" + searchText + "%"),
-                    criteriaBuilder.like(root.get("fbPage").get("name"), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("packetDescription"), "%" + searchText + "%"),
                     criteriaBuilder.like(root.get("barcode"), "%" + searchText + "%")
             ));
@@ -50,11 +48,13 @@ public class PacketRepositoryImpl {
                             !status.equals(DiggieStatus.RETOUR.getStatus())
                             && !status.equals(DiggieStatus.A_VERIFIER.getStatus())
                                     && !status.equals(DiggieStatus.DELETED.getStatus())
+                                    && !status.equals(DiggieStatus.ENDED.getStatus())
                                     && !status.equals(DiggieStatus.EN_COURS_1.getStatus())
                                     && !status.equals(DiggieStatus.EN_COURS_2.getStatus())
                                     && !status.equals(DiggieStatus.EN_COURS_3.getStatus())
-                                    && !status.equals(DiggieStatus.NON_CONFIRMEE.getStatus()))
+                                    && !status.equals(DiggieStatus.NON_CONFIRMEE.getStatus())
                     )
+                )
                     || status== null){
 
                     predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(startDate)));
@@ -62,9 +62,14 @@ public class PacketRepositoryImpl {
 
             }
 
+
+        if(status == null)
+            predicates.add(criteriaBuilder.notLike(root.get("status"),  DiggieStatus.DELETED.getStatus()));
+
         if(status != null && searchText == null) {
             predicates.add(root.get("status").in(Arrays.asList(status.split(","))));
         }
+
         criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
 
         criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
@@ -74,7 +79,7 @@ public class PacketRepositoryImpl {
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
         List<Packet> resultList = query.getResultList();
-
+        //System.out.println("query:"+query);
         return new PageImpl<>(resultList, pageable, totalItems);
     }
 

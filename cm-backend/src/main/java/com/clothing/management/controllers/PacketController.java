@@ -3,21 +3,19 @@ package com.clothing.management.controllers;
 import com.clothing.management.dto.*;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
+import com.clothing.management.models.DashboardCard;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.scheduler.UpdateStatusScheduler;
 import com.clothing.management.services.PacketService;
-import com.sun.xml.bind.v2.runtime.reflect.Lister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -129,13 +127,14 @@ public class PacketController {
         packetService.deleteSelectedPackets(packetsId);
     }
 
-    @PostMapping(value = "/updateStatus/{idPacket}/{status}")
-    public void updatePacketStatus(@PathVariable Long idPacket , @PathVariable String status) {
-          packetService.savePacketStatusToHistory(idPacket , status);
-    }
-    @GetMapping(path = "/findPacketStatus/{idPacket}")
+    //@PostMapping(value = "/updateStatus/{idPacket}/{status}")
+    //public void updatePacketStatus(@PathVariable Long idPacket , @PathVariable String status) {
+      //    packetService.savePacketStatusToHistory(idPacket , status);
+    //}
+
+    @GetMapping(path = "/getPacketTimeLine/{idPacket}")
     public List<PacketStatus> findAllPacketStatus(@PathVariable Long idPacket) {
-        return packetService.findPacketStatusById(idPacket);
+        return packetService.findPacketTimeLineById(idPacket);
     }
 
     @PostMapping(value = "/createBarCode", produces = "application/json")
@@ -152,7 +151,15 @@ public class PacketController {
                 packetService.getLastStatus(packet, deliveryCompany),
                 HttpStatus.OK);
     }
+    @PostMapping(value = "/checkPhone", produces = "application/json")
+    public int checkPhone(@RequestBody String phoneNumber) throws Exception {
+        return packetService.checkPhone(phoneNumber);
+    }
 
+    @GetMapping(path = "/createDashboard")
+    public List<DashboardCard> createDashboard(){
+        return packetService.createDashboard();
+    }
 
     @GetMapping(path = "/duplicatePacket/{idPacket}")
     public Packet duplicatePacket(@PathVariable Long idPacket) {
@@ -167,9 +174,9 @@ public class PacketController {
     @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")
     public ResponseEntity<List<String>> updatePacketsByBarCode(@RequestBody BarCodeStatusDTO barCodeStatusDTO) {
         try {
-            return new ResponseEntity<>(packetService.updatePacketsByBarCode(barCodeStatusDTO), HttpStatus.OK);
+            return new ResponseEntity<>(packetService.updatePacketsByBarCodes(barCodeStatusDTO), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(packetService.updatePacketsByBarCode(barCodeStatusDTO), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(packetService.updatePacketsByBarCodes(barCodeStatusDTO), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -14,10 +14,6 @@
             <label class="ml-2">Retour reçu</label>
           </div>
           <div class="d-flex align-items-center">
-            <p-radioButton value="Retour Echange" [(ngModel)]="type"></p-radioButton>
-            <label class="ml-2">Retour Echange</label>
-          </div>
-          <div class="d-flex align-items-center">
             <button pButton pRipple label="Send to {{type}}" class="p-button-success" (click)="extractBarcodes()"></button>
           </div>
         </div>
@@ -38,3 +34,7 @@
     </div>
   </div>
 </div>
+<div>
+  {{errorMessage}}
+</div>
+

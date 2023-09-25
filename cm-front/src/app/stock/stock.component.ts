@@ -18,6 +18,16 @@ import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 export class StockComponent implements OnInit {
   products: any[] = [];
   models: Model[] = [];
+  selectedModel: Model= {
+    id: null,
+    name: '',
+    reference: '',
+    colors: [],
+    sizes: [],
+    products:[],
+};
+
+
   productsHistory: any;
   selectedProducts: number[] = [];
   isRowSelectable = true;
@@ -29,6 +39,7 @@ export class StockComponent implements OnInit {
   selectAll: boolean = false;
   modelId: number;
   hide0 : boolean = false;
+  stock:boolean = true;
 
   rangeDates: Date[] = [];
 
@@ -37,22 +48,34 @@ export class StockComponent implements OnInit {
   productsCount: ProductCountDTO[] = [];
 
   modelName:String;
-  stock:boolean = true;
+
 
   constructor(
     private productService: ProductService,
     private productHistoryService: ProductHistoryService,
     private messageService: MessageService,
     private activateRoute: ActivatedRoute,
-    private statsService: StatsService
+    private statsService: StatsService,
+    private modelService: ModelService,
   ) {}
 
   ngOnInit(): void {
     this.rangeDates = [new Date("2023-01-01"), new Date()];
-    this.modelId = +this.activateRoute.snapshot.params['id'];
-    this.getStockByModelId(this.modelId);
-    this.getProductsCountByModel(this.modelId);
-    this.getProductHistoryByModel(this.modelId);
+    this.getAllModel();
+
+    this.activateRoute.params.subscribe(params => {
+        this.modelId = +params['id'];
+        this.getStockByModelId(this.modelId);
+        this.getProductsCountByModel(this.modelId);
+        this.getProductHistoryByModel(this.modelId);
+    });
+  }
+
+  getAllModel(){
+    this.modelService.findAllModels().subscribe((data: any) => {
+      this.models = data;
+      console.log('this.models',this.models);
+    });
   }
 
   getProductHistoryByModel(modelId : number){
@@ -181,7 +204,9 @@ export class StockComponent implements OnInit {
     let tot = 0;
     for (var j = 0; j < this.products.length; j++)
       for (var i = 0; i < this.products[j].length; i++)
-        tot += this.products[j][i].quantity;
+        if (this.stock==true)tot += this.products[j][i].quantity;
+        else tot += this.getCount(this.products[j][i].id);
+
     return tot;
   }
 
@@ -289,6 +314,10 @@ export class StockComponent implements OnInit {
         if(product.productId == this.products[j][i].id)
           this.products[j][i].quantity = this.products[j][i].quantity - product.quantity;
     });
+  }
+
+  goModel(){
+
   }
 
   getSeverity(product: any,button:boolean) {

@@ -9,6 +9,7 @@ import { ListPacketsComponent } from './packet/list-packets/list-packets.compone
 import { ListSizesComponent } from './config/size/list-sizes/list-sizes.component';
 import { StatistiqueComponent } from './statistique/statistique.component';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 const routes: Routes = [
   { path: "", redirectTo: "/packets", pathMatch: "full" },
@@ -19,6 +20,7 @@ const routes: Routes = [
   { path: "sizes", "component": ListSizesComponent },
   { path: "statistique", "component": StatistiqueComponent },
   { path: "payed-return", "component": PayedReturnComponent },
+  { path: "dashboard", "component": DashboardComponent },
   {
     path: "packets", "component": ListPacketsComponent, children: [
       { path: "", redirectTo: "/packets", pathMatch: "full" },

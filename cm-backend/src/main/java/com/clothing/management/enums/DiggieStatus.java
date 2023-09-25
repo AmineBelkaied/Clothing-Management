@@ -2,6 +2,7 @@ package com.clothing.management.enums;
 
 public enum DiggieStatus {
     LIVREE("Livrée"),
+    INJOIYABLE("Injoiyable"),
     CONFIRMEE("Confirmée"),
     NON_CONFIRMEE("Non confirmée"),
     EN_COURS_1("En cours (1)"),
@@ -19,6 +20,7 @@ public enum DiggieStatus {
     EXCHANGE("Echange"),
     INCORRECT_BARCODE("Code à barre incorrect"),
     DELETED("Supprimé"),
+    ENDED("En rupture"),
     OTHER_STATUS();
 
     private String status;

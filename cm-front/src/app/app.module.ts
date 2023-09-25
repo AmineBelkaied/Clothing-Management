@@ -19,7 +19,6 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { CalendarModule } from 'primeng/calendar';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { CardModule } from 'primeng/card';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TabViewModule } from 'primeng/tabview';
 import { SplitterModule } from 'primeng/splitter';
@@ -32,6 +31,12 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TagModule } from 'primeng/tag';
 import { CheckboxModule } from 'primeng/checkbox';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { SpeedDialModule } from 'primeng/speeddial';
+import { ContextMenuModule } from 'primeng/contextmenu';
+import { BadgeModule } from 'primeng/badge';
+import { CardModule } from 'primeng/card';
+import { ListboxModule } from 'primeng/listbox';
 
 
 // import components
@@ -61,6 +66,7 @@ import { StatistiqueComponent } from './statistique/statistique.component';
 import { StockHistoryComponent } from './stock-history/stock-history.component';
 import { PaginatorModule } from 'primeng/paginator';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -87,7 +93,8 @@ import { PayedReturnComponent } from './payed-return/payed-return.component';
     StockComponent,
     StatistiqueComponent,
     StockHistoryComponent,
-    PayedReturnComponent
+    PayedReturnComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -121,7 +128,12 @@ import { PayedReturnComponent } from './payed-return/payed-return.component';
     RadioButtonModule,
     FileUploadModule,
     TagModule,
-    CheckboxModule
+    CheckboxModule,
+    SplitButtonModule,
+    SpeedDialModule,
+    ContextMenuModule,
+    BadgeModule,
+    ListboxModule
   ],
   providers: [MessageService, ConfirmationService, CityTreeService, DatePipe ],
   bootstrap: [AppComponent]

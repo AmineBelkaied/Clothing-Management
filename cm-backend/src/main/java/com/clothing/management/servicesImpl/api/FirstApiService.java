@@ -19,14 +19,18 @@ public class FirstApiService {
 
     public static final String createBarCodeEndPoint = "https://www.firstdeliverygroup.com/api/v2/create";
     public static final String getLastStatusEndPoint = "https://www.firstdeliverygroup.com/api/v2/etat";
-
-    //public static final String bearerToken = "af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";
-    public static final String bearerToken = "198de763-841f-4b3f-96b0-dcbfa4a6b369";
-
     public static final String reg = "/,/gi";
     public static final String regBS = "/\\n/gi";
-@Value("${first.comment}")
-private String comment;
+
+    private final String bearerToken="198de763-841f-4b3f-96b0-dcbfa4a6b369";//lyft
+    private final String exchangeProduct="Lyft sport";
+    //private final String bearerToken="af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";//diggie
+    //private final String exchangeProduct="Diggie pants";
+    private final String comment="Le colis peut être ouvert à la demande du client";
+
+
+
+
     public FirstApiService() {
     }
 
@@ -113,9 +117,9 @@ private String comment;
         produit.put("prix", this.getPacketPrice(packet));
         produit.put("designation", this.getPacketDesignation(packet));
         produit.put("nombreArticle", 1);
-        produit.put("commentaire", "Le colis peut être ouvert à la demande du client");
+        produit.put("commentaire", comment);
         produit.put("echange", packet.isExchange()?"oui":"non");
-        produit.put("article", comment);
+        produit.put("article", exchangeProduct);
         produit.put("nombreEchange", packet.isExchange()?1:0);
         json.put("Produit", produit);
 

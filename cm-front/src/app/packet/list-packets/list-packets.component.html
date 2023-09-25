@@ -34,6 +34,7 @@
               pInputText
               type="text"
               [(ngModel)]="filter"
+              (onChange)="filter"
               (keyup.enter)="filterPackets()"
               (input)="handleInputChange()"
               placeholder="Client, Tel, Ville, Adresse, Page,Id"
@@ -60,28 +61,8 @@
             class="ml-0"
             [style]="{ width: '250px' }"
           ></p-calendar>
-          <!-- <button
-            type="button"
-            pButton
-            pRipple
-            icon="pi pi-file"
-            (click)="exportCSV()"
-            class="ml-1 mt-1 buttonSize"
-            pTooltip="CSV"
-            tooltipPosition="bottom"
-          ></button>
-          <button
-            type="button"
-            pButton
-            pRipple
-            icon="pi pi-file-excel"
-            (click)="exportExcel()"
-            class="p-button-success ml-1 mt-1 buttonSize"
-            pTooltip="XLS"
-            tooltipPosition="bottom"
-          ></button> -->
-          <span class="ml-2 mt-2"
-            >{{ totalItems }}
+          <span class="ml-2 mt-2">
+            {{ totalItems }}
             </span
           >
         </div>
@@ -120,10 +101,11 @@
     </div>
   </div>
 </div>
-
+<div class="table-container" style="height: max-content;">
 <p-table
   #dt
   [columns]="cols"
+  [showCurrentPageReport]="true"
   [value]="packets"
   styleClass="p-datatable-gridlines p-datatable-sm mb-1"
   class="table table-hover"
@@ -137,8 +119,7 @@
   [rowTrackBy]="trackByFunction"
   [loading]="loading"
   [lazy]="true"
-  (onLazyLoad)="findAllPackets()"
->
+  (onLazyLoad)="findAllPackets()">
   <ng-template pTemplate="header" let-columns>
     <tr>
       <th style="width: 3rem;padding: 0.1rem 0.1rem !important" class="align-center">
@@ -156,27 +137,17 @@
   </ng-template>
   <ng-template pTemplate="body" let-packet>
     <tr
+      #tr
       [ngClass]="{
         'row-accessories-2days': checkValidity(packet.date,today_2,packet.status),
         'row-accessories-exchange': packet.exchange
       }"
-      *ngIf="packet.status != 'Supprimé' || (packet.status == 'Supprimé' && showDeleted)"
     >
+    <!--*ngIf="packet.status != 'Supprimé' || (packet.status == 'Supprimé' && showDeleted)"-->
       <td style="padding: 0.1rem 0.1rem !important">
         <p-tableCheckbox [value]="packet" class="mb-2"></p-tableCheckbox>
         {{ packet.id }}
-        <button
-        *ngIf="packet.printLink!= '' && packet.printLink!= null"
-            pButton
-            type="button"
-            (click)="printFirst(packet.printLink)"
-            class="p-button-warning buttonSizeMini"
-            [loading]="isLoading && selectedPacket == packet.id"
-            icon="pi pi-print"
-          ></button>
-
       </td>
-
       <td style="padding: 0.1rem 0.1rem !important">{{ packet.date | date : "dd/MM" }}</td>
       <td
         pEditableColumn
@@ -192,8 +163,8 @@
               optionLabel="name"
               placeholder="-- Page --"
               [style]="{ width: '90%' }"
-              [panelStyle]="{ width: '100%' }"
               class="p-inputtext-sm"
+              [panelStyle]="{ width: '10rem' }"
               appendTo="body"
             >
               <ng-template let-packet pTemplate="group">
@@ -248,20 +219,10 @@
             />
           </ng-template>
           <ng-template pTemplate="output">
-            {{ packet.customerPhoneNb }}
+            {{ packet.customerPhoneNb }}<p-badge [value]="packet.oldClient" severity="warning" *ngIf="packet.oldClient>0"></p-badge>
           </ng-template>
         </p-cellEditor>
-        <div *ngIf="packet.customerPhoneNb != '' && packet.customerPhoneNb != null" class="mt-2">
-          <i
-            (click)="openLinkGetter(packet.customerPhoneNb)"
-            class="pi pi-search-plus p-d-flex"
-          ></i>
-          <i
-            (click)="duplicatePacket(packet)"
-            class="pi pi-user-plus p-d-flex ml-2"
-          ></i>
-          <p-tag *ngIf="packet.exist" severity="warning" value="Warning" [rounded]="true"></p-tag>
-          </div>
+
       </td>
       <td
         pEditableColumn
@@ -280,7 +241,7 @@
               filterBy="label,value,governorate"
               [style]="{ width: '100%' }"
               class="p-inputtext-sm"
-              [panelStyle]="{ width: '100%' }"
+              [panelStyle]="{ width: '15rem' }"
               appendTo="body"
             >
               <ng-template let-city pTemplate="group">
@@ -363,7 +324,7 @@
               class="p-inputtext-sm"
               placeholder="-- Statut --"
               [style]="{ width: '90%' }"
-              [panelStyle]="{ width: '100%' }"
+              [panelStyle]="{ width: '10rem' }"
               appendTo="body"
             >
               <ng-template let-packet pTemplate="group">
@@ -380,31 +341,6 @@
         <div>
           {{ packet.lastUpdateDate | date : 'yyyy-MM-dd' }}
         </div>
-        <div  class="mt-2">
-          <i
-            (click)="showDialogStatus(packet)"
-            class="pi pi-history p-d-flex p-ai-right"
-          ></i>
-        </div>
-      </td>
-      <td style="width: 2%;padding: 0.1rem 0.1rem !important;">
-        <div *ngIf="packet.barcode != '' && packet.barcode != null" class="p-grid p-align-center vertical-container">
-          <button
-            pButton
-            type="button"
-            (click)="getLastStatus(packet)"
-            class="p-button-warning buttonSizeMini"
-            [loading]="isLoading && selectedPacket == packet.id"
-            icon="pi pi-sync"
-          ></button>
-          <button
-            pButton
-            type="button"
-            (click)="openLinkGetter(packet.barcode)"
-            class="mt-2 p-ai-right buttonSizeMini"
-            icon="pi pi-search-plus"
-          ></button>
-        </div>
       </td>
       <td
         pEditableColumn
@@ -412,6 +348,7 @@
         [pEditableColumnField]="'barcode'"
         style="cursor: pointer"
         class="breakWord"
+        #barcode
       >
         <p-cellEditor>
           <ng-template pTemplate="input">
@@ -429,6 +366,7 @@
           </ng-template>
         </p-cellEditor>
         <div class="p-2">{{ packet.lastDeliveryStatus }}</div>
+        <p-contextMenu [target]="tr" [model]="optionButtons" appendTo="body" (onShow)="openShowOptionMenu(packet)"></p-contextMenu>
       </td>
     </tr>
   </ng-template>
@@ -448,14 +386,14 @@
     </tr>
   </ng-template>
 </p-table>
-
+</div>
 <p-paginator *ngIf="totalItems > pageSize" [rows]="pageSize" [totalRecords]="totalItems" (onPageChange)="onPageChange($event)"
 currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} commandes"
 [rowsPerPageOptions]="[25, 50, 100, 200, 500, 1000]">
 </p-paginator>
 <p-dialog
   [(visible)]="modelDialog"
-  [style]="{ width: '75%' }"
+  [style]="{ width: '90%' }"
   header="{{
     editMode ? 'Mettre à jour les articles' : 'Ajouter des articles'
   }}"

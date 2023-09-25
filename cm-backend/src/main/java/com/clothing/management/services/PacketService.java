@@ -3,11 +3,11 @@ package com.clothing.management.services;
 import com.clothing.management.dto.*;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
+import com.clothing.management.models.DashboardCard;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -30,12 +30,13 @@ public interface PacketService {
     public void addProductsToPacket(SelectedProductsDTO selectedProductsDTO);
     public void deletePacketById(Long idPacket);
     public void deleteSelectedPackets(List<Long> packetsId);
-    public void savePacketStatusToHistory(Long idPacket ,String status);
-    public List<PacketStatus> findPacketStatusById(Long idPacket);
+    public List<PacketStatus> findPacketTimeLineById(Long idPacket);
     DeliveryResponseFirst createBarCode(Packet packet, String deliveryCompany) throws IOException, InterruptedException;
     Packet getLastStatus(Packet packet, String deliveryCompany) throws Exception;
+    int checkPhone(String phoneNumber);
+    public List<DashboardCard> createDashboard();
     Packet duplicatePacket(Long idPacket);
-    List<String> updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO);
+    List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO);
     Long getExchangeId(Packet packet);
     List<ProductsDayCountDTO> productsCountByDate(Long state, String beginDate, String endDate);
 }

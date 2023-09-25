@@ -24,14 +24,18 @@ export class AddPacketComponent implements OnInit {
 
   @Output() submitEvent: EventEmitter<any> = new EventEmitter();
 
+  enableFakeSize : boolean = false;
   private selectedOffer: any;
   totalPrice: number = 0;
   packetDescription: string = '';
   productReferences: string = '';
   packetForm: FormGroup;
   packetPrice: number = 0;
+  selectedSizeReel : string = '';
   noChoiceColor!: Color;
   noChoiceSize!: Size;
+
+
   constructor(private fb: FormBuilder, private cdRef: ChangeDetectorRef, private packetService: PacketService) {
     this.packetForm = this.fb.group({
       totalPrice: 0,
@@ -74,7 +78,7 @@ export class AddPacketComponent implements OnInit {
     this.packetService.findPacketRelatedProducts(this.packet.id)
       .subscribe((packet: any) => {
         console.log(packet);
-        
+
         let offers = packet.offerUpdateDTOList;
         for (var index = 0; index < offers.length; index++) {
           this.addSelectedOffer(offers[index].offerId, offers[index].name, offers[index].price);
@@ -101,7 +105,8 @@ export class AddPacketComponent implements OnInit {
       selectedSize: '',
       selectedProduct: '',
       image: '',
-      bytes: ''
+      bytes: '',
+      selectedSizeReel:''
     })
     return model;
   }
@@ -134,6 +139,7 @@ export class AddPacketComponent implements OnInit {
           this.addModel(offerIndex);
           this.setModelControlValues(this.models(offerIndex).controls[j], model);
           this.setProductControlValues(this.models(offerIndex).controls[j], offer.products[j]);
+          console.log('addSelectedModels');
           this.setPacketDescription(model.name, offer.products[j].color.name, offer.products[j].size.reference);
           this.productReferences += this.createProductRef(model.reference, offer.products[j].color.reference, offer.products[j].size.reference).concat(' , ');
         }
@@ -212,6 +218,7 @@ export class AddPacketComponent implements OnInit {
     this.setNoChoiceColorSize(selectedModel, index);
     let selectedProduct = this.selectedOffer.models[index].products.find((product: any) => product.color.id == selectedModel.get('selectedColor')?.value.id && product.size.id == selectedModel.get('selectedSize')?.value.id);
     selectedModel.get('selectedProduct')?.setValue(selectedProduct);
+
     this.createPacketDescription();
     console.log('selectedModel',selectedModel);
 
@@ -264,9 +271,11 @@ export class AddPacketComponent implements OnInit {
         if (offer.models.length > 0) {
           for (var j = 0; j < offer.models.length; j++) {
             productsOffers.push({ productId: offer.models[j].selectedProduct.id, offerId: offer.offerId, packetOfferIndex: i });
+            console.log('prepareProductsOffers');
             this.setPacketDescription(offer.models[j]?.name,
               this.getElement(offer.models[j], 'selectedColor', 'name'),
-              this.getElement(offer.models[j], 'selectedSize', 'reference'));
+              this.getElement(offer.models[j], 'selectedSize', 'reference'),
+              this.getElement(offer.models[j], 'selectedSizeReel', 'reference'));
           }
         }
       }
@@ -287,10 +296,12 @@ export class AddPacketComponent implements OnInit {
             this.productReferences += this.createProductRef(offer.models[j].reference,
               this.getElement(offer.models[j], 'selectedColor', 'reference'),
               this.getElement(offer.models[j], 'selectedSize', 'reference')).concat(' , ');
+              console.log('createPacketDescription');
 
             this.setPacketDescription(offer.models[j]?.name,
               this.getElement(offer.models[j], 'selectedColor', 'name'),
-              this.getElement(offer.models[j], 'selectedSize', 'reference'));
+              this.getElement(offer.models[j], 'selectedSize', 'reference'),
+              this.getElement(offer.models[j], 'selectedSizeReel', 'reference'));
           }
         }
       }
@@ -303,12 +314,15 @@ export class AddPacketComponent implements OnInit {
     return model[field] != null ? model[field][field2] : null;
   }
 
-  setPacketDescription(modelName?: any, color?: any, size?: any) {
+  setPacketDescription(modelName?: any, color?: any, size?: any, fakeSize?:any) {
+    console.log('fakeSize',fakeSize);
     if (modelName != null)
       this.packetDescription += modelName;
     if (color != null && color != "?")
       this.packetDescription += ' ' + color;
-    if (size != null && size != "?")
+    if (fakeSize != null)
+      this.packetDescription += ' (' + fakeSize + ')';
+    else if (size != null && size != "?")
       this.packetDescription += ' (' + size + ')';
     this.packetDescription += ' , ';
   }
@@ -323,5 +337,9 @@ export class AddPacketComponent implements OnInit {
 
   calculatePacketPrice() {
     this.packetPrice = this.totalPrice + this.packetForm.controls['deliveryPrice'].value - this.packetForm.controls['discount'].value;
+  }
+
+  enableFake(){
+    this.enableFakeSize = !this.enableFakeSize
   }
 }

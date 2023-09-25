@@ -11,6 +11,7 @@ export class PayedReturnComponent implements OnInit {
   text: string = ''; // Initialize with the provided text
   extractedBarcodes: string[] = [];
   type!: string;
+  errorMessage :string ="";
 
   constructor(private packetService: PacketService,private messageService: MessageService) {
 
@@ -52,12 +53,12 @@ export class PayedReturnComponent implements OnInit {
   }
 
   createErrorMessage(result: string[]) {
-    let errorMessage = "Les code à barres suivants sont introuvables : ";
+    this.errorMessage += "Les code à barres suivants sont introuvables : ";
     result.forEach((element, index) => {
-      errorMessage += element;
+      this.errorMessage += element;
         if(index < result.length - 1)
-          errorMessage += " , ";
+          this.errorMessage += " , ";
     });
-    return errorMessage;
+    return this.errorMessage;
   }
 }

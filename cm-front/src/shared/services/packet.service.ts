@@ -41,6 +41,14 @@ export class PacketService {
     return this.http.get(this.baseUrl + path);
   }
 
+  public createDashboard(): Observable<any> {
+    // only create a new request if you don't already have one stored
+    // save your request
+    let path = '/createDashboard';
+    return this.http.get(this.baseUrl+path);
+  }
+
+
   public findAllPacketsByDate(startDate: String,endDate:String): Observable<any> {
     // only create a new request if you don't already have one stored
     // save your request
@@ -103,8 +111,8 @@ export class PacketService {
     return this.http.get(this.baseUrl + '/duplicatePacket/' + idPacket);
   }
 
-  getPacketAllStatus(idPacket: any) {
-    return this.http.get(this.baseUrl + '/findPacketStatus/' + idPacket);
+  getPacketTimeLine(idPacket: any) {
+    return this.http.get(this.baseUrl + '/getPacketTimeLine/' + idPacket);
   }
 
   getLastStatus(packet: Packet, deliveryCompany?: string) {

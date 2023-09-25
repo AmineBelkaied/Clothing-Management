@@ -23,10 +23,6 @@ export class SidebarComponent implements OnInit {
   }
 
   changeClass() {
-/*     const button = document.getElementById('sidebarCollapse');
-    if (button) {
-      button.style.left = this.activeClass ? '9rem' : '-2.5rem';
-    } */
     this.activeClass = !this.activeClass;
   }
 

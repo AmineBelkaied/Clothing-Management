@@ -1,15 +1,30 @@
-package com.clothing.management.entities;
+package com.clothing.management.models;
 public class DashboardCard {
     private String status;
-    private int statusCount;
+    private Long statusCount;
 
-    public DashboardCard(String status, int statusCount) {
+    public DashboardCard(String status, Long statusCount) {
         this.status = status;
         this.statusCount = statusCount;
     }
 
+    public DashboardCard() {
+    }
+
     public String getStatus() {
         return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Long getStatusCount() {
+        return statusCount;
+    }
+
+    public void setStatusCount(Long statusCount) {
+        this.statusCount = statusCount;
     }
 
     @Override
@@ -20,15 +35,5 @@ public class DashboardCard {
                 '}';
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
-    public int getStatusCount() {
-        return statusCount;
-    }
-
-    public void setStatusCount(int statusCount) {
-        this.statusCount = statusCount;
-    }
 }
