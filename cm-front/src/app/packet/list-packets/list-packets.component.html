@@ -1,6 +1,15 @@
 <p-toast position="bottom-right"></p-toast>
+
 <div class="container-fluid">
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb" style="position: relative;">
+    <div class="notification-container">
+      <i class="pi pi-question-circle mr-4 p-text-secondary" pBadge style="font-size: 1.5rem;cursor: pointer;"
+      [value]="aVerifierNotification" severity="info" (click)="onNotificationClick('0')"></i>
+      <i class="pi pi-power-off mr-4 p-text-secondary" pBadge style="font-size: 1.5rem;cursor: pointer;"
+       [value]="injoiyableNotification" severity="warning" (click)="onNotificationClick('1')"></i>
+      <i class="pi pi-phone mr-4 p-text-secondary" pBadge style="font-size: 1.5rem;cursor: pointer;"
+      [value]="nonConfirmeeNotification" severity="danger" (click)="onNotificationClick('2')"></i>
+    </div>
     <div
       class="card-body px-0 py-0 mt-3 ml-2 mr-3 mb-3 d-inline-flex flex-no-wrap justify-content-between"
     >
@@ -101,6 +110,10 @@
     </div>
   </div>
 </div>
+
+
+
+
 <div class="table-container" style="height: max-content;">
 <p-table
   #dt
@@ -288,7 +301,6 @@
             changeColor
             (click)="editProducts(packet)"
             style="cursor: pointer"
-            class="mt-2"
           >
             {{ packet.packetDescription }}
             <i
@@ -296,7 +308,7 @@
               style="color: red; font-size: 14.5px; padding-left: 10px"
             ></i>
           </p>
-          <br />
+
         </ng-container>
         <ng-template #addMode>
           <button

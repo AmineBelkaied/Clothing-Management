@@ -32,7 +32,7 @@ public class Packet {
     private String barcode;
     private String lastDeliveryStatus;
 
-    private int oldClient;
+    private Integer oldClient;
 
     @OneToMany(mappedBy = "packet" , cascade = {CascadeType.PERSIST, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -56,7 +56,7 @@ public class Packet {
     public Packet() {
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, int oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, Set<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, Date confirmationDate, String dgStatus, boolean exchange, String printLink) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, Set<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, Date confirmationDate, String dgStatus, boolean exchange, String printLink) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -243,11 +243,11 @@ public class Packet {
         this.printLink = printLink;
     }
 
-    public int getOldClient() {
+    public Integer getOldClient() {
         return oldClient;
     }
 
-    public void setOldClient(int oldClient) {
+    public void setOldClient(Integer oldClient) {
         this.oldClient = oldClient;
     }
 

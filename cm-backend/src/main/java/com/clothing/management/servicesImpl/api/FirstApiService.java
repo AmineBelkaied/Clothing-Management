@@ -22,10 +22,10 @@ public class FirstApiService {
     public static final String reg = "/,/gi";
     public static final String regBS = "/\\n/gi";
 
-    private final String bearerToken="198de763-841f-4b3f-96b0-dcbfa4a6b369";//lyft
-    private final String exchangeProduct="Lyft sport";
-    //private final String bearerToken="af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";//diggie
-    //private final String exchangeProduct="Diggie pants";
+    //private final String bearerToken="198de763-841f-4b3f-96b0-dcbfa4a6b369";//lyft
+    //private final String exchangeProduct="Lyft sport";
+    private final String bearerToken="af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";//diggie
+    private final String exchangeProduct="Diggie pants";
     private final String comment="Le colis peut être ouvert à la demande du client";
 
 

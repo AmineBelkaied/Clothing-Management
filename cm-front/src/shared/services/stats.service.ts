@@ -21,7 +21,7 @@ export class StatsService {
 
     interface CountCity { [cityName: string]: { count: number,confirm: number,citys: { [name: string]: { count: number,confirm: number} } }}
     interface CountPage { [pageName: string]: { count: number,confirm: number }}
-    interface CountDate { [date: string]: { count: number,payed: number, out: number }}
+    interface CountDate { [date: string]: { count: number,payed: number, return: number, exchange: number, out: number }}
     interface Count {cityCounts: CountCity,pageCounts:CountPage,dateCounts:CountDate}
 
     let cityCounts: CountCity = {};
@@ -51,14 +51,21 @@ export class StatsService {
           dateCounts[date].count++;
         }
         else {
-          dateCounts[date] ={ count: 1, payed: 0, out:0 };
+          dateCounts[date] ={ count: 1, payed: 0, return: 0, exchange: 0, out:0 };
         }
         if (packet.status == 'Payée' || packet.status == 'Livrée') {
           dateCounts[date].payed++;
         }
-        if (packet.status == 'Confirmée' || packet.status == 'Payée' || packet.status == 'Livrée' || packet.status == 'Retour' || packet.status == 'Retour Expediteur' || packet.status == 'Retour reçu' || packet.status == 'En cours (1)' ||
+        else if (packet.status == 'Retour' || packet.status == 'Retour reçu') {
+          dateCounts[date].return++;
+        }
+
+        if (packet.status == 'Confirmée' || packet.status == 'Payée' || packet.status == 'Livrée' || packet.status == 'Retour' || packet.status == 'Retour reçu' || packet.status == 'En cours (1)' ||
         packet.status == 'En cours (2)' || packet.status == 'En cours (3)' || packet.status == 'En cours') {
           //|| packet.status.substring(0,7) == 'En Cours'
+          if (packet.exchange) {
+            dateCounts[date].exchange++;
+          }
           dateCounts[date].out++;
         }
       }

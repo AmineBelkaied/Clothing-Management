@@ -37,6 +37,7 @@ import { ContextMenuModule } from 'primeng/contextmenu';
 import { BadgeModule } from 'primeng/badge';
 import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
+import { ChipModule } from 'primeng/chip';
 
 
 // import components
@@ -133,7 +134,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     SpeedDialModule,
     ContextMenuModule,
     BadgeModule,
-    ListboxModule
+    ListboxModule,
+    ChipModule
   ],
   providers: [MessageService, ConfirmationService, CityTreeService, DatePipe ],
   bootstrap: [AppComponent]

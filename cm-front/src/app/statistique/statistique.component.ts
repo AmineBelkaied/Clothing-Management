@@ -216,6 +216,12 @@ export class StatistiqueComponent implements OnInit {
     const datesPayed: number[] = Object.values(dataCount).flatMap(
       (obj) => obj.payed
     );
+    const datesReturn: number[] = Object.values(dataCount).flatMap(
+      (obj) => obj.return
+    );
+    const datesExchange: number[] = Object.values(dataCount).flatMap(
+      (obj) => obj.exchange
+    );
     const datesOut: number[] = Object.values(dataCount).flatMap(
       (obj) => obj.out
     );
@@ -236,13 +242,27 @@ export class StatistiqueComponent implements OnInit {
             fill: false,
             borderColor: 'pink',
             tension: 0.4
-        },
-        {
-          label: 'Sortie',
-          data: datesOut,
-          fill: false,
-          borderColor: 'red',
-          tension: 0.4
+          },
+          {
+            label: 'Retour',
+            data: datesReturn,
+            fill: false,
+            borderColor: 'orange',
+            tension: 0.4
+          },
+          {
+            label: 'Echange',
+            data: datesExchange,
+            fill: false,
+            borderColor: 'grey',
+            tension: 0.4
+          },
+          {
+            label: 'Sortie',
+            data: datesOut,
+            fill: false,
+            borderColor: 'red',
+            tension: 0.4
       }
       ]
   };
@@ -451,6 +471,8 @@ interface CountDates {
   [date: string]: {
     count: number;
     payed: number;
+    return: number;
+    exchange: number;
     out:number;
   };
 }

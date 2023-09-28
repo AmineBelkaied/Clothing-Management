@@ -12,9 +12,10 @@ import { catchError, identity, Observable, of, Subject,takeUntil} from 'rxjs';
 import { Offer } from 'src/shared/models/Offer';
 import { FormControl } from '@angular/forms';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { A_VERIFIER, BUREAU, CONFIRMEE, CORBEIL, EN_COURS, EN_COURS_1, EN_COURS_2, EN_COURS_3, EN_RUPTURE, LIVREE, NON_CONFIRMEE, PAYEE, RETOUR_EXPEDITEUR, RETOUR_RECU, SUPPRIME, TERMINE, statesList, statusList } from 'src/shared/utils/status-list';
+import { A_VERIFIER, BUREAU, CONFIRMEE, CORBEIL, EN_COURS, EN_COURS_1, EN_COURS_2, EN_COURS_3, EN_RUPTURE, INJOIYABLE, LIVREE, NON_CONFIRMEE, PAYEE, RETOUR_RECU, SUPPRIME, TERMINE, statesList, statusList } from 'src/shared/utils/status-list';
 import { City } from 'src/shared/models/City';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
+import { DashboardCard } from 'src/shared/models/DashboardCard';
 
 @Component({
   selector: 'app-list-packets',
@@ -65,6 +66,9 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   pageSize : number = 100;
   params : any;
   loading: boolean = false;
+  aVerifierNotification: string ="0";
+  nonConfirmeeNotification: string ="0";
+  injoiyableNotification: string ="0";
 
   @ViewChild('dt') dt?: Table;
   private readonly reg: RegExp = /,/gi;
@@ -97,6 +101,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       startDate: this.dateUtils.formatDateToString(new Date()),
       endDate: this.dateUtils.formatDateToString(new Date())
     };
+    this.createNotification();
     //this.findAllPackets();
     this.createColumns();
     this.findAllOffers();
@@ -107,6 +112,22 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.selectedStatusList = this.statusList;
   }
 
+  createNotification(): void {
+    this.packetService.syncNotification()
+      .pipe(takeUntil(this.$unsubscribe))
+      .subscribe({
+        next: (response: DashboardCard[]) => {
+          console.log('createDashboardResponse',response);
+          this.aVerifierNotification=response[0].statusCount+"";
+          this.nonConfirmeeNotification=response[1].statusCount+"";
+          this.injoiyableNotification = response[2].statusCount+"";
+        },
+        error: (error: Error) => {
+          console.log('Error:', error);
+        }
+      });
+  }
+
   findAllPackets(): void {
     this.loading = true;
     this.packetService.findAllPackets(this.params)
@@ -114,7 +135,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       .subscribe({
         next: (response: ResponsePage) => {
           this.packets = response.result;
-
           this.totalItems = response.totalItems;
           //console.log(this.packets[0]);
           this.loading = false;
@@ -170,14 +190,18 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       } else {
         let updatedField = { [packet.field]: packet.data[packet.field] };
         let msg = 'Le champ a été modifié avec succés';
-        if ( packet.field == 'status' && (packet.data[packet.field] == CONFIRMEE)) {
-          if (!this.checkPacketValidity(packet.data)) {
-            this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
-            packet.data[packet.field] = this.oldField;
-            return;
+        if ( packet.field == 'status') {
+          this.createNotification();
+          if(packet.data[packet.field] == CONFIRMEE){
+            if (!this.checkPacketValidity(packet.data)) {
+              this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
+              packet.data[packet.field] = this.oldField;
+              return;
+            }
+            this.selectedPacket = packet['data'].id;
+            this.isLoading = true;
           }
-          this.selectedPacket = packet['data'].id;
-          this.isLoading = true;
+
         }
         this.packetService
           .patchPacket(packet['data'].id, updatedField)
@@ -253,11 +277,12 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   getLastStatus(packet: Packet): void {
-    if (packet.status != PAYEE && packet.status != RETOUR_RECU && packet.status != RETOUR_EXPEDITEUR && packet.status != LIVREE)
+    if (packet.status != PAYEE && packet.status != RETOUR_RECU && packet.status != LIVREE)
     this.packetService.getLastStatus(packet, this.FIRST)
       .subscribe({
           next: (response: Packet) => {
             this.packets.splice(this.packets.indexOf(packet), 1, response);
+            this.createNotification();
           },
           error : (error: Error) => {
             console.log(error);
@@ -405,6 +430,19 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         this.endDate = this.startDate;
       }
     }
+  }
+
+  onNotificationClick($event?: string): void{
+    console.log("aaaa",$event);
+
+    this.selectedStatus.setValue([]);
+    if($event == "0")
+    this.selectedStatus.patchValue([A_VERIFIER]);
+    else if($event == "1")
+    this.selectedStatus.patchValue([INJOIYABLE]);
+    else if($event == "2")
+    this.selectedStatus.patchValue([NON_CONFIRMEE]);
+   this.filterPackets('state');
   }
 
   onStateChange(): void {

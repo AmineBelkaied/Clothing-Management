@@ -34,6 +34,4 @@ public class DashboardCard {
                 ", statusCount=" + statusCount +
                 '}';
     }
-
-
 }

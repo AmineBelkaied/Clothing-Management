@@ -14,7 +14,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     public List<ProductsPacket> findByPacketId(Long packetId);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(DATE(p.packetDate), p.product.id, p.product.model.id , p.product.color.name , p.product.size.reference , COUNT(p.product.id))" +
-            "FROM ProductsPacket p WHERE (p.status = 0 OR p.status = 1) " +
+            "FROM ProductsPacket p WHERE (p.status = 1 OR p.status = 2) " +
             "AND p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
             "AND DATE(p.packetDate) >= Date(:beginDate) " +
             "AND DATE(p.packetDate) <= DATE(:endDate) " +

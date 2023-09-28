@@ -24,17 +24,20 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             nativeQuery = true)
     Page<Packet> findAllTodayPackets(Pageable pageable);
 
-    @Query(value="SELECT * FROM packet p WHERE p.status != 'Payée' and p.status != 'Injoignable' and p.status != 'Livrée' AND p.status != 'Retour Expediteur' and p.status != 'Retour reçu' and p.status != 'Retour' and p.status != 'Supprimé' AND p.status != 'En rupture' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
+    @Query(value="SELECT * FROM packet p WHERE p.status != 'Payée' and p.status != 'Injoignable' and p.status != 'Livrée' AND p.status != 'Retour reçu' and p.status != 'Retour' and p.status != 'Supprimé' AND p.status != 'En rupture' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
     public List<Packet> findAllDiggiePackets();
 
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
     Optional<Packet> findByBarCode(@Param("barCode") String barCode);
 
-    @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% AND p.status != 'Supprimé'", nativeQuery = true)
+    @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% AND p.status != 'Supprimé' AND p.exchange = false", nativeQuery = true)
     public int findAllPacketsByPhone_number(@Param("phoneNumber") String phoneNumber);
 
     @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p GROUP BY p.status")
     List<DashboardCard> createDashboard();
+
+    @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p WHERE DATEDIFF(CURRENT_DATE() , p.date)>0 AND (p.status = 'Non Confirmée' OR p.status = 'Injoiyable' OR p.status = 'A verifier') GROUP BY p.status")
+    List<DashboardCard> createNotification();
 
    //@Query(value = getQuery(searchText, endDate, se), countQuery = COUNT_FIELD_QUERY, nativeQuery = true)
     //defaut Page<Packet> findAllPackets(@Param("searchText") String searchText, @Param("startDate") String startDate, @Param("endDate") String endDate, Pageable pageable);

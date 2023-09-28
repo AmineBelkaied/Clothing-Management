@@ -22,14 +22,11 @@ export class DashboardComponent implements OnInit {
   }
 
   createDashboard(): void {
-
     this.packetService.createDashboard()
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: DashboardCard[]) => {
           this.cards = response;
-          console.log('createDashboardResponse',response);
-
         },
         error: (error: Error) => {
           console.log('Error:', error);

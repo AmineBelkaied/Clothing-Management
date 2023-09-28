@@ -161,6 +161,11 @@ public class PacketController {
         return packetService.createDashboard();
     }
 
+    @GetMapping(path = "/syncNotification")
+    public List<DashboardCard> syncNotification(){
+        return packetService.syncNotification();
+    }
+
     @GetMapping(path = "/duplicatePacket/{idPacket}")
     public Packet duplicatePacket(@PathVariable Long idPacket) {
         return packetService.duplicatePacket(idPacket);

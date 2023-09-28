@@ -1,6 +1,6 @@
-//export const baseUrl = "http://localhost:2233";
+export const baseUrl = "http://localhost:2233";
 export const APPNAME = "DIGGIE";
-export const baseUrl = "https://diggie.jvmhost.net/cmb";
+//export const baseUrl = "https://diggie.jvmhost.net/cmb";
 //export const APPNAME = "Lyft";
 //export const baseUrl = "https://lyft.jvmhost.net/lyft";
 //export const baseUrlfirst = "https://diggie.jvmhost.net/apifirst";

@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -259,6 +258,11 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
+    public List<DashboardCard> syncNotification() {
+        return packetRepository.createNotification();
+    }
+
+    @Override
     public List<ProductsDayCountDTO> productsCountByDate(Long state,String beginDate,String endDate){
         List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.productsCountByDate(state, beginDate,endDate);
         return existingProductsPacket;
@@ -451,7 +455,7 @@ public class PacketServiceImpl implements PacketService {
     }
 
     private Packet updatePacketStatusAndSaveToHistory(Packet packet, String status) {
-        if (!packet.getStatus().equals(status) && !packet.getStatus().equals(DiggieStatus.RETOUR_RECU.getStatus()) && !(packet.getStatus().equals(DiggieStatus.RETOUR.getStatus())&&!status.equals(DiggieStatus.RETOUR_RECU.getStatus()))){
+        if (!packet.getStatus().equals(status) && !packet.getStatus().equals(DiggieStatus.RETOUR_RECU.getStatus()) && !(packet.getStatus().equals(DiggieStatus.RETOUR.getStatus()) && !status.equals(DiggieStatus.RETOUR_RECU.getStatus()))){
             {
                 updateProductsStatusAndQuantity(packet, status);
                 savePacketStatusToHistory(packet,status);
@@ -477,11 +481,11 @@ public class PacketServiceImpl implements PacketService {
     }
     private void updateProductsStatusAndQuantity(Packet packet,String status){
         if(status.equals(DiggieStatus.LIVREE.getStatus())||status.equals(DiggieStatus.PAYEE.getStatus())||status.equals(DiggieStatus.CONFIRMEE.getStatus())||status.equals(DiggieStatus.RETOUR_RECU.getStatus()))
-            updateProductsStatusByPacket(packet.getId(),status);
+            updateProductsPacketStatusByPacketId(packet.getId(),status);
         if (status.equals(DiggieStatus.RETOUR_RECU.getStatus())||status.equals(DiggieStatus.CONFIRMEE.getStatus()))
             updateProductsQuantity(packet.getId(),status);
     }
-    public boolean updateProductsStatusByPacket(Long idPacket,String status) {
+    public boolean updateProductsPacketStatusByPacketId(Long idPacket,String status) {
         int x = 0;
         if (status.equals(DiggieStatus.RETOUR_RECU.getStatus())) x = 0;
         if (status.equals(DiggieStatus.CONFIRMEE.getStatus())) x = 1;

@@ -34,7 +34,8 @@ public interface PacketService {
     DeliveryResponseFirst createBarCode(Packet packet, String deliveryCompany) throws IOException, InterruptedException;
     Packet getLastStatus(Packet packet, String deliveryCompany) throws Exception;
     int checkPhone(String phoneNumber);
-    public List<DashboardCard> createDashboard();
+    List<DashboardCard> createDashboard();
+    List<DashboardCard> syncNotification();
     Packet duplicatePacket(Long idPacket);
     List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO);
     Long getExchangeId(Packet packet);

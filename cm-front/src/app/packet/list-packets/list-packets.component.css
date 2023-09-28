@@ -118,3 +118,11 @@ td {
     display: block;
   }
 
+  .notification-container {
+    background-color: none;
+    position: absolute;
+    bottom: -30px;
+    right: 5px;
+    padding: 10px; /* Espace autour des notifications */
+    z-index: 999; /* Pour s'assurer que les notifications sont au-dessus de tout le reste */
+  }

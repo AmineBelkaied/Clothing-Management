@@ -48,6 +48,13 @@ export class PacketService {
     return this.http.get(this.baseUrl+path);
   }
 
+  public syncNotification(): Observable<any> {
+    // only create a new request if you don't already have one stored
+    // save your request
+    let path = '/syncNotification';
+    return this.http.get(this.baseUrl+path);
+  }
+
 
   public findAllPacketsByDate(startDate: String,endDate:String): Observable<any> {
     // only create a new request if you don't already have one stored

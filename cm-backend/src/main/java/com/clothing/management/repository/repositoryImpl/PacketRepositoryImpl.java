@@ -46,7 +46,8 @@ public class PacketRepositoryImpl {
             if( (status!= null &&
                     (
                             !status.equals(DiggieStatus.RETOUR.getStatus())
-                            && !status.equals(DiggieStatus.A_VERIFIER.getStatus())
+                                    && !status.equals(DiggieStatus.A_VERIFIER.getStatus())
+                                    && !status.equals(DiggieStatus.INJOIYABLE.getStatus())
                                     && !status.equals(DiggieStatus.DELETED.getStatus())
                                     && !status.equals(DiggieStatus.ENDED.getStatus())
                                     && !status.equals(DiggieStatus.EN_COURS_1.getStatus())
@@ -66,7 +67,7 @@ public class PacketRepositoryImpl {
         if(status == null)
             predicates.add(criteriaBuilder.notLike(root.get("status"),  DiggieStatus.DELETED.getStatus()));
 
-        if(status != null && searchText == null) {
+        else if(status != null && searchText == null) {
             predicates.add(root.get("status").in(Arrays.asList(status.split(","))));
         }
 
