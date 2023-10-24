@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface PacketService {
 
     public List<Packet> findAllPackets();
-    public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable);
+    public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable, boolean mandatoryDate);
     //public Page<Packet> findAllPackets(String searchText, int page, int size);
     public Page<Packet> findAllTodaysPackets(Pageable paging);
     public List<Packet> findAllPacketsByDate(String start,String end);
@@ -39,5 +39,8 @@ public interface PacketService {
     Packet duplicatePacket(Long idPacket);
     List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO);
     Long getExchangeId(Packet packet);
-    List<ProductsDayCountDTO> productsCountByDate(Long state, String beginDate, String endDate);
+    List<ProductsDayCountDTO> productsCountByDate(Long modelId, String beginDate, String endDate);
+    int deleteEmptyPacket();
+    List<ProductsDayCountDTO> statModelSold(Long modelId,String beginDate, String endDate);
+    Map <String , List<?>> statModelSoldChart(Long modelId,String beginDate, String endDate);
 }

@@ -49,14 +49,13 @@ public class Packet {
     private Date date;
     private String status;
     private Date lastUpdateDate;
-    private Date confirmationDate;
     private boolean exchange;
     private String printLink;
 
     public Packet() {
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, Set<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, Date confirmationDate, String dgStatus, boolean exchange, String printLink) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, Set<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, String dgStatus, boolean exchange, String printLink) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -77,7 +76,6 @@ public class Packet {
         this.date = date;
         this.status = status;
         this.lastUpdateDate = lastUpdateDate;
-        this.confirmationDate = confirmationDate;
         this.exchange = exchange;
         this.printLink = printLink;
     }
@@ -202,15 +200,6 @@ public class Packet {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public Date getConfirmationDate() {
-        return confirmationDate;
-    }
-
-    public void setConfirmationDate(Date confirmationDate) {
-        this.confirmationDate = confirmationDate;
-    }
-
-
     public String getLastDeliveryStatus() {
         return lastDeliveryStatus;
     }
@@ -271,7 +260,6 @@ public class Packet {
                 ", date=" + date +
                 ", status='" + status + '\'' +
                 ", lastUpdateDate=" + lastUpdateDate +
-                ", confirmationDate=" + confirmationDate +
                 ", exchange=" + exchange +
                 ", printLink='" + printLink + '\'' +
                 '}';

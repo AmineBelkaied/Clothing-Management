@@ -42,9 +42,7 @@ export class StatistiqueComponent implements OnInit {
   models: string[] = [];
   citys: number[][] = [];
   listPacket: Packet[] = [];
-  //stat chart
-  basicData: any;
-  basicOptions: any;
+
   //tree table
 
   //packet by date
@@ -78,10 +76,6 @@ export class StatistiqueComponent implements OnInit {
 
   ngOnInit() {
     this.rangeDates[0] = new Date();
-    // the to/end value might not be set
-    // use the from/start date and add 1 day
-    // or the to/end date and add 1 day
-
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color');
     const textColorSecondary = documentStyle.getPropertyValue(
@@ -92,14 +86,13 @@ export class StatistiqueComponent implements OnInit {
     this.cityCounts = counts.cityCounts;
     //console.table(JSON.stringify(this.cityCounts));
     this.createCityStatChart(this.cityCounts);
-    //this.getData();//get data from stat.js
 
     this.pagesCounts = counts.pageCounts;
     //console.table(JSON.stringify(this.cityCounts));
     this.createPageStatChart(this.pagesCounts);
 
     this.datesCounts = counts.dateCounts;
-    //console.table(JSON.stringify(this.cityCounts));
+    console.table(JSON.stringify(this.datesCounts));
     this.createDateStatChart(this.datesCounts);
 
     this.StatesOptions = {
@@ -149,6 +142,7 @@ export class StatistiqueComponent implements OnInit {
         },
       },
     };
+
     this.DatesOptions = {
       maintainAspectRatio: false,
       aspectRatio: 0.6,
@@ -239,7 +233,7 @@ export class StatistiqueComponent implements OnInit {
           {
             label: 'Payées',
             data: datesPayed,
-            fill: false,
+            fill: true,
             borderColor: 'pink',
             tension: 0.4
           },
@@ -248,6 +242,7 @@ export class StatistiqueComponent implements OnInit {
             data: datesReturn,
             fill: false,
             borderColor: 'orange',
+            borderDash: [5, 5],
             tension: 0.4
           },
           {
@@ -329,35 +324,31 @@ export class StatistiqueComponent implements OnInit {
     this.findAllPackets(startDate,endDate);
   }
 
-  filterBydatePackets(startDate: Date, endDate: Date) {
+  filterBydatePackets(startDate: Date, endDate: Date): any {
     let filterBydatePackets = this.listPacket.filter((packet) => {
-      const packetDate = this.getDate(packet.date);
+      const packetDate = this.dateUtils.getDate(packet.date);
       return (
-        packetDate >= this.getDate(startDate) &&
-        packetDate <= this.getDate(endDate)
+        packetDate >= this.dateUtils.getDate(startDate) &&
+        packetDate <= this.dateUtils.getDate(endDate)
       );
     });
     return filterBydatePackets;
-  }
-
-  getDate(date: Date): any {
-    return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
 
   resetTable() {
     this.rangeDates = [];
     this.packets = this.packetService.allPackets.slice();
   }
-
-  /*     getData() {
-      this.statService.getStat().then((data) => {
+/*
+  getData() {
+      this.statsService.getSales().then((data) => {
         this.sales = data;
         console.log('this.sales', this.sales);
         this.selectedModel = this.sales[0].model[0].modelName;
         this.createStat();
       });
-    } */
-  /*
+    }
+
     createStat() {
       console.log('createStat');
       this.sales.forEach((sale) => {
@@ -451,7 +442,7 @@ export class StatistiqueComponent implements OnInit {
       this.totalPerSizeRow = [];
       this.createStat();
     }
-    */
+*/
 }
 
 interface CountCitys {

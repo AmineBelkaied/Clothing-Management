@@ -9,6 +9,7 @@ import { Subject, switchMap, takeUntil } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StatsService } from 'src/shared/services/stats.service';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
+import { DateUtils } from 'src/shared/utils/date-utils';
 
 @Component({
   selector: 'app-stock',
@@ -18,6 +19,10 @@ import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 export class StockComponent implements OnInit {
   products: any[] = [];
   models: Model[] = [];
+
+  chartOptions : String[] = ["Color","Size","Id"];
+  selectedChart : String = "Color";
+
   selectedModel: Model= {
     id: null,
     name: '',
@@ -25,7 +30,7 @@ export class StockComponent implements OnInit {
     colors: [],
     sizes: [],
     products:[],
-};
+  };
 
 
   productsHistory: any;
@@ -42,6 +47,8 @@ export class StockComponent implements OnInit {
   stock:boolean = true;
 
   rangeDates: Date[] = [];
+  startDateString : String;
+  endDateString : String;
 
   searchField: string = '';
   $unsubscribe: Subject<void> = new Subject();
@@ -49,6 +56,15 @@ export class StockComponent implements OnInit {
 
   modelName:String;
 
+  chart: any;
+  chartData:any;
+  productChartCounts: number[];
+  allDatesChart: Date[];
+
+  dataSetArray : any[];
+  basicData: any;
+  basicOptions: any;
+  daysChart : any[]
 
   constructor(
     private productService: ProductService,
@@ -57,61 +73,185 @@ export class StockComponent implements OnInit {
     private activateRoute: ActivatedRoute,
     private statsService: StatsService,
     private modelService: ModelService,
+    private dateUtils: DateUtils,
   ) {}
 
   ngOnInit(): void {
-    this.rangeDates = [new Date("2023-01-01"), new Date()];
-    this.getAllModel();
 
+    this.getAllModel();
+    //this.rangeDates = [new Date()]
     this.activateRoute.params.subscribe(params => {
         this.modelId = +params['id'];
-        this.getStockByModelId(this.modelId);
-        this.getProductsCountByModel(this.modelId);
-        this.getProductHistoryByModel(this.modelId);
+        this.setCalendar();
+        console.log("stats");
+
+        this.getStats();
     });
+
+    // Create the line chart
+    this.dataSetArray = [
+      {
+          label: 'First Dataset',
+          data: [],
+          fill: false,
+          borderColor: '#42A5F5',
+          tension: .4
+      },
+      {
+          label: 'Second Dataset',
+          data: null,
+          fill: false,
+          borderColor: '#FFA726',
+          tension: .4
+      }
+    ];
+    this.daysChart = ['all'];
+    this.basicData = {
+      labels: this.daysChart,
+      datasets: this.dataSetArray
+    };
+    this.basicOptions = {
+      plugins: {
+          legend: {
+              labels: {
+                  color: '#495057'
+              }
+          }
+      },
+      scales: {
+          x: {
+              ticks: {
+                  color: '#495057'
+              },
+              grid: {
+                  color: '#ebedef'
+              }
+          },
+          y: {
+              ticks: {
+                  color: '#495057'
+              },
+              grid: {
+                  color: '#ebedef'
+              }
+          }
+      }
+  };
+  }
+
+  getStats(){
+      this.getStatModelSoldChart(this.modelId,this.selectedChart);
+      this.getStockByModelId(this.modelId);
+      this.getProductsCountByModel(this.modelId);
+      this.getProductHistory();
   }
 
   getAllModel(){
     this.modelService.findAllModels().subscribe((data: any) => {
       this.models = data;
-      console.log('this.models',this.models);
+      //console.log('this.models',this.models);
     });
   }
 
-  getProductHistoryByModel(modelId : number){
-    this.productHistoryService
-      .findAll(modelId)
-      .subscribe((result: any) => {
-        console.log(result);
-        this.productsHistory = result;
-    });
-  }
 
   getProductsCountByModel(modelId : number){
-    let startDate = this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : "2023-01-01";
-    let endDate = this.rangeDates[1] != null? this.convertDateToString(this.rangeDates[1]):
-    this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) :this.convertDateToString(new Date());
-    //console.log(startDate,"-->",endDate);
-
     this.statsService.productsCount(
       modelId,
-      startDate,
-      endDate
+      this.startDateString,
+      this.endDateString
       )
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
       next: (response: any) => {
-        //console.log("responseCount",response);
+        //console.log("statProductSold",response);
+        //this.statsService.getStatsTreeNodesData(response);
         this.productsCount = response;
       },
       error: (error: any) => {
-        console.log('Error22:', error);
+        console.log('ErrorProductsCount:', error);
       },
       complete: () => {
-        console.log('Observable completed-- All ProductsCount --');
+        console.log('Observable completed-- All statProductSold --');
       }
     });
   }
+
+  getStatModelSoldChart(modelId: number,option : String){
+    this.statsService.statModelSold(
+      modelId,
+      this.startDateString,
+      this.endDateString
+      )
+    .pipe(takeUntil(this.$unsubscribe))
+    .subscribe({
+      next: (response: any) => {
+        console.log("getStatModelSold",response);
+        this.createChart(response,option);
+      },
+      error: (error: any) => {
+        console.log('ErrorStatProductSold:', error);
+      },
+      complete: () => {
+        console.log('Observable completed-- All statProductSold --');
+      }
+    });
+  }
+
+  selectChart($event: any){
+    this.getStatModelSoldChart(this.modelId,$event.option)
+  }
+
+  createChart(data: any , option : String){
+    let chartList = [];
+    let chartCounts : any[]= [];
+
+    if(option == "Size") {
+      chartList = data.sizes;
+      chartCounts =data.sizesCount;
+    } else if (option == "Id"){
+      chartList = data.productIds;
+      chartCounts =data.productsCount;
+    } else {
+      chartList = data.colors;
+      chartCounts =data.colorsCount;
+    }
+
+    this.dataSetArray =[];
+    let i = 0;
+    chartList.forEach((item: any) => {
+          this.dataSetArray.push(
+              {
+                label: item +"/av:"+this.calculateAverage(chartCounts[i]),
+                data: chartCounts[i],
+                fill: false,
+                borderColor: this.getRandomColor(),
+                tension: .4
+            }
+          )
+          i++;
+    });
+    this.basicData = {
+      labels: data.dates,
+      datasets: this.dataSetArray
+    };
+  }
+  getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+  calculateAverage(numbers: number[]): number {
+    if (numbers.length === 0) {
+        return 0; // Handle division by zero
+    }
+
+    const sum = numbers.reduce((acc, current) => acc + current, 0);
+    const average = sum / numbers.length;
+    return Number(average.toFixed(1));
+}
 
   getStockByModelId(modelId: number) {
     this.productService.getStock(modelId).subscribe((result: any) => {
@@ -238,52 +378,34 @@ export class StockComponent implements OnInit {
       });
   }
 
-  filterChange(event: any) {
-    this.onClearCalendar();
-    this.getProductsCountByModel(this.modelId);
+  dateFilterChange(event: any) {
+    this.setCalendar();
+    this.getStats();
+  }
+
+  getProductHistory(){
     this.productHistoryService
-      .findAll(
-        this.modelId,
-        this.searchField,
-        this.convertDateToString(this.rangeDates[0]) != null
-          ? this.convertDateToString(this.rangeDates[0])
-          : null,
-        this.rangeDates[1] != null
-          ? this.convertDateToString(this.rangeDates[1])
-          : null
-      )
-      .subscribe((result: any) => {
-        this.productsHistory = result;
-      });
+    .findAll(
+      this.modelId,
+      this.searchField,
+      this.startDateString,
+      this.endDateString
+    )
+    .subscribe((result: any) => {
+      this.productsHistory = result;
+    });
   }
 
-  onClearCalendar() {
-    if (this.rangeDates == null) this.rangeDates = [new Date("2023-01-01"), new Date()];
-  }
-
-  search() {
-    this.productHistoryService
-      .findAll(
-        this.modelId,
-        this.searchField,
-        this.convertDateToString(this.rangeDates[0]) != null
-          ? this.convertDateToString(this.rangeDates[0])
-          : null,
-        this.rangeDates[1] != null
-          ? this.convertDateToString(this.rangeDates[1])
-          : null
-      )
-      .subscribe((result: any) => (this.productsHistory = result));
-  }
-
-  convertDateToString(date: Date) {
-    if (date != null) {
-      let day = date.getDate();
-      let month = date.getMonth() + 1; // add 1 because months are indexed from 0
-      let year = date.getFullYear();
-      return year + '-' + month + '-' + day;
+  setCalendar() {
+    const oneMonthAgo = new Date();
+    const today = new Date();
+    oneMonthAgo.setMonth(today.getMonth() - 1);
+    if (!this.rangeDates || this.rangeDates.length === 0) {
+      this.rangeDates = [oneMonthAgo, today];
     }
-    return "2023-07-01";
+
+    this.startDateString = this.dateUtils.formatDateToString(this.rangeDates[0])
+    this.endDateString = this.rangeDates[1] != null? this.dateUtils.formatDateToString(this.rangeDates[1]): this.startDateString;
   }
 
   haveSelectedItems(index: number, row: boolean):boolean {
@@ -316,10 +438,6 @@ export class StockComponent implements OnInit {
     });
   }
 
-  goModel(){
-
-  }
-
   getSeverity(product: any,button:boolean) {
     if (button)
     switch (true) {
@@ -343,23 +461,4 @@ export class StockComponent implements OnInit {
             return 'EN STOCK';
     }
   }
-
-  /*   getStyle(quantity: any) {
-    if (quantity < 10)
-    return {
-      'background-color':'#D7A4A3',
-      cursor: 'pointer',
-    };
-    else
-    return {
-      cursor: 'pointer'
-    };
-  } */
-
-/*   onModelChange($event: any) {
-    this.getStockByModelId($event);
-    console.log(this.modelId);
-    this.modelId = $event;
-    this.selectedProducts = [];
-  } */
 }

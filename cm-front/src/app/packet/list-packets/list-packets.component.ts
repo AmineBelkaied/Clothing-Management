@@ -12,10 +12,14 @@ import { catchError, identity, Observable, of, Subject,takeUntil} from 'rxjs';
 import { Offer } from 'src/shared/models/Offer';
 import { FormControl } from '@angular/forms';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { A_VERIFIER, BUREAU, CONFIRMEE, CORBEIL, EN_COURS, EN_COURS_1, EN_COURS_2, EN_COURS_3, EN_RUPTURE, INJOIYABLE, LIVREE, NON_CONFIRMEE, PAYEE, RETOUR_RECU, SUPPRIME, TERMINE, statesList, statusList } from 'src/shared/utils/status-list';
+import { A_VERIFIER, BUREAU, CANCELED, CONFIRMEE, CORBEIL, ENDED, EN_COURS, EN_COURS_1, EN_COURS_2,
+  EN_COURS_3, INJOIYABLE, LIVREE, NON_CONFIRMEE, NOT_SERIOUS, PAYEE, PROBLEME, RETOUR, RETOUR_RECU,
+  DELETED, TERMINE, statesList, statusList } from 'src/shared/utils/status-list';
 import { City } from 'src/shared/models/City';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { DashboardCard } from 'src/shared/models/DashboardCard';
+import { firstUrl } from 'src/assets/constants';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-list-packets',
@@ -41,6 +45,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   editMode = false;
   isLoading = false;
   selectedPacket: string = '';
+  today: Date = new Date();
   today_2: Date = new Date(Date.now() - 172800000);
 
   modelDialog!: boolean;
@@ -58,20 +63,49 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   statusList: string[] = [];
   optionButtons: MenuItem[];
-  selectedStatusList: string[] = [];
+  packetStatusList: string[] = [];
   statesList: string[] = [];
   selectedStatus: FormControl = new FormControl();
   selectedStates: string[] = [];
   $unsubscribe: Subject<void> = new Subject();
   pageSize : number = 100;
-  params : any;
+  params : any={
+    page: 0,
+    size: this.pageSize,
+    startDate: this.dateUtils.formatDateToString(this.today),
+    endDate: null,
+    mandatoryDate: false
+  };
   loading: boolean = false;
-  aVerifierNotification: string ="0";
-  nonConfirmeeNotification: string ="0";
-  injoiyableNotification: string ="0";
+  mandatoryDateCheckBox : boolean = false;
+  oldDateFilterCheckBox : boolean = false;
+  dateOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
+  value : boolean = this.mandatoryDateCheckBox;
+
+  notificationList : any [] = [
+    {
+      class:'pi-question-circle',
+      severity:'info',
+      status: A_VERIFIER,
+      count: '0'
+    },
+    {
+      class:'pi-power-off',
+      severity:'warning',
+      status: INJOIYABLE,
+      count: '0'
+    },
+    {
+      class:'pi-phone',
+      severity:'danger',
+      status: NON_CONFIRMEE,
+      count: '0'
+    }
+  ];
 
   @ViewChild('dt') dt?: Table;
   private readonly reg: RegExp = /,/gi;
+  regBS = /\n/gi;
   private readonly FIRST: string = 'FIRST';
 
   constructor(
@@ -94,22 +128,15 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   ngOnInit(): void {
     //"Duplicate","Actualiser status","Chercher par telephone","Chercher par telephone First","Ouvrir code a bare First"
-
-    this.params = {
-      page: 0,
-      size: this.pageSize,
-      startDate: this.dateUtils.formatDateToString(new Date()),
-      endDate: this.dateUtils.formatDateToString(new Date())
-    };
     this.createNotification();
     //this.findAllPackets();
     this.createColumns();
     this.findAllOffers();
     this.findAllGroupedCities();
     this.findAllFbPages();
-    this.rangeDates[0] = new Date();
+    this.rangeDates = [this.today];
     this.selectedStatus.setValue([]);
-    this.selectedStatusList = this.statusList;
+    this.packetStatusList = this.statusList;
   }
 
   createNotification(): void {
@@ -118,9 +145,15 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       .subscribe({
         next: (response: DashboardCard[]) => {
           console.log('createDashboardResponse',response);
-          this.aVerifierNotification=response[0].statusCount+"";
-          this.nonConfirmeeNotification=response[1].statusCount+"";
-          this.injoiyableNotification = response[2].statusCount+"";
+          //this.notificationList = response;
+
+          if (response != null && response.length > 0) {
+            response.forEach((element: any) => {
+              if(element.status == A_VERIFIER) this.notificationList[0].count = element.statusCount;
+              else if(element.status == INJOIYABLE) this.notificationList[1].count = element.statusCount;
+              else if(element.status == NON_CONFIRMEE) this.notificationList[2].count = element.statusCount;
+            });
+          }
         },
         error: (error: Error) => {
           console.log('Error:', error);
@@ -184,14 +217,77 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   onEditComplete(packet: any): void {
+    console.log('packet',packet);
+
     if (this.oldField !== packet.data[packet.field]) {
-      if (packet.field == 'city' || packet.field == 'fbPage') {
+      if (packet.field == 'city' || packet.field == 'fbPage' || packet.field == 'date') {
+        if(packet.field == 'date'){
+          packet.data[packet.field].setHours(packet.data[packet.field].getHours() + 1);
+        }
         this.updatePacket(packet.data);
       } else {
         let updatedField = { [packet.field]: packet.data[packet.field] };
         let msg = 'Le champ a été modifié avec succés';
-        if ( packet.field == 'status') {
-          this.createNotification();
+
+        if ( packet.field == 'status' && packet.data[packet.field] != null) {
+
+          if(packet.data[packet.field] == DELETED && packet.data.barcode != null && packet.data.barcode != "" ){
+            this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez ne pas supprimée les packets sorties' });
+            packet.data[packet.field] = this.oldField;
+            return;
+          }
+          if(packet.data[packet.field] == CANCELED && packet.data.status != CONFIRMEE){
+            this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez ne pas annuler que les packets sorties' });
+            packet.data[packet.field] = this.oldField;
+            return;
+          }
+          if((packet.data[packet.field] == NON_CONFIRMEE
+            || packet.data[packet.field] == ENDED
+            || packet.data[packet.field] == NOT_SERIOUS
+            ) && (
+            packet.data.status == EN_COURS_1
+            || packet.data.status == EN_COURS_2
+            || packet.data.status == EN_COURS_3
+            )){
+            this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Ce Colis est déja en cours' });
+            packet.data[packet.field] = this.oldField;
+            return;
+          }
+
+          if((packet.data[packet.field] == EN_COURS_1
+            || packet.data[packet.field] == EN_COURS_2
+            || packet.data[packet.field] == EN_COURS_3
+            || packet.data[packet.field] == CANCELED
+            || packet.data[packet.field] == LIVREE
+            || packet.data[packet.field] == RETOUR
+            || packet.data[packet.field] == RETOUR_RECU
+            || packet.data[packet.field] == PAYEE
+            ) && (
+            packet.data.barcode == null || packet.data.barcode == ""
+            )){
+            this.messageService.add({ severity: 'error',summary: 'Error', detail: "Ce Colis n'a pas sorti" });
+            packet.data[packet.field] = this.oldField;
+            return;
+          }
+
+          if((packet.data[packet.field] == NON_CONFIRMEE
+            || packet.data[packet.field] == ENDED
+            || packet.data[packet.field] == NOT_SERIOUS
+            || packet.data[packet.field] == NON_CONFIRMEE
+            || packet.data[packet.field] == ENDED
+            || packet.data[packet.field] == NOT_SERIOUS
+            || packet.data[packet.field] == INJOIYABLE
+            ) && (
+            packet.data.status == LIVREE
+            || packet.data.status == RETOUR
+            || packet.data.status == RETOUR_RECU
+            || packet.data.status == PAYEE
+            )){
+            this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Ce Colis est déja Terminée' });
+            packet.data[packet.field] = this.oldField;
+            return;
+          }
+
           if(packet.data[packet.field] == CONFIRMEE){
             if (!this.checkPacketValidity(packet.data)) {
               this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
@@ -201,29 +297,31 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
             this.selectedPacket = packet['data'].id;
             this.isLoading = true;
           }
-
+          if(packet.data[packet.field] == null){
+              packet.data[packet.field] = this.oldField;
+              return;
+          }
         }
+
+        if(!( packet.field == 'status' && packet.data[packet.field] == null ))
         this.packetService
           .patchPacket(packet['data'].id, updatedField)
           .pipe(
             catchError((err: any, caught: Observable<any>): Observable<any> => {
               this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la mise à jour ' + err.error.message });
               packet.data[packet.field] = this.oldField;
-
               this.isLoading = false;
               return of();
             })
           )
           .subscribe((responsePacket: Packet) => {
-            if (packet.field === 'status' && ((packet.data[packet.field] === 'Confirmée') || (packet.data[packet.field] === 'Retour Echange'))) {
+            this.createNotification();
+            if (packet.field === 'status' && packet.data[packet.field] === 'Confirmée') {
               this.isLoading = false;
               if (responsePacket.barcode != null) {
                 let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
                 this.packets.splice(pos, 1, responsePacket);
                 msg = 'Le barcode a été crée avec succés';
-                if (packet.data[packet.field] === 'Retour Echange') {
-                 this.oldField === PAYEE ? packet.data[packet.field] = PAYEE : packet.data[packet.field] = LIVREE;
-                }
               } else {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la creation du barcode' });
               }
@@ -247,7 +345,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   newPacket(): Packet {
     return {
-      date: this.dateUtils.getDate(new Date()),
+      date: this.dateUtils.getDate(this.today),
       barcode: '',
       lastDeliveryStatus: '',
       customerName: '',
@@ -259,6 +357,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       price: 0,
       status: 'Non confirmée',
       exchange: false,
+      oldClient : 0
     };
   }
 
@@ -291,7 +390,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   openLinkGetter(code: any): void {
-    window.open("https://www.firstdeliverygroup.com/fournisseur/recherche.php?code=" + code, '_blank');
+    window.open(firstUrl+"/recherche.php?code=" + code, '_blank');
   }
 
   printFirst(link: string): void {
@@ -398,6 +497,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   filterPackets($event?: string): void {
     this.createRangeDate();
+    this.setPacketStatusList();
     let page = 0;
 
     if ($event == 'states') {
@@ -405,18 +505,19 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     }
     else if ($event == 'clear') {
       this.selectedStates = [];
-      this.selectedStatusList = this.statusList;
+      this.packetStatusList = this.statusList;
       this.selectedStatus.setValue([]);
     }else if($event == 'page')
-    page = this.currentPage;
+      page = this.currentPage;
     if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
     this.params = {
       page: page,
       size: this.pageSize,
       searchText: this.filter != null && this.filter != '' ? this.filter : null,
-      startDate: this.rangeDates !== null && this.rangeDates.length > 0 ? this.dateUtils.formatDateToString(this.startDate) : null,
-      endDate: this.rangeDates !== null && this.rangeDates.length > 0 ? this.dateUtils.formatDateToString(this.endDate) : null,
-      status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join()
+      startDate: this.dateUtils.formatDateToString(this.startDate),
+      endDate: this.dateUtils.formatDateToString(this.endDate),
+      status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join(),
+      mandatoryDate: this.mandatoryDateCheckBox
     };
     this.findAllPackets();
   }
@@ -434,37 +535,67 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   onNotificationClick($event?: string): void{
     console.log("aaaa",$event);
-
     this.selectedStatus.setValue([]);
-    if($event == "0")
-    this.selectedStatus.patchValue([A_VERIFIER]);
-    else if($event == "1")
-    this.selectedStatus.patchValue([INJOIYABLE]);
-    else if($event == "2")
-    this.selectedStatus.patchValue([NON_CONFIRMEE]);
-   this.filterPackets('state');
+    this.selectedStatus.patchValue([$event]);
+    this.filterPackets('status');
+  }
+
+  setPacketStatusList(){
+    console.log(this.selectedStatus.value.length);
+
+    if( this.selectedStatus.value.length == 1)
+    {
+      let selectedStatus= this.selectedStatus.value[0]
+      console.log(selectedStatus);
+
+      this.packetStatusList = [];
+
+      if ( selectedStatus == NON_CONFIRMEE
+          || selectedStatus ==CANCELED
+          || selectedStatus ==DELETED
+          || selectedStatus ==NOT_SERIOUS
+          || selectedStatus ==INJOIYABLE
+          || selectedStatus ==ENDED ) {
+        this.packetStatusList = [ NON_CONFIRMEE, CONFIRMEE, ENDED, INJOIYABLE, NOT_SERIOUS ];
+      }
+      if ( selectedStatus == CONFIRMEE ) {
+        this.packetStatusList = [ CANCELED, A_VERIFIER, LIVREE, PAYEE, RETOUR, RETOUR_RECU];
+      }
+      if ( selectedStatus == EN_COURS_1
+          || selectedStatus == EN_COURS_2
+          ||  selectedStatus == EN_COURS_3 ) {
+        this.packetStatusList = [ A_VERIFIER, INJOIYABLE, LIVREE, PAYEE, RETOUR, RETOUR_RECU];
+      }
+      if ( selectedStatus == A_VERIFIER ) {
+        this.packetStatusList = [ LIVREE, PAYEE, RETOUR, RETOUR_RECU, PROBLEME];
+      }
+      if ( selectedStatus == CANCELED || selectedStatus == DELETED ) {
+        this.packetStatusList = [ NON_CONFIRMEE, ENDED, CONFIRMEE];
+      }
+  }
   }
 
   onStateChange(): void {
     this.selectedStatus.setValue([]);
-    this.selectedStatusList = [];
+    this.packetStatusList = [];
     if (this.selectedStates.indexOf(CORBEIL) > -1) {
-      this.selectedStatus.patchValue([SUPPRIME]);
-      this.selectedStatusList = [ NON_CONFIRMEE, EN_RUPTURE, CONFIRMEE];
+      this.selectedStatus.patchValue([DELETED]);
+      this.packetStatusList = [ NON_CONFIRMEE, ENDED, CONFIRMEE, NOT_SERIOUS, INJOIYABLE];
     }
 
     if (this.selectedStates.indexOf(BUREAU) > -1) {
-      this.selectedStatus.patchValue([ NON_CONFIRMEE, EN_RUPTURE, A_VERIFIER, CONFIRMEE ]);
-      this.selectedStatusList = [ NON_CONFIRMEE, EN_RUPTURE, CONFIRMEE];
+      this.selectedStatus.patchValue([ NON_CONFIRMEE, ENDED, A_VERIFIER, CONFIRMEE ]);
+      this.packetStatusList = [ NON_CONFIRMEE, ENDED, CONFIRMEE, NOT_SERIOUS, INJOIYABLE];
     }
     if (this.selectedStates.indexOf(EN_COURS) > -1) {
-      this.selectedStatus.patchValue([ EN_COURS_1, EN_COURS_2, EN_COURS_3 ]);
-      this.selectedStatusList = this.statusList;
+      this.selectedStatus.patchValue([ A_VERIFIER, LIVREE, PAYEE, RETOUR, RETOUR_RECU]);
+      this.packetStatusList = this.statusList;
     }
     if (this.selectedStates.indexOf(TERMINE) > -1) {
       this.selectedStatus.patchValue([PAYEE, RETOUR_RECU]);
     }
   }
+
 
   onPageChange($event: any): void {
     this.currentPage = $event.page;
@@ -516,7 +647,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   clearStatus(): void {
   this.selectedStates = [];
-    this.selectedStatusList = this.statusList;
+    this.packetStatusList = this.statusList;
     this.selectedStatus.setValue([]);
     if (this.filter != '' && this.filter != null) {
       this.dt!.reset();
@@ -535,6 +666,30 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   checkPhoneNbExist(packet:Packet){
     return packet!= undefined && packet.customerPhoneNb !="" && packet.customerPhoneNb!= null
+  }
+
+  mandatoryDateChange(){
+    if(this.selectedStatus.value != null && this.selectedStatus.value.length > 0)
+    this.filterPackets('global')
+  }
+
+  oldDateFilter(){
+
+      this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now() - 86400000)];
+      this.createRangeDate();
+      this.filterPackets('global');
+
+    //console.log('aaa',this.rangeDates);
+  }
+  todayDate(){
+      this.rangeDates = [this.today];
+      this.createRangeDate();
+      this.filterPackets('global');
+  }
+  clearDate(){
+      this.rangeDates = [];
+      this.createRangeDate();
+      this.filterPackets('global');
   }
 
   openShowOptionMenu(packet:any) {
@@ -597,5 +752,151 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
           this.printFirst(packet.printLink)
         }
       }
-  ];                                                                                                                                                                                    }
+  ];
+  }
+
+  /*exportExcel() {
+    console.log(this.dt?._totalRecords);
+    console.log(this.dt?.totalRecords);
+    let packets: any[] = [];
+    let selectedPackets = this.selectedPackets.map((p) => p.id);
+    packets = this.packets.slice();
+    if (this.filter != '' && this.filter != null)
+      packets = this.dt!.filteredValue;
+    if (this.selectedPackets.length > 0) {
+      let filteredPackets = packets.filter(
+        (packet) => selectedPackets.indexOf(packet.id) > -1
+      );
+      if (filteredPackets.length > 0) packets = filteredPackets.slice();
+    }
+
+    packets = packets?.map(
+      (packet: any) =>
+      (packet = {
+        Id: packet.id,
+        Prix: packet.price + packet.deliveryPrice - packet.discount,
+        Références: packet.packetDescription,
+        PageFB: packet.fbPage?.name,
+      })
+    );
+    import('xlsx').then((xlsx) => {
+      const worksheet = xlsx.utils.json_to_sheet(packets);
+      const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
+      const excelBuffer: any = xlsx.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array',
+      });
+      this.saveAsExcelFile(excelBuffer, 'products');
+    });
+  }
+
+/*   saveAsExcelFile(buffer: any, fileName: string): void {
+    let EXCEL_TYPE =
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    let EXCEL_EXTENSION = '.xlsx';
+    const data: Blob = new Blob([buffer], {
+      type: EXCEL_TYPE,
+    });
+    FileSaver.saveAs(
+      data,
+      fileName + ' - ' + this.dateUtils.formatDateToString(new Date()) + EXCEL_EXTENSION
+    );
+  } */
+  exportCSV() {
+
+    let packets: any[] = [];
+    let selectedPackets = this.selectedPackets.map((p) => p.id);
+    packets = this.packets.slice();
+    if (this.filter != '' && this.filter != null)
+      packets = this.dt!.filteredValue;
+    if (this.selectedPackets.length > 0) {
+      let filteredPackets = packets.filter(
+        (packet) => selectedPackets.indexOf(packet.id) > -1
+      );
+      if (filteredPackets.length > 0) packets = filteredPackets.slice();
+    }
+
+    // map the packets to a customer packetList
+    packets = packets?.map(
+      (packet: any) =>
+      (packet = {
+        destinataire_nom: this.getValue(packet.customerName),
+        adresse: this.getValue(packet.address).replace(this.regBS, ' '),
+        ville: this.getValue(packet.city?.name),
+        gouvernorat: this.getValue(packet.city?.governorate.name),
+        telephone: this.getPhoneNumber1(packet.customerPhoneNb),
+        telephone2: this.getPhoneNumber2(packet.customerPhoneNb),
+        nombre_de_colis: 1,
+        prix: this.getValue(packet.price-packet.discount+packet.deliveryPrice),
+        designation:
+          this.getValue(packet.id) +
+          ' ' +
+          this.getValue(packet.fbPage?.name) +
+          ' | ' +
+          this.getValue(packet.packetDescription?.replace(this.regBS, ', ')),
+        commentaire:
+          'Le colis peut etre ouvert lors de la commande du client',
+        barcode: this.getValue(packet.barcode),
+      })
+    );
+
+    // prepare the columns to be exported
+    let cols: any[] = [
+      { field: 'destinataire_nom', header: 'destinataire_nom' },
+      { field: 'adresse', header: 'adresse' },
+      { field: 'ville', header: 'ville' },
+      { field: 'gouvernorat', header: 'gouvernorat' },
+      { field: 'telephone', header: 'telephone' },
+      { field: 'telephone2', header: 'telephone2' },
+      { field: 'nombre_de_colis', header: 'nombre_de_colis' },
+      { field: 'prix', header: 'prix' },
+      { field: 'designation', header: 'designation' },
+      { field: 'commentaire', header: 'commentaire' },
+      { field: 'barcode', header: 'Barcode' },
+    ];
+    let csv = '';
+    let csvSeparator = ';';
+    //headers
+    for (let i = 0; i < cols.length; i++) {
+      if (cols[i].field) {
+        csv += cols[i].field;
+
+        if (i < cols.length - 1) {
+          csv += csvSeparator;
+        }
+      }
+    }
+    //body
+    packets?.forEach((record: any, j) => {
+      csv += '\n';
+      for (let i = 0; i < cols.length; i++) {
+        if (cols[i].field) {
+          console.log(record[cols[i].field]);
+          // resolveFieldData seems to check if field is nested e.g. data.something --> probably not needed
+          csv += record[cols[i].field]; //this.resolveFieldData(record, this.columns[i].field);
+          if (i < cols.length - 1) {
+            csv += csvSeparator;
+          }
+        }
+      }
+    });
+    this.download(csv, 'first - ' + this.dateUtils.formatDateToString(new Date()));
+  }
+
+  download(text: any, filename: any) {
+    let element = document.createElement('a');
+    element.setAttribute(
+      'href',
+      'data:text/csv;charset=utf-8,' + encodeURIComponent(text)
+    );
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  }
+
 }

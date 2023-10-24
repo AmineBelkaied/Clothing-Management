@@ -18,9 +18,11 @@ public class UpdateStatusScheduler {
     @Autowired
     PacketService packetService;
 
-    @Scheduled(cron = "0 40 9 ? * *")
+    @Scheduled(cron = "0 10 9 ? * *")
     public int cronJobSch() throws Exception{
         System.out.println("CRON STARTED");
+        int x = packetService.deleteEmptyPacket();
+        System.out.println(x+"rows deleted");
         List<Packet> packets = Collections.synchronizedList(packetService.findAllDiggiePackets());
         synchronized (packets) {
             Iterator<Packet> iterator = packets.iterator();

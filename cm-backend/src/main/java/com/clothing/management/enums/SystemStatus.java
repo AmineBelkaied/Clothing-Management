@@ -1,6 +1,8 @@
 package com.clothing.management.enums;
 
-public enum DiggieStatus {
+public enum SystemStatus {
+
+    CREATION("Creation"),
     LIVREE("Livrée"),
     INJOIYABLE("Injoiyable"),
     CONFIRMEE("Confirmée"),
@@ -12,9 +14,15 @@ public enum DiggieStatus {
     AU_MAGASIN("Au magasin"),
     A_VERIFIER("A verifier"),
     RETOUR("Retour"),
-    RETOUR_EXPEDITEUR("Retour Expediteur"),
+    PROBLEM("Problème"),
+
     RETOUR_EXCHANGE("Retour Echange"),
     RETOUR_RECU("Retour reçu"),
+
+    NOTSERIOUS("Pas Serieux"),
+
+    CANCELED("Annuler"),
+    RETOUR_EXPEDITEUR("Retour Expediteur"),
     PAYEE("Payée"),
 
     EXCHANGE("Echange"),
@@ -25,11 +33,11 @@ public enum DiggieStatus {
 
     private String status;
 
-    DiggieStatus(String status) {
+    SystemStatus(String status) {
         this.status = status;
     }
 
-    DiggieStatus() {
+    SystemStatus() {
     }
 
     public String getStatus() {
@@ -42,11 +50,11 @@ public enum DiggieStatus {
 
 
     // From the String method, it will return you the Enum for the provided input string
-    public static DiggieStatus fromString(String status) {
+    public static SystemStatus fromString(String status) {
         if (status != null) {
-            for (DiggieStatus diggieStatus : DiggieStatus.values()) {
-                if (status.equalsIgnoreCase(diggieStatus.status)) {
-                    return diggieStatus;
+            for (SystemStatus systemStatus : SystemStatus.values()) {
+                if (status.equalsIgnoreCase(systemStatus.status)) {
+                    return systemStatus;
                 }
             }
         }

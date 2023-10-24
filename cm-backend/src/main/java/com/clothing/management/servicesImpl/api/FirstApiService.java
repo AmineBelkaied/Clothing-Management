@@ -7,12 +7,14 @@ import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.io.InputStream;
 
 @Service
 public class FirstApiService {
@@ -28,9 +30,6 @@ public class FirstApiService {
     private final String exchangeProduct="Diggie pants";
     private final String comment="Le colis peut être ouvert à la demande du client";
 
-
-
-
     public FirstApiService() {
     }
 
@@ -45,24 +44,21 @@ public class FirstApiService {
         return executeHttpRequest(getLastStatusEndPoint, jsonBody.toString());
     }
 
-    private DeliveryResponseFirst executeHttpRequest(String url, String jsonBody) throws IOException {
+    /*private DeliveryResponseFirst executeHttpRequest(String url, String jsonBody) throws IOException {
+        //System.out.println("executeHttpRequest");
         URL urlConnection = new URL(url);
-        HttpURLConnection connection = (HttpURLConnection) urlConnection.openConnection();
+        HttpsURLConnection connection = (HttpsURLConnection) urlConnection.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Authorization", "Bearer " + bearerToken);
         connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
         connection.setDoOutput(true);
-        //jsonBody={"Client":{"gouvernerat":"Kairouan","ville":"Bou Hajla","adresse":"azeza","telephone2":"","telephone":"44444444","nom":"test"},"Produit":{"prix":61.0,"nombreEchange":0,"designation":"16023 GoStyle | P1 Lima Noir (S) ","commentaire":"Le colis peut être ouvert à la demande du client","article":"Diggie pants","nombreArticle":1}}
         try (OutputStream outputStream = connection.getOutputStream()) {
             byte[] input = jsonBody.getBytes("utf-8");
             outputStream.write(input, 0, input.length);
-        }
+        }catch (Exception e) {System.out.println("errorr:"+e);}
         DeliveryResponseFirst deliveryResponse = null;
         int responseCode = connection.getResponseCode();
-        System.out.println("responseCode:"+connection.getResponseCode());
         String responseMessage = connection.getResponseMessage();
-        System.out.println("responseMessage:"+responseMessage);
-
 
         if(responseCode!= 404){
             //System.out.println("!404 ");
@@ -70,22 +66,87 @@ public class FirstApiService {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    System.out.println("line "+line);
                     response.append(line);
                 }
+                System.out.println("line:"+response.toString());
             }
-            System.out.println("Response Body: " + response.toString());
 
             ObjectMapper mapper = new ObjectMapper();
             deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseFirst.class);
-            //System.out.println("responseMessage:"+deliveryResponse.getResult());
             deliveryResponse.setResponseCode(responseCode);
             deliveryResponse.setMessage(responseMessage);
         }else {
-            System.out.println("404 ");
             deliveryResponse.setMessage("not found");
-            deliveryResponse.setStatus(404);
-            deliveryResponse.setResponseCode(404);
+            deliveryResponse.setStatus(responseCode);
+            deliveryResponse.setResponseCode(responseCode);
+            deliveryResponse.setIsError(true);
+        }
+
+        System.out.println("FASdeliveryResponse: " + deliveryResponse.toString());
+        connection.disconnect();
+        return deliveryResponse;
+    }*/
+
+    private DeliveryResponseFirst executeHttpRequest(String url, String jsonBody) throws IOException {
+        System.out.println("jsonBody: " + jsonBody);
+        URL urlConnection = new URL(url);
+        HttpsURLConnection connection = (HttpsURLConnection) urlConnection.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Authorization", "Bearer " + bearerToken);
+        connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+        connection.setRequestProperty("User-Agent", "curl/7.29.0");
+        connection.setDoOutput(true);
+        StringBuilder response = new StringBuilder();
+        DeliveryResponseFirst deliveryResponse = new DeliveryResponseFirst();
+
+        try (OutputStream outputStream = connection.getOutputStream()) {
+            byte[] input = jsonBody.getBytes("utf-8");
+            outputStream.write(input, 0, input.length);
+        } catch (Exception e) {
+            System.out.println("Error in writing to OutputStream: " + e);
+        }
+
+        int responseCode = connection.getResponseCode();
+        String responseMessage = connection.getResponseMessage();
+
+        if (responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("line: " + line);
+                    response.append(line);
+                }
+            } catch (Exception e) {
+                System.out.println("Error in reading InputStream: " + e);
+            }
+            System.out.println("response.toString(): " + response.toString());
+            ObjectMapper mapper = new ObjectMapper();
+            deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseFirst.class);
+            System.out.println("deliveryResponse: " + deliveryResponse.toString());
+            deliveryResponse.setResponseCode(responseCode);
+            deliveryResponse.setMessage(responseMessage);
+        } else {
+            System.out.println("Response Code: " + responseCode);
+            System.out.println("Response Headers: " + connection.getHeaderFields());
+
+            InputStream errorStream = connection.getErrorStream();
+            if (errorStream != null) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    System.out.println("Error Body: " + response.toString());
+                } catch (Exception e) {
+                    System.out.println("Error in reading ErrorStream: " + e);
+                }
+            } else {
+                System.out.println("Error stream is null.");
+            }
+
+            deliveryResponse.setMessage("not found");
+            deliveryResponse.setStatus(responseCode);
+            deliveryResponse.setResponseCode(responseCode);
             deliveryResponse.setIsError(true);
         }
 
@@ -93,6 +154,8 @@ public class FirstApiService {
         connection.disconnect();
         return deliveryResponse;
     }
+
+
 
 
     private JSONObject createJsonBarCode(String barCode) {

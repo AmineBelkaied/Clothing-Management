@@ -43,10 +43,11 @@ public class PacketController {
                                                                 @RequestParam(required = false) String searchText,
                                                                 @RequestParam(required = false) String startDate,
                                                                 @RequestParam(required = false) String endDate,
-                                                                @RequestParam(required = false) String status) {
+                                                                @RequestParam(required = false) String status,
+                                                                @RequestParam(required = false) boolean mandatoryDate) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<Packet> allPackets = packetService.findAllPackets(searchText, startDate, endDate, status, pageable);
+            Page<Packet> allPackets = packetService.findAllPackets(searchText, startDate, endDate, status, pageable, mandatoryDate);
             return new ResponseEntity<>(new ResponsePage.Builder()
                     .result(allPackets.getContent())
                     .currentPage(allPackets.getNumber())
@@ -104,6 +105,7 @@ public class PacketController {
 
     @PutMapping(value = "/update" , produces = "application/json")
     public Packet updatePacket(@RequestBody Packet packet) {
+
         return packetService.updatePacket(packet);
     }
 
@@ -146,6 +148,7 @@ public class PacketController {
     }
 
     @PostMapping(value = "/getLastStatus", produces = "application/json")
+    @CrossOrigin("*")
     public ResponseEntity<Packet> getLastStatus(@RequestBody Packet packet, @RequestParam("deliveryCompany") String deliveryCompany) throws Exception {
         return new ResponseEntity<>(
                 packetService.getLastStatus(packet, deliveryCompany),
@@ -173,7 +176,6 @@ public class PacketController {
     @GetMapping(path = "/syncAllPacketsStatus")
     public int synchronizeAllPacketsStatus() throws Exception {
         return updateStatusScheduler.cronJobSch();
-
     }
 
     @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")
@@ -185,11 +187,20 @@ public class PacketController {
         }
     }
 
-    @GetMapping(path = "/productsCount/{state}")
+    @GetMapping(path = "/productsCount/{modelId}")
     public List<ProductsDayCountDTO> productsCount(
-            @PathVariable Long state ,
+            @PathVariable Long modelId ,
             @RequestParam(required = true) String beginDate,
             @RequestParam(required = true) String endDate) {
-        return packetService.productsCountByDate(state,beginDate,endDate);
+        return packetService.productsCountByDate(modelId,beginDate,endDate);
+    }
+
+    @GetMapping(path = "/statModelSold/{modelId}")
+    public Map <String , List<?>> statModelSold(
+            @PathVariable Long modelId ,
+            @RequestParam(required = true) String beginDate,
+            @RequestParam(required = true) String endDate) {
+        return packetService.statModelSoldChart(modelId,beginDate,endDate);
+
     }
 }

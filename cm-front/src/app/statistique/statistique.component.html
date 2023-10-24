@@ -87,8 +87,8 @@
     <td>totalPerSizeRow</td>
     <td *ngFor="let x of totalPerSizeRow">{{ x }}</td>
   </tr>
-</table>-->
-
+</table>
+-->
 <!-- <div class="card">
   <p-chart type="bar" [data]="basicData" [options]="basicOptions"></p-chart>
 </div>
@@ -103,8 +103,7 @@
             [(ngModel)]="rangeDates"
             (ngModelChange)="onChangeEndDate($event)"
             selectionMode="range"
-            [appendTo]="chartContainer"
-            dateFormat="dd/mm/yy"
+            dateFormat="dd/mm"
             [readonlyInput]="true"
             inputId="range"
             placeholder="Filtrer par date/période"
@@ -113,7 +112,8 @@
             [showButtonBar]="true"
             [showIcon]="true"
             class="ml-4"
-            [style]="{ width: '300px', 'z-index': 100 }"
+            [style]="{ width: '14rem'}"
+            [touchUI]="true"
           ></p-calendar>
         </div>
       </div>

@@ -34,10 +34,14 @@ export class PacketService {
     let path = '/findAllPaginatedPackets?page=' + params.page + "&size=" + params.size;
     if(params.searchText != undefined && params.searchText != null)
       path += "&searchText=" + params.searchText;
+    if(params.startDate != undefined)
+      path += "&startDate=" + params.startDate;
     if(params.startDate != undefined && params.endDate != undefined)
-      path += "&startDate=" + params.startDate + "&endDate=" + params.endDate;
+      path += "&endDate=" + params.endDate;
     if(params.status != undefined && params.status != null)
       path += "&status=" + params.status;
+    if(params.mandatoryDate != undefined && params.mandatoryDate != null)
+      path += "&mandatoryDate=" + params.mandatoryDate;
     return this.http.get(this.baseUrl + path);
   }
 

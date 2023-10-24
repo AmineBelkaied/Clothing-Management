@@ -18,7 +18,16 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "AND p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
             "AND DATE(p.packetDate) >= Date(:beginDate) " +
             "AND DATE(p.packetDate) <= DATE(:endDate) " +
-            "AND p.product.model.id = :state " +
+            "AND p.product.model.id = :modelId " +
             "GROUP BY p.product.color.name, p.product.size.reference ORDER BY p.product.id ASC ")
-    public List<ProductsDayCountDTO> productsCountByDate(@Param("state") Long state, @Param("beginDate") String beginDate, @Param("endDate") String endDate);
+    public List<ProductsDayCountDTO> productsCountByDate(@Param("modelId") Long modelId, @Param("beginDate") String beginDate, @Param("endDate") String endDate);
+
+    @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(DATE(p.packetDate), p.product.id, p.product.model.id , p.product.color.name , p.product.size.reference , COUNT(p.product.id))" +
+            "FROM ProductsPacket p WHERE (p.status = 1 OR p.status = 2) " +
+            "AND p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
+            "AND DATE(p.packetDate) >= Date(:beginDate) " +
+            "AND DATE(p.packetDate) <= DATE(:endDate) " +
+            "AND p.product.model.id = :modelId "+
+            "GROUP BY p.product.id,Date(p.packetDate) ORDER BY p.packetDate ASC ")
+    public List<ProductsDayCountDTO> statModelSold(@Param("modelId")  Long modelId,@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 }

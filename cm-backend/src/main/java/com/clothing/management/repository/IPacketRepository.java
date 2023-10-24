@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -24,7 +25,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             nativeQuery = true)
     Page<Packet> findAllTodayPackets(Pageable pageable);
 
-    @Query(value="SELECT * FROM packet p WHERE p.status != 'Payée' and p.status != 'Injoignable' and p.status != 'Livrée' AND p.status != 'Retour reçu' and p.status != 'Retour' and p.status != 'Supprimé' AND p.status != 'En rupture' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
+    @Query(value="SELECT * FROM packet p WHERE p.status != 'Payée' and p.status != 'Annuler' and p.status != 'Pas serieux' and p.status != 'Livrée' AND p.status != 'Retour reçu' and p.status != 'Retour' and p.status != 'Supprimé' AND p.status != 'En rupture' AND p.status != 'Problème' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
     public List<Packet> findAllDiggiePackets();
 
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
@@ -32,6 +33,10 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
 
     @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% AND p.status != 'Supprimé' AND p.exchange = false", nativeQuery = true)
     public int findAllPacketsByPhone_number(@Param("phoneNumber") String phoneNumber);
+
+    @Modifying
+    @Query(value="DELETE FROM packet WHERE customer_name='' AND customer_phone_nb='' AND fbpage_id IS NULL;", nativeQuery = true)
+    public int deleteEmptyPacket();
 
     @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p GROUP BY p.status")
     List<DashboardCard> createDashboard();
