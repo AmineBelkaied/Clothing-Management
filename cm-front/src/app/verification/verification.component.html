@@ -1,0 +1,98 @@
+<div class="container-fluid">
+  <div class="container-fluid">
+    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+      <div class="card-body px-0 py-0 mt-3 ml-2 mr-3 mb-3 d-inline-flex flex-wrap flex-md-no-wrap justify-content-between">
+        <div class="d-flex align-items-center flex-wrap">
+          <div class="d-flex align-items-center flex-wrap w-100">
+              <H2>Barre Code validé</H2>
+          </div>
+        </div>
+        <div class="d-flex align-items-center flex-wrap ml-2">
+              <p-radioButton name="radioGroup" value="Confirmée" [(ngModel)]="type" (onClick)="findAllConfirmedPackets()"></p-radioButton>
+              <label class="ml-2">Confirmée</label>
+              <p-radioButton class ="ml-2" name="radioGroup" value="Retour" [(ngModel)]="type" (onClick)="findAllConfirmedPackets()"></p-radioButton>
+              <label class="ml-2">Retour</label>
+        </div>
+
+        <div class="d-flex align-items-center flex-wrap">
+              <div *ngIf="type == 'Confirmée'">
+                validé {{targetProducts.length}}  , reste {{ sourceProducts.length }}
+              </div>
+              <div *ngIf="type == 'Retour'">
+                Retour {{targetProducts.length}}  , Retour Echange {{ sourceProducts.length }}
+              </div>
+        </div>
+        <div class="d-flex align-items-center flex-wrap">
+              <input
+                pInputText
+                type="text"
+                [(ngModel)]="barCode"
+                class="p-inputtext-sm"
+                (keyup.enter)="Validate()"
+              />
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="type == 'Confirmée'" class="msg" style="color: red;">
+      Veuillez valider ou corriger toute la liste non valider chaque jour
+    </div>
+
+    <div class="card-container">
+      <p-card [header]="sourceString" [style]="{ width: '35rem' }">
+        <p-listbox [options]="sourceProducts" [listStyle]="{ 'max-height': '50rem' }">
+          <ng-template let-packet pTemplate="item">
+            <div class="flex flex-wrap p-2 align-items-center gap-3">
+                <div class="flex-1 flex flex-column gap-2">
+                  <span class="font-bold">{{ packet.date | date : "dd/MM" }}---{{ packet.barcode }}</span>
+                    <div class="flex align-items-center gap-2">
+                        <i class="pi pi-tag text-sm"></i>
+                        <span>{{ packet.id }}---{{ packet.packetDescription }}</span>
+                    </div>
+                </div>
+                <span class="font-bold text-900">{{ '$' + packet.price }}</span>
+            </div>
+        </ng-template>
+      </p-listbox>
+      </p-card>
+      <p-card [header]="targetString" [style]="{ width: '35rem' }">
+        <p-listbox [options]="targetProducts" [listStyle]="{ 'max-height': '50rem' }">
+          <ng-template let-packet pTemplate="item">
+
+            <div class="flex flex-wrap p-2 align-items-center gap-3">
+                <div class="flex-1 flex flex-column gap-2">
+                  <span class="font-bold">{{ packet.date | date : "dd/MM" }}---{{ packet.barcode }}</span>
+                    <div class="flex align-items-center gap-2">
+                        <i class="pi pi-tag text-sm"></i>
+                        <span>{{ packet.id }}---{{ packet.packetDescription }}</span>
+                    </div>
+                </div>
+                <span class="font-bold text-900">{{ '$' + packet.price }}</span>
+            </div>
+        </ng-template>
+      </p-listbox>
+          </p-card>
+    </div>
+
+
+
+    <!--<p-pickList [source]="sourceProducts" [target]="targetProducts" [sourceHeader]="sourceString" [targetHeader]="targetString" [responsive]="true"
+      [sourceStyle]="{ height: '30rem' }" [targetStyle]="{ height: '30rem' }" breakpoint="1400px"
+      [showSourceControls]="false" [showTargetControls]="false" [metaKeySelection]="false">
+      <ng-template let-packet pTemplate="item">
+          <div class="flex flex-wrap p-2 align-items-center gap-3">
+              <div class="flex-1 flex flex-column gap-2">
+                <span class="font-bold">{{ packet.date | date : "dd/MM" }}---{{ packet.barcode }}</span>
+                  <div class="flex align-items-center gap-2">
+                      <i class="pi pi-tag text-sm"></i>
+                      <span>{{ packet.id }}---{{ packet.packetDescription }}</span>
+                  </div>
+              </div>
+              <span class="font-bold text-900">{{ '$' + packet.price }}</span>
+          </div>
+      </ng-template>
+    </p-pickList>-->
+  </div>
+</div>
+
+
