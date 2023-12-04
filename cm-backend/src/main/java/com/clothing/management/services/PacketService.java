@@ -41,6 +41,9 @@ public interface PacketService {
     Long getExchangeId(Packet packet);
     List<ProductsDayCountDTO> productsCountByDate(Long modelId, String beginDate, String endDate);
     int deleteEmptyPacket();
-    List<ProductsDayCountDTO> statModelSold(Long modelId,String beginDate, String endDate);
+    //List<ProductsDayCountDTO> statModelSold(Long modelId,String beginDate, String endDate);
+    //List<ProductsDayCountDTO> statAllModels(String beginDate, String endDate);
     Map <String , List<?>> statModelSoldChart(Long modelId,String beginDate, String endDate);
+    Map <String , List<?>> statAllModelsChart(String beginDate, String endDate);
+    Packet updatePacketValid(String barCode,String type) throws Exception;
 }

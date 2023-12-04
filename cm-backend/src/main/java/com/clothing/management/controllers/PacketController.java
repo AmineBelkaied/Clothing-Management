@@ -114,6 +114,11 @@ public class PacketController {
         return packetService.patchPacket(idPacket , field);
     }
 
+    @PostMapping(value = "/valid/{barCode}",produces = "application/json")
+    public Packet updatePacketValid(@PathVariable String barCode,@RequestBody String type) throws Exception {
+        return packetService.updatePacketValid(barCode,type);
+    }
+
     @PostMapping(value = "/addProducts" , produces = "application/json")
     public void addProductsToPacket(@RequestBody SelectedProductsDTO selectedProductsDTO){
         packetService.addProductsToPacket(selectedProductsDTO);
@@ -202,5 +207,12 @@ public class PacketController {
             @RequestParam(required = true) String endDate) {
         return packetService.statModelSoldChart(modelId,beginDate,endDate);
 
+    }
+
+    @GetMapping(path = "/statAllModels")
+    public Map <String , List<?>> statAllModels(
+            @RequestParam(required = true) String beginDate,
+            @RequestParam(required = true) String endDate) {
+        return packetService.statAllModelsChart(beginDate,endDate);
     }
 }

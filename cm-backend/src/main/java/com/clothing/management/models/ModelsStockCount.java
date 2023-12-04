@@ -2,14 +2,20 @@ package com.clothing.management.models;
 
 import java.util.Date;
 
-public class modelStockCount {
+public class ModelsStockCount {
     private Date date;
-    private Long modelId;
-    private Long quantity;
+    private String modelName;
+    private long quantity;
 
-    public modelStockCount( Long modelId, Long quantity ) {
+    public ModelsStockCount(Date date,String modelName, long quantity ) {
+        this.date = date;
+        this.modelName = modelName;
+        this.quantity = quantity;
+    }
+
+    public ModelsStockCount(String modelName, long quantity ) {
         this.date = new Date();
-        this.modelId = modelId;
+        this.modelName = modelName;
         this.quantity = quantity;
     }
 
@@ -21,19 +27,28 @@ public class modelStockCount {
         this.date = date;
     }
 
-    public Long getModelId() {
-        return modelId;
+    public String getModelName() {
+        return modelName;
     }
 
-    public void setModelId(Long modelId) {
-        this.modelId = modelId;
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 
-    public Long getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Long quantity) {
+    public void setQuantity(long quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "ModelsStockCount{" +
+                "date=" + date +
+                ", modelName='" + modelName + '\'' +
+                ", quantity=" + quantity +
+                '}';
     }
 }

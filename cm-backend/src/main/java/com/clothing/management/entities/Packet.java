@@ -36,7 +36,7 @@ public class Packet {
 
     @OneToMany(mappedBy = "packet" , cascade = {CascadeType.PERSIST, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<ProductsPacket> products;
+    private List<ProductsPacket> products;
     @JsonIgnore
     @OneToMany(mappedBy = "packet")
     List<PacketStatus> packetStatus;
@@ -52,10 +52,12 @@ public class Packet {
     private boolean exchange;
     private String printLink;
 
+    private boolean valid;
+
     public Packet() {
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, Set<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, String dgStatus, boolean exchange, String printLink) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, String dgStatus, boolean exchange, boolean valid, String printLink) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -77,6 +79,7 @@ public class Packet {
         this.status = status;
         this.lastUpdateDate = lastUpdateDate;
         this.exchange = exchange;
+        this.valid = valid;
         this.printLink = printLink;
     }
 
@@ -120,11 +123,11 @@ public class Packet {
 
     public void setPacketReference(String packetReference) { this.packetReference = packetReference; }
 
-    public Set<ProductsPacket> getProducts() {
+    public List<ProductsPacket> getProducts() {
         return products;
     }
 
-    public void setProducts(Set<ProductsPacket> products) {
+    public void setProducts(List<ProductsPacket> products) {
         this.products = products;
     }
 
@@ -238,6 +241,14 @@ public class Packet {
 
     public void setOldClient(Integer oldClient) {
         this.oldClient = oldClient;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean valid) {
+        this.valid = valid;
     }
 
     @Override

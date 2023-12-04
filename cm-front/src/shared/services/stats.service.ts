@@ -20,6 +20,10 @@ export class StatsService {
     return this.http.get(this.baseUrl + "/productsCount/"+modelId+"?beginDate=" + startDate + "&endDate=" + endDate);
   }
 
+  public statAllModels(startDate: String,endDate:String) : Observable<any>{
+    return this.http.get(this.baseUrl + "/statAllModels?beginDate=" + startDate + "&endDate=" + endDate);
+  }
+
   public statModelSold(modelId : number, startDate: String,endDate:String) : Observable<any>{
     return this.http.get(this.baseUrl + "/statModelSold/"+modelId+"?beginDate=" + startDate + "&endDate=" + endDate);
   }

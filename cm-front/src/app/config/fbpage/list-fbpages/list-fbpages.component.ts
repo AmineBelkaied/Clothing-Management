@@ -29,7 +29,7 @@ export class ListFbpagesComponent implements OnInit {
 
   deleteFbPage(fbPage: any)  {
     console.log("okkk");
-    
+
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer la page facebook séléctionnée ?',
       header: 'Confirmation',
@@ -41,6 +41,16 @@ export class ListFbpagesComponent implements OnInit {
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page faecbook a été supprimée avec succés", life: 1000 });
           })
       }
+    });
+  }
+
+  enableFbPage(fbPage: any)  {
+    console.log("fbpage: " + fbPage.enabled);
+
+    this.fbPageService.updateFbPage(fbPage)
+    .subscribe((updatedFbPage: any) => {
+      console.log(updatedFbPage);
+      this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été modifiée avec succés", life: 1000 });
     });
   }
 }

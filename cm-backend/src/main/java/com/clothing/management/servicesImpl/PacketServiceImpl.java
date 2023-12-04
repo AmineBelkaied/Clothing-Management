@@ -18,6 +18,7 @@ import org.springframework.util.ReflectionUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.text.DateFormat;
@@ -70,7 +71,7 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public List<Packet> findAllPackets() {
         List<Packet> sortedPackets = packetRepository.findAll().stream()
-                .sorted(Comparator.comparingLong(Packet::getId).reversed())
+                .sorted(Comparator.comparing(Packet::getDate).reversed())
                 .collect(Collectors.toList());
         return sortedPackets;
     }
@@ -119,6 +120,16 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public Packet updatePacket(Packet packet) {
         return packetRepository.save(packet);
+    }
+
+    @Override
+    public Packet updatePacketValid(String barCode,String type) {
+        Optional<Packet> optionalPacket = packetRepository.findByBarCode(barCode);
+        if (type.equals(SystemStatus.CONFIRMEE.getStatus())){
+            optionalPacket.get().setValid(true);
+            return packetRepository.save(optionalPacket.get());
+        }
+        return updatePacketStatus(optionalPacket.get(), SystemStatus.RETOUR_RECU.getStatus());
     }
 
     @Override
@@ -210,7 +221,7 @@ public class PacketServiceImpl implements PacketService {
         newProduct.setId(product.getId());
         newProduct.setColor(product.getColor());
         newProduct.setSize(product.getSize());
-        newProduct.setReference(product.getReference());
+        //newProduct.setReference(product.getReference());
         newProduct.setModel(mapToModel(product.getModel()));
         newProduct.setQuantity(product.getQuantity());
         newProduct.setDate(product.getDate());
@@ -282,24 +293,18 @@ public class PacketServiceImpl implements PacketService {
         return existingProductsPacket;
     }
 
-    @Override
-    public List<ProductsDayCountDTO> statModelSold(Long modelId,String beginDate,String endDate){
-        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSold(modelId,beginDate,endDate);
-        return existingProductsPacket;
-    }
-
 
     //a reduire***************************************************************************************************
     @Override
     public Map <String , List<?>> statModelSoldChart(Long modelId,String beginDate,String endDate){
-        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSold(modelId,beginDate,endDate);
+        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSoldProgress(modelId,beginDate,endDate);
         Map<String, List<?>> uniqueValues = getUnique((existingProductsPacket));
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<String> uniqueColors = (List<String>) uniqueValues.get("uniqueColors");
         List<String> uniqueSizes = (List<String>) uniqueValues.get("uniqueSizes");
-        List<Long> uniqueProductIds = (List<Long>) uniqueValues.get("uniqueProductIds");
+        List<Long> uniqueProductRefs = (List<Long>) uniqueValues.get("uniqueProductRefs");
 
-        System.out.println("uniqueValues"+uniqueValues);
+        //System.out.println("uniqueValues"+uniqueValues);
         List<List<Integer>> listProductsCount= new ArrayList<>() ;
         List<List<Integer>> listColorsCount= new ArrayList<>() ;
         List<List<Integer>> listSizesCount= new ArrayList<>() ;
@@ -308,17 +313,17 @@ public class PacketServiceImpl implements PacketService {
         List<Integer> countSizesList = new ArrayList<>();
 
 
-        for (Long uniqueProductId : uniqueProductIds) {
+        for (Long uniqueProductRef : uniqueProductRefs) {
             countProductsList = new ArrayList<>();
             for (Date uniqueDate : uniqueDates) {
                 int count = 0;
                 for (ProductsDayCountDTO product : existingProductsPacket) {
-                    if (product.getPacketDate().equals(uniqueDate) && product.getProductId().equals(uniqueProductId))
+                    if (product.getPacketDate().equals(uniqueDate) && product.getProductId()== uniqueProductRef)
                         count+=product.getCount();
                 }
                 countProductsList.add(count);
             }
-            listProductsCount.add( countProductsList);
+            listProductsCount.add(countProductsList);
         }
         for (String uniqueColor : uniqueColors) {
             countColorsList = new ArrayList<>();
@@ -347,7 +352,7 @@ public class PacketServiceImpl implements PacketService {
         Map <String , List<?>> aaa =new HashMap<>();
         aaa.put("sizes",uniqueSizes);
         aaa.put("colors",uniqueColors);
-        aaa.put("productIds",uniqueProductIds);
+        aaa.put("productRefs",uniqueProductRefs);
         aaa.put("dates",uniqueDates);
         aaa.put("productsCount",listProductsCount);
         aaa.put("sizesCount",listSizesCount);
@@ -357,10 +362,11 @@ public class PacketServiceImpl implements PacketService {
 
     public static Map<String, List<?>> getUnique(List<ProductsDayCountDTO> productsList) {
         Map<String, List<?>> uniqueAttributes = new HashMap<>();
-        List<Date> uniqueDates = new ArrayList<>();
-        List<String> uniqueColors = new ArrayList<>();
-        List<String> uniqueSizes = new ArrayList<>();
-        List<Long> uniqueProductIds = new ArrayList<>();
+        List< Date > uniqueDates = new ArrayList<>();
+        List< String > uniqueColors = new ArrayList<>();
+        List< String > uniqueSizes = new ArrayList<>();
+        List< Long > uniqueProductRefs = new ArrayList<>();
+        List< String > uniqueModelNames = new ArrayList<>();
 
         for (ProductsDayCountDTO product : productsList) {
             Date packetDate = product.getPacketDate();
@@ -373,23 +379,71 @@ public class PacketServiceImpl implements PacketService {
                 uniqueColors.add(color);
             }
 
+            String modelName = product.getModelName();
+            if (!uniqueModelNames.contains(modelName)) {
+                uniqueModelNames.add(modelName);
+            }
+
             String size = product.getSize();
             if (!uniqueSizes.contains(size)) {
                 uniqueSizes.add(size);
             }
 
             Long productId = product.getProductId();
-            if (!uniqueProductIds.contains(productId)) {
-                uniqueProductIds.add(productId);
+            if (!uniqueProductRefs.contains(productId)) {
+                uniqueProductRefs.add(productId);
             }
         }
 
         uniqueAttributes.put("uniqueDates", uniqueDates);
         uniqueAttributes.put("uniqueColors", uniqueColors);
+        uniqueAttributes.put("uniqueModelNames", uniqueModelNames);
         uniqueAttributes.put("uniqueSizes", uniqueSizes);
-        uniqueAttributes.put("uniqueProductIds", uniqueProductIds);
+        uniqueAttributes.put("uniqueProductRefs", uniqueProductRefs);
 
         return uniqueAttributes;
+    }
+
+    @Override
+    public Map <String , List<?>> statAllModelsChart(String beginDate,String endDate){
+        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statAllModels(beginDate,endDate);
+        Map<String, List<?>> uniqueValues = getUnique((existingProductsPacket));
+        List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
+        List<String> uniqueModels = (List<String>) uniqueValues.get("uniqueModelNames");
+
+        //System.out.println("uniqueValues"+uniqueValues);
+        List<List<Integer>> listModelsCount= new ArrayList<>() ;
+        List<Integer> countModelsList = new ArrayList<>();
+        ArrayList<Integer> countTotalList = new ArrayList<>();
+        for (String uniqueModel : uniqueModels) {
+            countModelsList = new ArrayList<>();
+            Integer i = 0;
+            for (Date uniqueDate : uniqueDates) {
+                int count = 0;
+                for (ProductsDayCountDTO product : existingProductsPacket) {
+                    if (product.getPacketDate().equals(uniqueDate) && product.getModelName().equals(uniqueModel))
+                        count+=product.getCount();
+                }
+                countModelsList.add(count);
+                i++;
+            }
+            listModelsCount.add(countModelsList);
+        }
+        Integer i = 0;
+        for (Date uniqueDate : uniqueDates) {
+            Integer sum = 0;
+            for (List<Integer> totalPerDay : listModelsCount) {
+                sum += totalPerDay.get(i);
+            }
+            countTotalList.add(sum);
+            i++;
+        }
+        Map <String , List<?>> data =new HashMap<>();
+        data.put("dates",uniqueDates);
+        data.put("models",uniqueModels);
+        data.put("modelsCount",listModelsCount);
+        data.put("countTotalList",countTotalList);
+        return data;
     }
 
     @Override
@@ -423,7 +477,7 @@ public class PacketServiceImpl implements PacketService {
     public Packet getLastStatus(Packet packet, String deliveryCompany) throws Exception {
         if(deliveryCompany.equals(DeliveryCompany.FIRST.toString())) {
             try {
-                System.out.println("packet"+packet);
+                //System.out.println("packet"+packet);
                 DeliveryResponseFirst deliveryResponse = this.firstApiService.getLastStatus(packet.getBarcode());
                 if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {
                     String systemNewStatus = SystemStatus.A_VERIFIER.getStatus();
@@ -431,7 +485,8 @@ public class PacketServiceImpl implements PacketService {
                         throw new Exception("Problem API First");
                     }else if (deliveryResponse.getStatus()>199) {
                         //Convert input from first to System Status
-                        System.out.println(deliveryResponse);
+                        //System.out.println(deliveryResponse);
+                        savePacketStatusToHistory(packet,"First:"+deliveryResponse.getResult().getState());
                         systemNewStatus = mapFirstToSystemStatus(deliveryResponse.getResult().getState());
                         packet.setLastDeliveryStatus(deliveryResponse.getResult().getState());
                         systemNewStatus =
@@ -477,7 +532,7 @@ public class PacketServiceImpl implements PacketService {
         SystemStatus systemStatus = SystemStatus.fromString(packet.getStatus());
         if ((checkSameDateStatus(packet)
                 || packet.getStatus().equals(SystemStatus.A_VERIFIER.getStatus()))
-                && !packet.getStatus().equals(SystemStatus.DELETED.getStatus()))
+                && !packet.getStatus().equals(SystemStatus.CANCELED.getStatus()))
             return packet.getStatus();
         switch (systemStatus) {
             case EN_COURS_1:
@@ -504,16 +559,6 @@ public class PacketServiceImpl implements PacketService {
         return (day1 == day2) && (year1 == year2);
     }
 
-    private Date createDate(String dateString){
-        Date date = null;
-        try {
-            date = DateFormat.getInstance().parse(dateString);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        return date;
-    }
-
     public Packet duplicatePacket(Long idPacket) {
         Packet packet = packetRepository.findById(idPacket).get();
         Packet newPacket = new Packet();
@@ -528,6 +573,8 @@ public class PacketServiceImpl implements PacketService {
             newPacket.setStatus("Non confirmée");
             newPacket.setFbPage(packet.getFbPage());
             newPacket.setCity(packet.getCity());
+            newPacket.setDeliveryPrice(packet.getDeliveryPrice());
+            newPacket.setValid(false);
             newPacket.setExchange(true);
         }
         Packet response = packetRepository.save(newPacket);
@@ -538,13 +585,14 @@ public class PacketServiceImpl implements PacketService {
                 productsPacketRepository.save(newProductsPacket);
             });
         }
+        savePacketStatusToHistory(newPacket,SystemStatus.CREATION.getStatus());
         return response;
     }
 
 
     public List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO) {
         List<String> errors = new ArrayList<>();
-        System.out.println(barCodeStatusDTO);
+        //System.out.println(barCodeStatusDTO);
         String newState = barCodeStatusDTO.getStatus();
         barCodeStatusDTO.getBarCodes().forEach(barCode -> {
             try {
@@ -597,20 +645,19 @@ public class PacketServiceImpl implements PacketService {
         if (
             !packet.getStatus().equals(status)&&
             !(
-                packet.getStatus().equals(SystemStatus.RETOUR.getStatus())
-                && !(
+                packet.getStatus().equals(SystemStatus.RETOUR.getStatus())&&
+                !(
                     status.equals(SystemStatus.RETOUR_RECU.getStatus())
                     || status.equals(SystemStatus.PROBLEM.getStatus())
                 )
             )
         ){
-
             updateProducts_Status(packet, status);
             updateProducts_Quantity(packet, status);
             savePacketStatusToHistory(packet,status);
             return  savePacketStatus(packet, status);
         }
-        return packet;
+        return updatePacket(packet);
     }
 
     private Packet savePacketStatus(Packet packet, String status) {

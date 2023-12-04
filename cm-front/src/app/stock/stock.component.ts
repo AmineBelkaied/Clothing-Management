@@ -5,7 +5,7 @@ import { ModelService } from 'src/shared/services/model.service';
 import { ProductService } from '../../shared/services/product.service';
 import { Model } from 'src/shared/models/Model';
 import { ProductHistoryService } from 'src/shared/services/product-history.service';
-import { Subject, switchMap, takeUntil } from 'rxjs';
+import { Subject, of, switchMap, takeUntil } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StatsService } from 'src/shared/services/stats.service';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
@@ -45,8 +45,10 @@ export class StockComponent implements OnInit {
   modelId: number;
   hide0 : boolean = false;
   stock:boolean = true;
+  today: Date = new Date();
 
   rangeDates: Date[] = [];
+  range: number = 30;
   startDateString : String;
   endDateString : String;
 
@@ -64,7 +66,13 @@ export class StockComponent implements OnInit {
   dataSetArray : any[];
   basicData: any;
   basicOptions: any;
+
+  modelsDataSetArray : any[];
+
+
   daysChart : any[]
+  daysModelChart : any[]
+  lastModelId: number;
 
   constructor(
     private productService: ProductService,
@@ -74,19 +82,23 @@ export class StockComponent implements OnInit {
     private statsService: StatsService,
     private modelService: ModelService,
     private dateUtils: DateUtils,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
 
     this.getAllModel();
     //this.rangeDates = [new Date()]
-    this.activateRoute.params.subscribe(params => {
-        this.modelId = +params['id'];
-        this.setCalendar();
-        console.log("stats");
 
+/*     this.activateRoute.params.subscribe(params => {
+      console.log("params['id']",params['id']);
+      console.log("this.lastModelId",this.lastModelId);
+
+      if (params['id'] == 0){this.modelId = this.lastModelId;}
+        else this.modelId = +params['id'];
+        this.setCalendar();
         this.getStats();
-    });
+    }); */
 
     // Create the line chart
     this.dataSetArray = [
@@ -110,7 +122,12 @@ export class StockComponent implements OnInit {
       labels: this.daysChart,
       datasets: this.dataSetArray
     };
+
+
+
     this.basicOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
       plugins: {
           legend: {
               labels: {
@@ -140,7 +157,9 @@ export class StockComponent implements OnInit {
   }
 
   getStats(){
+    this.setCalendar();
       this.getStatModelSoldChart(this.modelId,this.selectedChart);
+      //this.getStatAllModelsChart();
       this.getStockByModelId(this.modelId);
       this.getProductsCountByModel(this.modelId);
       this.getProductHistory();
@@ -149,12 +168,28 @@ export class StockComponent implements OnInit {
   getAllModel(){
     this.modelService.findAllModels().subscribe((data: any) => {
       this.models = data;
-      //console.log('this.models',this.models);
+
+      this.activateRoute.params.subscribe(params => {
+        //console.log("params['id']",params['id']);
+        //console.log("this.lastModelId",this.lastModelId);
+        let modelsLength = data.length-1;
+
+        if (params['id'] == 0)this.navigateToStock(data[modelsLength].id);
+          else this.modelId = +params['id'];
+          this.setCalendar();
+          this.getStats();
+      });
+
     });
+  }
+
+  navigateToStock(selectedModelId: number): void {
+    this.router.navigate(['/stock', selectedModelId]);
   }
 
 
   getProductsCountByModel(modelId : number){
+
     this.statsService.productsCount(
       modelId,
       this.startDateString,
@@ -163,7 +198,7 @@ export class StockComponent implements OnInit {
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
       next: (response: any) => {
-        //console.log("statProductSold",response);
+        console.log("statProductSold",response);
         //this.statsService.getStatsTreeNodesData(response);
         this.productsCount = response;
       },
@@ -209,7 +244,9 @@ export class StockComponent implements OnInit {
       chartList = data.sizes;
       chartCounts =data.sizesCount;
     } else if (option == "Id"){
-      chartList = data.productIds;
+      console.log('data',data);
+
+      chartList = data.productRefs;
       chartCounts =data.productsCount;
     } else {
       chartList = data.colors;
@@ -224,7 +261,7 @@ export class StockComponent implements OnInit {
                 label: item +"/av:"+this.calculateAverage(chartCounts[i]),
                 data: chartCounts[i],
                 fill: false,
-                borderColor: this.getRandomColor(),
+                borderColor: this.getRandomColor(item),
                 tension: .4
             }
           )
@@ -235,7 +272,15 @@ export class StockComponent implements OnInit {
       datasets: this.dataSetArray
     };
   }
-  getRandomColor() {
+
+  getRandomColor(x : string) {
+    //console.log('x',x);
+    if(x == 'Noir')return 'black'
+    else if (x == 'Vert')return 'green'
+    else if(x == 'Beige')return '#D1AF76'
+    else if(x == 'Bleu')return 'bleu'
+    else if(x == 'Gris')return 'grey'
+
     const letters = '0123456789ABCDEF';
     let color = '#';
     for (let i = 0; i < 6; i++) {
@@ -243,6 +288,7 @@ export class StockComponent implements OnInit {
     }
     return color;
   }
+
   calculateAverage(numbers: number[]): number {
     if (numbers.length === 0) {
         return 0; // Handle division by zero
@@ -256,15 +302,26 @@ export class StockComponent implements OnInit {
   getStockByModelId(modelId: number) {
     this.productService.getStock(modelId).subscribe((result: any) => {
       this.products = result.productsByColor;
-      this.modelName = this.products[0][0].model.name;
-      console.log('this.products[0]',this.products[0]);
+      if(this.products != undefined)
+      this.modelName=this.products[0][0].model.name;
+      //console.log('this.products[0]',this.products[0]);
       this.sizes = result.sizes;
     });
   }
 
   getCount(productId:number): number{
     let countProducts = this.productsCount.find(item => item.productId === productId);
-    return (countProducts != undefined) ? countProducts.count : 0;
+    return (countProducts != undefined) ? countProducts.count: 0;
+  }
+
+  getCountProgress(productId:number): number{
+    let countProducts = this.productsCount.find(item => item.productId === productId);
+    return (countProducts != undefined) ? countProducts.countProgress: 0;
+  }
+
+  getCountExchange(productId:number): number{
+    let countProducts = this.productsCount.find(item => item.productId === productId);
+    return (countProducts != undefined) ? countProducts.countExchange: 0;
   }
 
 
@@ -333,15 +390,22 @@ export class StockComponent implements OnInit {
   }
 
   totalColumn(i: number) {
+    //console.log("products:",this.products);
     let totColumn = 0;
+    if(this.products == undefined)return 0;
     for (var j = 0; j < this.products.length; j++)
-    if (this.stock==true)totColumn += this.products[j][i].quantity;
+    if (this.products[j][i] != undefined)
+    if (this.stock==true){
+      //console.log("this.products[j][i]",this.products[j][i]);
+       totColumn += this.products[j][i].quantity;
+      }
     else totColumn += this.getCount(this.products[j][i].id);
     return totColumn;
   }
 
   totalTable() {
     let tot = 0;
+    if(this.products == undefined)return 0
     for (var j = 0; j < this.products.length; j++)
       for (var i = 0; i < this.products[j].length; i++)
         if (this.stock==true)tot += this.products[j][i].quantity;
@@ -460,5 +524,87 @@ export class StockComponent implements OnInit {
         default:
             return 'EN STOCK';
     }
+  }
+
+  allDateFilter(){
+    this.rangeDates = [new Date(2023, 0, 1), new Date()];
+    this.getStats();
+  }
+  todayDate(){
+    this.range = 1;
+    if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
+      {
+        this.endDateString = this.dateUtils.formatDateToString(this.today)
+        this.rangeDates= [this.rangeDates[0],this.today];
+        //this.setCalendar();
+      }
+    else this.rangeDates = [this.today];
+    this.getStats();
+  }
+
+  weekDate(){
+    this.range = 7;
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(this.today.getDate() - 6);
+    this.rangeDates= [oneWeekAgo,this.today];
+    this.getStats();
+  }
+  twoWeekDate(){
+    this.range = 14;
+    const twoWeekAgo = new Date();
+    twoWeekAgo.setDate(this.today.getDate() - 14);
+    this.rangeDates= [twoWeekAgo,this.today];
+    this.getStats();
+  }
+
+  monthDate(){
+    this.range = 30;
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(this.today.getMonth() - 1);
+    this.rangeDates= [oneMonthAgo,this.today];
+    this.getStats();
+  }
+
+  nextDate(){
+    //const newLast = new Date(this.rangeDates[1]);
+    const newFirst = new Date(this.rangeDates[0]);
+    const newLast = this.rangeDates[1]== undefined? newFirst : new Date(this.rangeDates[1]);
+
+    if (newLast.getDate() == this.today.getDate() && newLast.getMonth() == this.today.getMonth()){
+      console.log("max");
+      return;
+    }
+
+    // Subtract the range in days
+    newFirst.setDate(newFirst.getDate() + this.range);
+    console.log("newFirst1", newFirst);
+
+    newLast.setDate(newLast.getDate() + this.range);
+    this.rangeDates = [newFirst, newLast];
+
+    this.getStats();
+  }
+
+  previousDate() {
+    //const newLast = new Date(this.rangeDates[1]);
+    const newFirst = new Date(this.rangeDates[0]);
+    const newLast = this.rangeDates[1]== undefined? newFirst : new Date(this.rangeDates[1]);
+    console.log("newFirst0", newFirst);
+
+    // Subtract the range in days
+    newFirst.setDate(newFirst.getDate() - this.range);
+    console.log("newFirst1", newFirst);
+
+    newLast.setDate(newLast.getDate() - this.range);
+    this.rangeDates = [newFirst, newLast];
+
+    this.getStats();
+  }
+
+
+
+  clearDate(){
+      this.rangeDates = [];
+    this.getStats();
   }
 }

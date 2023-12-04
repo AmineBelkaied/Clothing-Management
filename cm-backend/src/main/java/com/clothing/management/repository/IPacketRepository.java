@@ -31,7 +31,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
     Optional<Packet> findByBarCode(@Param("barCode") String barCode);
 
-    @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% AND p.status != 'Supprimé' AND p.exchange = false", nativeQuery = true)
+    @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% AND p.status != 'Supprimé' AND p.exchange = false AND p.status != 'Annuler'", nativeQuery = true)
     public int findAllPacketsByPhone_number(@Param("phoneNumber") String phoneNumber);
 
     @Modifying

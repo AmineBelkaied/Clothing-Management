@@ -15,6 +15,7 @@ import { ResponsePage } from 'src/shared/models/ResponsePage';
   providers: [DatePipe],
 })
 export class StatistiqueComponent implements OnInit {
+  //countProductsPerDay : Number[] = [];
   packets: Packet[] = [];
   daySales!: DaySales;
   sales!: DaySales[];
@@ -47,8 +48,14 @@ export class StatistiqueComponent implements OnInit {
 
   //packet by date
   rangeDates: Date[] = [];
+  range : number = 30;
+  today: Date = new Date();
+  today_2: Date = new Date(Date.now() - 172800000);
   packetsByDate: Packet[] = [];
   //end packet by date
+
+  startDateString : String
+  endDateString : String
 
   cityCounts: CountCitys = {};
   pagesCounts: CountPages = {};
@@ -56,44 +63,43 @@ export class StatistiqueComponent implements OnInit {
   params : any;
   $unsubscribe: Subject<void> = new Subject();
   totalItems: number;
+
+  //models chart
+  modelsDataSetArray : any[];
+  modelsData: any;
+  modelsOptions: any;
+  daysChart : any[]
+  daysModelChart : any[]
+  dataSetArray : any[];
+  basicData: any;
+  basicOptions: any;
+
+
   constructor(
     private packetService: PacketService,
     private statsService: StatsService,
     public datePipe: DatePipe,
     private dateUtils: DateUtils
   ) {
-    //this.findAllPackets();
   }
 
   StatesData: any;
   StatesOptions: any;
 
-  DatesData: any;
-  DatesOptions: any;
+  PacketsData: any;
+  PacketsOptions: any;
 
   PagesData: any;
   PagesOptions: any;
 
   ngOnInit() {
-    this.rangeDates[0] = new Date();
+    //this.rangeDates[0] = new Date();
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color');
     const textColorSecondary = documentStyle.getPropertyValue(
       '--text-color-secondary'
     );
     const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
-      let counts = this.statsService.getStatsTreeNodesData(this.listPacket);
-    this.cityCounts = counts.cityCounts;
-    //console.table(JSON.stringify(this.cityCounts));
-    this.createCityStatChart(this.cityCounts);
-
-    this.pagesCounts = counts.pageCounts;
-    //console.table(JSON.stringify(this.cityCounts));
-    this.createPageStatChart(this.pagesCounts);
-
-    this.datesCounts = counts.dateCounts;
-    console.table(JSON.stringify(this.datesCounts));
-    this.createDateStatChart(this.datesCounts);
 
     this.StatesOptions = {
       maintainAspectRatio: false,
@@ -133,6 +139,8 @@ export class StatistiqueComponent implements OnInit {
       },
     };
     this.PagesOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
       plugins: {
         legend: {
           labels: {
@@ -143,7 +151,7 @@ export class StatistiqueComponent implements OnInit {
       },
     };
 
-    this.DatesOptions = {
+    this.PacketsOptions = {
       maintainAspectRatio: false,
       aspectRatio: 0.6,
       plugins: {
@@ -174,28 +182,67 @@ export class StatistiqueComponent implements OnInit {
           }
       }
     };
+
+    this.modelsOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
+      plugins: {
+          legend: {
+              labels: {
+                  color: textColor
+              }
+          }
+      },
+      scales: {
+          x: {
+              ticks: {
+                  color: textColorSecondary
+              },
+              grid: {
+                  color: surfaceBorder,
+                  drawBorder: false
+              }
+          },
+          y: {
+              ticks: {
+                  color: textColorSecondary
+              },
+              grid: {
+                  color: surfaceBorder,
+                  drawBorder: false
+              }
+          }
+      }
+    };
+
+    this.daysChart = ['all'];
+    this.basicData = {
+      labels: this.daysChart,
+      datasets: this.dataSetArray
+    };
+    this.modelsData = {
+      labels: this.daysChart,
+      datasets: this.dataSetArray
+    };
+    this.findAllPackets()
   }
 
-  findAllPackets(startDate : Date ,endDate :Date): void {
-    if (this.rangeDates[1]) {
-      endDate = this.rangeDates[1];
-    } else {
-      endDate = startDate;
-    }
+  findAllPackets(): void {
+    this.setCalendar();
     //console.log(this.dateUtils.formatDateToString(startDate),'-->',this.dateUtils.formatDateToString(endDate));
-
-    this.packetService.findAllPacketsByDate(this.dateUtils.formatDateToString(startDate),this.dateUtils.formatDateToString(endDate))
+    this.getStatAllModelsChart();
+    this.packetService.findAllPacketsByDate(this.startDateString,this.endDateString)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: any) => {
           console.log('response',response);
-
           this.packets = response;
           this.totalItems = response.totalItems;
           let filtredCitysCount = this.statsService.getStatsTreeNodesData(this.packets);
           this.createCityStatChart(filtredCitysCount.cityCounts);
           this.createPageStatChart(filtredCitysCount.pageCounts);
           this.createDateStatChart(filtredCitysCount.dateCounts);
+
         },
         error: (error: Error) => {
           console.log('Error:', error);
@@ -203,8 +250,65 @@ export class StatistiqueComponent implements OnInit {
       });
   }
 
+  getStatAllModelsChart(){
+    this.statsService.statAllModels(
+      this.startDateString,
+      this.endDateString
+      )
+    .pipe(takeUntil(this.$unsubscribe))
+    .subscribe({
+      next: (response: any) => {
+        console.log("statAllModels",response);
+        this.createModelsChart(response);
+        //this.productsCount = response;
+      },
+      error: (error: any) => {
+        console.log('ErrorProductsCount:', error);
+      },
+      complete: () => {
+        console.log('Observable completed-- All statProductSold --');
+      }
+    });
+  }
+
+  createModelsChart(data: any){
+    let modelsList = [];
+    let modelsCounts : any[]= [];
+
+    modelsList = data.models;
+    modelsCounts =data.modelsCount;
+
+    this.modelsDataSetArray =[];
+    let i = 0;
+    modelsList.forEach((item: any) => {
+          this.modelsDataSetArray.push(
+              {
+                label: item+"/av:"+this.calculateAverage(modelsCounts[i]),
+                data:modelsCounts[i],
+                fill: false,
+                borderColor: this.getRandomColor(item),
+                tension: .4
+            }
+          )
+          i++;
+    });
+    this.modelsDataSetArray.push(
+      {
+        label: "total/av:"+this.calculateAverage(data.countTotalList),
+        data:data.countTotalList,
+        fill: false,
+        borderColor: this.getRandomColor("red"),
+        tension: .4
+    }
+  )
+    this.modelsData = {
+      labels: data.dates,
+      datasets: this.modelsDataSetArray
+    };
+  }
+
   createDateStatChart(dataCount: CountDates){
-    const datesData: number[] = Object.values(dataCount).flatMap(
+    const PacketsData: number[] = Object.values(dataCount).flatMap(
       (obj) => obj.count
     );
     const datesPayed: number[] = Object.values(dataCount).flatMap(
@@ -220,25 +324,25 @@ export class StatistiqueComponent implements OnInit {
       (obj) => obj.out
     );
     const pagesLabel: string[] = Object.keys(dataCount);
-    this.DatesData = {
+    this.PacketsData = {
       labels: pagesLabel,
       datasets: [
           {
-              label: 'All',
-              data: datesData,
+              label: "All/av:"+this.calculateAverage(PacketsData),
+              data: PacketsData,
               fill: false,
               borderColor: 'blue',
               tension: 0.4
           },
           {
-            label: 'Payées',
+            label: "Payées/av:"+this.calculateAverage(datesPayed),
             data: datesPayed,
             fill: true,
             borderColor: 'pink',
             tension: 0.4
           },
           {
-            label: 'Retour',
+            label: "Retour/av:"+this.calculateAverage(datesReturn),
             data: datesReturn,
             fill: false,
             borderColor: 'orange',
@@ -246,14 +350,14 @@ export class StatistiqueComponent implements OnInit {
             tension: 0.4
           },
           {
-            label: 'Echange',
+            label: "Echange/av:"+this.calculateAverage(datesExchange),
             data: datesExchange,
             fill: false,
             borderColor: 'grey',
             tension: 0.4
           },
           {
-            label: 'Sortie',
+            label: "Sortie/av:"+this.calculateAverage(datesOut),
             data: datesOut,
             fill: false,
             borderColor: 'red',
@@ -296,34 +400,144 @@ export class StatistiqueComponent implements OnInit {
       datasets: [
         {
           type: 'bar',
-          label: 'Payée',
+          label: "Payée/av:"+this.calculateAverage(confirmed),
           backgroundColor: 'blue',
           data: confirmed,
         },
         {
           type: 'bar',
-          label: 'nonPayer',
+          label: "nonPayer/av:"+this.calculateAverage(totCmd),
           backgroundColor: 'green',
           data: totCmd,
         },
       ],
     };
   }
-  onChangeEndDate($event: any) {
-    // get the from/start value
-    let startDate = this.rangeDates[0];
-    let endDate: any;
-    // the to/end value might not be set
-    // use the from/start date and add 1 day
-    // or the to/end date and add 1 day
-    if (this.rangeDates[1]) {
-      endDate = this.rangeDates[1];
-    } else {
-      endDate = startDate;
-    }
-    this.findAllPackets(startDate,endDate);
+
+  resetTable() {
+    this.rangeDates = [];
+    this.setCalendar();
+    this.packets = this.packetService.allPackets.slice();
   }
 
+  setCalendar() {
+    const oneMonthAgo = new Date();
+    const today = new Date();
+    oneMonthAgo.setMonth(today.getMonth() - 1);
+    if (!this.rangeDates || this.rangeDates.length === 0) {
+      this.rangeDates = [oneMonthAgo, today];
+    }
+
+    this.startDateString = this.dateUtils.formatDateToString(this.rangeDates[0])
+    this.endDateString = this.rangeDates[1] != null? this.dateUtils.formatDateToString(this.rangeDates[1]): this.startDateString;
+  }
+
+  getRandomColor(x : string) {
+    console.log('x',x);
+    if(x == 'Noir')return 'black'
+    else if (x == 'Vert')return 'green'
+    else if(x == 'Beige')return '#D1AF76'
+    else if(x == 'Bleu')return 'bleu'
+    else if(x == 'Gris')return 'grey'
+
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+  calculateAverage(numbers: number[]): number {
+    if (numbers.length === 0) {
+        return 0; // Handle division by zero
+    }
+    const sum = numbers.reduce((acc, current) => acc + current, 0);
+    const average = sum / numbers.length;
+    return Number(average.toFixed(1));
+  }
+  calculateSomme(numbers: number[]): number {
+    if (numbers.length === 0) {
+        return 0; // Handle division by zero
+    }
+    const sum = numbers.reduce((acc, current) => acc + current, 0);
+    return Number(sum);
+  }
+  allDateFilter(){
+    this.rangeDates = [new Date(2023, 0, 1), new Date()];
+    this.findAllPackets();
+  }
+  todayDate(){
+    this.range = 1;
+    if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
+      {
+        this.endDateString = this.dateUtils.formatDateToString(this.today)
+        this.rangeDates= [this.rangeDates[0],this.today];
+        //this.setCalendar();
+      }
+    else this.rangeDates = [this.today];
+
+    this.findAllPackets();
+  }
+
+  weekDate(){
+    this.range = 7
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(this.today.getDate() - 6);
+    this.rangeDates= [oneWeekAgo,this.today];
+    this.findAllPackets();
+  }
+  twoWeekDate(){
+    this.range = 14
+    const twoWeekAgo = new Date();
+    twoWeekAgo.setDate(this.today.getDate() - 14);
+    this.rangeDates= [twoWeekAgo,this.today];
+    this.findAllPackets();
+  }
+
+  monthDate(){
+    this.range = 30;
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(this.today.getMonth() - 1);
+    this.rangeDates= [oneMonthAgo,this.today];
+    this.findAllPackets();
+  }
+
+  minus4daysDate(){
+    this.range = 4;
+    this.previousDate();
+    this.findAllPackets();
+  }
+
+  nextDate(){
+    const newFirst = new Date(this.rangeDates[0]);
+    const newLast = this.rangeDates[1]== undefined? newFirst : new Date(this.rangeDates[1]);
+    if (newLast.getDate() == this.today.getDate() && newLast.getMonth() == this.today.getMonth()){
+      console.log("max");
+      return;
+    }
+    newFirst.setDate(newFirst.getDate() + this.range);
+    newLast.setDate(newLast.getDate() + this.range);
+    this.rangeDates = [newFirst, newLast];
+
+    this.findAllPackets();
+  }
+
+  previousDate() {
+    const newFirst = new Date(this.rangeDates[0]);
+    const newLast = this.rangeDates[1]== undefined? newFirst : new Date(this.rangeDates[1]);
+    newFirst.setDate(newFirst.getDate() - this.range);
+    newLast.setDate(newLast.getDate() - this.range);
+    this.rangeDates = [newFirst, newLast];
+
+    this.findAllPackets();
+  }
+
+  clearDate(){
+      this.rangeDates = [];
+      this.findAllPackets();
+  }
+
+/*
   filterBydatePackets(startDate: Date, endDate: Date): any {
     let filterBydatePackets = this.listPacket.filter((packet) => {
       const packetDate = this.dateUtils.getDate(packet.date);
@@ -334,12 +548,6 @@ export class StatistiqueComponent implements OnInit {
     });
     return filterBydatePackets;
   }
-
-  resetTable() {
-    this.rangeDates = [];
-    this.packets = this.packetService.allPackets.slice();
-  }
-/*
   getData() {
       this.statsService.getSales().then((data) => {
         this.sales = data;

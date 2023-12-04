@@ -4,7 +4,7 @@
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb" style="position: relative;">
 
     <div class="notification-container">
-      <i class="pi mr-4 p-text-secondary"
+            <i class="pi mr-4 p-text-secondary"
           pBadge
          [ngClass]="notification.class"
          style="font-size: 1.5rem; cursor: pointer;"
@@ -53,7 +53,7 @@
 <!--(input)="dt.filterGlobal($any($event.target).value, 'contains')"-->
           </span>
       </div>
-      <div class="col d-flex flex-wrap align-items-center w-130" style="min-width:260px;max-width:280px;">
+      <div class="col d-flex flex-wrap align-items-center w-130" style="min-width:260px;max-width:290px;">
           <p-calendar
             [(ngModel)]="rangeDates"
             (ngModelChange)="filterPackets('date')"
@@ -89,7 +89,7 @@
             tooltipPosition="bottom"
           ></button>
           <span class="ml-2 mt-2">
-            {{ totalItems }}
+            {{ totalItems}}
             </span
           >
       </div>
@@ -186,7 +186,6 @@
         >
         <p-cellEditor>
           <ng-template pTemplate="input">
-
             <p-calendar [(ngModel)]="packet.date" [touchUI]="true" dateFormat="dd/mm" [appendTo]="dt" [minDate]="today"></p-calendar>
           </ng-template>
           <ng-template pTemplate="output">
@@ -269,7 +268,14 @@
             />
           </ng-template>
           <ng-template pTemplate="output">
-            {{ packet.customerPhoneNb }}<p-badge [value]="packet.oldClient" severity="warning" *ngIf="packet.oldClient>0"></p-badge>
+            <ng-container>
+              <i *ngIf="packet.oldClient >0" severity="warning" pBadge [value]="packet.oldClient">
+                <h6>{{ packet.customerPhoneNb }}</h6>
+              </i>
+              <h6 *ngIf="packet.oldClient === 0 || packet.oldClient == null">{{ packet.customerPhoneNb }}</h6>
+            </ng-container>
+
+
           </ng-template>
         </p-cellEditor>
 
@@ -293,6 +299,7 @@
               class="p-inputtext-sm"
               [panelStyle]="{ width: '15rem' }"
               appendTo="body"
+              (onChange)="selectCity(packet)"
             >
               <ng-template let-city pTemplate="group">
                 <div class="p-d-flex p-ai-center">
@@ -454,7 +461,7 @@ currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} command
     <app-add-packet
       [packet]="packet"
       (submitEvent)="OnSubmit($event)"
-      [offersList]="offersList"
+      [offersList]="editMode?allOffersList:offersList"
       [editMode]="editMode"
     ></app-add-packet>
   </ng-template>

@@ -1,65 +1,31 @@
 package com.clothing.management.entities;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id",scope = Model.class)
-public class Model {
+public class ModelStockHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String  name;
-    @OneToMany(mappedBy = "model" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Product> products;
-    private String reference;
-    private String description;
-    @ManyToMany(cascade = { CascadeType.MERGE })
-    @JoinTable(
-            name = "model_colors",
-            joinColumns = { @JoinColumn(name = "model_id") },
-            inverseJoinColumns = { @JoinColumn(name = "color_id") }
-    )
-    private List<Color> colors = new ArrayList<>();
-    @ManyToMany(cascade = { CascadeType.MERGE })
-    @JoinTable(
-            name = "model_sizes",
-            joinColumns = { @JoinColumn(name = "model_id") },
-            inverseJoinColumns = { @JoinColumn(name = "size_id") }
-    )
-    private List<Size> sizes = new ArrayList<>();
-    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<OfferModel> modelOffers = new HashSet<>();
+    private Date date;
+    private Long modelId;
+    private String modelName;
+    private Long quantity;
 
-    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<ProductHistory> productHistories;
-
-    @OneToOne(mappedBy = "model", cascade = CascadeType.ALL)
-    private ModelImage image;
-    @Transient
-    private byte[] bytes;
-    public Model() {
+    public ModelStockHistory() {
     }
 
-    public Model(Long id) {
-        this.id = id;
-    }
-
-    public Model(String name, List<Product> products, String reference, String description, List<Color> colors, List<Size> sizes, Set<OfferModel> modelOffers, List<ProductHistory> productHistories, ModelImage image) {
-        this.name = name;
-        this.products = products;
-        this.reference = reference;
-        this.description = description;
-        this.colors = colors;
-        this.sizes = sizes;
-        this.modelOffers = modelOffers;
-        this.productHistories = productHistories;
-        this.image = image;
+    public ModelStockHistory(Long modelId, String modelName, Long quantity) {
+        this.date = new Date();
+        this.modelId = modelId;
+        this.modelName = modelName;
+        this.quantity = quantity;
     }
 
     public Long getId() {
@@ -70,83 +36,46 @@ public class Model {
         this.id = id;
     }
 
-    public List<Product> getProducts() {
-        return products;
+    public Date getDate() {
+        return date;
     }
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    public String getReference() {
-        return reference;
+    public Long getModelId() {
+        return modelId;
     }
 
-    public void setReference(String reference) {
-        this.reference = reference;
+    public void setModelId(Long modelId) {
+        this.modelId = modelId;
     }
 
-    public List<Color> getColors() {
-        return colors;
+    public String getModelName() {
+        return modelName;
     }
 
-    public void setColors(List<Color> colors) {
-        this.colors = colors;
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 
-    public Set<OfferModel> getModelOffers() { return modelOffers; }
-
-    public void setModelOffers(Set<OfferModel> modelOffers) { this.modelOffers = modelOffers; }
-
-    public String getName() {
-        return name;
+    public Long getQuantity() {
+        return quantity;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<Size> getSizes() {
-        return sizes;
-    }
-
-    public void setSizes(List<Size> sizes) {
-        this.sizes = sizes;
-    }
-
-    public ModelImage getImage() {
-        return image;
-    }
-
-    public void setImage(ModelImage image) {
-        this.image = image;
-    }
-
-    public byte[] getBytes() {
-        return bytes;
-    }
-
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
+    public void setQuantity(Long quantity) {
+        this.quantity = quantity;
     }
 
     @Override
     public String toString() {
-        return "Model{" +
+        return "ModelStockHistory{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                ", reference='" + reference + '\'' +
-                ", description='" + description + '\'' +
-                ", colors=" + colors +
-                ", sizes=" + sizes +
+                ", date=" + date +
+                ", modelId=" + modelId +
+                ", modelName='" + modelName + '\'' +
+                ", quantity=" + quantity +
                 '}';
     }
 }

@@ -82,33 +82,33 @@ export class PacketService {
   }
 
   addPacket(packet: Packet): Observable<any> {
-    console.log('packet front before submit', packet);
+    //console.log('packet front before submit', packet);
     return this.http.post(this.baseUrl + '/add', packet);
   }
 
   updatePacket(packet: Packet): Observable<any> {
-    console.log('new packetbefore update', packet);
+    //console.log('new packetbefore update', packet);
     return this.http.put(this.baseUrl + '/update', packet, {
       headers: { 'content-type': 'application/json' },
     });
   }
 
   patchPacket(idPacket: any, packet: any): Observable<any> {
-    console.log('new packetbefore patch', packet);
+    //console.log('new packetbefore patch', packet);
     return this.http.patch(this.baseUrl + '/patch/' + idPacket, packet, {
       headers: { 'content-type': 'application/json' },
     });
   }
 
   addProductsToPacket(selectedProducts: any): Observable<any> {
-    console.log('selectedProducts', selectedProducts);
+    //console.log('selectedProducts', selectedProducts);
     return this.http.post(this.baseUrl + '/addProducts', selectedProducts, {
       headers: { 'content-type': 'application/json' },
     });
   }
 
   deletePacketById(idPacket: any) {
-    console.log(this.baseUrl + '/deleteById/' + idPacket);
+    //console.log(this.baseUrl + '/deleteById/' + idPacket);
     return this.http.delete(this.baseUrl + '/deleteById/' + idPacket);
   }
 
@@ -116,6 +116,14 @@ export class PacketService {
     return this.http.delete(
       this.baseUrl + '/deleteSelectedPackets/' + packetsId
     );
+  }
+
+
+  validatePacket(barCode: any,state: string): Observable<any> {
+    let path ='/valid/' + barCode;
+    return this.http.post(this.baseUrl + path, state, {
+      headers: { 'content-type': 'application/json' },
+    });
   }
 
   duplicatePacket(idPacket: any) {

@@ -68,6 +68,9 @@ import { StockHistoryComponent } from './stock-history/stock-history.component';
 import { PaginatorModule } from 'primeng/paginator';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { VerificationComponent } from './verification/verification.component';
+import { PickListModule } from 'primeng/picklist';
+
 
 @NgModule({
   declarations: [
@@ -95,7 +98,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     StatistiqueComponent,
     StockHistoryComponent,
     PayedReturnComponent,
-    DashboardComponent
+    DashboardComponent,
+    VerificationComponent
   ],
   imports: [
     BrowserModule,
@@ -135,7 +139,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     ContextMenuModule,
     BadgeModule,
     ListboxModule,
-    ChipModule
+    ChipModule,
+    PickListModule
   ],
   providers: [MessageService, ConfirmationService, CityTreeService, DatePipe ],
   bootstrap: [AppComponent]

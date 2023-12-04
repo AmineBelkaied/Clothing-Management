@@ -19,16 +19,19 @@ import java.io.InputStream;
 @Service
 public class FirstApiService {
 
+    //private final String comment="Le colis peut être ouvert à la demande du client";
     public static final String createBarCodeEndPoint = "https://www.firstdeliverygroup.com/api/v2/create";
     public static final String getLastStatusEndPoint = "https://www.firstdeliverygroup.com/api/v2/etat";
     public static final String reg = "/,/gi";
     public static final String regBS = "/\\n/gi";
-
+    //private final String comment="يسمح بفتح الطرد للحريف، لايرجع المال بعد الدفع";//lyft
     //private final String bearerToken="198de763-841f-4b3f-96b0-dcbfa4a6b369";//lyft
-    //private final String exchangeProduct="Lyft sport";
+    //private final String exchangeProduct="Lyft sport";//lyft
+
     private final String bearerToken="af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";//diggie
-    private final String exchangeProduct="Diggie pants";
-    private final String comment="Le colis peut être ouvert à la demande du client";
+    private final String exchangeProduct="Diggie pants";//diggie
+    private final String comment="يسمح بفتح الطرد عند طلب الحريف";//diggie
+
 
     public FirstApiService() {
     }
@@ -40,52 +43,9 @@ public class FirstApiService {
 
     public DeliveryResponseFirst getLastStatus(String barCode) throws IOException {
         JSONObject jsonBody = createJsonBarCode(barCode);
-        System.out.println("jsonBody:"+jsonBody);
+        //System.out.println("jsonBody:"+jsonBody);
         return executeHttpRequest(getLastStatusEndPoint, jsonBody.toString());
     }
-
-    /*private DeliveryResponseFirst executeHttpRequest(String url, String jsonBody) throws IOException {
-        //System.out.println("executeHttpRequest");
-        URL urlConnection = new URL(url);
-        HttpsURLConnection connection = (HttpsURLConnection) urlConnection.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Authorization", "Bearer " + bearerToken);
-        connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-        connection.setDoOutput(true);
-        try (OutputStream outputStream = connection.getOutputStream()) {
-            byte[] input = jsonBody.getBytes("utf-8");
-            outputStream.write(input, 0, input.length);
-        }catch (Exception e) {System.out.println("errorr:"+e);}
-        DeliveryResponseFirst deliveryResponse = null;
-        int responseCode = connection.getResponseCode();
-        String responseMessage = connection.getResponseMessage();
-
-        if(responseCode!= 404){
-            //System.out.println("!404 ");
-            StringBuilder response = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                System.out.println("line:"+response.toString());
-            }
-
-            ObjectMapper mapper = new ObjectMapper();
-            deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseFirst.class);
-            deliveryResponse.setResponseCode(responseCode);
-            deliveryResponse.setMessage(responseMessage);
-        }else {
-            deliveryResponse.setMessage("not found");
-            deliveryResponse.setStatus(responseCode);
-            deliveryResponse.setResponseCode(responseCode);
-            deliveryResponse.setIsError(true);
-        }
-
-        System.out.println("FASdeliveryResponse: " + deliveryResponse.toString());
-        connection.disconnect();
-        return deliveryResponse;
-    }*/
 
     private DeliveryResponseFirst executeHttpRequest(String url, String jsonBody) throws IOException {
         System.out.println("jsonBody: " + jsonBody);
@@ -110,7 +70,7 @@ public class FirstApiService {
         String responseMessage = connection.getResponseMessage();
 
         if (responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     System.out.println("line: " + line);
@@ -119,16 +79,13 @@ public class FirstApiService {
             } catch (Exception e) {
                 System.out.println("Error in reading InputStream: " + e);
             }
-            System.out.println("response.toString(): " + response.toString());
+            //System.out.println("response.toString(): " + response.toString());
             ObjectMapper mapper = new ObjectMapper();
             deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseFirst.class);
-            System.out.println("deliveryResponse: " + deliveryResponse.toString());
+            //System.out.println("deliveryResponse: " + deliveryResponse.toString());
             deliveryResponse.setResponseCode(responseCode);
             deliveryResponse.setMessage(responseMessage);
         } else {
-            System.out.println("Response Code: " + responseCode);
-            System.out.println("Response Headers: " + connection.getHeaderFields());
-
             InputStream errorStream = connection.getErrorStream();
             if (errorStream != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream))) {
@@ -136,7 +93,6 @@ public class FirstApiService {
                     while ((line = reader.readLine()) != null) {
                         response.append(line);
                     }
-                    System.out.println("Error Body: " + response.toString());
                 } catch (Exception e) {
                     System.out.println("Error in reading ErrorStream: " + e);
                 }
@@ -149,14 +105,9 @@ public class FirstApiService {
             deliveryResponse.setResponseCode(responseCode);
             deliveryResponse.setIsError(true);
         }
-
-        System.out.println("FASdeliveryResponse: " + deliveryResponse.toString());
         connection.disconnect();
         return deliveryResponse;
     }
-
-
-
 
     private JSONObject createJsonBarCode(String barCode) {
         JSONObject json = new JSONObject();
@@ -166,7 +117,6 @@ public class FirstApiService {
 
     private JSONObject createJsonPacketForFirst(Packet packet) {
         JSONObject json = new JSONObject();
-
         JSONObject client = new JSONObject();
         client.put("nom", this.getValue(packet.getCustomerName()));
         client.put("gouvernerat", packet.getCity().getGovernorate().getName());

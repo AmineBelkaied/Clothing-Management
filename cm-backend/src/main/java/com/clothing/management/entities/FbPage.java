@@ -17,12 +17,15 @@ public class FbPage {
     @OneToMany(mappedBy = "fbPage")
     List<Packet> packets;
 
+    private boolean enabled;
+
     public FbPage() {
     }
 
     public FbPage(Long id, String link) {
         this.id = id;
         this.link = link;
+        this.enabled = true;
     }
 
     public FbPage(String name) {
@@ -59,6 +62,14 @@ public class FbPage {
 
     public void setLink(String link) {
         this.link = link;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override

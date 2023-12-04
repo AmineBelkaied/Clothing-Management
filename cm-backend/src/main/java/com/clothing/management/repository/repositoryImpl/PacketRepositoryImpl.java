@@ -71,7 +71,7 @@ public class PacketRepositoryImpl {
             predicates.add(root.get("status").in(Arrays.asList(status.split(","))));
         }
 
-        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
+        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("date")));
 
         criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Packet> query = entityManager.createQuery(criteriaQuery);
@@ -97,7 +97,7 @@ public class PacketRepositoryImpl {
         }
 
         criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
-        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("date")));
+        criteriaQuery.orderBy(criteriaBuilder.asc(root.get("date")));
 
         TypedQuery<Packet> query = entityManager.createQuery(criteriaQuery);
         return query.getResultList();

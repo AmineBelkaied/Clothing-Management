@@ -10,6 +10,7 @@ import { ListSizesComponent } from './config/size/list-sizes/list-sizes.componen
 import { StatistiqueComponent } from './statistique/statistique.component';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { VerificationComponent } from './verification/verification.component';
 
 const routes: Routes = [
   { path: "", redirectTo: "/packets", pathMatch: "full" },
@@ -17,10 +18,12 @@ const routes: Routes = [
   { path: "offers", "component": ListOffersComponent },
   { path: "config", "component": ConfigComponent },
   { path: "stock/:id", "component": StockComponent },
+  { path: "stock", "component": StockComponent },
   { path: "sizes", "component": ListSizesComponent },
   { path: "statistique", "component": StatistiqueComponent },
   { path: "payed-return", "component": PayedReturnComponent },
   { path: "dashboard", "component": DashboardComponent },
+  { path: "verification", "component": VerificationComponent },
   {
     path: "packets", "component": ListPacketsComponent, children: [
       { path: "", redirectTo: "/packets", pathMatch: "full" },

@@ -19,6 +19,7 @@
                     (click)="editFbPage(fbPage)"></button>
                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger buttonSize"
                     (click)="deleteFbPage(fbPage)"></button>
+                <p-inputSwitch class="ml-4" [(ngModel)]="fbPage.enabled" (onChange)="enableFbPage(fbPage)"></p-inputSwitch>
             </td>
         </tr>
     </ng-template>

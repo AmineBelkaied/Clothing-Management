@@ -1,6 +1,8 @@
 package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.*;
@@ -13,7 +15,8 @@ public class Model {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String  name;
-    @OneToMany(mappedBy = "model" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "model" , cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Fetch(value= FetchMode.SELECT)
     List<Product> products;
     private String reference;
     private String description;

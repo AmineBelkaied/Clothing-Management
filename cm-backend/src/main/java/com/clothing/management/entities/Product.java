@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -11,10 +12,11 @@ import java.util.Set;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id",scope = Product.class)
 public class Product {
 
+    private String reference;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String reference;
+    //private String reference;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "size_id")
     private Size size;
@@ -26,7 +28,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<ProductsPacket> commands;
+    private List<ProductsPacket> commands;
     @ManyToOne
     @JoinColumn(name = "model_id")
     private Model model;
@@ -38,13 +40,12 @@ public class Product {
         this.id = id;
     }
 
-    public Product(String reference, Size size, Color color, int quantity, Date date, Set<ProductsPacket> commands, Model model) {
+    public Product(String reference, Size size, Color color, int quantity, Date date, Model model) {
         this.reference = reference;
         this.size = size;
         this.color = color;
         this.quantity = quantity;
         this.date = date;
-        this.commands = commands;
         this.model = model;
     }
 
@@ -67,13 +68,9 @@ public class Product {
         this.id = id;
     }
 
-    public String getReference() {
-        return reference;
-    }
+    public String getReference() {return reference;}
 
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
+    public void setReference(String reference) {this.reference = reference;}
 
     public Size getSize() {
         return size;
@@ -107,11 +104,11 @@ public class Product {
         this.date = date;
     }
 
-    public Set<ProductsPacket> getCommands() {
+    public List<ProductsPacket> getCommands() {
         return commands;
     }
 
-    public void setCommands(Set<ProductsPacket> commands) {
+    public void setCommands(List<ProductsPacket> commands) {
         this.commands = commands;
     }
 
@@ -127,7 +124,7 @@ public class Product {
     public String toString() {
         return "Product{" +
                 "id=" + id +
-                ", reference='" + reference + '\'' +
+                ", reference=" + reference +
                 ", quantity=" + quantity +
                 ", date=" + date +
                 '}';

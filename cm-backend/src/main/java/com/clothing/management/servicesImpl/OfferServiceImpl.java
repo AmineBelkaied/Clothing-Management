@@ -106,7 +106,7 @@ public class OfferServiceImpl implements OfferService {
         newProduct.setId(product.getId());
         newProduct.setColor(product.getColor());
         newProduct.setSize(product.getSize());
-        newProduct.setReference(product.getReference());
+        //newProduct.setReference(product.getReference());
         newProduct.setQuantity(product.getQuantity());
         newProduct.setDate(product.getDate());
         return newProduct;

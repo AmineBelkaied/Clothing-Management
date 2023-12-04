@@ -37,13 +37,29 @@
               [readonlyInput]="true"
               inputId="range"
               placeholder="Filtrer par date/période"
-              [showClear]="true"
+              [showClear]="false"
               (onClearClick)="setCalendar()"
-              [showButtonBar]="true"
+              [showButtonBar]="false"
               [showIcon]="true"
               class="ml-0"
               [style]="{ width: '250px' }"
               [touchUI]="true">
+              <ng-template pTemplate="footer">
+                <div style="display: flex; align-items: center;">
+                    <p-button label="All" styleClass="p-button-text" (click)="allDateFilter()"></p-button>
+                    <p-button label="Today" styleClass="p-button-text" (click)="todayDate()"></p-button>
+                    <p-button label="Semaine" styleClass="p-button-text" (click)="weekDate()"></p-button>
+                    <p-button label="15 jours" styleClass="p-button-text" (click)="twoWeekDate()"></p-button>
+                    <p-button label="Mois" styleClass="p-button-text" (click)="monthDate()"></p-button>
+                    <p-button styleClass="p-button-text" (click)="previousDate()">
+                      <i class="fa fa-arrow-left"></i>
+                    </p-button>
+                    <p-button styleClass="p-button-text" (click)="nextDate()">
+                      <i class="fa fa-arrow-right"></i>
+                    </p-button>
+                    <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
+                </div>
+              </ng-template>
             </p-calendar>
           </div>
         </div>
@@ -75,8 +91,17 @@
                                 <ng-container class="d-flex flex-column align-items-center">
                                   <div class="text-center">
                                     <h6>{{ "(" + productSize.color.name + " " + productSize.size.reference + ")" }}</h6>
-                                    <h4 *ngIf="stock==false" >{{ getCount(productSize.id) }}</h4>
+                                    <ng-container *ngIf="stock === false">
+
+                                      <i *ngIf="getCountProgress(productSize.id) !== 0" class="text-3xl" pBadge [value]="getCountProgress(productSize.id) + ''">
+                                        <h4>{{ getCount(productSize.id) }}</h4>
+                                      </i>
+                                      <h4 *ngIf="getCountProgress(productSize.id) === 0">{{ getCount(productSize.id) }}</h4>
+                                      <h6 *ngIf="getCountExchange(productSize.id) !== 0" >Echange : {{getCountExchange(productSize.id)}}</h6>
+                                    </ng-container>
+
                                     <h6 *ngIf="stock==true" >{{ productSize.quantity }}</h6>
+
                                   </div>
                                   <div class="text-center" style="margin-top: 10px;" *ngIf="stock==true">
                                     <p-tag [value]="getSeverity(productSize, false)" [severity]="getSeverity(productSize, true)"></p-tag>
@@ -116,18 +141,15 @@
       </div>
 </div>
 
-<div style="overflow-x: hidden;min-width:380px">
-  <div class="card mt-2 mb-3" style="background-color: #fbfbfb">
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
     <p-selectButton [options]="chartOptions" [(ngModel)]="selectedChart" (onOptionClick)="selectChart($event)"></p-selectButton>
-    <div class="card-body">
-      <div class="container-fluid">
-            <p-chart
+      <p-card header="Pages Chart">
+        <p-chart
               type="line"
               [data]="basicData"
-              [options]="basicOptions"
-            ></p-chart>
-      </div>
-    </div>
+              [options]="basicOptions"></p-chart>
+      </p-card>
   </div>
 </div>
 </div>

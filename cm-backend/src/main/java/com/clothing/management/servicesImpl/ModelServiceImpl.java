@@ -12,9 +12,11 @@ import com.clothing.management.services.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,52 +54,90 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public Model addModel(Model model) {
-      addUnknownColorsAndSizes(model);
-      Model modelResponse = modelRepository.save(model);
-      // Generate products
-      if(model.getColors().size() > 0) {
-          for(Color color : model.getColors()) {
-              if(model.getSizes().size() > 0) {
-                  for(Size size : model.getSizes()) {
-                      String productRef = model.getReference().concat(color.getReference()).concat(size.getReference());
-                      if(productRepository.findByReference(productRef) == null) {
-                          Product product = new Product(productRef, size, color, 0, new Date(), null, modelResponse);
-                          productRepository.save(product);
-                      }
-                  }
-                }
-            }
-         }
-        return modelResponse;
-    }
-    public void deleteUnusedProducts(Model model){
-        Model oldModel = modelRepository.findById(model.getId()).get();
-        List<Size> oldSizes = oldModel.getSizes();
-        List<Color> oldColors = oldModel.getColors();
-        for (Size size : oldSizes) {
-            if (size != null && !model.getSizes().stream().map(Size::getId).anyMatch(id -> id.equals(size.getId()))) {
-                productRepository.deleteProductsByModelAndSize(model.getId(), size.getId());
-            }
-        }
-        for (Color color : oldColors) {
-            if (color == null && !model.getColors().contains(color) && !color.getReference().equals("?")) {
-                productRepository.deleteProductsByModelAndColor(model.getId(), color.getId());
-            }
-        }
+            model  = modelRepository.save(model);
+            model  = addUnknownColorsAndSizes(model);
+            // Generate products
+            generateModelProducts(model);
+
+        //deleteUnusedProducts(model);
+        return model;
     }
 
-    private void addUnknownColorsAndSizes(Model model) {
-        if(model.getColors().stream().noneMatch(color -> color.getReference().equals("?"))
-                && model.getSizes().stream().noneMatch(size -> size.getReference().equals("?"))) {
-            model.getColors().add(colorRepository.findByReference("?"));
-            model.getSizes().add(sizeRepository.findByReference("?"));
+    @Override
+    public Model generateModelProducts(Model model) {
+        try {
+            // Generate products
+            if(model.getColors().size() > 0) {
+                System.out.println("model colors:"+model.getColors());
+                for(Color color : model.getColors()) {
+                    if(model.getSizes().size() > 0) {
+                        for(Size size : model.getSizes()) {
+                            Product product1 = productRepository.findByModelAndColorAndSize(model.getId(), color.getId(), size.getId());
+                            if( product1 == null) {
+                                //System.out.println("notFound ");
+                                System.out.println("color:"+color.getId());
+                                String productRef = model.getReference().concat(color.getReference()).concat(size.getReference());
+                                Product product = new Product(productRef, size, color, 0, new Date(), model);
+                                productRepository.save(product);
+                            }
+                            //else System.out.println("found ");
+                            //System.out.println("color:"+color.getId());
+                            //System.out.println("size:"+size.getId());
+                        }
+                    }
+                }
+            }
+        } catch (EntityNotFoundException e) {
+
+            System.out.println(e);
         }
+
+        //deleteUnusedProducts(model);
+        return model;
+    }
+
+    public void deleteUnusedProducts(Model model){
+        Model oldModel = modelRepository.findById(model.getId()).orElse(null);
+
+        if (oldModel != null) {
+            List<Size> oldSizes = oldModel.getSizes();
+            List<Color> oldColors = oldModel.getColors();
+            for (Size size : oldSizes) {
+                if (size != null && !model.getSizes().stream().map(Size::getId).anyMatch(id -> id.equals(size.getId()))) {
+                    System.out.println("delete size"+size.getId());
+                    productRepository.deleteProductsByModelAndSize(model.getId(), size.getId());
+                }
+            }
+            for (Color color : oldColors) {
+                if (color == null && !model.getColors().contains(color) && !color.getReference().equals("?")) {
+                    System.out.println("delete color"+color.getId());
+                    productRepository.deleteProductsByModelAndColor(model.getId(), color.getId());
+                }
+            }
+        }
+
+    }
+
+    private Model addUnknownColorsAndSizes(Model model) {
+
+        Optional<Model> optionalModel= modelRepository.findById(model.getId());
+        if(optionalModel != null)
+        {
+            model = optionalModel.get();
+            if(model.getColors().stream().noneMatch(color -> color.getReference().equals("?"))
+                    && model.getSizes().stream().noneMatch(size -> size.getReference().equals("?"))) {
+                model.getColors().add(colorRepository.findByReference("?"));
+                model.getSizes().add(sizeRepository.findByReference("?"));
+            }
+        }
+        return modelRepository.save(model);
     }
 
     @Override
     public Model updateModel(Model model) {
         //deleteUnusedProducts(model);
-        return addModel(model); }
+        return addModel(model);
+    }
 
     @Override
     public void deleteModelById(Long idModel) {

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, of, takeUntil } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { PacketService } from 'src/shared/services/packet.service';
@@ -14,9 +14,9 @@ import { CONFIRMEE, RETOUR } from 'src/shared/utils/status-list';
 })
 export class VerificationComponent implements OnInit {
 
-  sourceProducts!: Packet[];
+  sourcePackets: Packet[] = [];
 
-  targetProducts!: Packet[];
+  targetPackets: Packet[] = [];
 
   barCode : String;
 
@@ -26,8 +26,8 @@ export class VerificationComponent implements OnInit {
   totalItems: number;
   packet: Packet;
   type : string = CONFIRMEE;
-  sourceString : string;
-  targetString : string;
+  sourceString : string = "Non Validé";
+  targetString : string = "Validé";
 
 
   params : any={
@@ -40,37 +40,41 @@ export class VerificationComponent implements OnInit {
   };
 
 
-  constructor(private packetService : PacketService,private dateUtils: DateUtils) {
+  constructor(private packetService : PacketService,private dateUtils: DateUtils,private messageService: MessageService,) {
 
   }
 
   ngOnInit(): void {
     this.findAllConfirmedPackets();
-    this.targetProducts = [];
+    this.targetPackets = [];
 }
 
 findAllConfirmedPackets(): void {
+  if(this.type == CONFIRMEE){
+    this.sourceString = "Non validé";
+    this.targetString = "Validé";
+  }
+  else {
+    this.sourceString = RETOUR;
+    this.targetString = "Retour Echange";
+  }
   this.params.status = this.type;
   this.packetService.findAllPackets(this.params)
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
       next: (response: ResponsePage) => {
         this.packets = response.result;
-        console.log('response',response);
+        //console.log('response',response);
         this.totalItems = response.totalItems;
         if(this.type == CONFIRMEE){
-          this.sourceProducts = response.result.filter((packet: Packet) => packet.valid == false);
-          this.targetProducts = response.result.filter((packet: Packet) => packet.valid);
-          this.sourceString = "Non validé";
-          this.targetString = "Validé";
+          this.sourcePackets = response.result.filter((packet: Packet) => packet.valid == false);
+          this.targetPackets = response.result.filter((packet: Packet) => packet.valid);
         }
         else {
-          this.sourceProducts = response.result.filter((packet: Packet) => packet.exchange);
-          this.targetProducts = response.result.filter((packet: Packet) => packet.exchange == false);
-          this.sourceString = RETOUR;
-          this.targetString = "Retour Echange";
+          this.sourcePackets = response.result.filter((packet: Packet) => packet.exchange == false);
+          this.targetPackets = response.result.filter((packet: Packet) => packet.exchange == true);
         }
-        console.log('this.sourceProducts',this.sourceProducts.length);
+        console.log('this.sourceProducts',this.sourcePackets.length);
       },
       error: (error: Error) => {
         console.log('Error:', error);
@@ -79,16 +83,52 @@ findAllConfirmedPackets(): void {
 }
 
 Validate(){
-  console.log('validé',this.barCode);
+  //console.log('validé',this.barCode);
+  if (this.type == CONFIRMEE){
+    if (!(this.sourcePackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1)){
+      if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
+        alert('Error: BarreCode déja validé');
+      } else alert("Error: BarreCode n'existe pas");
+      return;
+    }
+    else if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
+      alert('Error: Colie double et déja validé');
+      return;
+    }
+    //let listValidatedPhoneNumber = this.targetPackets.map((packet : Packet) => packet.customerPhoneNb);
+    let packetSameBarCode : Packet[] = this.sourcePackets.filter((packet : Packet) => packet.barcode == this.barCode);
+    console.log('packetSameBarCode',packetSameBarCode);
 
-  this.packetService.validatePacket(this.barCode,this.type).subscribe(response => {
-    // Handle the response here
-    this.findAllConfirmedPackets();
-    this.barCode = "";
-  }, error => {
-    // Handle errors here
-    console.error(error);
-  });
+    let phoneNumber = packetSameBarCode[0].customerPhoneNb;
+    console.log('phoneNumber',phoneNumber);
+    console.log('this.sourcePackets',this.sourcePackets);
+
+    let packetSamePhoneNumber : Packet[] = this.sourcePackets.filter((packet : Packet) => packet.customerPhoneNb == phoneNumber);
+    console.log('packetSamePhoneNumber',packetSamePhoneNumber);
+
+    if (packetSameBarCode.length>1){
+      alert('Error: le code a barre '+this.barCode +' existe plusieur fois');
+      return;
+    }
+    else if (packetSamePhoneNumber.length>1)
+    {
+      alert('Error: le numero de telephone '+phoneNumber +' existe plusieur fois');
+      return;
+    }
+  }
+     this.packetService.validatePacket(this.barCode,this.type).subscribe(response => {
+      // Handle the response here
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: "code à barre validé: " + this.barCode });
+      console.log('response',response);
+
+      this.findAllConfirmedPackets();
+      this.barCode = "";
+    }, error => {
+      // Handle errors here
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la validation du barcode: '+ this.barCode });
+      console.error(error);
+    });
+
 }
 }
 
