@@ -2,7 +2,7 @@ package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
@@ -13,18 +13,18 @@ public class Model {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String  name;
-    @OneToMany(mappedBy = "model" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "model" , cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<Product> products;
     private String reference;
     private String description;
-    @ManyToMany(cascade = { CascadeType.MERGE })
+    @ManyToMany(cascade = { CascadeType.MERGE } , fetch = FetchType.EAGER)
     @JoinTable(
             name = "model_colors",
             joinColumns = { @JoinColumn(name = "model_id") },
             inverseJoinColumns = { @JoinColumn(name = "color_id") }
     )
     private List<Color> colors = new ArrayList<>();
-    @ManyToMany(cascade = { CascadeType.MERGE })
+    @ManyToMany(cascade = { CascadeType.MERGE } , fetch = FetchType.EAGER)
     @JoinTable(
             name = "model_sizes",
             joinColumns = { @JoinColumn(name = "model_id") },

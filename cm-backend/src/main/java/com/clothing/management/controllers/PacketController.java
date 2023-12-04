@@ -6,7 +6,7 @@ import com.clothing.management.entities.PacketStatus;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.scheduler.UpdateStatusScheduler;
 import com.clothing.management.services.PacketService;
-import com.sun.xml.bind.v2.runtime.reflect.Lister;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("packet")
 @CrossOrigin
+@Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class PacketController {
 
     @Autowired
@@ -47,8 +49,9 @@ public class PacketController {
                                                                 @RequestParam(required = false) String endDate,
                                                                 @RequestParam(required = false) String status) {
         try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Packet> allPackets = packetService.findAllPackets(searchText, startDate, endDate, status, pageable);
+            Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+            System.out.println("searchText " + searchText);
+            Page<Packet> allPackets = packetService.findAllPackets(pageable, searchText, startDate, endDate, status);
             return new ResponseEntity<>(new ResponsePage.Builder()
                     .result(allPackets.getContent())
                     .currentPage(allPackets.getNumber())
@@ -56,6 +59,7 @@ public class PacketController {
                     .totalPages(allPackets.getTotalPages())
                     .build(), HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

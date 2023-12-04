@@ -1,10 +1,11 @@
 package com.clothing.management.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
 @Entity
+@Table(name="products_packet")
 public class ProductsPacket {
 
     @Id
@@ -19,12 +20,14 @@ public class ProductsPacket {
     @JoinColumn(name = "packet_id")
     Packet packet;
 
+    @Column(name = "packet_date")
     Date packetDate;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "offer_id")
     Offer offer;
 
+    @Column(name = "packet_offer_id")
     Integer packetOfferId;
 
     Integer status;

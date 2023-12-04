@@ -1,4 +1,4 @@
-<nav id="sidebar" [class.active]="activeClass" style="height: 100%; display: flex; flex-direction: column;">
+<nav *ngIf="isLoggedIn" id="sidebar" [class.active]="activeClass" style="height: 100%; display: flex; flex-direction: column;">
   <div class="custom-menu">
     <button type="button" id="sidebarCollapse" (click)="changeClass()" class="btn btn-primary">
       <i class="fa fa-bars"></i>
@@ -7,7 +7,7 @@
   </div>
   <div class="p-4" style="display: flex; flex-direction: column; flex-grow: 0;height: 100vh">
     <h1>
-      <a href="index.html" class="logo">{{appname}}<span style="font-size: 13px">Clothing Management</span></a>
+      <a href="index.html" class="logo">{{appName}}<span style="font-size: 13px">Clothing Management</span></a>
     </h1>
     <ul class="list-unstyled components mb-5">
       <li [routerLinkActive]="['active']">
@@ -22,19 +22,24 @@
 <!--       <li [routerLinkActive]="['active']">
         <a routerLink="/stock"><span class="fa fa-archive mr-3"></span> Stock</a>
       </li> -->
-      <li [routerLinkActive]="['active']">
+      <li [routerLinkActive]="['active']" *ngIf="isAdmin">
         <a routerLink="/config"><span class="fa fa-edit mr-3"></span> Configuration</a>
       </li>
-      <li [routerLinkActive]="['active']">
+      <li [routerLinkActive]="['active']"  *ngIf="isAdmin">
         <a routerLink="/statistique"><span class="fa fa-edit mr-3"></span> Statistique</a>
       </li>
-      <li [routerLinkActive]="['active']">
+      <li [routerLinkActive]="['active']"  *ngIf="isAdmin">
         <a routerLink="/payed-return"><span class="fa fa-edit mr-3"></span> Suivie packet</a>
       </li>
     </ul>
-    <button type="button" class="btn btn-secondary mt-auto" (click)="SyncFirst()">
+    <span style="color: lightgray;font-size: small;" class="mt-auto">Bienvenue, {{userName}}</span>
+    <button type="button" class="btn btn-secondary mt-3" (click)="SyncFirst()">
       <i class="fa fa-sync"></i>
       <span>Sync</span>
+    </button>
+    <button type="button" class="btn btn-success mt-2" (click)="logout()">
+      <i class="fa fa-sync"></i>
+      <span>Logout</span>
     </button>
   </div>
 </nav>

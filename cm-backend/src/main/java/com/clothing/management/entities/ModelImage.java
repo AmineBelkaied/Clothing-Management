@@ -1,8 +1,9 @@
 package com.clothing.management.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "model_image")
 public class ModelImage {
 
     @Id
@@ -10,6 +11,7 @@ public class ModelImage {
     private Long id;
     private String name;
     private String type;
+    @Column(name = "image_path")
     private String imagePath;
     @OneToOne
     @JoinColumn(name = "model_id")

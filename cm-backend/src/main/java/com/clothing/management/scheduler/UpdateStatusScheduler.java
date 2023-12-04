@@ -1,7 +1,7 @@
 package com.clothing.management.scheduler;
 
 import com.clothing.management.entities.Packet;
-import com.clothing.management.enums.DeliveryCompany;
+import com.clothing.management.repository.enums.DeliveryCompany;
 import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

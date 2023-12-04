@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
-import { APPNAME } from 'src/assets/constants';
+import { DIGGIE, LYFT } from 'src/assets/constants';
 import { PacketService } from 'src/shared/services/packet.service';
+import { StorageService } from 'src/shared/services/strorage.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,14 +14,23 @@ import { PacketService } from 'src/shared/services/packet.service';
 export class SidebarComponent implements OnInit {
 
   $unsubscribe: Subject<void> = new Subject();
-  activeClass = false;
+  activeClass: boolean;
   activeRoute = false;
-  appname : String = APPNAME;
-
-  constructor(private packetService: PacketService,private messageService: MessageService) { }
+  appName: string;
+  userName: string;
+  isLoggedIn: boolean;
+  isAdmin: boolean;
+  constructor(private packetService: PacketService,private messageService: MessageService,
+     private router: Router, public storageService: StorageService) { }
 
   ngOnInit(): void {
-    this.activeClass = true;
+    this.storageService.isLoggedIn.subscribe(isLoggedIn => { 
+      this.isLoggedIn = isLoggedIn;
+      this.storageService.getTenantName() === "diggie" ? this.appName = DIGGIE : this.appName = LYFT;
+      this.userName = this.storageService.getUserName();
+      this.isAdmin = this.storageService.hasRoleAdmin();
+    });
+
   }
 
   changeClass() {
@@ -28,6 +39,7 @@ export class SidebarComponent implements OnInit {
       button.style.left = this.activeClass ? '9rem' : '-2.5rem';
     } */
     this.activeClass = !this.activeClass;
+    
   }
 
   SyncFirst() {
@@ -51,5 +63,10 @@ export class SidebarComponent implements OnInit {
         });
     }
 
+    logout() {
+      this.storageService.isLoggedIn.next(false);
+      this.router.navigate(["/auth/login/" + this.storageService.getTenantName()]);
+      this.storageService.removeUser();
+    }
 
 }

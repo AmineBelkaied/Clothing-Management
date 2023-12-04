@@ -9,22 +9,55 @@ import { ListPacketsComponent } from './packet/list-packets/list-packets.compone
 import { ListSizesComponent } from './config/size/list-sizes/list-sizes.component';
 import { StatistiqueComponent } from './statistique/statistique.component';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
+import { AuthGuard } from 'src/shared/services/auth-gard.service';
+import { Roles } from 'src/shared/enums/roles';
 
 const routes: Routes = [
-  { path: "", redirectTo: "/packets", pathMatch: "full" },
-  { path: "models", "component": ListModelsComponent },
-  { path: "offers", "component": ListOffersComponent },
-  { path: "config", "component": ConfigComponent },
-  { path: "stock/:id", "component": StockComponent },
-  { path: "sizes", "component": ListSizesComponent },
-  { path: "statistique", "component": StatistiqueComponent },
-  { path: "payed-return", "component": PayedReturnComponent },
+  { path: "", redirectTo: "/packets", pathMatch: "full", },
   {
-    path: "packets", "component": ListPacketsComponent, children: [
+    path: "models", "component": ListModelsComponent, canActivate: [AuthGuard], data: {
+      role: [Roles.ADMIN, Roles.USER]
+    }
+  },
+  {
+    path: "offers", "component": ListOffersComponent, canActivate: [AuthGuard], data: {
+      role: [Roles.ADMIN, Roles.USER]
+    }
+  },
+  {
+    path: "config", "component": ConfigComponent, canActivate: [AuthGuard], data: {
+      role: [Roles.ADMIN]
+    }
+  },
+  {
+    path: "stock/:id", "component": StockComponent, canActivate: [AuthGuard], data: {
+      role: [Roles.ADMIN]
+    }
+  },
+  {
+    path: "sizes", "component": ListSizesComponent, canActivate: [AuthGuard], data: {
+      role: [Roles.ADMIN]
+    }
+  },
+  {
+    path: "statistique", "component": StatistiqueComponent, canActivate: [AuthGuard], data: {
+      role: [Roles.ADMIN]
+    }
+  },
+  {
+    path: "payed-return", "component": PayedReturnComponent, canActivate: [AuthGuard], data: {
+      role: [Roles.ADMIN]
+    }
+  },
+  {
+    path: "packets", "component": ListPacketsComponent, canActivate: [AuthGuard], data: {
+      role: [Roles.ADMIN, Roles.USER]
+    }, children: [
       { path: "", redirectTo: "/packets", pathMatch: "full" },
       { path: "add", "component": AddPacketComponent }
     ]
-  }
+  },
+  { path: 'auth', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
 
 ];
 

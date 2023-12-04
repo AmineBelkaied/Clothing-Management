@@ -5,6 +5,7 @@ import com.clothing.management.entities.City;
 import com.clothing.management.entities.Governorate;
 import com.clothing.management.services.CityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("city")
 @CrossOrigin
+@Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class CityController {
 
     @Autowired

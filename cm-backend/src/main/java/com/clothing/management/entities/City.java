@@ -1,6 +1,6 @@
 package com.clothing.management.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 public class City {
@@ -12,6 +12,7 @@ public class City {
     @ManyToOne
     @JoinColumn(name="governorate_id")
     Governorate governorate;
+    @Column(name = "postal_code")
     private String postalCode;
 
     public City() {

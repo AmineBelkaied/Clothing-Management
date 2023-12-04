@@ -1,15 +1,15 @@
 package com.clothing.management.repository.repositoryImpl;
 
 import com.clothing.management.entities.Packet;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import java.text.ParseException;
 import java.util.List;
 
@@ -17,13 +17,13 @@ import java.util.List;
 public class PacketRepositoryOldImpl {
 
     private final static String SELECT_PACKET_QUERY = "SELECT p FROM com.clothing.management.entities.Packet p WHERE ";
-    private final static String SEARCH_BY_TEXT_QUERY = "(p.customerName LIKE :searchText OR p.customerPhoneNb LIKE :searchText OR p.address LIKE :searchText OR p.city.name LIKE :searchText OR p.fbPage.name LIKE :searchText)";
+    private final static String SEARCH_BY_TEXT_QUERY = "p.customerName LIKE :searchText";
     private final static String SEARCH_BY_DATE_RANGE = "DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)";
     private final static String SEARCH_BY_STATUS = "p.status = :status";
     @PersistenceContext
     private EntityManager entityManager;
 
-    public Page<Packet> findAllPackets(int page, int size, String searchText, String startDate, String endDate, String status) throws ParseException {
+    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status) throws ParseException {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append(SELECT_PACKET_QUERY);
         TypedQuery<Packet> query = null;
@@ -36,15 +36,15 @@ public class PacketRepositoryOldImpl {
         if (status != null && !status.isEmpty()) {
             query = createSearchByStatusQuery(searchText, startDate, endDate, status, queryBuilder);
         }
-        int firstResult = page * size;
+        int firstResult = pageable.getPageNumber() * pageable.getPageSize();
         query.setFirstResult(firstResult);
-        query.setMaxResults(size);
+        query.setMaxResults(pageable.getPageSize());
         System.out.println("query : "  + queryBuilder.toString());
 
         List<Packet> records = query.getResultList();
 
 
-        return new PageImpl<>(records, PageRequest.of(page, size), records.size());
+        return new PageImpl<>(records, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), records.size());
     }
 
 

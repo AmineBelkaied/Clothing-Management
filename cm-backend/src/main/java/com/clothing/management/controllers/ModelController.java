@@ -3,6 +3,7 @@ package com.clothing.management.controllers;
 import com.clothing.management.entities.Model;
 import com.clothing.management.services.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("model")
 @CrossOrigin
+@Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ModelController {
 
     @Autowired

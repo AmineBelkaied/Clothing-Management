@@ -2,18 +2,21 @@ package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name="product_history")
 public class ProductHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "product_id")
     private Long productId;
     private String reference;
     private int quantity;
+    @Column(name = "last_modification_date")
     private Date lastModificationDate;
     @ManyToOne
     @JoinColumn(name = "model_id")

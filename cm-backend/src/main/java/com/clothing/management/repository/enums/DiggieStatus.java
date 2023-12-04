@@ -1,4 +1,4 @@
-package com.clothing.management.enums;
+package com.clothing.management.repository.enums;
 
 public enum DiggieStatus {
     LIVREE("Livrée"),

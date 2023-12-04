@@ -7,6 +7,7 @@ import com.clothing.management.repository.ICityRepository;
 import com.clothing.management.repository.IGovernorateRepository;
 import com.clothing.management.services.CityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

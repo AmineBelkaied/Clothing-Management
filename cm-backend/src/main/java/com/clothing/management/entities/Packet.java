@@ -2,7 +2,9 @@ package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.hibernate.annotations.Proxy;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -17,17 +19,22 @@ public class Packet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "customer_name")
     private String customerName;
     @Column(name = "customer_phone_nb")
     private String customerPhoneNb;
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "city_id")
     private City city;
     private String address;
+    @Column(name = "related_products")
     private String relatedProducts;
+    @Column(name = "packet_description")
     private String packetDescription;
+    @Column(name = "packet_reference")
     private String packetReference;
     private String barcode;
+    @Column(name = "last_delivery_status")
     private String lastDeliveryStatus;
     @OneToMany(mappedBy = "packet" , cascade = {CascadeType.PERSIST, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -39,13 +46,17 @@ public class Packet {
     @JoinColumn(name = "fbpage_id")
     private FbPage fbPage;
     private double price;
+    @Column(name = "delivery_price")
     private double deliveryPrice;
     private double discount;
     private Date date;
     private String status;
+    @Column(name = "last_update_date")
     private Date lastUpdateDate;
+    @Column(name = "confirmation_date")
     private Date confirmationDate;
     private boolean exchange;
+    @Column(name = "print_link")
     private String printLink;
 
     public Packet() {

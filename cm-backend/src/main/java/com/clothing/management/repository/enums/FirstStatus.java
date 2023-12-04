@@ -1,7 +1,4 @@
-package com.clothing.management.enums;
-
-import java.util.Arrays;
-import java.util.Optional;
+package com.clothing.management.repository.enums;
 
 public enum FirstStatus {
     EN_ATTENTE("En attente"),

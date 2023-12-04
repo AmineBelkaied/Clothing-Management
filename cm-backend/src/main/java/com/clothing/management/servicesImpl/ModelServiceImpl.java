@@ -70,7 +70,7 @@ public class ModelServiceImpl implements ModelService {
          }
         return modelResponse;
     }
-    public void deleteUnusedProducts(Model model){
+    public void deleteUnusedProducts(Model model) {
         Model oldModel = modelRepository.findById(model.getId()).get();
         List<Size> oldSizes = oldModel.getSizes();
         List<Color> oldColors = oldModel.getColors();

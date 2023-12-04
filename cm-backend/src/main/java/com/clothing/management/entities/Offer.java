@@ -1,6 +1,6 @@
 package com.clothing.management.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -13,14 +13,14 @@ public class Offer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @OneToMany(mappedBy = "offer" , cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "offer" , cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<OfferModel> offerModels= new HashSet<>();
 
-    @ManyToMany(cascade = { CascadeType.MERGE })
+    @ManyToMany(cascade = { CascadeType.MERGE },  fetch = FetchType.EAGER)
     @JoinTable(
-            name = "offer_fbPages",
+            name = "offer_fb_pages",
             joinColumns = { @JoinColumn(name = "offer_id") },
-            inverseJoinColumns = { @JoinColumn(name = "fbPage_id") }
+            inverseJoinColumns = { @JoinColumn(name = "fb_page_id") }
     )
     private Set<FbPage> fbPages = new HashSet<>();
 
@@ -100,16 +100,4 @@ public class Offer {
         this.fbPages = fbPages;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Offer)) return false;
-        Offer offer = (Offer) o;
-        return isEnabled() == offer.isEnabled() && getId().equals(offer.getId()) && getName().equals(offer.getName()) && getOfferModels().equals(offer.getOfferModels()) && getPrice().equals(offer.getPrice());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getName(), getOfferModels(), getPrice(), isEnabled());
-    }
 }

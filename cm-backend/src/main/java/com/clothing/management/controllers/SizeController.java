@@ -3,6 +3,7 @@ package com.clothing.management.controllers;
 import com.clothing.management.entities.Size;
 import com.clothing.management.services.SizeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("size")
 @CrossOrigin
+@Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class SizeController {
 
     @Autowired

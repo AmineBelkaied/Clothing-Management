@@ -1,9 +1,11 @@
 package com.clothing.management.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name="packet_details")
 public class PacketDetails {
 
     @Id

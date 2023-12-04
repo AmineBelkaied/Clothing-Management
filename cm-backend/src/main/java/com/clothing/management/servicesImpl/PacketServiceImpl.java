@@ -1,24 +1,29 @@
 package com.clothing.management.servicesImpl;
 import com.clothing.management.dto.*;
-import com.clothing.management.enums.DeliveryCompany;
-import com.clothing.management.enums.DiggieStatus;
-import com.clothing.management.enums.FirstStatus;
+import com.clothing.management.repository.enums.DeliveryCompany;
+import com.clothing.management.repository.enums.DiggieStatus;
+import com.clothing.management.repository.enums.FirstStatus;
 import com.clothing.management.repository.repositoryImpl.PacketRepositoryImpl;
+import com.clothing.management.repository.repositoryImpl.PacketRepositoryOldImpl;
 import com.clothing.management.servicesImpl.api.FirstApiService;
 import com.clothing.management.entities.*;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.PacketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
-import java.time.LocalDate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +43,8 @@ public class PacketServiceImpl implements PacketService {
     private final IPacketStatusRepository packetStatusRepository;
     private final FirstApiService firstApiService;
     private final PacketRepositoryImpl packetRepositoryImpl;
+    private final PacketRepositoryOldImpl packetRepositoryOld;
+
     @Autowired
     public PacketServiceImpl(
             IPacketRepository packetRepository,
@@ -49,7 +56,8 @@ public class PacketServiceImpl implements PacketService {
             ISizeRepository sizeRepository,
             IPacketStatusRepository packetStatusRepository,
             FirstApiService firstApiService,
-            PacketRepositoryImpl packetRepositoryImpl
+            PacketRepositoryImpl packetRepositoryImpl,
+            PacketRepositoryOldImpl packetRepositoryOld
     ) {
         this.packetRepository = packetRepository;
         this.productRepository = productRepository;
@@ -61,6 +69,7 @@ public class PacketServiceImpl implements PacketService {
         this.packetStatusRepository = packetStatusRepository;
         this.firstApiService = firstApiService;
         this.packetRepositoryImpl = packetRepositoryImpl;
+        this.packetRepositoryOld = packetRepositoryOld;
     }
     @Override
     public List<Packet> findAllPackets() {
@@ -70,9 +79,29 @@ public class PacketServiceImpl implements PacketService {
         return sortedPackets;
     }
 
-    public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable) {
-        return packetRepositoryImpl.findAllPackets(searchText, startDate, endDate, status, pageable);
+    @Override
+    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status) throws ParseException {
+        if (searchText != null)
+            return packetRepository.findAllPacketsByField(searchText, pageable);
+        if (startDate != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            if (status != null)
+                return packetRepository.findAllPacketsByDateAndStatus(dateFormat.parse(startDate), dateFormat.parse(endDate), convertStatusToList(status), pageable);
+            return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
+        }
+        if (status != null)
+            return packetRepository.findAllPacketsByStatus(convertStatusToList(status), pageable);
+        return packetRepository.findAll(pageable);
     }
+
+    private List<String> convertStatusToList(String status) {
+        return Arrays.asList(status.split(",", -1));
+    }
+
+    /*@Override
+    public Page<Packet> findAllPackets(String searchText, String    startDate, String endDate, String status, Pageable pageable) {
+        return null;
+    }*/
 
     public List<Packet> findAllPacketsByDate(String startDate, String endDate) {
         return packetRepositoryImpl.findAllPacketsByDate(startDate, endDate);
@@ -158,6 +187,7 @@ public class PacketServiceImpl implements PacketService {
         }
     }
 
+    @Transactional("tenantTransactionManager")
     public PacketDTO findPacketRelatedProducts(Long idPacket) {
         PacketDTO packetDTO = new PacketDTO();
         List<OfferUpdateDTO> offerUpdateDTOList = new ArrayList<>();

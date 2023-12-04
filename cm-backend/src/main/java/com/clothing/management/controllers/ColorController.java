@@ -3,6 +3,8 @@ package com.clothing.management.controllers;
 import com.clothing.management.entities.Color;
 import com.clothing.management.services.ColorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("color")
 @CrossOrigin
+@Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ColorController {
 
     @Autowired

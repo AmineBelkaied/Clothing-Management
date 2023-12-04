@@ -115,7 +115,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         next: (response: ResponsePage) => {
           this.packets = response.result;
           this.totalItems = response.totalItems;
-          //console.log(this.packets[0]);
           this.loading = false;
         },
         error: (error: Error) => {

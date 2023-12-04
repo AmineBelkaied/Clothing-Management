@@ -2,10 +2,11 @@ package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "fb_page")
 public class FbPage {
 
     @Id

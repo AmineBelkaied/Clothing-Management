@@ -23,7 +23,7 @@ import { CardModule } from 'primeng/card';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TabViewModule } from 'primeng/tabview';
 import { SplitterModule } from 'primeng/splitter';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ChangeColorDirective } from 'src/shared/directives/change-color.directive';
 import { TimelineModule } from 'primeng/timeline';
@@ -61,6 +61,10 @@ import { StatistiqueComponent } from './statistique/statistique.component';
 import { StockHistoryComponent } from './stock-history/stock-history.component';
 import { PaginatorModule } from 'primeng/paginator';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
+import { AuthInterceptor } from 'src/shared/helpers/interceptor';
+import { AuthGuard } from 'src/shared/services/auth-gard.service';
+import { UserComponent } from './config/user/user.component';
+import { PasswordModule } from 'primeng/password';
 
 @NgModule({
   declarations: [
@@ -87,7 +91,8 @@ import { PayedReturnComponent } from './payed-return/payed-return.component';
     StockComponent,
     StatistiqueComponent,
     StockHistoryComponent,
-    PayedReturnComponent
+    PayedReturnComponent,
+    UserComponent
   ],
   imports: [
     BrowserModule,
@@ -121,9 +126,11 @@ import { PayedReturnComponent } from './payed-return/payed-return.component';
     RadioButtonModule,
     FileUploadModule,
     TagModule,
-    CheckboxModule
+    CheckboxModule,
+    PasswordModule
   ],
-  providers: [MessageService, ConfirmationService, CityTreeService, DatePipe ],
+  providers: [MessageService, ConfirmationService, CityTreeService, DatePipe, AuthGuard,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
