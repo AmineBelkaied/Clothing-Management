@@ -19,17 +19,23 @@
       <li [routerLinkActive]="['active']">
         <a routerLink="/offers"><span class="fa fa-gift mr-3"></span> Offres</a>
       </li>
-<!--       <li [routerLinkActive]="['active']">
-        <a routerLink="/stock"><span class="fa fa-archive mr-3"></span> Stock</a>
-      </li> -->
+      <li [routerLinkActive]="['active']">
+        <a routerLink="/stock/0"><span class="fa fa-inbox mr-3"></span> Stock</a>
+      </li>
       <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/config"><span class="fa fa-edit mr-3"></span> Configuration</a>
+        <a routerLink="/config"><span class="pi pi-cog mr-3"></span> Configuration</a>
       </li>
       <li [routerLinkActive]="['active']"  *ngIf="isAdmin">
-        <a routerLink="/statistique"><span class="fa fa-edit mr-3"></span> Statistique</a>
+        <a routerLink="/statistique"><span class="pi pi-chart-bar mr-3"></span> Statistique</a>
       </li>
       <li [routerLinkActive]="['active']"  *ngIf="isAdmin">
         <a routerLink="/payed-return"><span class="fa fa-edit mr-3"></span> Suivie packet</a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a routerLink="/dashboard"><span class="pi pi-server mr-3"></span> Dashboard</a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a routerLink="/verification"><span class="fa fa-truck mr-3"></span> Validation</a>
       </li>
     </ul>
     <span style="color: lightgray;font-size: small;" class="mt-auto">Bienvenue, {{userName}}</span>

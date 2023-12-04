@@ -1,8 +1,9 @@
 package com.clothing.management.servicesImpl;
 import com.clothing.management.dto.*;
 import com.clothing.management.repository.enums.DeliveryCompany;
-import com.clothing.management.repository.enums.DiggieStatus;
+import com.clothing.management.repository.enums.SystemStatus;
 import com.clothing.management.repository.enums.FirstStatus;
+import com.clothing.management.models.DashboardCard;
 import com.clothing.management.repository.repositoryImpl.PacketRepositoryImpl;
 import com.clothing.management.repository.repositoryImpl.PacketRepositoryOldImpl;
 import com.clothing.management.servicesImpl.api.FirstApiService;
@@ -20,8 +21,10 @@ import org.springframework.util.ReflectionUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -43,6 +46,8 @@ public class PacketServiceImpl implements PacketService {
     private final IPacketStatusRepository packetStatusRepository;
     private final FirstApiService firstApiService;
     private final PacketRepositoryImpl packetRepositoryImpl;
+    private Packet packet;
+
     private final PacketRepositoryOldImpl packetRepositoryOld;
 
     @Autowired
@@ -74,13 +79,13 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public List<Packet> findAllPackets() {
         List<Packet> sortedPackets = packetRepository.findAll().stream()
-                .sorted(Comparator.comparingLong(Packet::getId).reversed())
+                .sorted(Comparator.comparing(Packet::getDate).reversed())
                 .collect(Collectors.toList());
         return sortedPackets;
     }
 
     @Override
-    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status) throws ParseException {
+    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status) {
         if (searchText != null)
             return packetRepository.findAllPacketsByField(searchText, pageable);
         if (startDate != null) {
@@ -99,7 +104,7 @@ public class PacketServiceImpl implements PacketService {
     }
 
     /*@Override
-    public Page<Packet> findAllPackets(String searchText, String    startDate, String endDate, String status, Pageable pageable) {
+    public Page<Packet> findAllPackets(String searchText, String    startDate, String endDate, String status, Pageable pageable,mandatoryDate) {
         return null;
     }*/
 
@@ -126,15 +131,33 @@ public class PacketServiceImpl implements PacketService {
         return packetRepository.findById(idPacket);
     }
 
+    @Transactional
+    @Override
+    public int deleteEmptyPacket() {
+        return packetRepository.deleteEmptyPacket();
+    }
+
+
     @Override
     public Packet addPacket(Packet packet) {
-        return packetRepository.save(packet);
+        packetRepository.save(packet);
+        savePacketStatusToHistory(packet,SystemStatus.CREATION.getStatus());
+        return packet;
     }
 
     @Override
     public Packet updatePacket(Packet packet) {
-        System.out.println("save Packey:"+packet);
         return packetRepository.save(packet);
+    }
+
+    @Override
+    public Packet updatePacketValid(String barCode,String type) {
+        Optional<Packet> optionalPacket = packetRepository.findByBarCode(barCode);
+        if (type.equals(SystemStatus.CONFIRMEE.getStatus())){
+            optionalPacket.get().setValid(true);
+            return packetRepository.save(optionalPacket.get());
+        }
+        return updatePacketStatus(optionalPacket.get(), SystemStatus.RETOUR_RECU.getStatus());
     }
 
     @Override
@@ -151,12 +174,17 @@ public class PacketServiceImpl implements PacketService {
                 System.out.println("firstKey:"+firstKey+"/field.get(firstKey):"+field.get(firstKey));
 
                 if (firstKey.equals("status")) {
-                    if (field.get(firstKey).equals(DiggieStatus.CONFIRMEE.getStatus()) || field.get(firstKey).equals(DiggieStatus.RETOUR_RECU.getStatus()) || field.get(firstKey).equals(DiggieStatus.RETOUR_EXCHANGE.getStatus())) {
-                        if (field.get(firstKey).equals(DiggieStatus.CONFIRMEE.getStatus()))
+                        if (field.get(firstKey).equals(SystemStatus.CONFIRMEE.getStatus()))
                             createBarCode(packet, DeliveryCompany.FIRST.toString());
-                        return updateProductsQuantityByPacket(packet,String.valueOf(field.get(firstKey)));
-                    }else updatePacketStatus(packet, String.valueOf(field.get(firstKey)));
+                    updatePacketStatus(packet, String.valueOf(field.get(firstKey)));
                 }else {
+                    if (firstKey.equals("customerPhoneNb")) {
+                        int existCount =0;
+                        if(field.get(firstKey) != "" && field.get(firstKey) != null)
+                            existCount = checkPhone(field.get(firstKey)+"");
+                        packet.setOldClient(existCount);
+                        //System.out.println("nombre de reccurance phone: "+existCount);
+                    }
                     ReflectionUtils.setField(fieldPacket, packet, field.get(firstKey));
                     updatePacket(packet);
                 }
@@ -222,7 +250,7 @@ public class PacketServiceImpl implements PacketService {
         newProduct.setId(product.getId());
         newProduct.setColor(product.getColor());
         newProduct.setSize(product.getSize());
-        newProduct.setReference(product.getReference());
+        //newProduct.setReference(product.getReference());
         newProduct.setModel(mapToModel(product.getModel()));
         newProduct.setQuantity(product.getQuantity());
         newProduct.setDate(product.getDate());
@@ -245,7 +273,7 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public void deletePacketById(Long idPacket) {
         Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
-        optionalPacket.ifPresent(packet -> updatePacketStatusAndSaveToHistory(packet, DiggieStatus.DELETED.getStatus()));
+        optionalPacket.ifPresent(packet -> updatePacketStatusAndSaveToHistory(packet, SystemStatus.DELETED.getStatus()));
     }
 
     /**
@@ -265,14 +293,188 @@ public class PacketServiceImpl implements PacketService {
                 if(packet.getCustomerPhoneNb() == null || packet.getCustomerPhoneNb().equals(""))
                     packetRepository.deleteById(packetId);
                 else {
-                    updatePacketStatusAndSaveToHistory(packet,DiggieStatus.DELETED.getStatus());
+                    updatePacketStatusAndSaveToHistory(packet, SystemStatus.DELETED.getStatus());
                 }
             }
         }
     }
 
     @Override
-    public List<PacketStatus> findPacketStatusById(Long idPacket) {
+    public int checkPhone(String phoneNumber) {
+        return packetRepository.findAllPacketsByPhone_number(phoneNumber);
+    }
+
+    @Override
+    public List<DashboardCard> createDashboard() {
+        return packetRepository.createDashboard();
+    }
+
+    @Override
+    public List<DashboardCard> syncNotification() {
+        return packetRepository.createNotification();
+    }
+
+    @Override
+    public List<ProductsDayCountDTO> productsCountByDate(Long modelId,String beginDate,String endDate){
+        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.productsCountByDate(modelId, beginDate,endDate);
+        return existingProductsPacket;
+    }
+
+
+    //a reduire***************************************************************************************************
+    @Override
+    public Map <String , List<?>> statModelSoldChart(Long modelId,String beginDate,String endDate){
+        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSoldProgress(modelId,beginDate,endDate);
+        Map<String, List<?>> uniqueValues = getUnique((existingProductsPacket));
+        List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
+        List<String> uniqueColors = (List<String>) uniqueValues.get("uniqueColors");
+        List<String> uniqueSizes = (List<String>) uniqueValues.get("uniqueSizes");
+        List<Long> uniqueProductRefs = (List<Long>) uniqueValues.get("uniqueProductRefs");
+
+        //System.out.println("uniqueValues"+uniqueValues);
+        List<List<Integer>> listProductsCount= new ArrayList<>() ;
+        List<List<Integer>> listColorsCount= new ArrayList<>() ;
+        List<List<Integer>> listSizesCount= new ArrayList<>() ;
+        List<Integer> countProductsList = new ArrayList<>();
+        List<Integer> countColorsList = new ArrayList<>();
+        List<Integer> countSizesList = new ArrayList<>();
+
+
+        for (Long uniqueProductRef : uniqueProductRefs) {
+            countProductsList = new ArrayList<>();
+            for (Date uniqueDate : uniqueDates) {
+                int count = 0;
+                for (ProductsDayCountDTO product : existingProductsPacket) {
+                    if (product.getPacketDate().equals(uniqueDate) && product.getProductId()== uniqueProductRef)
+                        count+=product.getCount();
+                }
+                countProductsList.add(count);
+            }
+            listProductsCount.add(countProductsList);
+        }
+        for (String uniqueColor : uniqueColors) {
+            countColorsList = new ArrayList<>();
+            for (Date uniqueDate : uniqueDates) {
+                int count = 0;
+                for (ProductsDayCountDTO product : existingProductsPacket) {
+                    if (product.getPacketDate().equals(uniqueDate) && product.getColor().equals(uniqueColor))
+                        count+=product.getCount();
+                }
+                countColorsList.add(count);
+            }
+            listColorsCount.add(countColorsList);
+        }
+        for (String uniqueSize: uniqueSizes) {
+            countSizesList = new ArrayList<>();
+            for (Date uniqueDate : uniqueDates) {
+                int count = 0;
+                for (ProductsDayCountDTO product : existingProductsPacket) {
+                    if (product.getPacketDate().equals(uniqueDate) && product.getSize().equals(uniqueSize))
+                        count+=product.getCount();
+                }
+                countSizesList.add(count);
+            }
+            listSizesCount.add( countSizesList);
+        }
+        Map <String , List<?>> aaa =new HashMap<>();
+        aaa.put("sizes",uniqueSizes);
+        aaa.put("colors",uniqueColors);
+        aaa.put("productRefs",uniqueProductRefs);
+        aaa.put("dates",uniqueDates);
+        aaa.put("productsCount",listProductsCount);
+        aaa.put("sizesCount",listSizesCount);
+        aaa.put("colorsCount",listColorsCount);
+        return aaa;
+    }
+
+    public static Map<String, List<?>> getUnique(List<ProductsDayCountDTO> productsList) {
+        Map<String, List<?>> uniqueAttributes = new HashMap<>();
+        List< Date > uniqueDates = new ArrayList<>();
+        List< String > uniqueColors = new ArrayList<>();
+        List< String > uniqueSizes = new ArrayList<>();
+        List< Long > uniqueProductRefs = new ArrayList<>();
+        List< String > uniqueModelNames = new ArrayList<>();
+
+        for (ProductsDayCountDTO product : productsList) {
+            Date packetDate = product.getPacketDate();
+            if (!uniqueDates.contains(packetDate)) {
+                uniqueDates.add(packetDate);
+            }
+
+            String color = product.getColor();
+            if (!uniqueColors.contains(color)) {
+                uniqueColors.add(color);
+            }
+
+            String modelName = product.getModelName();
+            if (!uniqueModelNames.contains(modelName)) {
+                uniqueModelNames.add(modelName);
+            }
+
+            String size = product.getSize();
+            if (!uniqueSizes.contains(size)) {
+                uniqueSizes.add(size);
+            }
+
+            Long productId = product.getProductId();
+            if (!uniqueProductRefs.contains(productId)) {
+                uniqueProductRefs.add(productId);
+            }
+        }
+
+        uniqueAttributes.put("uniqueDates", uniqueDates);
+        uniqueAttributes.put("uniqueColors", uniqueColors);
+        uniqueAttributes.put("uniqueModelNames", uniqueModelNames);
+        uniqueAttributes.put("uniqueSizes", uniqueSizes);
+        uniqueAttributes.put("uniqueProductRefs", uniqueProductRefs);
+
+        return uniqueAttributes;
+    }
+
+    @Override
+    public Map <String , List<?>> statAllModelsChart(String beginDate,String endDate){
+        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statAllModels(beginDate,endDate);
+        Map<String, List<?>> uniqueValues = getUnique((existingProductsPacket));
+        List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
+        List<String> uniqueModels = (List<String>) uniqueValues.get("uniqueModelNames");
+
+        //System.out.println("uniqueValues"+uniqueValues);
+        List<List<Integer>> listModelsCount= new ArrayList<>() ;
+        List<Integer> countModelsList = new ArrayList<>();
+        ArrayList<Integer> countTotalList = new ArrayList<>();
+        for (String uniqueModel : uniqueModels) {
+            countModelsList = new ArrayList<>();
+            Integer i = 0;
+            for (Date uniqueDate : uniqueDates) {
+                int count = 0;
+                for (ProductsDayCountDTO product : existingProductsPacket) {
+                    if (product.getPacketDate().equals(uniqueDate) && product.getModelName().equals(uniqueModel))
+                        count+=product.getCount();
+                }
+                countModelsList.add(count);
+                i++;
+            }
+            listModelsCount.add(countModelsList);
+        }
+        Integer i = 0;
+        for (Date uniqueDate : uniqueDates) {
+            Integer sum = 0;
+            for (List<Integer> totalPerDay : listModelsCount) {
+                sum += totalPerDay.get(i);
+            }
+            countTotalList.add(sum);
+            i++;
+        }
+        Map <String , List<?>> data =new HashMap<>();
+        data.put("dates",uniqueDates);
+        data.put("models",uniqueModels);
+        data.put("modelsCount",listModelsCount);
+        data.put("countTotalList",countTotalList);
+        return data;
+    }
+
+    @Override
+    public List<PacketStatus> findPacketTimeLineById(Long idPacket) {
         Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
         if (optionalPacket.isPresent()) {
             Packet packet = optionalPacket.get();
@@ -302,64 +504,72 @@ public class PacketServiceImpl implements PacketService {
     public Packet getLastStatus(Packet packet, String deliveryCompany) throws Exception {
         if(deliveryCompany.equals(DeliveryCompany.FIRST.toString())) {
             try {
+                //System.out.println("packet"+packet);
                 DeliveryResponseFirst deliveryResponse = this.firstApiService.getLastStatus(packet.getBarcode());
-
                 if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {
-                    String diggieStatus = DiggieStatus.A_VERIFIER.getStatus();
+                    String systemNewStatus = SystemStatus.A_VERIFIER.getStatus();
                     if (deliveryResponse.getStatus()==404 || deliveryResponse.getResult().getState() == null || deliveryResponse.getResult().getState().equals("")) {
                         throw new Exception("Problem API First");
                     }else if (deliveryResponse.getStatus()>199) {
-                        diggieStatus = mapFirstToDiggieStatus(deliveryResponse.getResult().getState());
+                        //Convert input from first to System Status
+                        //System.out.println(deliveryResponse);
+                        savePacketStatusToHistory(packet,"First:"+deliveryResponse.getResult().getState());
+                        systemNewStatus = mapFirstToSystemStatus(deliveryResponse.getResult().getState());
                         packet.setLastDeliveryStatus(deliveryResponse.getResult().getState());
-                        diggieStatus =
-                                diggieStatus.equals(DiggieStatus.EN_COURS_1.getStatus())//First always return "en cours"
-                                        || diggieStatus.equals(DiggieStatus.EN_COURS_2.getStatus())//not in First System
-                                        || diggieStatus.equals(DiggieStatus.EN_COURS_3.getStatus())//not in First System
-                                        ? upgradeInProgressStatus(packet) : diggieStatus;
+                        systemNewStatus =
+                                (systemNewStatus.equals(SystemStatus.EN_COURS_1.getStatus())//First always return "en cours"
+                                || systemNewStatus.equals(SystemStatus.EN_COURS_2.getStatus())//not in First System
+                                || systemNewStatus.equals(SystemStatus.EN_COURS_3.getStatus()))
+                                && !packet.getStatus().equals(SystemStatus.PROBLEM.getStatus())//not in First System
+                                ? upgradeInProgressStatus(packet) : systemNewStatus;
 
                     }
-                    return updatePacketStatus(packet, diggieStatus);
+                    return updatePacketStatus(packet, systemNewStatus);
                 }
             }catch (Exception e ){
-                packet.setLastDeliveryStatus(DiggieStatus.INCORRECT_BARCODE.getStatus());
-                return updatePacketStatusAndSaveToHistory(packet, DiggieStatus.A_VERIFIER.getStatus());
+                packet.setLastDeliveryStatus(SystemStatus.INCORRECT_BARCODE.getStatus());
+                return updatePacketStatusAndSaveToHistory(packet, SystemStatus.A_VERIFIER.getStatus());
             }
         }
         return null;
     }
 
-    private String mapFirstToDiggieStatus(String status) {
+
+    private String mapFirstToSystemStatus(String status) {
         if (status == null || status.equals(""))
-            return DiggieStatus.A_VERIFIER.getStatus();
+            return SystemStatus.A_VERIFIER.getStatus();
         FirstStatus firstStatus = FirstStatus.fromString(status);
         switch (firstStatus) {
             case LIVREE:
-                return DiggieStatus.LIVREE.getStatus();
+            case EXCHANGE:
+                return SystemStatus.LIVREE.getStatus();
             case RETOUR_EXPEDITEUR:
             case RETOUR_DEFINITIF:
             case RETOUR_CLIENT_AGENCE:
-                return DiggieStatus.RETOUR.getStatus();
+                return SystemStatus.RETOUR.getStatus();
             case EN_ATTENTE:
-                return DiggieStatus.CONFIRMEE.getStatus();
+                return SystemStatus.CONFIRMEE.getStatus();
             case A_VERIFIER:
-                return DiggieStatus.A_VERIFIER.getStatus();
+                return SystemStatus.A_VERIFIER.getStatus();
         }
-        return DiggieStatus.EN_COURS_1.getStatus();
+        return SystemStatus.EN_COURS_1.getStatus();
     }
 
     private String upgradeInProgressStatus(Packet packet) {
-        DiggieStatus diggieStatus = DiggieStatus.fromString(packet.getStatus());
-        if (checkSameDateStatus(packet) || packet.getStatus().equals(DiggieStatus.A_VERIFIER.getStatus()))
+        SystemStatus systemStatus = SystemStatus.fromString(packet.getStatus());
+        if ((checkSameDateStatus(packet)
+                || packet.getStatus().equals(SystemStatus.A_VERIFIER.getStatus()))
+                && !packet.getStatus().equals(SystemStatus.CANCELED.getStatus()))
             return packet.getStatus();
-        switch (diggieStatus) {
+        switch (systemStatus) {
             case EN_COURS_1:
-                return DiggieStatus.EN_COURS_2.getStatus();
+                return SystemStatus.EN_COURS_2.getStatus();
             case EN_COURS_2:
-                return DiggieStatus.EN_COURS_3.getStatus();
+                return SystemStatus.EN_COURS_3.getStatus();
             case EN_COURS_3:
-                return DiggieStatus.A_VERIFIER.getStatus();
+                return SystemStatus.A_VERIFIER.getStatus();
             default:
-                return DiggieStatus.EN_COURS_1.getStatus();
+                return SystemStatus.EN_COURS_1.getStatus();
         }
     }
 
@@ -383,135 +593,135 @@ public class PacketServiceImpl implements PacketService {
             newPacket.setCustomerName(packet.getCustomerName() + "   echange id: " + packet.getId());
             newPacket.setCustomerPhoneNb(packet.getCustomerPhoneNb());
             newPacket.setAddress(packet.getAddress());
+            newPacket.setRelatedProducts(packet.getRelatedProducts());
             newPacket.setPacketDescription(packet.getPacketDescription());
             newPacket.setPrice(packet.getPrice());
-            newPacket.setDiscount(packet.getPrice());
-            newPacket.setDeliveryPrice(7);
-            newPacket.setDeliveryPrice(7);
             newPacket.setDate(new Date());
             newPacket.setStatus("Non confirmée");
             newPacket.setFbPage(packet.getFbPage());
             newPacket.setCity(packet.getCity());
+            newPacket.setDeliveryPrice(packet.getDeliveryPrice());
+            newPacket.setValid(false);
             newPacket.setExchange(true);
         }
         Packet response = packetRepository.save(newPacket);
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
         if(productsPackets.size()>0) {
             productsPackets.stream().forEach(productsPacket -> {
-                ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response,productsPacket.getPacketDate(), productsPacket.getOffer(), productsPacket.getPacketOfferId(),0);
+                ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response,productsPacket.getPacketDate(), productsPacket.getOffer(), productsPacket.getPacketOfferId());
                 productsPacketRepository.save(newProductsPacket);
             });
         }
+        savePacketStatusToHistory(newPacket,SystemStatus.CREATION.getStatus());
         return response;
     }
 
-    public List<String> updatePacketsByBarCode(BarCodeStatusDTO barCodeStatusDTO) {
+
+    public List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO) {
         List<String> errors = new ArrayList<>();
-        System.out.println(barCodeStatusDTO);
+        //System.out.println(barCodeStatusDTO);
         String newState = barCodeStatusDTO.getStatus();
         barCodeStatusDTO.getBarCodes().forEach(barCode -> {
             try {
                 Optional<Packet> optionalPacket = packetRepository.findByBarCode(barCode);
-                if(optionalPacket.isPresent() && !optionalPacket.get().getStatus().equals(DiggieStatus.RETOUR_RECU.getStatus())) {
-                    if(newState.equals(DiggieStatus.PAYEE.getStatus())){
-                        updatePacketStatus(optionalPacket.get(),DiggieStatus.PAYEE.getStatus());
-                    }else
-                        updateProductsQuantityByPacket(optionalPacket.get(),newState);
-                    //updatePacketStatus(packet.get(),newState);
-                } else {
-                    errors.add(barCode);
-                }
+                if(optionalPacket.isPresent()) {
+                    if (!optionalPacket.get().getStatus().equals(SystemStatus.RETOUR_RECU.getStatus())) {
+                            updatePacketStatus(optionalPacket.get(), newState);
+                    } else {
+                        errors.add(barCode + " déja récu");
+                    }
+                }else { errors.add(barCode + " n'existe pas"); }
             } catch(Exception e){
-                errors.add(barCode);
+                errors.add(barCode+ " erreur");
                 e.printStackTrace();
             }
         });
         return errors;
     }
-    public Long getExchangeId(Packet packet){
-        Long id = packet.getId();
-        int indexStartOfString = packet.getCustomerName().lastIndexOf("id: ");
-        if (indexStartOfString != -1) {
-            String idSubstring = packet.getCustomerName().substring(indexStartOfString + 4); // +4 to skip "id: "
-            id = Long.valueOf(idSubstring.trim());
-        }
-        return id;
-    }
-
-    Packet updateProductsQuantityByPacket(Packet packet, String newState){
-        Long id= packet.getId();
-        if (!newState.equals(DiggieStatus.CONFIRMEE.getStatus())){
-                if (newState.equals(DiggieStatus.RETOUR_EXCHANGE.getStatus())){
-                if(!packet.getStatus().equals(DiggieStatus.PAYEE.getStatus()))
-                    updatePacketStatusAndSaveToHistory(packet, DiggieStatus.LIVREE.getStatus());
-                System.out.println("retour echange"+id);
-                id = getExchangeId(packet);
-                packet = packetRepository.findById(id).get();
-                newState = DiggieStatus.RETOUR_RECU.getStatus();
-            }
-        }
-        return updatePacketStatusAndSaveToHistory(packet, newState);
-    }
-
-    private void updateProductQuantity(Product product, int quantityChange) {
-        product.setQuantity(product.getQuantity() + quantityChange);
-        product.setDate(new Date());
-        productRepository.save(product);
-    }
 
     private Packet updatePacketStatus(Packet packet,String status){
-        if (status.equals(DiggieStatus.PAYEE.getStatus())
-                && packet.isExchange())
-        {
-            updatePacketStatusAndSaveToHistory(packet, status);
-            updateExchangePacketStatusToPaid(packet);
+        if(packet.isExchange()){
+            if (status.equals(SystemStatus.PAYEE.getStatus())||status.equals(SystemStatus.LIVREE.getStatus()))
+                return updateExchangePacketStatusToPaid(packet,status);
+            if (status.equals(SystemStatus.RETOUR_RECU.getStatus())){
+                return updateExchangePacketStatusToReturnReceived(packet);
+            }
         }
-        if (status.equals(DiggieStatus.LIVREE.getStatus())
-                && packet.isExchange())
-        {
-            updatePacketStatusAndSaveToHistory(packet, status);
-            status = DiggieStatus.RETOUR.getStatus();
-        }
-        System.out.println("updatePacketStatus "+packet.getId());
         return updatePacketStatusAndSaveToHistory(packet, status);
     }
 
-    private void updateExchangePacketStatusToPaid(Packet packet){
+    private Packet updateExchangePacketStatusToReturnReceived(Packet packet){
         Long id = getExchangeId(packet);
         Optional<Packet> optionalPacket = packetRepository.findById(id);
-        packet.setPrice(optionalPacket.get().getPrice()+packet.getPrice());
-        //optionalPacket.get().setStatus(DiggieStatus.RETOUR.getStatus());
-        updatePacketStatusAndSaveToHistory(optionalPacket.get(), DiggieStatus.RETOUR.getStatus());
-
+        if(packet.getStatus().equals(SystemStatus.LIVREE.getStatus())
+                ||packet.getStatus().equals(SystemStatus.PAYEE.getStatus())
+                ||optionalPacket.get().getStatus().equals(SystemStatus.RETOUR.getStatus()))
+        return updatePacketStatusAndSaveToHistory(optionalPacket.get(), SystemStatus.RETOUR_RECU.getStatus());
+        else return updatePacketStatusAndSaveToHistory(packet, SystemStatus.RETOUR_RECU.getStatus());
+    }
+    private Packet updateExchangePacketStatusToPaid(Packet packet,String status){
+        Long id = getExchangeId(packet);
+        Optional<Packet> optionalPacket = packetRepository.findById(id);
+        packet.setPrice(optionalPacket.get().getPrice()+packet.getPrice()-packet.getDiscount());
+        if(!optionalPacket.get().getStatus().equals(SystemStatus.RETOUR_RECU.getStatus()))
+            updatePacketStatusAndSaveToHistory(optionalPacket.get(), SystemStatus.RETOUR.getStatus());
+        return updatePacketStatusAndSaveToHistory(packet, status);
     }
 
     private Packet updatePacketStatusAndSaveToHistory(Packet packet, String status) {
-        if (!packet.getStatus().equals(status) && !packet.getStatus().equals(DiggieStatus.RETOUR_RECU.getStatus())){
+        if (
+            !packet.getStatus().equals(status)&&
+            !(
+                packet.getStatus().equals(SystemStatus.RETOUR.getStatus())&&
+                !(
+                    status.equals(SystemStatus.RETOUR_RECU.getStatus())
+                    || status.equals(SystemStatus.PROBLEM.getStatus())
+                )
+            )
+        ){
+            updateProducts_Status(packet, status);
+            updateProducts_Quantity(packet, status);
             savePacketStatusToHistory(packet,status);
-            packet.setStatus(status);
-            packet.setLastUpdateDate(new Date());
-            return updatePacket(packet);
+            return  savePacketStatus(packet, status);
         }
-        return packet;
+        return updatePacket(packet);
     }
 
+    private Packet savePacketStatus(Packet packet, String status) {
+        packet.setStatus(status);
+        packet.setLastUpdateDate(new Date());
+        return updatePacket(packet);
+    }
+
+
     private void savePacketStatusToHistory(Packet packet, String status) {
-        if(status.equals(DiggieStatus.LIVREE.getStatus())||status.equals(DiggieStatus.PAYEE.getStatus())||status.equals(DiggieStatus.CONFIRMEE.getStatus())||status.equals(DiggieStatus.RETOUR_RECU.getStatus()))
-            updateProductsStatusByPacket(packet.getId(),status);
-        if (status.equals(DiggieStatus.RETOUR_RECU.getStatus())||status.equals(DiggieStatus.CONFIRMEE.getStatus()))
-            updateProductsQuantity(packet.getId(),status);
         PacketStatus packetStatus = new PacketStatus();
         packetStatus.setPacket(packet);
         packetStatus.setStatus(status);
         packetStatus.setDate(new Date());
         packetStatusRepository.save(packetStatus);
     }
+    private void updateProducts_Status(Packet packet,String status){
+        if(status.equals(SystemStatus.LIVREE.getStatus())
+                ||status.equals(SystemStatus.PAYEE.getStatus())
+                ||status.equals(SystemStatus.CONFIRMEE.getStatus())
+                ||status.equals(SystemStatus.RETOUR_RECU.getStatus())
+                ||status.equals(SystemStatus.CANCELED.getStatus()))
+            updateProductsPacket_Status_ByPacketId(packet.getId(),status);
+    }
 
-    public boolean updateProductsStatusByPacket(Long idPacket,String status) {
-        int x = 0;
-        if (status.equals(DiggieStatus.RETOUR_RECU.getStatus())) x = 0;
-        if (status.equals(DiggieStatus.CONFIRMEE.getStatus())) x = 1;
-        if (status.equals(DiggieStatus.LIVREE.getStatus())||status.equals(DiggieStatus.PAYEE.getStatus())) x = 2;
+    private void updateProducts_Quantity(Packet packet,String status){
+        if (status.equals(SystemStatus.RETOUR_RECU.getStatus())
+                ||status.equals(SystemStatus.CONFIRMEE.getStatus())
+                ||status.equals(SystemStatus.CANCELED.getStatus()))
+            updateProductsQuantity(packet.getId(),status);
+    }
+
+    public boolean updateProductsPacket_Status_ByPacketId(Long idPacket,String status) {
+        int x = -1;
+        if (status.equals(SystemStatus.RETOUR_RECU.getStatus()) || status.equals(SystemStatus.CANCELED.getStatus())) x = 0;
+        if (status.equals(SystemStatus.CONFIRMEE.getStatus())) x = 1;
+        if (status.equals(SystemStatus.LIVREE.getStatus())||status.equals(SystemStatus.PAYEE.getStatus())) x = 2;
 
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(idPacket);
         if(productsPackets.size() > 0) {
@@ -526,8 +736,8 @@ public class PacketServiceImpl implements PacketService {
 
     public boolean updateProductsQuantity(Long idPacket,String status) {
         int quantity = 0;
-        if (status.equals(DiggieStatus.RETOUR_RECU.getStatus())) quantity = 1;
-        if (status.equals(DiggieStatus.CONFIRMEE.getStatus())) quantity = -1;
+        if (status.equals(SystemStatus.RETOUR_RECU.getStatus()) || status.equals(SystemStatus.CANCELED.getStatus())) quantity = 1;
+        if (status.equals(SystemStatus.CONFIRMEE.getStatus())) quantity = -1;
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(idPacket);
         if(productsPackets.size() > 0) {
             for (ProductsPacket productsPacket : productsPackets) {
@@ -540,24 +750,20 @@ public class PacketServiceImpl implements PacketService {
         return true;
     }
 
-
-    @Override
-    public void savePacketStatusToHistory(Long idPacket, String status) {//unused
-        System.out.println("savePacketStatusToHistory "+idPacket);
-        Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
-        Packet packet = null;
-        if (optionalPacket.isPresent()) {
-            packet = optionalPacket.get();
-            PacketStatus packetStatus = new PacketStatus();
-            packetStatus.setPacket(packet);
-            packetStatus.setStatus(status);
-            packetStatus.setDate(new Date());
-            packetStatusRepository.save(packetStatus);
-        }
+    private void updateProductQuantity(Product product, int quantityChange) {
+        product.setQuantity(product.getQuantity() + quantityChange);
+        product.setDate(new Date());
+        productRepository.save(product);
     }
-    @Override
-    public List<ProductsDayCountDTO> productsCountByDate(Long state,String beginDate,String endDate){
-        return productsPacketRepository.productsCountByDate(state, beginDate,endDate);
+
+    public Long getExchangeId(Packet packet){
+        Long id = packet.getId();
+        int indexStartOfString = packet.getCustomerName().lastIndexOf("id: ");
+        if (indexStartOfString != -1) {
+            String idSubstring = packet.getCustomerName().substring(indexStartOfString + 4); // +4 to skip "id: "
+            id = Long.valueOf(idSubstring.trim());
+        }
+        return id;
     }
 
 }

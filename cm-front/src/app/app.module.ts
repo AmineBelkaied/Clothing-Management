@@ -19,7 +19,6 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { CalendarModule } from 'primeng/calendar';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { CardModule } from 'primeng/card';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TabViewModule } from 'primeng/tabview';
 import { SplitterModule } from 'primeng/splitter';
@@ -32,6 +31,13 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TagModule } from 'primeng/tag';
 import { CheckboxModule } from 'primeng/checkbox';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { SpeedDialModule } from 'primeng/speeddial';
+import { ContextMenuModule } from 'primeng/contextmenu';
+import { BadgeModule } from 'primeng/badge';
+import { CardModule } from 'primeng/card';
+import { ListboxModule } from 'primeng/listbox';
+import { ChipModule } from 'primeng/chip';
 
 
 // import components
@@ -61,6 +67,10 @@ import { StatistiqueComponent } from './statistique/statistique.component';
 import { StockHistoryComponent } from './stock-history/stock-history.component';
 import { PaginatorModule } from 'primeng/paginator';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { VerificationComponent } from './verification/verification.component';
+import { PickListModule } from 'primeng/picklist';
+
 import { AuthInterceptor } from 'src/shared/helpers/interceptor';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { UserComponent } from './config/user/user.component';
@@ -91,6 +101,9 @@ import { PasswordModule } from 'primeng/password';
     StockComponent,
     StatistiqueComponent,
     StockHistoryComponent,
+    PayedReturnComponent,
+    DashboardComponent,
+    VerificationComponent,
     PayedReturnComponent,
     UserComponent
   ],
@@ -127,7 +140,15 @@ import { PasswordModule } from 'primeng/password';
     FileUploadModule,
     TagModule,
     CheckboxModule,
-    PasswordModule
+    PasswordModule,
+    CheckboxModule,
+    SplitButtonModule,
+    SpeedDialModule,
+    ContextMenuModule,
+    BadgeModule,
+    ListboxModule,
+    ChipModule,
+    PickListModule
   ],
   providers: [MessageService, ConfirmationService, CityTreeService, DatePipe, AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],

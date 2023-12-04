@@ -1,6 +1,5 @@
 package com.clothing.management.servicesImpl;
 
-import com.clothing.management.dto.ProductQuantity;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.*;
@@ -45,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setId(product.getId());
         newProduct.setColor(product.getColor());
         newProduct.setSize(product.getSize());
-        newProduct.setReference(product.getReference());
+        //newProduct.setReference(product.getReference());
         newProduct.setModel(mapToModel(product.getModel()));
         newProduct.setQuantity(product.getQuantity());
         newProduct.setDate(product.getDate());
@@ -67,10 +66,10 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findById(idProduct);
     }
 
-    @Override
+   /* @Override
     public Product findProductByReference(String reference) {
         return productRepository.findByReference(reference);
-    }
+    }*/
 
     @Override
     public Product addProduct(Product product) {
@@ -157,12 +156,22 @@ public class ProductServiceImpl implements ProductService {
                 productModel = product.get().getModel().getId();
                 product.get().setQuantity(product.get().getQuantity()+updateIdSockList.getQte());
                 updateProduct(product.get());
-                ProductHistory productHistory = new ProductHistory(productId, product.get().getReference(), updateIdSockList.getQte(), new Date(), product.get().getModel());
+                ProductHistory productHistory = new ProductHistory(productId, "", updateIdSockList.getQte(), new Date(), product.get().getModel());
                 productHistoryRepository.save(productHistory);
             }
         });
 
         Pageable paging = PageRequest.of(0, 10, Sort.by("last_modification_date").descending());
         return productHistoryRepository.findAll(updateIdSockList.getModelId(), paging);
+    }
+
+    @Override
+    public List<ModelStockHistory> countStock() {
+        return productRepository.countStock();
+    }
+
+    @Override
+    public Product findByModelAndColorAndSize(Long modelId, Long colorId, Long sizeId) {
+        return productRepository.findByModelAndColorAndSize(modelId,colorId,sizeId);
     }
 }

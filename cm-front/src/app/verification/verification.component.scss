@@ -1,0 +1,25 @@
+.card-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  text-align: center; /* Optional for centering text content */
+}
+
+.p-card {
+  flex: 1;
+  margin: 3rem;
+}
+.msg {
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .card-container {
+    flex-direction: column;
+  }
+
+  .p-card {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+}

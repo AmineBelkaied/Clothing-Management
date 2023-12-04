@@ -26,9 +26,10 @@ export class AddFbpageComponent implements OnInit {
     if(this.fbPageService.editMode){
       this.fbPage.name = form.value.name;
       this.fbPage.link = form.value.link;
+      this.fbPage.enabled = form.value.enabled;
       this.fbPageService.updateFbPage(this.fbPage)
       .subscribe((updatedFbPage: any) => {
-        console.log(updatedFbPage) 
+        console.log(updatedFbPage)
         this.fbPageService.spliceFbPage(updatedFbPage);
         this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été modifiée avec succés", life: 1000 });
         form.reset();

@@ -1,6 +1,8 @@
 package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import jakarta.persistence.*;
 import java.util.*;

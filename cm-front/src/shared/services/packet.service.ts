@@ -34,12 +34,31 @@ export class PacketService {
     let path = '/findAllPaginatedPackets?page=' + params.page + "&size=" + params.size;
     if(params.searchText != undefined && params.searchText != null)
       path += "&searchText=" + params.searchText;
+    if(params.startDate != undefined)
+      path += "&startDate=" + params.startDate;
     if(params.startDate != undefined && params.endDate != undefined)
-      path += "&startDate=" + params.startDate + "&endDate=" + params.endDate;
+      path += "&endDate=" + params.endDate;
     if(params.status != undefined && params.status != null)
       path += "&status=" + params.status;
+    if(params.mandatoryDate != undefined && params.mandatoryDate != null)
+      path += "&mandatoryDate=" + params.mandatoryDate;
     return this.http.get(this.baseUrl + path);
   }
+
+  public createDashboard(): Observable<any> {
+    // only create a new request if you don't already have one stored
+    // save your request
+    let path = '/createDashboard';
+    return this.http.get(this.baseUrl+path);
+  }
+
+  public syncNotification(): Observable<any> {
+    // only create a new request if you don't already have one stored
+    // save your request
+    let path = '/syncNotification';
+    return this.http.get(this.baseUrl+path);
+  }
+
 
   public findAllPacketsByDate(startDate: String,endDate:String): Observable<any> {
     // only create a new request if you don't already have one stored
@@ -63,33 +82,33 @@ export class PacketService {
   }
 
   addPacket(packet: Packet): Observable<any> {
-    console.log('packet front before submit', packet);
+    //console.log('packet front before submit', packet);
     return this.http.post(this.baseUrl + '/add', packet);
   }
 
   updatePacket(packet: Packet): Observable<any> {
-    console.log('new packetbefore update', packet);
+    //console.log('new packetbefore update', packet);
     return this.http.put(this.baseUrl + '/update', packet, {
       headers: { 'content-type': 'application/json' },
     });
   }
 
   patchPacket(idPacket: any, packet: any): Observable<any> {
-    console.log('new packetbefore patch', packet);
+    //console.log('new packetbefore patch', packet);
     return this.http.patch(this.baseUrl + '/patch/' + idPacket, packet, {
       headers: { 'content-type': 'application/json' },
     });
   }
 
   addProductsToPacket(selectedProducts: any): Observable<any> {
-    console.log('selectedProducts', selectedProducts);
+    //console.log('selectedProducts', selectedProducts);
     return this.http.post(this.baseUrl + '/addProducts', selectedProducts, {
       headers: { 'content-type': 'application/json' },
     });
   }
 
   deletePacketById(idPacket: any) {
-    console.log(this.baseUrl + '/deleteById/' + idPacket);
+    //console.log(this.baseUrl + '/deleteById/' + idPacket);
     return this.http.delete(this.baseUrl + '/deleteById/' + idPacket);
   }
 
@@ -99,12 +118,20 @@ export class PacketService {
     );
   }
 
+
+  validatePacket(barCode: any,state: string): Observable<any> {
+    let path ='/valid/' + barCode;
+    return this.http.post(this.baseUrl + path, state, {
+      headers: { 'content-type': 'application/json' },
+    });
+  }
+
   duplicatePacket(idPacket: any) {
     return this.http.get(this.baseUrl + '/duplicatePacket/' + idPacket);
   }
 
-  getPacketAllStatus(idPacket: any) {
-    return this.http.get(this.baseUrl + '/findPacketStatus/' + idPacket);
+  getPacketTimeLine(idPacket: any) {
+    return this.http.get(this.baseUrl + '/getPacketTimeLine/' + idPacket);
   }
 
   getLastStatus(packet: Packet, deliveryCompany?: string) {

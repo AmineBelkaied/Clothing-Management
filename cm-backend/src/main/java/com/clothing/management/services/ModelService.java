@@ -11,6 +11,7 @@ public interface ModelService {
     public Optional<Model> findModelById(Long idModel);
     public Model addModel(Model model);
     public Model updateModel(Model model);
+    public Model generateModelProducts(Model model);
     public void deleteModelById(Long idModel);
     void deleteSelectedModels(List<Long> modelsId);
 }

@@ -24,7 +24,7 @@ export class ListModelsComponent implements OnInit {
     "reference": "",
     "description": "",
     "colors": [],
-    "sizes": [] 
+    "sizes": []
   }
   editMode = false;
   image: any;
@@ -42,7 +42,6 @@ export class ListModelsComponent implements OnInit {
 
 
   ngOnInit() {
-
     this.colorService.findAllColors()
     .subscribe((colors: any) => {
       this.colors = colors.filter((color: Color) => color.reference != "?");
@@ -216,7 +215,7 @@ export class ListModelsComponent implements OnInit {
   onUpload($event: any) {
     this.selectedFile = $event;
     console.log(this.selectedFile);
-    
+
   }
 
   uploadFile(model: Model) {
@@ -232,7 +231,7 @@ export class ListModelsComponent implements OnInit {
       (      err: any) => {
        // this.message = 'Could not upload the file!';
       });
-  
+
     this.selectedFile = undefined;
   }
 }

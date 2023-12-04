@@ -6,20 +6,37 @@ public class ProductsDayCountDTO {
 
     private Date packetDate;
     private Long productId;
+
+    //private String productRef;
+    private Long offerId;
     private Long modelId;
+    private String modelName;
     private String color;
     private String size;
+
+    private Long countExchange;
+    private Long countProgress;
     private Long count;
 
     public ProductsDayCountDTO() {
     }
 
-    public ProductsDayCountDTO(Date packetDate, Long productId, Long modelId, String color, String size, Long count) {
+    public ProductsDayCountDTO(
+            Date packetDate, Long productId,
+            Long offerId, Long modelId, String modelName,
+            String color, String size,
+            Long countExchange,Long countProgress, Long count
+    ) {
         this.packetDate = packetDate;
         this.productId = productId;
+        //this.productRef = productRef;
+        this.offerId = offerId;
         this.modelId = modelId;
+        this.modelName = modelName;
         this.color = color;
         this.size = size;
+        this.countExchange = countExchange;
+        this.countProgress = countProgress;
         this.count = count;
     }
 
@@ -67,7 +84,40 @@ public class ProductsDayCountDTO {
         return count;
     }
 
+    public Long getCountExchange() {
+        return countExchange;
+    }
+
+    public void setCountExchange(Long countExchange) {
+        this.countExchange = countExchange;
+    }
+
+    public Long getCountProgress() {
+        return countProgress;
+    }
+    public void setCountProgress(Long countProgress) {
+        this.countProgress = countProgress;
+    }
     public void setCount(Long count) {
         this.count = count;
+    }
+    public Long getOfferId() {
+        return offerId;
+    }
+    public void setOfferId(Long offerId) {
+        this.offerId = offerId;
+    }
+
+    /*public String getProductRef() {
+        return productRef;
+    }
+    public void setProductRef(String productRef) {
+        this.productRef = productRef;
+    }*/
+    public String getModelName() {
+        return modelName;
+    }
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 }

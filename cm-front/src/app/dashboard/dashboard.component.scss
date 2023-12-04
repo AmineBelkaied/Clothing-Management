@@ -1,0 +1,64 @@
+.buttonSize {
+    width: 34px !important;
+    height: 34px !important;
+   }
+
+   .p-component {
+    background-color: transparent; /* Set the card container's background to transparent */
+  }
+
+   .grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Create 4 columns */
+    grid-gap: 20px; /* Adjust the gap between cards */
+  }
+
+  .card-color-0 {
+    background-color: #ffc107; /* Card color for index 0 */
+  }
+
+  .card-color-1 {
+    background-color: #33FF57; /* Card color for index 1 */
+  }
+
+  .card-color-2 {
+    background-color: #007bff; /* Card color for index 2 */
+  }
+
+  .card-color-3 {
+    background-color: #007bff; /* Card color for index 0 */
+  }
+
+  .card-color-4 {
+    background-color: #007bff; /* Card color for index 1 */
+  }
+
+  .card-color-5 {
+    background-color: #ffc107; /* Card color for index 0 */
+  }
+
+  .card-color-6 {
+    background-color: #ffc107; /* Card color for index 0 */
+  }
+
+  .card-color-7 {
+    background-color: #28a745; /* Card color for index 1 */
+  }
+
+  .card-color-8 {
+    background-color: #ffc107; /* Card color for index 2 */
+  }
+
+  .card-color-9 {
+    background-color: #28a745; /* Card color for index 0 */
+  }
+
+  .card-color-10 {
+    background-color: #dc3545; /* Card color for index 1 */
+  }
+
+  .card-color-11 {
+    background-color: #dc3545; /* Card color for index 2 */
+  }
+
+

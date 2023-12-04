@@ -3,11 +3,9 @@ package com.clothing.management.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Proxy;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "packet", indexes = {
@@ -36,9 +34,12 @@ public class Packet {
     private String barcode;
     @Column(name = "last_delivery_status")
     private String lastDeliveryStatus;
+    @Column(name = "old_client")
+    private Integer oldClient;
+
     @OneToMany(mappedBy = "packet" , cascade = {CascadeType.PERSIST, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<ProductsPacket> products;
+    private List<ProductsPacket> products;
     @JsonIgnore
     @OneToMany(mappedBy = "packet")
     List<PacketStatus> packetStatus;
@@ -59,13 +60,16 @@ public class Packet {
     @Column(name = "print_link")
     private String printLink;
 
+    private boolean valid;
+
     public Packet() {
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, Set<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, Date confirmationDate, String dgStatus, boolean exchange, String printLink) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, String dgStatus, boolean exchange, boolean valid, String printLink) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
+        this.oldClient = oldClient;
         this.city = city;
         this.address = address;
         this.relatedProducts = relatedProducts;
@@ -127,11 +131,11 @@ public class Packet {
 
     public void setPacketReference(String packetReference) { this.packetReference = packetReference; }
 
-    public Set<ProductsPacket> getProducts() {
+    public List<ProductsPacket> getProducts() {
         return products;
     }
 
-    public void setProducts(Set<ProductsPacket> products) {
+    public void setProducts(List<ProductsPacket> products) {
         this.products = products;
     }
 
@@ -248,12 +252,29 @@ public class Packet {
         this.printLink = printLink;
     }
 
+    public Integer getOldClient() {
+        return oldClient;
+    }
+
+    public void setOldClient(Integer oldClient) {
+        this.oldClient = oldClient;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
+
     @Override
     public String toString() {
         return "Packet{" +
                 "id=" + id +
                 ", customerName='" + customerName + '\'' +
                 ", customerPhoneNb='" + customerPhoneNb + '\'' +
+                ", oldClient='" + oldClient + '\'' +
                 ", city=" + city +
                 ", address='" + address + '\'' +
                 ", packetDescription='" + packetDescription + '\'' +
@@ -267,7 +288,6 @@ public class Packet {
                 ", date=" + date +
                 ", status='" + status + '\'' +
                 ", lastUpdateDate=" + lastUpdateDate +
-                ", confirmationDate=" + confirmationDate +
                 ", exchange=" + exchange +
                 ", printLink='" + printLink + '\'' +
                 '}';

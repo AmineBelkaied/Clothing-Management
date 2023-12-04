@@ -1,7 +1,7 @@
 package com.clothing.management.repository.repositoryImpl;
 
 import com.clothing.management.entities.Packet;
-import com.clothing.management.repository.enums.DiggieStatus;
+import com.clothing.management.repository.enums.SystemStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -25,7 +25,7 @@ public class PacketRepositoryImpl {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable) {
+    public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable, boolean mandatoryDate) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Packet> criteriaQuery = criteriaBuilder.createQuery(Packet.class);
         Root<Packet> root = criteriaQuery.from(Packet.class);
@@ -45,28 +45,37 @@ public class PacketRepositoryImpl {
             ));
         }
 
-        if(startDate != null && endDate != null && searchText== null)
+        if(startDate != null && searchText== null)
             if( (status!= null &&
                     (
-                            !status.equals(DiggieStatus.RETOUR.getStatus())
-                            && !status.equals(DiggieStatus.A_VERIFIER.getStatus())
-                                    && !status.equals(DiggieStatus.DELETED.getStatus())
-                                    && !status.equals(DiggieStatus.EN_COURS_1.getStatus())
-                                    && !status.equals(DiggieStatus.EN_COURS_2.getStatus())
-                                    && !status.equals(DiggieStatus.EN_COURS_3.getStatus())
-                                    && !status.equals(DiggieStatus.NON_CONFIRMEE.getStatus()))
-                    )
-                    || status== null){
+                            !status.equals(SystemStatus.RETOUR.getStatus())
+                            && !status.equals(SystemStatus.A_VERIFIER.getStatus())
+                            && !status.equals(SystemStatus.INJOIYABLE.getStatus())
+                            && !status.equals(SystemStatus.DELETED.getStatus())
+                            && !status.equals(SystemStatus.ENDED.getStatus())
+                            && !status.equals(SystemStatus.EN_COURS_1.getStatus())
+                            && !status.equals(SystemStatus.EN_COURS_2.getStatus())
+                            && !status.equals(SystemStatus.EN_COURS_3.getStatus())
+                            && !status.equals(SystemStatus.NON_CONFIRMEE.getStatus())
+
+                    ))
+                    || status== null || mandatoryDate )
+            {
 
                     predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(startDate)));
-                    predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(endDate)));
+                if(endDate != null)
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(endDate)));
 
             }
 
-        if(status != null && searchText == null) {
+        if(status == null && searchText == null)
+            predicates.add(criteriaBuilder.notLike(root.get("status"),  SystemStatus.DELETED.getStatus()));
+
+        else if(status != null && searchText == null) {
             predicates.add(root.get("status").in(Arrays.asList(status.split(","))));
         }
-        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
+
+        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("date")));
 
         criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Packet> query = entityManager.createQuery(criteriaQuery);
@@ -75,7 +84,7 @@ public class PacketRepositoryImpl {
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
         List<Packet> resultList = query.getResultList();
-
+        //System.out.println("query:"+query);
         return new PageImpl<>(resultList, pageable, totalItems);
     }
 
@@ -91,10 +100,8 @@ public class PacketRepositoryImpl {
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(endDate)));
         }
 
-        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
-
         criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
-        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
+        criteriaQuery.orderBy(criteriaBuilder.asc(root.get("date")));
 
         TypedQuery<Packet> query = entityManager.createQuery(criteriaQuery);
         return query.getResultList();

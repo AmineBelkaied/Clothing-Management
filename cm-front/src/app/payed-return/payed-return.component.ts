@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { PacketService } from 'src/shared/services/packet.service';
+import { PAYEE } from 'src/shared/utils/status-list';
 
 @Component({
   selector: 'app-payed-return',
@@ -10,7 +11,8 @@ import { PacketService } from 'src/shared/services/packet.service';
 export class PayedReturnComponent implements OnInit {
   text: string = ''; // Initialize with the provided text
   extractedBarcodes: string[] = [];
-  type!: string;
+  type: string= PAYEE
+  errorMessage :string ="";
 
   constructor(private packetService: PacketService,private messageService: MessageService) {
 
@@ -52,12 +54,12 @@ export class PayedReturnComponent implements OnInit {
   }
 
   createErrorMessage(result: string[]) {
-    let errorMessage = "Les code à barres suivants sont introuvables : ";
+    this.errorMessage += "Les code à barres suivants sont introuvables : ";
     result.forEach((element, index) => {
-      errorMessage += element;
+      this.errorMessage += element;
         if(index < result.length - 1)
-          errorMessage += " , ";
+          this.errorMessage += " , ";
     });
-    return errorMessage;
+    return this.errorMessage;
   }
 }

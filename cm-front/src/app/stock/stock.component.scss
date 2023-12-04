@@ -12,7 +12,7 @@
 :host ::ng-deep .no-products {
     background-color:   #ffebeb !important;
   }
-  
+
   :host ::ng-deep .warning-product {
     background-color:   #fdfdba!important;
   }
@@ -20,3 +20,26 @@
   :host ::ng-deep .expand-model {
     background-color:   rgb(233, 245, 255) !important;
   }
+
+  .model-width {
+    width: 15rem;
+  }
+  .stock-width {
+    min-width: 1000px;
+  }
+  .history-width {
+    width: 20rem;
+  }
+
+  @media (max-width: 1000px) {
+    .model-width{
+      width: 15rem;
+    }
+    .stock-width{
+      min-width: 100%;
+    }
+    .history-width{
+      width: 300rem;
+    }
+  }
+
