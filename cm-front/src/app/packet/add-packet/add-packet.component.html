@@ -10,10 +10,6 @@
                 <span style="font-size: smaller;color: rgb(155, 154, 154)"  *ngIf="packetDescription != ''">Articles : </span>
                 <span style="font-size: 13.5px;font-family: Segoe UI', Tahoma, Geneva, Verdana, sans-serif', serif;font-weight: 550;">{{ packetDescription }} </span>
               </div>
-              <div class="col-md-4" >
-                  <span style="font-size: smaller;color: rgb(155, 154, 154)" *ngIf="packetDescription != ''">Références : </span>
-                  <label style="font-size: 12.5px;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-weight: 520;">{{ productReferences }}</label>
-              </div>
               <div class="col-md-3" >
                 <p-checkbox lass="mb-2" [binary]="true" inputId="binary" [ngModelOptions]="{standalone: true}" [(ngModel)]="enableFakeSize" ></p-checkbox>
                 <label class="ml-2 mt-2" for="ny">Fake Size</label>
@@ -35,42 +31,40 @@
                     <th></th>
                   </thead>
                   <tr *ngFor="let offer of offers().controls; let i=index" [formGroupName]="i" class="mt-4">
-                    <td>
+                    <td><!-- ... Dropdown for selecting offer ... -->
                       <p-dropdown [options]="offersList" (onChange)="onOfferChange($event.value, i)" optionLabel="name"
                         formControlName="name" optionValue="name" [style]="{ width: '200px'}"
                         [panelStyle]="{ width: '200px' }" [showClear]="true" placeholder="Choisir l'offre" appendTo="body">
                       </p-dropdown>
-                      <!--                     <p *ngIf="offer.get('models')?.value != ''" class="mt-2">
-                        <span>Modèles associés : {{offer.get('models')?.value}}</span>
-                      </p> -->
                     </td>
                     <td formArrayName="models">
+                      <!-- ... Model details ... -->
                   <tr *ngFor="let model of models(i).controls; let j=index" [formGroupName]="j" class="mt-3"  style="max-width: 100%;">
-                    <td style="text-align:center;vertical-align: middle;background-color: aliceblue;width: 20%;">
+                    <td style="text-align:center;vertical-align: middle;background-color: aliceblue;width: 20%;"><!-- ... Unused image ... -->
                       <small style="font-style: normal;font-size: 14.3px">{{model.get("name")?.value}}</small>
                       <br>
                       <img *ngIf="model.get('image')?.value != null" [src]="'data:image/jpeg;base64,' + model.get('image')?.value" width="60" height="60" class="shadow-4 mt-1" />
                     </td>
-                    <td>
+                    <td><!-- ... Dropdown for selecting colors ... -->
                       <p-dropdown [options]="model.get('colors')?.value" (ngModelChange)="setSelectedProductValue(model, j, offer)" optionLabel="name"
                         formControlName="selectedColor" [style]="{ width: '300px'}" [panelStyle]="{ width: '300px' }" [showClear]="true" appendTo="body"
                         placeholder="Choisir la couleur">
                       </p-dropdown>
                     </td>
-                    <td>
+                    <td><!-- ... Dropdown for selecting sizes ... -->
                       <p-dropdown [options]="model.get('sizes')?.value" (ngModelChange)="setSelectedProductValue(model, j, offer)" optionLabel="reference" formControlName="selectedSize" [style]="{ width: '150px'}" [panelStyle]="{ width: '80%' }" appendTo="body"
                         [panelStyle]="{ width: '100px' }" [showClear]="true" placeholder="Choisir la taille">
                       </p-dropdown>
                     </td>
-                    <td>
+                    <td><!-- ... Model Stock Box ... -->
                       <ng-container class="d-flex flex-column align-items-center">
                         <div class="text-center">
                           <h6>Stock:</h6>
-                          <h5>{{model.value.selectedProduct?.quantity}}</h5>
+                          <h5>{{ model.value.selectedProduct?.quantity }}</h5>
                         </div>
                       </ng-container>
                     </td>
-                    <td *ngIf="enableFakeSize == true">
+                    <td *ngIf="enableFakeSize == true"><!-- ... Fake size Box ... -->
                       <p-dropdown [options]="model.get('sizes')?.value" (ngModelChange)="setSelectedProductValue(model, j, offer)" optionLabel="reference" formControlName="selectedSizeReel" [style]="{ width: '150px'}" [panelStyle]="{ width: '80%' }" appendTo="body"
                         [panelStyle]="{ width: '100px' }" [showClear]="true" placeholder="msg">
                       </p-dropdown>
@@ -80,8 +74,6 @@
                   <td style="text-align: center">
                     <button pButton pRipple icon="pi pi-trash" class="p-button-danger p-button-sm buttonSize"
                       (click)="removeOffer(offer , i)"></button>
-                    <!--  <button pButton pRipple icon="pi pi-refresh" class="p-button-text p-button buttonSize mt-2"
-                      (click)="clearModel(offer.get('name')?.value,i)"></button> -->
                   </td>
                   </tr>
                 </table>
@@ -127,7 +119,17 @@
           <label style="font-weight: bold">{{packetPrice}} DT</label>
         </div>
         <div class="col-md-2" style="margin-left:85%">
-          <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text" (click)="onSubmit()"></button>
+          <p-toast></p-toast>
+          <p-confirmPopup>
+              <ng-template pTemplate="content" let-message>
+                  <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border p-3 mb-3">
+                      <i [class]="message.icon" class="text-6xl text-primary-500"></i>
+                      <p>{{ message.message }}</p>
+                  </div>
+              </ng-template>
+          </p-confirmPopup>
+          <p-button (click)="onSubmit($event)" icon="pi pi-check" label="Valider"></p-button>
+          <!--<button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text" (click)="onSubmit()"></button>-->
         </div>
         </div>
       <!-- <button type="submit" class="btn btn-success" >Valider</button> -->

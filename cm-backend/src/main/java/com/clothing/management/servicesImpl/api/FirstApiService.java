@@ -48,7 +48,7 @@ public class FirstApiService {
     }
 
     private DeliveryResponseFirst executeHttpRequest(String url, String jsonBody) throws IOException {
-        System.out.println("jsonBody: " + jsonBody);
+        //System.out.println("jsonBody: " + jsonBody);
         URL urlConnection = new URL(url);
         HttpsURLConnection connection = (HttpsURLConnection) urlConnection.openConnection();
         connection.setRequestMethod("POST");
@@ -79,10 +79,8 @@ public class FirstApiService {
             } catch (Exception e) {
                 System.out.println("Error in reading InputStream: " + e);
             }
-            //System.out.println("response.toString(): " + response.toString());
             ObjectMapper mapper = new ObjectMapper();
             deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseFirst.class);
-            //System.out.println("deliveryResponse: " + deliveryResponse.toString());
             deliveryResponse.setResponseCode(responseCode);
             deliveryResponse.setMessage(responseMessage);
         } else {

@@ -45,16 +45,16 @@ export class ListModelsComponent implements OnInit {
     this.colorService.findAllColors()
     .subscribe((colors: any) => {
       this.colors = colors.filter((color: Color) => color.reference != "?");
-      console.log(this.colors)
+      //console.log(this.colors)
     })
     this.sizeService.findAllSizes()
     .subscribe((sizes: any) => {
       this.sizes = sizes.filter((size: any) => size.reference != "?");
-      console.log(this.sizes)
+      //console.log(this.sizes)
     })
     this.modelService.findAllModels().subscribe((data: any) => {
       this.models = data;
-      console.log(this.models);
+      //console.log(this.models);
       this.models.map(model => model.image = 'data:image/jpeg;base64,' + model.bytes)
     });
   }

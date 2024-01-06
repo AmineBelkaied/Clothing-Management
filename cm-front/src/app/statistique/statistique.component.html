@@ -1,99 +1,3 @@
-<!--<table width="100%">
-  <tr>
-    <td colspan="2">
-      <h5>totalRow</h5>
-    </td>
-    <td colspan="2">
-      <h5>qtePerSizeColumn</h5>
-    </td>
-    <td colspan="2">
-      <h5>totalPerDayColumn</h5>
-    </td>
-    <td colspan="2">
-      <h5>totalPerDayColorColumn</h5>
-    </td>
-    <td colspan="2">
-      <h5>Model</h5>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2">
-      <p-inputSwitch
-        (onChange)="handleChange()"
-        [(ngModel)]="totalRow"
-      ></p-inputSwitch>
-    </td>
-    <td colspan="2">
-      <p-inputSwitch
-        (onChange)="handleChange()"
-        [(ngModel)]="qtePerSizeColumn"
-      ></p-inputSwitch>
-    </td>
-    <td colspan="2">
-      <p-inputSwitch
-        (onChange)="handleChange()"
-        [(ngModel)]="totalPerDayColumn"
-      ></p-inputSwitch>
-    </td>
-    <td colspan="2">
-      <p-inputSwitch
-        (onChange)="handleChange()"
-        [(ngModel)]="totalPerDayColorColumn"
-      ></p-inputSwitch>
-    </td>
-    <td colspan="2">
-      <p-dropdown [options]="models" [(ngModel)]="selectedModel" (onChange)="handleChange()" [placeholder]="selectedModel"></p-dropdown>
-    </td>
-  </tr>
-</table>
-
-<p-table [value]="statTab" styleClass="p-datatable-gridlines">
-  <ng-template pTemplate="header">
-    <tr>
-      <th rowspan="3">Day</th>
-      <th colspan="40">{{ selectedModel }}</th>
-    </tr>
-    <tr *ngIf="qtePerSizeColumn">
-      <th [attr.colspan]="columnPerColor" *ngFor="let color of colors">
-        {{ color }}
-      </th>
-    </tr>
-    <tr>
-      <th *ngFor="let size of sizesRow">{{ size }}</th>
-      <th *ngIf="totalPerDayColumn">tot/jour</th>
-    </tr>
-  </ng-template>
-
-  <ng-template pTemplate="body" let-stat>
-    <tr>
-      <td *ngFor="let x of stat">{{ x }}</td>
-    </tr>
-  </ng-template>
-
-  <ng-template pTemplate="footer">
-    <tr *ngIf="totalRow">
-      <td>total</td>
-      <td *ngFor="let x of totalPerSize">{{ x }}</td>
-    </tr>
-  </ng-template>
-</p-table>
-
-<table>
-    <tr>
-      <td>Sizes</td>
-      <td *ngFor="let x of sizes">{{ x }}</td>
-    </tr>
-  <tr>
-    <td>totalPerSizeRow</td>
-    <td *ngFor="let x of totalPerSizeRow">{{ x }}</td>
-  </tr>
-</table>
--->
-<!-- <div class="card">
-  <p-chart type="bar" [data]="basicData" [options]="basicOptions"></p-chart>
-</div>
- -->
-
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
     <div class="card-body px-0 py-0">
@@ -137,35 +41,264 @@
     </div>
   </div>
 </div>
-<!--------------------------------States Chart---------------------------------------->
+
+<!---------------------------------Packets Chart----------------------------------------
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-    <p-card header="Pays Chart" style="width: 100%">
-      <p-chart type="bar" [data]="StatesData" [options]="StatesOptions"></p-chart>
+    <p-card header="Packets Chart" [style]="{ width: '100%'}">
+      <p-tabView>
+        <p-tabPanel header="Chart">
+          <p-chart type="line" [data]="PacketsData" [options]="PacketsOptions"></p-chart>
+        </p-tabPanel>
+        <p-tabPanel header="Table">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Min-Max</th>
+                  <th>Average</th>
+                  <th>Sum</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of modelTable | keyvalue">
+                  <td>{{ item.key }}</td>
+                  <td>{{ item.value.min }}-{{ item.value.max }}</td>
+                  <td>{{ item.value.average.toFixed(2) }}</td>
+                  <td>{{ item.value.sum }}</td>
+                </tr>
+              </tbody>
+            </table>
+        </p-tabPanel>
+        </p-tabView>
+    </p-card>
+  </div>
+</div>-->
+
+<!-----------------------------------Packets Chart---------------------------------------->
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <p-card header = "Packets" [style]="{ width: '100%'}">
+      <p-tabView>
+        <p-tabPanel header="Chart">
+          <p-chart type="line" [data]="packetsData" [options]="packetsOptions"></p-chart>
+        </p-tabPanel>
+        <p-tabPanel header="Table">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Min-Max</th>
+                <th>Average</th>
+                <th>Sum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of packetsTableData">
+                <td>{{ item.name }}</td>
+                <td>{{ item.min }}-{{ item.max }}</td>
+                <td>{{ item.avg }}</td>
+                <td>{{ item.sum }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </p-tabPanel>
+      </p-tabView>
     </p-card>
   </div>
 </div>
-<!---------------------------------Packets Chart---------------------------------------->
-<div class="container-fluid">
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-      <p-card header="Packets Chart" style="width: 100%">
-        <p-chart type="line" [data]="PacketsData" [options]="PacketsOptions"></p-chart>
-      </p-card>
-  </div>
-</div>
+
 <!-----------------------------------Models Chart---------------------------------------->
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-      <p-card header="Models Chart" style="width: 100%">
-          <p-chart type="line" [data]="modelsData" [options]="modelsOptions"></p-chart>
+      <p-card header="Models Chart" [style]="{ width: '100%'}">
+        <p-tabView>
+          <p-tabPanel header="Chart">
+            <p-chart type="line" [data]="modelsData" [options]="modelsOptions" (onDataSelect) = "dataSelect($event)"></p-chart>
+          </p-tabPanel>
+          <p-tabPanel header="Table">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Min-Max</th>
+                  <th>Average</th>
+                  <th>Sum</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of modelTableData">
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.min }}-{{ item.max }}</td>
+                  <td>{{ item.avg }}</td>
+                  <td>{{ item.sum }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </p-tabPanel>
+        </p-tabView>
       </p-card>
+  </div>
+</div>
+<!-----------------------------------Offers Chart---------------------------------------->
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <p-card [style]="{ width: '100%'}">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <H3>Offers Chart</H3>
+        </div>
+        <div>
+          <p-selectButton [options]="enablerOptions" [(ngModel)]="offersChartEnabler" optionLabel="label" optionValue="value" (click)="offersChartEnablerChange()"></p-selectButton>
+        </div>
+        <div></div>
+      </div>
+      <p-tabView *ngIf="offersChartEnabler">
+        <p-tabPanel header="Chart">
+          <p-chart type="line" [data]="offersData" [options]="offersOptions"></p-chart>
+        </p-tabPanel>
+        <p-tabPanel header="Table">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Min-Max</th>
+                <th>Average</th>
+                <th>Sum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of offerTableData">
+                <td>{{ item.name }}</td>
+                <td>{{ item.min }}-{{ item.max }}</td>
+                <td>{{ item.avg }}</td>
+                <td>{{ item.sum }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </p-tabPanel>
+      </p-tabView>
+    </p-card>
+  </div>
+</div>
+
+<!-----------------------------------Colors Chart---------------------------------------->
+<div class="container-fluid" >
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <p-card [style]="{ width: '100%'}">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <H3>Colors Chart</H3>
+        </div>
+        <div>
+          <p-selectButton [options]="enablerOptions" [(ngModel)]="colorsChartEnabler" optionLabel="label" optionValue="value" (click)="colorsChartEnablerChange()"></p-selectButton>
+        </div>
+        <div class="d-flex align-items-center">
+          <p-multiSelect
+            [options]="allModelsList"
+            [formControl]="selectedModels"
+            name="name"
+            (onChange)="selectModels('global')"
+            (onClear)="selectModels('clear')"
+            defaultLabel="models"
+            [showClear]="true"
+            [showHeader]="false"
+            selectedItemsLabel="{0} model sélectionnés"
+            class="ml-2"
+            [style]="{ width: '10rem' }"
+            appendTo="body"
+            optionLabel="name"
+          ></p-multiSelect>
+          <p-button label="Filter" class="ml-2" icon="pi pi-check" iconPos="right" (click)="getStatAllColorsChart()"></p-button>
+        </div>
+      </div>
+      <p-tabView *ngIf="colorsChartEnabler">
+        <p-tabPanel header="Chart">
+          <p-chart type="line" [data]="colorsData" [options]="colorsOptions"></p-chart>
+        </p-tabPanel>
+        <p-tabPanel header="Table">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Min-Max</th>
+                <th>Average</th>
+                <th>Sum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of colorsTableData">
+                <td>{{ item.name }}</td>
+                <td>{{ item.min }}-{{ item.max }}</td>
+                <td>{{ item.avg }}</td>
+                <td>{{ item.sum }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </p-tabPanel>
+      </p-tabView>
+    </p-card>
+  </div>
+</div>
+
+
+
+<!-----------------------------------Stock Chart---------------------------------------->
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+      <p-card [style]="{ width: '100%'}">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <H3>Stock Chart</H3>
+          </div>
+          <div class="mb-3">
+            <p-selectButton [options]="enablerOptions" [(ngModel)]="stockChartEnabler" optionLabel="label" optionValue="value" (click)="stockChartEnablerChange()"></p-selectButton>
+          </div>
+          <div></div>
+        </div>
+        <p-tabView *ngIf="stockChartEnabler">
+          <p-chart type="line" [data]="stockData" [options]="stockOptions"></p-chart>
+        </p-tabView>
+
+      </p-card>
+  </div>
+</div>
+
+<!--------------------------------States Chart---------------------------------------->
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <p-card [style]="{ width: '100%'}">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <H3>Gouvernerat Chart</H3>
+        </div>
+        <div class="mb-3">
+          <p-selectButton [options]="enablerOptions" [(ngModel)]="statesChartEnabler" optionLabel="label" optionValue="value" (click)="statesChartEnablerChange()"></p-selectButton>
+        </div>
+        <div></div>
+      </div>
+      <p-tabView *ngIf="statesChartEnabler">
+        <p-chart type="bar" [data]="StatesData" [options]="StatesOptions"></p-chart>
+      </p-tabView>
+    </p-card>
   </div>
 </div>
 <!-------------------------------------Pages Chart---------------------------------------->
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-      <p-card header="Pages Chart" style="width: 100%">
-        <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
+      <p-card [style]="{ width: '100%'}">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <H3>Pages Chart</H3>
+          </div>
+          <div class="mb-3">
+            <p-selectButton [options]="enablerOptions" [(ngModel)]="pagesChartEnabler" optionLabel="label" optionValue="value" (click)="pagesChartEnablerChange()"></p-selectButton>
+          </div>
+          <div></div>
+        </div>
+        <p-tabView *ngIf="pagesChartEnabler">
+          <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
+        </p-tabView>
       </p-card>
   </div>
 </div>

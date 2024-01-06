@@ -28,6 +28,14 @@ public class ModelStockHistory {
         this.quantity = quantity;
     }
 
+    public ModelStockHistory(Long id,Date date,Long modelId,String modelName, Long quantity) {
+        this.id = id;
+        this.date = date;
+        this.modelId = modelId;
+        this.modelName = modelName;
+        this.quantity = quantity;
+    }
+
     public Long getId() {
         return id;
     }

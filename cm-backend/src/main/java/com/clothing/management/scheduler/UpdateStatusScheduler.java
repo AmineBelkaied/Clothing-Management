@@ -26,7 +26,7 @@ public class UpdateStatusScheduler {
     @Autowired
     ProductService productService;
 
-    @Scheduled(cron = "0 10 9 ? * *")
+    @Scheduled(cron = "0 10 8 ? * *")
     public int cronJobSch() throws Exception{
 
         System.out.println("CRON STARTED");
@@ -58,7 +58,7 @@ public class UpdateStatusScheduler {
         return packets.size();
     }
 
-    @Scheduled(cron = "0 0 20 ? * *")
+    @Scheduled(cron = "0 0 3 ? * *")
     public void cronModelJobSch(){
         try{
         List <ModelStockHistory> countStock = productService.countStock();

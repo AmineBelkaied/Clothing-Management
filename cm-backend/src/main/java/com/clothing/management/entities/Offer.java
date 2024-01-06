@@ -40,6 +40,9 @@ public class Offer {
         this.price = price;
         this.enabled = enabled;
     }
+    public Offer(String name) {
+        this.name = name;
+    }
 
     public Offer(String name, Double price, boolean enabled) {
         this.name = name;
@@ -87,11 +90,6 @@ public class Offer {
         this.enabled = enabled;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
-
     public Set<FbPage> getFbPages() {
         return fbPages;
     }
@@ -111,5 +109,15 @@ public class Offer {
     @Override
     public int hashCode() {
         return Objects.hash(getId(), getName(), getOfferModels(), getPrice(), isEnabled());
+    }
+
+    @Override
+    public String toString() {
+        return "Offer{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", enabled=" + enabled +
+                '}';
     }
 }

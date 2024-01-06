@@ -19,6 +19,8 @@ export class ListFbpagesComponent implements OnInit {
     this.fbPageService.fbPageSubscriber
     .subscribe((fbPageList: any) => {
       this.fbPages = fbPageList;
+      console.log("this.fbPages",this.fbPages);
+
     });
   }
 

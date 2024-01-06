@@ -6,14 +6,16 @@ import { ProductOfferDTO } from 'src/shared/models/ProductOfferDTO';
 import { StringUtils } from 'src/shared/utils/string-utils';
 import { Color } from 'src/shared/models/Color';
 import { Size } from 'src/shared/models/Size';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ENDED, NON_CONFIRMEE } from 'src/shared/utils/status-list';
 
 @Component({
   selector: 'app-add-packet',
   templateUrl: './add-packet.component.html',
-  styleUrls: ['./add-packet.component.css']
+  styleUrls: ['./add-packet.component.css'],
+  providers: [ConfirmationService, MessageService]
 })
 export class AddPacketComponent implements OnInit {
-
   @Input() packet: any;
 
   @Input() offersList: any[] = [];
@@ -34,9 +36,11 @@ export class AddPacketComponent implements OnInit {
   selectedSizeReel : string = '';
   noChoiceColor!: Color;
   noChoiceSize!: Size;
+  stockAvailable: number;
+  colorSizeChoosen: boolean = true;
 
 
-  constructor(private fb: FormBuilder, private cdRef: ChangeDetectorRef, private packetService: PacketService) {
+  constructor(private fb: FormBuilder, private cdRef: ChangeDetectorRef, private packetService: PacketService,private confirmationService: ConfirmationService, private messageService: MessageService) {
     this.packetForm = this.fb.group({
       totalPrice: 0,
       deliveryPrice: 7,
@@ -47,6 +51,7 @@ export class AddPacketComponent implements OnInit {
 
   ngOnInit(): void {
     this.editMode ? this.getSelectedProducts() : this.addOffer();
+    this.stockAvailable = 1;
   }
 
   ngAfterViewChecked(): void {
@@ -79,7 +84,7 @@ export class AddPacketComponent implements OnInit {
   getSelectedProducts(): void {
     this.packetService.findPacketRelatedProducts(this.packet.id)
       .subscribe((packet: any) => {
-        console.log(packet);
+        //console.log(packet);
 
         let offers = packet.offerUpdateDTOList;
         for (var index = 0; index < offers.length; index++) {
@@ -114,6 +119,7 @@ export class AddPacketComponent implements OnInit {
   }
 
   addOffer(): void {
+
     this.offers().push(this.newOffer());
   }
 
@@ -143,7 +149,7 @@ export class AddPacketComponent implements OnInit {
           this.setProductControlValues(this.models(offerIndex).controls[j], offer.products[j]);
           //console.log('addSelectedModels');
           this.setPacketDescription(model.name, offer.products[j].color.name, offer.products[j].size.reference);
-          this.productReferences += this.createProductRef(model.reference, offer.products[j].color.reference, offer.products[j].size.reference).concat(' , ');
+          //this.productReferences += this.createProductRef(model.reference, offer.products[j].color.reference, offer.products[j].size.reference).concat(' , ');
         }
       }
     nbrModel += offer.products.length;
@@ -157,6 +163,8 @@ export class AddPacketComponent implements OnInit {
   }
 
   setModelControlValues(modelControl: AbstractControl, modelValue: Model): void {
+    //console.log(modelValue);
+
     this.noChoiceColor = modelValue.colors.find((color: Color) => color.reference === "?");
     let colors = modelValue.colors.filter((color: Color) => color.reference != "?");
     this.setControlValue(modelControl, 'colors', colors);
@@ -225,10 +233,12 @@ export class AddPacketComponent implements OnInit {
 
   setSelectedProductValue(selectedModel: AbstractControl, index: number, selectedOffer: AbstractControl): void {
     if (this.editMode)
-      this.selectedOffer = this.offersList.find(offer => offer.offerId == selectedOffer.get('offerId')?.value)
+      this.selectedOffer = this.offersList.find(offer => offer.offerId == selectedOffer.get('offerId')?.value);
       this.setNoChoiceColorSize(selectedModel, index);
       let selectedProduct = this.selectedOffer.models[index].products.find((product: any) => product.color.id == selectedModel.get('selectedColor')?.value.id && product.size.id == selectedModel.get('selectedSize')?.value.id);
       selectedModel.get('selectedProduct')?.setValue(selectedProduct);
+      //if(selectedProduct.quantity<1)this.stockDisponible=false;
+      //console.log("this.stockDisponible",this.stockDisponible);
       this.createPacketDescription();
   }
 
@@ -251,21 +261,55 @@ export class AddPacketComponent implements OnInit {
     this.createPacketDescription();
   }
 
-
+/*
   createProductRef(modelRef: any, colorRef: any, sizeRef: any) {
     let ref = (modelRef != null && modelRef != '') ? modelRef : '?';
     let colorModel = (colorRef != null && colorRef != '') ? colorRef : '?';
     let sizeModel = (sizeRef != null && sizeRef != '') ? sizeRef : '?';
     let productRef = ref.concat(colorModel).concat(sizeModel);
     return productRef;
+  } */
+
+  onSubmit(event:Event) {
+
+    let productsOffers: ProductOfferDTO[] = this.prepareProductsOffers(this.packetForm.value);
+    console.log("this.stockAvailable:",this.stockAvailable);
+    if(this.stockAvailable<1){
+      this.enableFakeSize = true;
+      this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: this.stockAvailable<0?'Veiller remplir tous les champs':'Stock 0-Veiller le remplacer par un fake size.',
+        icon: 'pi pi-exclamation-circle',
+        acceptIcon: 'pi pi-check mr-1',
+        rejectIcon: 'pi pi-times mr-1',
+        rejectButtonStyleClass: 'p-button-danger p-button-sm',
+        acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+        accept: () => {
+            this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Veiller remplir fake size', life: 3000 });
+        },
+        reject: () => {
+            this.submitProductsOffers(productsOffers,this.stockAvailable);
+            this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        }
+      });
+    }
+    else
+      {this.submitProductsOffers(productsOffers,this.stockAvailable);
+      }
+
   }
 
-  onSubmit() {
-    let productsOffers: ProductOfferDTO[] = this.prepareProductsOffers(this.packetForm.value);
-    let selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount };
-    this.packetService.addProductsToPacket(selectedProducts)
-      .subscribe(() => {
-        let result = { 'packet': selectedProducts, 'modelDialog': false }
+  submitProductsOffers(productsOffers: ProductOfferDTO[],stock:number){
+    let selectedProducts ={};
+    if(stock)
+    selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': NON_CONFIRMEE};
+    else
+    selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': ENDED };
+
+    this.packetService.addProductsToPacket(selectedProducts,this.stockAvailable)
+      .subscribe((packet: any) => {
+        //let result = { 'packet': selectedProducts, 'modelDialog': false }
+        let result = { 'packet': packet, 'modelDialog': false }
         this.submitEvent.emit(result);
       });
   }
@@ -273,13 +317,20 @@ export class AddPacketComponent implements OnInit {
   prepareProductsOffers(packet: any): ProductOfferDTO[] {
     let productsOffers: ProductOfferDTO[] = [];
     this.packetDescription = '';
+    this.stockAvailable= 200;
+    this.colorSizeChoosen =true;
     for (var i = 0; i < packet.offers.length; i++) {
       let offer = packet.offers[i];
       if (offer.offerId != null && offer.offerId != undefined) {
         if (offer.models.length > 0) {
           for (var j = 0; j < offer.models.length; j++) {
+            let qte =offer.models[j].selectedProduct.quantity;
+
+            let colorSizeFalse = offer.models[j].selectedProduct.size.reference == "?" || offer.models[j].selectedProduct.color.name == "?";
+            let x =colorSizeFalse? -1 : qte < 1 ? 0 : qte;
+            this.stockAvailable = x < this.stockAvailable ? x:this.stockAvailable;
+
             productsOffers.push({ productId: offer.models[j].selectedProduct.id, offerId: offer.offerId, packetOfferIndex: i });
-            console.log('prepareProductsOffers');
             this.setPacketDescription(offer.models[j]?.name,
               this.getElement(offer.models[j], 'selectedColor', 'name'),
               this.getElement(offer.models[j], 'selectedSize', 'reference'),
@@ -288,6 +339,7 @@ export class AddPacketComponent implements OnInit {
         }
       }
     }
+
     this.packetDescription = StringUtils.removeChars(this.packetDescription, 2);
     return productsOffers;
   }
@@ -301,11 +353,6 @@ export class AddPacketComponent implements OnInit {
       if (offer.offerId != null && offer.offerId != undefined) {
         if (offer.models.length > 0) {
           for (var j = 0; j < offer.models.length; j++) {
-            this.productReferences += this.createProductRef(offer.models[j].reference,
-              this.getElement(offer.models[j], 'selectedColor', 'reference'),
-              this.getElement(offer.models[j], 'selectedSize', 'reference')).concat(' , ');
-              //console.log('createPacketDescription');
-
             this.setPacketDescription(offer.models[j]?.name,
               this.getElement(offer.models[j], 'selectedColor', 'name'),
               this.getElement(offer.models[j], 'selectedSize', 'reference'),
@@ -350,4 +397,16 @@ export class AddPacketComponent implements OnInit {
   enableFake(){
     this.enableFakeSize = !this.enableFakeSize
   }
+
+/*   getStock(model: any,offer:any) {
+    console.log("model",model);
+    console.log("offer",offer);
+
+
+    if(model.selectedProduct?.quantity<1 && this.stockDisponible)
+    {this.stockDisponible=false;
+    this.enableFakeSize = true}
+    console.log(this.stockDisponible);
+    return model.selectedProduct?.quantity;
+  } */
 }

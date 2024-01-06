@@ -24,4 +24,5 @@ export interface Packet {
     printLink?:string;
     oldClient?: number;
     valid?: boolean;
+    stock?: number;
 }

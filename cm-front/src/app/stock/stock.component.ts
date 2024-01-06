@@ -17,6 +17,7 @@ import { DateUtils } from 'src/shared/utils/date-utils';
   styleUrls: ['./stock.component.scss'],
 })
 export class StockComponent implements OnInit {
+
   products: any[] = [];
   models: Model[] = [];
 
@@ -43,7 +44,8 @@ export class StockComponent implements OnInit {
   sizes: any[] = [];
   selectAll: boolean = false;
   modelId: number;
-  hide0 : boolean = false;
+  hide0 : boolean = true;
+  delai : boolean = false;
   stock:boolean = true;
   today: Date = new Date();
 
@@ -73,6 +75,9 @@ export class StockComponent implements OnInit {
   daysChart : any[]
   daysModelChart : any[]
   lastModelId: number;
+  addEnabled: boolean = true;
+  datesList: any = [];
+  stockFabricationDelait: number=30;
 
   constructor(
     private productService: ProductService,
@@ -213,7 +218,7 @@ export class StockComponent implements OnInit {
 
   getStatModelSoldChart(modelId: number,option : String){
     this.statsService.statModelSold(
-      modelId,
+      this.modelId,
       this.startDateString,
       this.endDateString
       )
@@ -239,7 +244,7 @@ export class StockComponent implements OnInit {
   createChart(data: any , option : String){
     let chartList = [];
     let chartCounts : any[]= [];
-
+    this.datesList = data.dates;
     if(option == "Size") {
       chartList = data.sizes;
       chartCounts =data.sizesCount;
@@ -256,19 +261,24 @@ export class StockComponent implements OnInit {
     this.dataSetArray =[];
     let i = 0;
     chartList.forEach((item: any) => {
+      let name= "";
+      if(option == "Color")name = item.name;
+      else if(option == "Size") name= item.reference;
+      else name= item;
+
           this.dataSetArray.push(
               {
-                label: item +"/av:"+this.calculateAverage(chartCounts[i]),
+                label: name +"/av:"+this.calculateAverage(chartCounts[i]),
                 data: chartCounts[i],
                 fill: false,
-                borderColor: this.getRandomColor(item),
+                borderColor: this.getRandomColor(name),
                 tension: .4
             }
           )
           i++;
     });
     this.basicData = {
-      labels: data.dates,
+      labels: this.datesList,
       datasets: this.dataSetArray
     };
   }
@@ -310,18 +320,23 @@ export class StockComponent implements OnInit {
   }
 
   getCount(productId:number): number{
-    let countProducts = this.productsCount.find(item => item.productId === productId);
-    return (countProducts != undefined) ? countProducts.count: 0;
+    let products = this.productsCount.find(item => item.productId === productId);
+    return (products != undefined) ? products.count: 0;
   }
 
   getCountProgress(productId:number): number{
-    let countProducts = this.productsCount.find(item => item.productId === productId);
-    return (countProducts != undefined) ? countProducts.countProgress: 0;
+    let products = this.productsCount.find(item => item.productId === productId);
+    return (products != undefined) ? products.countProgress: 0;
   }
 
   getCountExchange(productId:number): number{
-    let countProducts = this.productsCount.find(item => item.productId === productId);
-    return (countProducts != undefined) ? countProducts.countExchange: 0;
+    let products = this.productsCount.find(item => item.productId === productId);
+    return (products != undefined) ? products.countExchange: 0;
+  }
+
+  getCountRupture(productId:number): number{
+    let products = this.productsCount.find(item => item.productId === productId);
+    return (products != undefined) ? products.countRupture: 0;
   }
 
 
@@ -385,8 +400,25 @@ export class StockComponent implements OnInit {
       if (this.stock==true)totRow += this.products[j][i].quantity;
       else totRow += this.getCount(this.products[j][i].id);
     }
-
     return totRow;
+  }
+
+  totalRow2(j: number) {
+    let totRow = 0;
+    let totRow2 = 0;
+    for (var i = 0; i < this.products[j].length; i++)
+    {
+      totRow += this.products[j][i].quantity;
+      totRow2 += this.getCount(this.products[j][i].id);
+    }
+    let nbrJours = this.datesList.length+1;
+    let delait = totRow/(totRow2/nbrJours);
+    return Number(delait.toFixed(1))+" jours";
+  }
+
+  getDaysStock(qte: any,productId: any): number {
+    let aa= qte/(this.getCount(productId)/this.datesList.length);
+    return Number(aa.toFixed(1));
   }
 
   totalColumn(i: number) {
@@ -415,8 +447,11 @@ export class StockComponent implements OnInit {
   }
 
   add() {
+
     let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
-    this.productService
+    if(this.addEnabled){
+      this.addEnabled=false;
+      this.productService
       .addStock(this.selectedProducts, this.qte, +this.modelId)
       .subscribe((result: any) => {
         console.log('result', result);
@@ -434,12 +469,15 @@ export class StockComponent implements OnInit {
         this.productsHistory = result;
         this.selectedProducts = [];
         this.selectAll = false;
+        this.addEnabled=true;
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
           detail: 'Le stock a été modifié avec succés',
         });
       });
+    }
+
   }
 
   dateFilterChange(event: any) {
@@ -502,14 +540,18 @@ export class StockComponent implements OnInit {
     });
   }
 
-  getSeverity(product: any,button:boolean) {
+  getSeverity(product: any,qte:any,button:boolean) {
+    let delait = this.getDaysStock(qte,product.id);
     if (button)
     switch (true) {
       case product.quantity <1:
         return 'danger';
 
-        case product.quantity < 10:
+        case delait < this.stockFabricationDelait:
             return 'warning';
+
+        case delait > 60:
+            return 'info';
 
         default:
             return 'success';
@@ -517,10 +559,10 @@ export class StockComponent implements OnInit {
     else switch (true) {
       case product.quantity <1:
         return 'RUPTURE';
-
-        case product.quantity < 10:
+        case delait < this.stockFabricationDelait:
             return 'LOW STOCK';
-
+        case delait > 60:
+            return 'OVER STOCK';
         default:
             return 'EN STOCK';
     }
@@ -600,8 +642,6 @@ export class StockComponent implements OnInit {
 
     this.getStats();
   }
-
-
 
   clearDate(){
       this.rangeDates = [];
