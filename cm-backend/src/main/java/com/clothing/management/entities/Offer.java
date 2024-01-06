@@ -41,6 +41,10 @@ public class Offer {
         this.enabled = enabled;
     }
 
+    public Offer(String name) {
+        this.name = name;
+    }
+
     public Offer(String name, Double price, boolean enabled) {
         this.name = name;
         this.price = price;
@@ -85,11 +89,6 @@ public class Offer {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 
     public Set<FbPage> getFbPages() {

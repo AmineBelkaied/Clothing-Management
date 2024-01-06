@@ -8,6 +8,7 @@ import com.clothing.management.models.ResponsePage;
 import com.clothing.management.scheduler.UpdateStatusScheduler;
 import com.clothing.management.services.PacketService;
 
+import com.clothing.management.services.StatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,10 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("packet")
@@ -69,10 +67,10 @@ public class PacketController {
     public List<Packet> findAllPacketsByDate(
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) throws ParseException {
-            return packetService.findAllPacketsByDate(startDate, endDate);
+        return packetService.findAllPacketsByDate(startDate, endDate);
     }
 
-    @GetMapping(path = "/findAllTodaysPackets")
+    /*@GetMapping(path = "/findAllTodaysPackets")
     public ResponseEntity<ResponsePage> findAllTodaysPackets(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "500") int size) {
         try {
@@ -87,7 +85,7 @@ public class PacketController {
         } catch (Exception e) {
             return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
+    }*/
 
     @GetMapping(path = "/findAllByDate/{date}")
     public List<Packet> findAllPacketsByDate(Date date) {
@@ -111,7 +109,6 @@ public class PacketController {
 
     @PutMapping(value = "/update" , produces = "application/json")
     public Packet updatePacket(@RequestBody Packet packet) {
-
         return packetService.updatePacket(packet);
     }
 
@@ -125,10 +122,7 @@ public class PacketController {
         return packetService.updatePacketValid(barCode,type);
     }
 
-    @PostMapping(value = "/addProducts" , produces = "application/json")
-    public void addProductsToPacket(@RequestBody SelectedProductsDTO selectedProductsDTO){
-        packetService.addProductsToPacket(selectedProductsDTO);
-    }
+
 
     @DeleteMapping(value = "/deleteById/{idPacket}" , produces = "application/json")
     public void deletePacketById(@PathVariable Long idPacket) {
@@ -165,9 +159,19 @@ public class PacketController {
                 packetService.getLastStatus(packet, deliveryCompany),
                 HttpStatus.OK);
     }
-    @PostMapping(value = "/checkPhone", produces = "application/json")
+
+    @PostMapping(value = "/addProducts" , produces = "application/json")
+    public Packet addProductsToPacket(@RequestBody SelectedProductsDTO selectedProductsDTO, @RequestParam("stock") Integer stock){
+        return packetService.addProductsToPacket(selectedProductsDTO,stock);
+    }
+    /*@PostMapping(value = "/checkPhone", produces = "application/json")
     public int checkPhone(@RequestBody String phoneNumber) throws Exception {
         return packetService.checkPhone(phoneNumber);
+    }*/
+
+    @GetMapping(value = "/checkPacketProductsValidity/{packetId}")
+    public List<Packet> checkPacketProductsValidity(@PathVariable Long packetId) throws Exception {
+        return packetService.checkPacketProductsValidity(packetId);
     }
 
     @GetMapping(path = "/createDashboard")
@@ -196,29 +200,5 @@ public class PacketController {
         } catch (Exception e) {
             return new ResponseEntity<>(packetService.updatePacketsByBarCodes(barCodeStatusDTO), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @GetMapping(path = "/productsCount/{modelId}")
-    public List<ProductsDayCountDTO> productsCount(
-            @PathVariable Long modelId ,
-            @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate) {
-        return packetService.productsCountByDate(modelId,beginDate,endDate);
-    }
-
-    @GetMapping(path = "/statModelSold/{modelId}")
-    public Map <String , List<?>> statModelSold(
-            @PathVariable Long modelId ,
-            @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate) {
-        return packetService.statModelSoldChart(modelId,beginDate,endDate);
-
-    }
-
-    @GetMapping(path = "/statAllModels")
-    public Map <String , List<?>> statAllModels(
-            @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate) {
-        return packetService.statAllModelsChart(beginDate,endDate);
     }
 }

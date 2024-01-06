@@ -17,16 +17,19 @@ public class SelectedProductsDTO {
     private String packetDescription;
     private List<ProductOfferDTO> productsOffers;
 
+    private String status;
+
     public SelectedProductsDTO() {
     }
 
-    public SelectedProductsDTO(Long idPacket, double totalPrice, double deliveryPrice, double discount, String packetDescription, List<ProductOfferDTO> productsOffers) {
+    public SelectedProductsDTO(Long idPacket, double totalPrice, double deliveryPrice, double discount, String packetDescription, List<ProductOfferDTO> productsOffers,String status) {
         this.idPacket = idPacket;
         this.totalPrice = totalPrice;
         this.deliveryPrice = deliveryPrice;
         this.discount = discount;
         this.packetDescription = packetDescription;
         this.productsOffers = productsOffers;
+        this.status = status;
     }
 
     public Long getIdPacket() {
@@ -69,6 +72,14 @@ public class SelectedProductsDTO {
         this.productsOffers = productsOffers;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public String getPacketDescription() {
         return packetDescription;
     }
@@ -76,4 +87,18 @@ public class SelectedProductsDTO {
     public void setPacketDescription(String packetDescription) {
         this.packetDescription = packetDescription;
     }
+
+    @Override
+    public String toString() {
+        return "SelectedProductsDTO{" +
+                "idPacket=" + idPacket +
+                ", totalPrice=" + totalPrice +
+                ", deliveryPrice=" + deliveryPrice +
+                ", discount=" + discount +
+                ", packetDescription='" + packetDescription + '\'' +
+                ", productsOffers=" + productsOffers +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }
+

@@ -54,18 +54,18 @@ public class Packet {
     private String status;
     @Column(name = "last_update_date")
     private Date lastUpdateDate;
-    @Column(name = "confirmation_date")
-    private Date confirmationDate;
     private boolean exchange;
     @Column(name = "print_link")
     private String printLink;
 
     private boolean valid;
 
+    private Integer stock;
+
     public Packet() {
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, String dgStatus, boolean exchange, boolean valid, String printLink) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, String dgStatus, boolean exchange, boolean valid, Integer stock, String printLink) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -86,8 +86,9 @@ public class Packet {
         this.date = date;
         this.status = status;
         this.lastUpdateDate = lastUpdateDate;
-        this.confirmationDate = confirmationDate;
         this.exchange = exchange;
+        this.valid = valid;
+        this.stock = stock;
         this.printLink = printLink;
     }
 
@@ -211,15 +212,6 @@ public class Packet {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public Date getConfirmationDate() {
-        return confirmationDate;
-    }
-
-    public void setConfirmationDate(Date confirmationDate) {
-        this.confirmationDate = confirmationDate;
-    }
-
-
     public String getLastDeliveryStatus() {
         return lastDeliveryStatus;
     }
@@ -268,6 +260,14 @@ public class Packet {
         this.valid = valid;
     }
 
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
     @Override
     public String toString() {
         return "Packet{" +
@@ -289,6 +289,7 @@ public class Packet {
                 ", status='" + status + '\'' +
                 ", lastUpdateDate=" + lastUpdateDate +
                 ", exchange=" + exchange +
+                ", stock=" + stock +
                 ", printLink='" + printLink + '\'' +
                 '}';
     }

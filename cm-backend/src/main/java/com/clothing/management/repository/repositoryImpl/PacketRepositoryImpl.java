@@ -17,7 +17,9 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class PacketRepositoryImpl {
@@ -50,7 +52,7 @@ public class PacketRepositoryImpl {
                     (
                             !status.equals(SystemStatus.RETOUR.getStatus())
                             && !status.equals(SystemStatus.A_VERIFIER.getStatus())
-                            && !status.equals(SystemStatus.INJOIYABLE.getStatus())
+                            && !status.equals(SystemStatus.INJOIGNABLE.getStatus())
                             && !status.equals(SystemStatus.DELETED.getStatus())
                             && !status.equals(SystemStatus.ENDED.getStatus())
                             && !status.equals(SystemStatus.EN_COURS_1.getStatus())
@@ -75,7 +77,7 @@ public class PacketRepositoryImpl {
             predicates.add(root.get("status").in(Arrays.asList(status.split(","))));
         }
 
-        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("date")));
+        criteriaQuery.orderBy(criteriaBuilder.desc(root.get("id")));
 
         criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Packet> query = entityManager.createQuery(criteriaQuery);
@@ -84,6 +86,7 @@ public class PacketRepositoryImpl {
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
         List<Packet> resultList = query.getResultList();
+
         //System.out.println("query:"+query);
         return new PageImpl<>(resultList, pageable, totalItems);
     }
@@ -100,13 +103,16 @@ public class PacketRepositoryImpl {
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(endDate)));
         }
 
+        //criteriaQuery.orderBy(criteriaBuilder.asc(root.getId));
         criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
-        criteriaQuery.orderBy(criteriaBuilder.asc(root.get("date")));
+
 
         TypedQuery<Packet> query = entityManager.createQuery(criteriaQuery);
-        return query.getResultList();
-    }
 
+        return query.getResultList().stream()
+                .sorted(Comparator.comparing(Packet::getId)) // Assuming getId returns the id property
+                .collect(Collectors.toList());
+    }
 
     public long getResultSizeBeforePagination(CriteriaQuery<Packet> criteriaQuery) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();

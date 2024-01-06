@@ -20,6 +20,8 @@
           <div class="d-flex flex-wrap align-items-center w-100">
             <p-checkbox class="ml-4 mt-2" [binary]="true" inputId="binary" [(ngModel)]="hide0" ></p-checkbox>
             <label class="ml-2 mt-3" for="ny">Masquer 0</label>
+            <p-checkbox class="ml-4 mt-2" [binary]="true" inputId="binary" [(ngModel)]="delai" ></p-checkbox>
+            <label class="ml-2 mt-3" for="ny">Afficher délai</label>
             <p-checkbox class="ml-4 mt-2" [binary]="true" inputId="binary" [(ngModel)]="stock" ></p-checkbox>
             <label class="ml-2 mt-3" for="ny">stock</label>
           </div>
@@ -83,14 +85,19 @@
                     <p-table [value]="products" styleClass="p-datatable-gridlines" [rowSelectable]="isRowSelectable" #dt >
                       <ng-template pTemplate="body" let-productSizes let-j="rowIndex">
                         <tr *ngIf="!(hide0==true && totalRow(j)<1)">
-                          <td style="background-color: #fafafa;" (click)="handleColorClick(j)"><h6>{{products[j][0].color.name + " : " + totalRow(j) }}</h6></td>
+                          <td style="background-color: #fafafa;" (click)="handleColorClick(j)">
+                            <h6>{{products[j][0].color.name + " : " + totalRow(j) }}</h6>
+                          </td>
                           <!-- <td (click)="hideRow(j)" (click)="handleColorClick(j)">{{products[j][0].color.name}}</td> -->
                           <ng-container *ngFor="let productSize of productSizes;let index = index">
                             <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)">
                               <td pEditableColumn (click)="onCellClick(productSize, $event, j)">
                                 <ng-container class="d-flex flex-column align-items-center">
                                   <div class="text-center">
-                                    <h6>{{ "(" + productSize.color.name + " " + productSize.size.reference + ")" }}</h6>
+                                    <i *ngIf="getCountRupture(productSize.id) !== 0" class="text-3xl" severity="danger" pBadge [value]="getCountRupture(productSize.id)+''">
+                                      <h6>{{ "(" + productSize.color.name + " " + productSize.size.reference + ")" }}</h6>
+                                    </i>
+                                    <h6 *ngIf="getCountRupture(productSize.id) === 0">{{ "(" + productSize.color.name + " " + productSize.size.reference + ")" }}</h6>
                                     <ng-container *ngIf="stock === false">
 
                                       <i *ngIf="getCountProgress(productSize.id) !== 0" class="text-3xl" pBadge [value]="getCountProgress(productSize.id) + ''">
@@ -98,13 +105,15 @@
                                       </i>
                                       <h4 *ngIf="getCountProgress(productSize.id) === 0">{{ getCount(productSize.id) }}</h4>
                                       <h6 *ngIf="getCountExchange(productSize.id) !== 0" >Echange : {{getCountExchange(productSize.id)}}</h6>
+                                      <!--<h6 *ngIf="getCountRupture(productSize.id) !== 0" >Rupture : {{getCountExchange(productSize.id)}}</h6>-->
                                     </ng-container>
 
                                     <h6 *ngIf="stock==true" >{{ productSize.quantity }}</h6>
+                                    <h4 *ngIf="delai === true">{{ getDaysStock(productSize.quantity,productSize.id) }}j</h4>
 
                                   </div>
                                   <div class="text-center" style="margin-top: 10px;" *ngIf="stock==true">
-                                    <p-tag [value]="getSeverity(productSize, false)" [severity]="getSeverity(productSize, true)"></p-tag>
+                                    <p-tag [value]="getSeverity(productSize,productSize.quantity, false)" [severity]="getSeverity(productSize,productSize.quantity, true)"></p-tag>
                                   </div>
                                 </ng-container>
                                 <ng-template #colors>{{ productSize.name }}</ng-template>
@@ -149,7 +158,7 @@
               type="line"
               [data]="basicData"
               [options]="basicOptions"></p-chart>
-      </p-card>
+        </p-card>
   </div>
 </div>
 </div>

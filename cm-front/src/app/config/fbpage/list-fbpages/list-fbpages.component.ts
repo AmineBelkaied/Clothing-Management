@@ -21,6 +21,8 @@ export class ListFbpagesComponent implements OnInit {
       console.log(fbPageList);
       
       this.fbPages = fbPageList;
+      console.log("this.fbPages",this.fbPages);
+
     });
   }
 

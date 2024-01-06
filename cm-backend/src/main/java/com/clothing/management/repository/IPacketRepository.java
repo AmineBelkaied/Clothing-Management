@@ -34,18 +34,18 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
     Optional<Packet> findByBarCode(@Param("barCode") String barCode);
 
-    @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% AND p.status != 'Supprimé' AND p.exchange = false AND p.status != 'Annuler'", nativeQuery = true)
+    @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% AND p.status != 'Supprimé' AND p.status != 'Non confirmée' AND p.exchange = false AND p.status != 'Annuler' AND p.status != 'Retour reçu' and p.status != 'Retour'", nativeQuery = true)
     public int findAllPacketsByPhone_number(@Param("phoneNumber") String phoneNumber);
 
     @Modifying
-    @Query(value="DELETE FROM packet WHERE customer_name='' AND customer_phone_nb='' AND fbpage_id IS NULL;", nativeQuery = true)
+    @Query(value="DELETE FROM packet WHERE customer_name='' AND customer_phone_nb='';", nativeQuery = true)
     public int deleteEmptyPacket();
 
     @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p GROUP BY p.status")
     List<DashboardCard> createDashboard();
 
-    @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p WHERE DATEDIFF(CURRENT_DATE() , p.date)>0 AND (p.status = 'Non Confirmée' OR p.status = 'Injoiyable' OR p.status = 'A verifier') GROUP BY p.status")
-    List<DashboardCard> createNotification();
+    @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p WHERE (p.status = 'Non Confirmée' OR p.status = 'Injoignable' OR p.status = 'A verifier') GROUP BY p.status")
+    List<DashboardCard> createNotification();//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
 
    //@Query(value = getQuery(searchText, endDate, se), countQuery = COUNT_FIELD_QUERY, nativeQuery = true)
     //defaut Page<Packet> findAllPackets(@Param("searchText") String searchText, @Param("startDate") String startDate, @Param("endDate") String endDate, Pageable pageable);

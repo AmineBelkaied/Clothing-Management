@@ -4,7 +4,7 @@ public enum SystemStatus {
 
     CREATION("Creation"),
     LIVREE("Livrée"),
-    INJOIYABLE("Injoiyable"),
+    INJOIGNABLE("Injoignable"),
     CONFIRMEE("Confirmée"),
     NON_CONFIRMEE("Non confirmée"),
     EN_COURS_1("En cours (1)"),

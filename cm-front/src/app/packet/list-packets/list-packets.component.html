@@ -4,7 +4,7 @@
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb" style="position: relative;">
 
     <div class="notification-container">
-            <i class="pi mr-4 p-text-secondary"
+         <i class="pi mr-4 p-text-secondary"
           pBadge
          [ngClass]="notification.class"
          style="font-size: 1.5rem; cursor: pointer;"
@@ -13,6 +13,8 @@
          (click)="onNotificationClick(notification.status)"
          *ngFor="let notification of notificationList">
       </i>
+      <p-avatar [label]="realTotalItems==undefined?0+'':realTotalItems>pageSize?realTotalItems+'':totalItems+''" styleClass="mr-2" size="large"
+      [style]="{ 'background-color': '#32CD32', color: '#ffffff' }" shape="circle"></p-avatar>
     </div>
     <div class="justify-content-center row" >
       <div class="col d-flex flex-wrap align-items-center w-100 ml-2" style="min-width:350px;max-width:410px;">
@@ -88,10 +90,6 @@
             pTooltip="CSV"
             tooltipPosition="bottom"
           ></button>
-          <span class="ml-2 mt-2">
-            {{ totalItems}}
-            </span
-          >
       </div>
       <div class="col d-flex flex-wrap align-items-center w-100" style="min-width:300px;max-width:425px;">
           <p-multiSelect
@@ -337,6 +335,7 @@
           <ng-template pTemplate="output">
             {{ packet.address }}
           </ng-template>
+
         </p-cellEditor>
       </td>
       <td style="max-width: 250px;padding: 0.1rem 0.1rem !important">
@@ -346,13 +345,15 @@
             (click)="editProducts(packet)"
             style="cursor: pointer"
           >
-            {{ packet.packetDescription }}
+          <p-badge *ngIf="packet.stock <10 && packet.stock >-1 && packet.stock != null && packet.valid == false" severity="info" [value]="packet.stock"></p-badge>
+          <p-badge *ngIf="packet.stock ==-1" severity="warning" value="ND"></p-badge>
+          {{ packet.packetDescription }}
             <i
               class="pi pi-pencil"
               style="color: red; font-size: 14.5px; padding-left: 10px"
             ></i>
-          </p>
 
+          </p>
         </ng-container>
         <ng-template #addMode>
           <button
@@ -391,7 +392,11 @@
             </p-dropdown>
           </ng-template>
           <ng-template pTemplate="output">
-            {{ packet.status }}
+
+            <div  [ngClass]="{'noModelSelectedStatus': packet.stock <0 && packet.barcode == '','outofstockStatus': packet.stock == 0 && packet.barcode == '', 'lowstockStatus': (packet.stock  > 0 && packet.stock  < 10) && packet.barcode == '','instockStatus': packet.stock  > 10 && packet.barcode == ''}">
+              {{ packet.status }}
+            </div>
+
           </ng-template>
         </p-cellEditor>
         <div>
@@ -443,7 +448,7 @@
   </ng-template>
 </p-table>
 </div>
-<p-paginator *ngIf="totalItems > pageSize" [rows]="pageSize" [totalRecords]="totalItems" (onPageChange)="onPageChange($event)"
+<p-paginator *ngIf="realTotalItems > pageSize" [rows]="pageSize" [totalRecords]="realTotalItems" (onPageChange)="onPageChange($event)"
 currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} commandes"
 [rowsPerPageOptions]="[25, 50, 100, 200, 500, 1000]">
 </p-paginator>

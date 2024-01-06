@@ -15,14 +15,14 @@ export const BUREAU = 'Bureau';
 export const EN_COURS = 'En Cours';
 export const TERMINE = 'Terminé';
 export const CORBEIL = 'Corbeil';
-export const INJOIYABLE = 'Injoiyable';
+export const INJOIGNABLE = 'Injoignable';
 export const PROBLEME = 'Problème';
 export const NOT_SERIOUS = 'Pas Serieux';
 export const CANCELED = 'Annuler';
 
 
 export const statusList = [
-  NON_CONFIRMEE, INJOIYABLE, CONFIRMEE, ENDED, LIVREE, PAYEE,
+  NON_CONFIRMEE, INJOIGNABLE, CONFIRMEE, ENDED, LIVREE, PAYEE,
   A_VERIFIER, RETOUR, RETOUR_RECU, DELETED, EN_COURS_1, EN_COURS_2, EN_COURS_3, PROBLEME, NOT_SERIOUS, CANCELED
 ]
 

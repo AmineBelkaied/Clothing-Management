@@ -13,7 +13,7 @@ import { Offer } from 'src/shared/models/Offer';
 import { FormControl } from '@angular/forms';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { A_VERIFIER, BUREAU, CANCELED, CONFIRMEE, CORBEIL, ENDED, EN_COURS, EN_COURS_1, EN_COURS_2,
-  EN_COURS_3, INJOIYABLE, LIVREE, NON_CONFIRMEE, NOT_SERIOUS, PAYEE, PROBLEME, RETOUR, RETOUR_RECU,
+  EN_COURS_3, INJOIGNABLE, LIVREE, NON_CONFIRMEE, NOT_SERIOUS, PAYEE, PROBLEME, RETOUR, RETOUR_RECU,
   DELETED, TERMINE, statesList, statusList } from 'src/shared/utils/status-list';
 import { City } from 'src/shared/models/City';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
@@ -104,7 +104,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     {
       class:'pi-power-off',
       severity:'warning',
-      status: INJOIYABLE,
+      status: INJOIGNABLE,
       count: '0'
     },
     {
@@ -120,6 +120,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   regBS = /\n/gi;
   private readonly FIRST: string = 'FIRST';
   countDeleted: number = 0;
+  realTotalItems: number;
 
   constructor(
     private messageService: MessageService,
@@ -154,13 +155,13 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: DashboardCard[]) => {
-          console.log('createDashboardResponse',response);
+          //console.log('createDashboardResponse',response);
           //this.notificationList = response;
 
           if (response != null && response.length > 0) {
             response.forEach((element: any) => {
               if(element.status == A_VERIFIER) this.notificationList[1].count = element.statusCount;
-              else if(element.status == INJOIYABLE) this.notificationList[2].count = element.statusCount;
+              else if(element.status == INJOIGNABLE) this.notificationList[2].count = element.statusCount;
               else if(element.status == NON_CONFIRMEE) this.notificationList[3].count = element.statusCount;
             });
           }
@@ -181,8 +182,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
           this.totalItems = response.totalItems;
           //this.countDeleted =response.result.filter(packet => packet.status === DELETED).length;
           this.packets = response.result.filter((packet: any) => this.checkPacketNotNull(packet));
-          console.log(response.result);
-
+          //console.log("findAllPackets",response);
+          this.realTotalItems = response.totalItems;
           this.totalItems = this.packets.length;
           let countConfirmed =response.result.filter(packet => packet.status === CONFIRMEE).length;
 
@@ -232,20 +233,24 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   onEditInit(packet: any): void {
     this.oldField = packet.data[packet.field];
-    console.log('onEditInit',this.oldField);
+    console.log('onEditInit',packet);
     if ( packet.field == 'status'){
       this.packetStatusList = [];
-
-      if (this.oldField == NON_CONFIRMEE || this.oldField == NOT_SERIOUS || this.oldField == INJOIYABLE
+      if(packet.data.stock === -1){
+        this.messageService.add({ severity: 'error',summary: 'Error', detail: "Veiller remplir tous les champs des articles" });
+        this.packetStatusList = [INJOIGNABLE]
+      }
+           else if (this.oldField == NON_CONFIRMEE || this.oldField == NOT_SERIOUS || this.oldField == INJOIGNABLE
         || this.oldField == CANCELED || this.oldField == DELETED|| this.oldField == ENDED ) {
-        this.packetStatusList = [ NON_CONFIRMEE, ENDED, CONFIRMEE, NOT_SERIOUS, INJOIYABLE, CANCELED];
+
+        this.packetStatusList = [ NON_CONFIRMEE, ENDED, CONFIRMEE, NOT_SERIOUS, INJOIGNABLE, CANCELED];
       }
       else if (this.oldField == CONFIRMEE || this.oldField == A_VERIFIER) {
         this.packetStatusList = [ EN_COURS_1, EN_COURS_2 ,EN_COURS_3, CANCELED, A_VERIFIER, LIVREE, RETOUR, PAYEE, RETOUR_RECU, PROBLEME];
       }
 
       else if (this.oldField == EN_COURS_1 || this.oldField == EN_COURS_2 || this.oldField ==  EN_COURS_3) {
-        this.packetStatusList = [ INJOIYABLE, EN_COURS_1, EN_COURS_2 ,EN_COURS_3, A_VERIFIER, LIVREE, RETOUR, PAYEE,RETOUR_RECU, PROBLEME];
+        this.packetStatusList = [ INJOIGNABLE, EN_COURS_1, EN_COURS_2 ,EN_COURS_3, A_VERIFIER, LIVREE, RETOUR, PAYEE,RETOUR_RECU, PROBLEME];
       }
       else if (this.oldField == LIVREE || this.oldField == PAYEE) {
         this.packetStatusList = [ PAYEE, RETOUR ,RETOUR_RECU];
@@ -260,16 +265,16 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   onEditComplete(packet: any): void {
-    //console.log('packet.city',packet.data.city);
     if(packet.data.city == null && this.selectedCity != null && packet.field == 'city'){
-      //console.log("now eeror");
       packet.data.city = this.selectedCity;
       this.updatePacket(packet.data);
+      this.selectedCity = undefined;
     }
 
     else if (this.oldField !== packet.data[packet.field] && packet.data[packet.field] != undefined ) {
 
       if (packet.field == 'city' || packet.field == 'fbPage' || packet.field == 'date') {
+        this.selectedCity=undefined;
         if(packet.field == 'date'){
           packet.data[packet.field].setHours(packet.data[packet.field].getHours() + 1);
         }
@@ -326,7 +331,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
             || packet.data[packet.field] == NON_CONFIRMEE
             || packet.data[packet.field] == ENDED
             || packet.data[packet.field] == NOT_SERIOUS
-            || packet.data[packet.field] == INJOIYABLE
+            || packet.data[packet.field] == INJOIGNABLE
             ) && (
               this.oldField == LIVREE
             || this.oldField == RETOUR
@@ -340,7 +345,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
           if(packet.data[packet.field] == CONFIRMEE){
             if (!this.checkPacketValidity(packet.data)) {
-              this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
               packet.data[packet.field] = this.oldField;
               return;
             }
@@ -370,38 +374,82 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
               return of();
             })
           )
-          .subscribe((responsePacket: Packet) => {
-            this.createNotification();
-            if (packet.field === 'status' && packet.data[packet.field] === 'Confirmée') {
-              this.isLoading = false;
-              if (responsePacket.barcode != null) {
-                let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
-                this.packets.splice(pos, 1, responsePacket);
-                msg = 'Le barcode a été crée avec succés';
-                this.notificationList[0].count +=1;
-              } else {
-                packet.data[packet.field] = this.oldField;
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la creation du barcode' });
-              }
-            }
-            else if(responsePacket.oldClient!= undefined && responsePacket.oldClient>0){
-              //console.log('responsePacket',responsePacket);
-              let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
-                this.packets.splice(pos, 1, responsePacket);
-            };
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
-          });
+          .subscribe({
+              next: (responsePacket: Packet) => {
+                this.createNotification();
+                console.log(packet.data);
+                if(packet.data.stock < 10 && packet.field === 'status'
+                 && ((packet.data[packet.field] === CONFIRMEE && responsePacket.barcode != null)
+                 || packet.data[packet.field] === CANCELED
+                 || packet.data[packet.field] === RETOUR_RECU))
+                 {
+                   let x =this.getLastStock(packet.data.id)
+                   console.log("x",x);
+
+                 }
+                //this.findAllPackets();
+                console.log("refresh all list");
+
+                if (packet.field === 'status' && packet.data[packet.field] === 'Confirmée') {
+
+                  this.isLoading = false;
+                  if (responsePacket.barcode != null) {
+
+                      let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
+                      this.packets.splice(pos, 1, responsePacket);
+                      msg = 'Le barcode a été crée avec succés';
+                      this.notificationList[0].count +=1;
+
+                  } else {
+                    packet.data[packet.field] = this.oldField;
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la creation du barcode' });
+                  }
+                }
+                else if(responsePacket.oldClient!= undefined){
+                  let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
+                    this.packets.splice(pos, 1, responsePacket);
+                };
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
+                  },
+                  error : (error: Error) => {
+                    console.log(error);
+                  }
+                });
+
       }
     }
   }
 
   checkPacketValidity(packet: Packet): boolean {
-    //console.log('validity packet', packet);
-
-    return (this.isValid(packet.fbPage) && this.isValid(packet.address) && this.isValid(packet.customerName) &&
-      this.isValid(packet.customerPhoneNb) && this.isValid(packet.city) && this.isValid(packet.packetDescription));
+      if (!(this.isValid(packet.fbPage) && this.isValid(packet.address) && this.isValid(packet.customerName) &&
+      this.isValid(packet.customerPhoneNb) && this.isValid(packet.city) && this.isValid(packet.packetDescription)))
+      {
+        this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
+        return false;
+      }
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est Valid'});
+      return true;
   }
 
+  onSubmit(event:Event) {
+
+      this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Stock 0-Veiller le remplacer par un fake size.',
+        icon: 'pi pi-exclamation-circle',
+        acceptIcon: 'pi pi-check mr-1',
+        rejectIcon: 'pi pi-times mr-1',
+        rejectButtonStyleClass: 'p-button-danger p-button-sm',
+        acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+        accept: () => {
+            this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Veiller remplir fake size', life: 3000 });
+        },
+        reject: () => {
+            //this.submitProductsOffers(productsOffers,false);
+            this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        }
+      });
+  }
 
   checkPacketNotNull(packet: Packet): boolean {
     //console.log('phVal',this.isValid(packet.customerPhoneNb)+" aa "+packet.customerPhoneNb+'bb'+packet.id);
@@ -429,7 +477,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       status: 'Non confirmée',
       exchange: false,
       oldClient : 0,
-      valid : false
+      valid : false,
+      stock : -1
     };
   }
 
@@ -440,6 +489,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la mise à jour ' + err.error.message });
           packet.data[packet.field] = this.oldField;
           return of();
+
         })
       )
       .subscribe((response: any) => {
@@ -454,6 +504,26 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
           next: (response: Packet) => {
             this.packets.splice(this.packets.indexOf(packet), 1, response);
             this.createNotification();
+          },
+          error : (error: Error) => {
+            console.log(error);
+          }
+        });
+  }
+
+  getLastStock(packetId: number): void {
+    console.log("getLasStock-packetId", packetId);
+    //if (packet.status != PAYEE && packet.status != RETOUR_RECU && packet.status != LIVREE)
+    this.packetService.getLastStock(packetId)
+      .subscribe({
+          next: (listupdatedStock:any) => {
+            console.log("getLasStock-listupdatedStock", listupdatedStock);
+            listupdatedStock.forEach((element: any) => {
+              console.log("element",element);
+              let pos = this.packets.map((packet: Packet) => packet.id).indexOf(element.id);
+              this.packets.splice(pos, 1, element);
+              //this.packets.splice(this.packets.indexOf(element), 1, element);
+            });
           },
           error : (error: Error) => {
             console.log(error);
@@ -489,12 +559,16 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   addNewRow(): void {
-    this.packetService
+    if(this.loading == false){
+      this.loading=true;
+      this.packetService
       .addPacket(this.newPacket())
       .subscribe((response: Packet) => {
+        this.loading=false;
         this.packets.unshift(response);
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
       });
+    }
   }
 
   duplicatePacket(packet: Packet): void {
@@ -545,11 +619,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   OnSubmit($event: any): void {
     this.modelDialog = $event.modelDialog;
-    let packet = this.packets.filter((p: any) => p.id == $event.packet.idPacket)[0];
-    packet.packetDescription = $event.packet.packetDescription?.replace(this.reg, '\n');
-    packet.price = $event.packet.totalPrice
-    packet.deliveryPrice = $event.packet.deliveryPrice
-    packet.discount = $event.packet.discount;
+    let pos = this.packets.map((packet: Packet) => packet.id).indexOf($event.packet.id);
+    this.packets.splice(pos, 1, $event.packet);
     this.editMode ? this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été mis à jour avec succés', life: 1000 }) : this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été ajoutés avec succés', life: 1000 });
   }
 
@@ -582,6 +653,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     }else if($event == 'page')
       page = this.currentPage;
     if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
+
     this.params = {
       page: page,
       size: this.pageSize,
@@ -606,7 +678,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   onNotificationClick($event?: string): void{
-    console.log("aaaa",$event);
+    //console.log("aaaa",$event);
     this.selectedStatus.setValue([]);
     this.selectedStatus.patchValue([$event]);
     this.filterPackets('status');
@@ -617,12 +689,10 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     //this.packetStatusList = [];
     if (this.selectedStates.indexOf(CORBEIL) > -1) {
       this.selectedStatus.patchValue([DELETED]);
-      //this.packetStatusList = [ NON_CONFIRMEE, ENDED, CONFIRMEE, NOT_SERIOUS, INJOIYABLE, CANCELED];
     }
 
     if (this.selectedStates.indexOf(BUREAU) > -1) {
       this.selectedStatus.patchValue([ NON_CONFIRMEE, ENDED, A_VERIFIER, CONFIRMEE ]);
-      //this.packetStatusList = [ NON_CONFIRMEE, ENDED, CONFIRMEE, NOT_SERIOUS, INJOIYABLE, CANCELED];
     }
     if (this.selectedStates.indexOf(EN_COURS) > -1) {
       this.selectedStatus.patchValue([ A_VERIFIER, LIVREE, PAYEE, RETOUR, RETOUR_RECU]);
@@ -641,7 +711,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   resetTable(): void{
-    console.log('reset');
+    //console.log('reset');
 
     this.selectedStates = [];
     this.selectedPackets = [];
@@ -723,8 +793,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
       {
         this.rangeDates[0]=this.startDate;
-        console.log("yoo"+this.rangeDates[0]);
-        console.log("yoo2"+this.startDate);
         this.endDate = this.today;
         this.rangeDates= [this.startDate,this.today];
         //this.createRangeDate();
@@ -741,6 +809,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   openShowOptionMenu(packet:any) {
+    console.log("pp",packet);
+
     this.optionButtons = [
       {
         label: 'Duplicate',
@@ -748,6 +818,14 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         disabled:!this.checkCodeABarreExist(packet),
         command: () => {
           this.duplicatePacket(packet)
+        }
+      },
+      {
+        label: 'Valider stock',
+        icon: 'pi pi-refresh',
+        disabled:packet.stock>15 || packet.stock==-1,
+        command: () => {
+          this.getLastStock(packet.id)
         }
       },
       {
@@ -871,7 +949,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       csv += '\n';
       for (let i = 0; i < cols.length; i++) {
         if (cols[i].field) {
-          console.log(record[cols[i].field]);
+          //console.log(record[cols[i].field]);
           // resolveFieldData seems to check if field is nested e.g. data.something --> probably not needed
           csv += record[cols[i].field]; //this.resolveFieldData(record, this.columns[i].field);
           if (i < cols.length - 1) {
@@ -900,47 +978,10 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   selectCity( packet: Packet) {
-    console.log("city = ", packet.city);
     this.selectedCity = packet.city;
 }
 
 }
-
-/*  setPacketStatusList(){
-    console.log(this.selectedStatus.value.length);
-
-    if( this.selectedStatus.value.length == 1)
-    {
-      let selectedStatus= this.selectedStatus.value[0]
-      console.log(selectedStatus);
-
-      this.packetStatusList = [];
-
-      if ( selectedStatus == NON_CONFIRMEE
-          || selectedStatus ==CANCELED
-          || selectedStatus ==DELETED
-          || selectedStatus ==NOT_SERIOUS
-          || selectedStatus ==INJOIYABLE
-          || selectedStatus ==ENDED ) {
-        this.packetStatusList = [ NON_CONFIRMEE, CONFIRMEE, ENDED, INJOIYABLE, NOT_SERIOUS ];
-      }
-      if ( selectedStatus == CONFIRMEE ) {
-        this.packetStatusList = [ CANCELED, A_VERIFIER, LIVREE, PAYEE, RETOUR, RETOUR_RECU];
-      }
-      if ( selectedStatus == EN_COURS_1
-          || selectedStatus == EN_COURS_2
-          ||  selectedStatus == EN_COURS_3 ) {
-        this.packetStatusList = [ A_VERIFIER, INJOIYABLE, LIVREE, PAYEE, RETOUR, RETOUR_RECU];
-      }
-      if ( selectedStatus == A_VERIFIER ) {
-        this.packetStatusList = [ LIVREE, PAYEE, RETOUR, RETOUR_RECU, PROBLEME];
-      }
-      if ( selectedStatus == CANCELED || selectedStatus == DELETED ) {
-        this.packetStatusList = [ NON_CONFIRMEE, ENDED, CONFIRMEE, CANCELED];
-      }
-  }
-  } */
-
 
     /*exportExcel() {
     console.log(this.dt?._totalRecords);

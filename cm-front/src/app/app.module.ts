@@ -38,6 +38,9 @@ import { BadgeModule } from 'primeng/badge';
 import { CardModule } from 'primeng/card';
 import { ListboxModule } from 'primeng/listbox';
 import { ChipModule } from 'primeng/chip';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { AvatarModule } from 'primeng/avatar';
 
 
 // import components
@@ -148,7 +151,10 @@ import { PasswordModule } from 'primeng/password';
     BadgeModule,
     ListboxModule,
     ChipModule,
-    PickListModule
+    PickListModule,
+    ConfirmPopupModule,
+    AvatarGroupModule,
+    AvatarModule
   ],
   providers: [MessageService, ConfirmationService, CityTreeService, DatePipe, AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
