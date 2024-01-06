@@ -1,20 +1,18 @@
 package com.clothing.management.entities;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
+@Table(name = "model_stock_history")
 public class ModelStockHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Date date;
+    @Column(name = "model_id")
     private Long modelId;
+    @Column(name = "model_name")
     private String modelName;
     private Long quantity;
 

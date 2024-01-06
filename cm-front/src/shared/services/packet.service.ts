@@ -95,7 +95,7 @@ export class PacketService {
 
   patchPacket(idPacket: any, packet: any): Observable<any> {
     //console.log('new packetbefore patch', packet);
-    return this.http.patch(this.baseUrl + '/patch/' + idPacket, packet, {
+    return this.http.put(this.baseUrl + '/patch/' + idPacket, packet, {
       headers: { 'content-type': 'application/json' },
     });
   }

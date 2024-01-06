@@ -19,6 +19,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class PacketController {
     @GetMapping(path = "/findAllPacketsByDate")
     public List<Packet> findAllPacketsByDate(
             @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
+            @RequestParam(required = false) String endDate) throws ParseException {
             return packetService.findAllPacketsByDate(startDate, endDate);
     }
 
@@ -114,7 +115,7 @@ public class PacketController {
         return packetService.updatePacket(packet);
     }
 
-    @PatchMapping(value = "/patch/{idPacket}")
+    @PutMapping(value = "/patch/{idPacket}")
     public Packet patchPacket(@PathVariable Long idPacket , @RequestBody Map<String , Object> field) throws IOException {
         return packetService.patchPacket(idPacket , field);
     }

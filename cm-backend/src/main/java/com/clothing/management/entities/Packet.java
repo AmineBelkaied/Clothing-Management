@@ -41,7 +41,7 @@ public class Packet {
     @JsonIgnore
     private List<ProductsPacket> products;
     @JsonIgnore
-    @OneToMany(mappedBy = "packet")
+    @OneToMany(mappedBy = "packet", fetch = FetchType.EAGER)
     List<PacketStatus> packetStatus;
     @ManyToOne
     @JoinColumn(name = "fbpage_id")

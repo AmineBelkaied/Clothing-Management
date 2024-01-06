@@ -20,6 +20,7 @@ export class SidebarComponent implements OnInit {
   userName: string;
   isLoggedIn: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   constructor(private packetService: PacketService,private messageService: MessageService,
      private router: Router, public storageService: StorageService) { }
 
@@ -29,6 +30,7 @@ export class SidebarComponent implements OnInit {
       this.storageService.getTenantName() === "diggie" ? this.appName = DIGGIE : this.appName = LYFT;
       this.userName = this.storageService.getUserName();
       this.isAdmin = this.storageService.hasRoleAdmin();
+      this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
     });
 
   }
@@ -61,7 +63,7 @@ export class SidebarComponent implements OnInit {
 
     logout() {
       this.storageService.isLoggedIn.next(false);
-      this.router.navigate(["/auth/login/" + this.storageService.getTenantName()]);
+      this.isSuperAdmin ? this.router.navigate(["/auth/login/"]) : this.router.navigate(["/auth/login/" + this.storageService.getTenantName()]);
       this.storageService.removeUser();
     }
 

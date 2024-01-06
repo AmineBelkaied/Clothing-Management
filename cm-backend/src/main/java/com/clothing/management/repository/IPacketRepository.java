@@ -69,4 +69,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
 
     @Query(value ="SELECT p FROM Packet p WHERE (p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.address LIKE %:searchField% OR p.city.name LIKE %:searchField% OR p.fbPage.name LIKE %:searchField%) AND DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate) AND p.status IN (:statusList)")
     Page<Packet> findAllPacketsByFieldAndDateAndStatus(@Param("searchField") String searchField, @Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("statusList") List<String> statusList, Pageable pageable);
+
+    @Query(value ="SELECT p FROM Packet p WHERE DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)")
+    List<Packet> findAllPacketsByDate(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 }

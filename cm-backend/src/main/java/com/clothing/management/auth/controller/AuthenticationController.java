@@ -5,7 +5,9 @@ import com.clothing.management.auth.dto.AuthResponse;
 import com.clothing.management.auth.dto.UserLoginDTO;
 import com.clothing.management.auth.mastertenant.config.DBContextHolder;
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
+import com.clothing.management.auth.mastertenant.entity.MasterUser;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
+import com.clothing.management.auth.mastertenant.service.MasterUserService;
 import com.clothing.management.auth.security.UserTenantInformation;
 import com.clothing.management.auth.util.JwtTokenUtil;
 import org.slf4j.Logger;
@@ -28,8 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -48,6 +49,8 @@ public class AuthenticationController implements Serializable {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     MasterTenantService masterTenantService;
+    @Autowired
+    MasterUserService masterUserService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<?> userLogin(@RequestBody UserLoginDTO userLoginDTO) throws AuthenticationException {
@@ -69,6 +72,29 @@ public class AuthenticationController implements Serializable {
         //Map the value into applicationScope bean
         setMetaDataAfterLogin();
         return ResponseEntity.ok(new AuthResponse(userDetails.getUsername(), userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()), token));
+    }
+
+    @RequestMapping(value = "/login-master", method = RequestMethod.POST)
+    public ResponseEntity<?> masterUserLogin(@RequestBody UserLoginDTO userLoginDTO) throws AuthenticationException {
+        LOGGER.info("masterUserLogin() method call...");
+        if(null == userLoginDTO.getUserName() || userLoginDTO.getUserName().isEmpty()){
+            return new ResponseEntity<>("User name is required", HttpStatus.BAD_REQUEST);
+        }
+
+        MasterUser masterUser = masterUserService.authenticate(userLoginDTO.getUserName(), userLoginDTO.getPassword());
+        if(null == masterUser){
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+        // --- A vérifier
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
+        final String token = jwtTokenUtil.generateToken(userLoginDTO.getUserName(), authorities, "master_db");
+        Set<String> roles = new HashSet<>();
+        roles.add("ROLE_SUPERADMIN");
+        //Map the value into applicationScope bean
+        setMetaDataAfterLogin();
+        //
+        return ResponseEntity.ok(new AuthResponse(userLoginDTO.getUserName(), roles , token));
     }
 
     private void loadCurrentDatabaseInstance(String databaseName, String userName) {

@@ -15,11 +15,11 @@ export class FbPageService {
   public fbPages: FbPage[] = [];
   public editMode = false;
   constructor(private http: HttpClient) {
-    /* this.findAllFbPages()
+    this.findAllFbPages()
     .subscribe((fbPagesList: any) => {
         this.fbPageSubscriber.next(fbPagesList);
         this.fbPages = fbPagesList.filter((fbPage: any) => fbPage.enabled);
-    }); */
+    });
   }
 
   findAllFbPages() {

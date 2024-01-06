@@ -18,6 +18,8 @@ export class ListFbpagesComponent implements OnInit {
   ngOnInit(): void {
     this.fbPageService.fbPageSubscriber
     .subscribe((fbPageList: any) => {
+      console.log(fbPageList);
+      
       this.fbPages = fbPageList;
     });
   }

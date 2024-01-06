@@ -2,9 +2,9 @@ spring:
   jpa:
     database: mysql
     show-sql: false
-    generate-ddl: false
+    generate-ddl: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: false

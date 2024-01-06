@@ -7,9 +7,9 @@
   </div>
   <div class="p-4" style="display: flex; flex-direction: column; flex-grow: 0;height: 100vh">
     <h1>
-      <a href="index.html" class="logo">{{appName}}<span style="font-size: 13px">Clothing Management</span></a>
+      <a href="index.html" class="logo"><span *ngIf="!isSuperAdmin">{{appName}}</span><span style="font-size: 13px">Clothing Management</span></a>
     </h1>
-    <ul class="list-unstyled components mb-5">
+    <ul class="list-unstyled components mb-5" *ngIf="!isSuperAdmin">
       <li [routerLinkActive]="['active']">
         <a routerLink="/packets"><span class="fa fa-shopping-cart  mr-3"></span> Commandes</a>
       </li>
@@ -39,7 +39,7 @@
       </li>
     </ul>
     <span style="color: lightgray;font-size: small;" class="mt-auto">Bienvenue, {{userName}}</span>
-    <button type="button" class="btn btn-secondary mt-3" (click)="SyncFirst()">
+    <button type="button" class="btn btn-secondary mt-3" (click)="SyncFirst()" *ngIf="!isSuperAdmin">
       <i class="fa fa-sync"></i>
       <span>Sync</span>
     </button>

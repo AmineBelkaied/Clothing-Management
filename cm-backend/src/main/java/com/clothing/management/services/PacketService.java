@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +17,11 @@ import java.util.Optional;
 public interface PacketService {
 
     public List<Packet> findAllPackets();
-    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status) throws ParseException;
+    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status, boolean mandatoryDate) throws ParseException;
     //public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable, boolean mandatoryDate);
     //public Page<Packet> findAllPackets(String searchText, int page, int size);
     public Page<Packet> findAllTodaysPackets(Pageable paging);
-    public List<Packet> findAllPacketsByDate(String start,String end);
+    public List<Packet> findAllPacketsByDate(String start,String end) throws ParseException;
     public List<Packet> findAllPacketsByDate(Date date);
     public List<Packet> findAllDiggiePackets();
     public Optional<Packet> findPacketById(Long idPacket);

@@ -85,7 +85,7 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status) {
+    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status, boolean mandatoryDate) throws ParseException {
         if (searchText != null)
             return packetRepository.findAllPacketsByField(searchText, pageable);
         if (startDate != null) {
@@ -108,8 +108,9 @@ public class PacketServiceImpl implements PacketService {
         return null;
     }*/
 
-    public List<Packet> findAllPacketsByDate(String startDate, String endDate) {
-        return packetRepositoryImpl.findAllPacketsByDate(startDate, endDate);
+    public List<Packet> findAllPacketsByDate(String startDate, String endDate) throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate));
     }
     @Override
     public Page<Packet> findAllTodaysPackets(Pageable pageable) {
