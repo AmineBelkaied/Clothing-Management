@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { APPNAME } from 'src/assets/constants';
+import { GlobalConf } from 'src/shared/models/GlobalConf';
+import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { PacketService } from 'src/shared/services/packet.service';
 
 @Component({
@@ -15,11 +17,13 @@ export class SidebarComponent implements OnInit {
   activeClass = false;
   activeRoute = false;
   appname : String = APPNAME;
+  globalConf!: GlobalConf;
 
-  constructor(private packetService: PacketService,private messageService: MessageService) { }
+  constructor(private packetService: PacketService, private globalConfService: GlobalConfService,private messageService: MessageService) { }
 
   ngOnInit(): void {
     this.activeClass = true;
+    this.globalConfService.globalConf$.subscribe((globalConf: GlobalConf) => this.globalConf = Object.assign({}, globalConf));
   }
 
   changeClass() {

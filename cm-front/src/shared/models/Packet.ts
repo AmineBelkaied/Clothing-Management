@@ -1,4 +1,5 @@
 import { City } from "./City";
+import { DeliveryCompany } from "./DeliveryCompany";
 import { FbPage } from "./FbPage";
 
 export interface Packet {
@@ -25,4 +26,7 @@ export interface Packet {
     oldClient?: number;
     valid?: boolean;
     stock?: number;
+    deliveryCompany?: DeliveryCompany;
+    [key: string]: any;
+
 }

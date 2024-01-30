@@ -1,12 +1,21 @@
 package com.clothing.management.servicesImpl.api;
 
+import com.clothing.management.controllers.GlobalConfController;
+import com.clothing.management.dto.DeliveryResponse;
 import com.clothing.management.dto.DeliveryResponseFirst;
+import com.clothing.management.entities.GlobalConf;
 import com.clothing.management.entities.Packet;
+import com.clothing.management.services.GlobalConfService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,10 +24,15 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.InputStream;
+import java.util.Properties;
 
 @Service
 public class FirstApiService {
 
+    @Autowired
+    private Environment environment;
+
+    GlobalConfController globalConfController;
     //private final String comment="Le colis peut être ouvert à la demande du client";
     public static final String createBarCodeEndPoint = "https://www.firstdeliverygroup.com/api/v2/create";
     public static final String getLastStatusEndPoint = "https://www.firstdeliverygroup.com/api/v2/etat";
@@ -28,14 +42,36 @@ public class FirstApiService {
     //private final String bearerToken="198de763-841f-4b3f-96b0-dcbfa4a6b369";//lyft
     //private final String exchangeProduct="Lyft sport";//lyft
 
-    private final String bearerToken="af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";//diggie
-    private final String exchangeProduct="Diggie pants";//diggie
-    private final String comment="يسمح بفتح الطرد عند طلب الحريف";//diggie
+    private String bearerToken="aaa";//"af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";//diggie
+    private String exchangeProduct="Diggie pants";//diggie
+    private String comment="يسمح بفتح الطرد عند طلب الحريف";//diggie
 
 
-    public FirstApiService() {
+    public FirstApiService(GlobalConfService globalConfService) {
+        GlobalConf globalConf = globalConfService.getGlobalConf();
+        System.out.println(globalConf);
+        if (globalConf != null) {
+            System.out.println("globalConf");
+            comment = globalConf.getComment();
+            bearerToken = globalConf.getDeliveryCompany().getToken();
+            exchangeProduct = globalConf.getExchangeComment();
+            System.out.println(comment);
+        }
     }
-
+    /*private void retrieveDataAndUpdateProperties() {
+        System.out.println("running");
+        try{
+            GlobalConf globalConf = globalConfController.getGlobalConf();
+            System.out.println(globalConf);
+            if (globalConf != null) {
+                System.out.println("globalConf");
+                comment = globalConf.getComment();
+                System.out.println(comment);
+            }
+        }catch (Exception e) {
+            System.out.println("globalConf error");
+        }
+    }*/
     public DeliveryResponseFirst createBarCode(Packet packet) throws IOException {
         String jsonBody = createJsonPacketForFirst(packet).toString();
         return executeHttpRequest(createBarCodeEndPoint, jsonBody);
@@ -57,6 +93,7 @@ public class FirstApiService {
         connection.setRequestProperty("User-Agent", "curl/7.29.0");
         connection.setDoOutput(true);
         StringBuilder response = new StringBuilder();
+
         DeliveryResponseFirst deliveryResponse = new DeliveryResponseFirst();
 
         try (OutputStream outputStream = connection.getOutputStream()) {
@@ -81,8 +118,9 @@ public class FirstApiService {
             }
             ObjectMapper mapper = new ObjectMapper();
             deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseFirst.class);
+            //deliveryResponse = (DeliveryResponseFirst) new DeliveryResponse(deliveryResponse);
             deliveryResponse.setResponseCode(responseCode);
-            deliveryResponse.setMessage(responseMessage);
+            deliveryResponse.setResponseMessage(responseMessage);
         } else {
             InputStream errorStream = connection.getErrorStream();
             if (errorStream != null) {
@@ -98,7 +136,7 @@ public class FirstApiService {
                 System.out.println("Error stream is null.");
             }
 
-            deliveryResponse.setMessage("not found");
+            deliveryResponse.setResponseMessage("not found");
             deliveryResponse.setStatus(responseCode);
             deliveryResponse.setResponseCode(responseCode);
             deliveryResponse.setIsError(true);

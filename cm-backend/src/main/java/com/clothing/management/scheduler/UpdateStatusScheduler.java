@@ -1,5 +1,6 @@
 package com.clothing.management.scheduler;
 
+import com.clothing.management.dto.DeliveryResponse;
 import com.clothing.management.entities.ModelStockHistory;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.enums.DeliveryCompany;
@@ -39,7 +40,7 @@ public class UpdateStatusScheduler {
             while (iterator.hasNext()) {
                 Packet packet = iterator.next();
                 try {
-                     this.packetService.getLastStatus(packet, DeliveryCompany.FIRST.toString());
+                        this.packetService.getLastStatus(packet);
                 } catch (IOException e) {
 
                     e.printStackTrace();

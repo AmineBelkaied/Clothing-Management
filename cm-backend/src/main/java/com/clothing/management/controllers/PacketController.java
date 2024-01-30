@@ -139,8 +139,8 @@ public class PacketController {
     }
 
     @PostMapping(value = "/createBarCode", produces = "application/json")
-    public ResponseEntity<DeliveryResponseFirst>  createBarCode(@RequestBody Packet packet, @RequestParam("deliveryCompany") String deliveryCompany) throws IOException, InterruptedException {
-        DeliveryResponseFirst deliveryResponse = packetService.createBarCode(packet, deliveryCompany);
+    public ResponseEntity<DeliveryResponse>  createBarCode(@RequestBody Packet packet, @RequestParam("deliveryCompany") String deliveryCompany) throws IOException, InterruptedException {
+        DeliveryResponse deliveryResponse = packetService.createBarCode(packet, deliveryCompany);
             if(deliveryResponse.getResponseCode() != 200)
                 return new ResponseEntity<>(deliveryResponse, HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(deliveryResponse, HttpStatus.OK);
@@ -150,7 +150,7 @@ public class PacketController {
     @CrossOrigin("*")
     public ResponseEntity<Packet> getLastStatus(@RequestBody Packet packet, @RequestParam("deliveryCompany") String deliveryCompany) throws Exception {
         return new ResponseEntity<>(
-                packetService.getLastStatus(packet, deliveryCompany),
+                packetService.getLastStatus(packet),
                 HttpStatus.OK);
     }
 

@@ -371,16 +371,20 @@
         pEditableColumn
         [pEditableColumn]="packet"
         [pEditableColumnField]="'status'"
-        style="cursor: pointer; max-width: 160px"
+        [ngStyle]="{
+          'border-right-width': '4px',
+          'border-right-color': packet.deliveryCompany.name === 'First' ? 'green' : (packet.deliveryCompany.name === 'Navex' ? 'gold' : '')
+      }"
       >
         <p-cellEditor>
           <ng-template pTemplate="input">
             <p-dropdown
+
               [options]="packetStatusList"
               [(ngModel)]="packet.status"
               class="p-inputtext-sm"
               placeholder="-- Statut --"
-              [style]="{ width: '90%' }"
+              [style]="{ width: '90%'}"
               [panelStyle]="{ width: '10rem' }"
               appendTo="body"
             >

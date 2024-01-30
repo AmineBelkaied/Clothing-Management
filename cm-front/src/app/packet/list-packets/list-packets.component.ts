@@ -20,6 +20,9 @@ import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { DashboardCard } from 'src/shared/models/DashboardCard';
 import { firstUrl } from 'src/assets/constants';
 import * as FileSaver from 'file-saver';
+import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
+import { GlobalConfService } from 'src/shared/services/global-conf.service';
+import { GlobalConf } from 'src/shared/models/GlobalConf';
 
 @Component({
   selector: 'app-list-packets',
@@ -28,6 +31,7 @@ import * as FileSaver from 'file-saver';
   providers: [DatePipe],
 })
 export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy {
+
 
 
 
@@ -57,7 +61,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   first = 0;
   rows = 100;
   currentPage = 0;
-  oldField: string;
+  oldField: string = "";
   offersList: any[] = [];
   allOffersList: any[] = [];
   groupedCities: SelectItemGroup[] = [];
@@ -121,6 +125,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   private readonly FIRST: string = 'FIRST';
   countDeleted: number = 0;
   realTotalItems: number;
+  selectedPhoneNumber: string = '';
+  deliveryCompany?: DeliveryCompany;
 
   constructor(
     private messageService: MessageService,
@@ -130,8 +136,9 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     private cityService: CityService,
     private fbPageService: FbPageService,
     private dateUtils: DateUtils,
-    private cdRef: ChangeDetectorRef
-  ) {
+    private cdRef: ChangeDetectorRef,
+    private globalConfService: GlobalConfService
+    ) {
     this.statusList = statusList;
     this.statesList = statesList;
   }
@@ -148,6 +155,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.findAllFbPages();
     this.rangeDates = [this.today];
     this.selectedStatus.setValue([]);
+    this.globalConfService.globalConf$.subscribe((globalConf :GlobalConf) => this.deliveryCompany = globalConf.deliveryCompany);
   }
 
   createNotification(): void {
@@ -178,9 +186,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: ResponsePage) => {
-          //this.countDeleted =response.result.filter(packet => packet.status === DELETED).length;
           this.packets = response.result.filter((packet: any) => this.checkPacketNotNull(packet));
-          //console.log("findAllPackets",response);
           this.realTotalItems = response.totalItems;
           this.totalItems = this.packets.length;
           let countConfirmed =response.result.filter(packet => packet.status === CONFIRMEE).length;
@@ -190,6 +196,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         },
         error: (error: Error) => {
           console.log('Error:', error);
+          this.loading = false;
         }
       });
   }
@@ -232,7 +239,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   onEditInit(packet: any): void {
     this.oldField = packet.data[packet.field];
-    console.log('onEditInit',packet);
     if ( packet.field == 'status'){
       this.packetStatusList = [];
       if(packet.data.stock === -1){
@@ -263,74 +269,77 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     }
   }
 
-  onEditComplete(packet: any): void {
-    if(packet.data.city == null && this.selectedCity != null && packet.field == 'city'){
-      packet.data.city = this.selectedCity;
-      this.updatePacket(packet.data);
-      this.selectedCity = undefined;
-    }
+  onEditComplete($event: any): void {
+    this.loading = true;
+    try {
 
-    else if (this.oldField !== packet.data[packet.field] && packet.data[packet.field] != undefined ) {
+/*       if((packet.data.customerPhoneNb == null || packet.data.customerPhoneNb == '') && this.selectedPhoneNumber != '' && packet.field == 'customerPhoneNb'){
+        packet.data.customerPhoneNb= this.selectedPhoneNumber;
+        this.selectedPhoneNumber = '';
+      } */
+    // Access the updated value directly from the Pack et object
+      if (this.oldField !== $event.data[$event.field] && $event.data[$event.field] != undefined ){
 
-      if (packet.field == 'city' || packet.field == 'fbPage' || packet.field == 'date') {
-        this.selectedCity=undefined;
-        if(packet.field == 'date'){
-          packet.data[packet.field].setHours(packet.data[packet.field].getHours() + 1);
+        if($event.data.city == null && this.selectedCity != null && $event.field == 'city'){
+          //console.log("edit city start");
+          $event.data.city = this.selectedCity;
+          this.updatePacket($event.data);
+          this.selectedCity = undefined;
+          return;
         }
-        this.updatePacket(packet.data);
-      } else {
-        let updatedField = { [packet.field]: packet.data[packet.field] };
-        let msg = 'Le champ a été modifié avec succés';
-
-        if ( packet.field == 'status' && packet.data[packet.field] != null) {
-
-          if(packet.data[packet.field] == DELETED && packet.data.barcode != null && packet.data.barcode != "" ){
+        else if ( $event.field == 'status') {
+          console.log("edit status start");
+          if($event.data[$event.field] == DELETED && $event.data.barcode != null && $event.data.barcode != "" ){
             this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez ne pas supprimée les packets sorties' });
-            packet.data[packet.field] = this.oldField;
+            $event.data[$event.field] = this.oldField;
+            this.loading = false;
             return;
           }
 
-          if(packet.data[packet.field] == CANCELED && this.oldField != CONFIRMEE && this.oldField != A_VERIFIER && this.oldField != DELETED){
+          if($event.data[$event.field] == CANCELED && this.oldField != CONFIRMEE && this.oldField != A_VERIFIER && this.oldField != DELETED){
             this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez ne pas annuler que les packets sorties' });
-            packet.data[packet.field] = this.oldField;
+            $event.data[$event.field] = this.oldField;
+            this.loading = false;
             return;
           }
-          if((packet.data[packet.field] == NON_CONFIRMEE
-            || packet.data[packet.field] == ENDED
-            || packet.data[packet.field] == NOT_SERIOUS
+          if(($event.data[$event.field] == NON_CONFIRMEE
+            || $event.data[$event.field] == ENDED
+            || $event.data[$event.field] == NOT_SERIOUS
             ) && (
             this.oldField == EN_COURS_1
             || this.oldField == EN_COURS_2
             || this.oldField == EN_COURS_3
             )){
             this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Ce Colis est déja en cours' });
-            packet.data[packet.field] = this.oldField;
+            $event.data[$event.field] = this.oldField;
+            this.loading = false;
             return;
           }
 
-          if((packet.data[packet.field] == EN_COURS_1
-            || packet.data[packet.field] == EN_COURS_2
-            || packet.data[packet.field] == EN_COURS_3
-            || packet.data[packet.field] == CANCELED
-            || packet.data[packet.field] == LIVREE
-            || packet.data[packet.field] == RETOUR
-            || packet.data[packet.field] == RETOUR_RECU
-            || packet.data[packet.field] == PAYEE
+          if(($event.data[$event.field] == EN_COURS_1
+            || $event.data[$event.field] == EN_COURS_2
+            || $event.data[$event.field] == EN_COURS_3
+            || $event.data[$event.field] == CANCELED
+            || $event.data[$event.field] == LIVREE
+            || $event.data[$event.field] == RETOUR
+            || $event.data[$event.field] == RETOUR_RECU
+            || $event.data[$event.field] == PAYEE
             ) && (
-            packet.data.barcode == null || packet.data.barcode == ""
+              $event.data.barcode == null || $event.data.barcode == ""
             )){
             this.messageService.add({ severity: 'error',summary: 'Error', detail: "Ce Colis n'a pas sorti" });
-            packet.data[packet.field] = this.oldField;
+            $event.data[$event.field] = this.oldField;
+            this.loading = false;
             return;
           }
 
-          if((packet.data[packet.field] == NON_CONFIRMEE
-            || packet.data[packet.field] == ENDED
-            || packet.data[packet.field] == NOT_SERIOUS
-            || packet.data[packet.field] == NON_CONFIRMEE
-            || packet.data[packet.field] == ENDED
-            || packet.data[packet.field] == NOT_SERIOUS
-            || packet.data[packet.field] == INJOIGNABLE
+          if(($event.data[$event.field] == NON_CONFIRMEE
+            || $event.data[$event.field] == ENDED
+            || $event.data[$event.field] == NOT_SERIOUS
+            || $event.data[$event.field] == NON_CONFIRMEE
+            || $event.data[$event.field] == ENDED
+            || $event.data[$event.field] == NOT_SERIOUS
+            || $event.data[$event.field] == INJOIGNABLE
             ) && (
               this.oldField == LIVREE
             || this.oldField == RETOUR
@@ -338,60 +347,75 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
             || this.oldField == PAYEE
             )){
             this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Ce Colis est déja Terminée' });
-            packet.data[packet.field] = this.oldField;
+            $event.data[$event.field] = this.oldField;
+            this.loading = false;
             return;
           }
 
-          if(packet.data[packet.field] == CONFIRMEE){
-            if (!this.checkPacketValidity(packet.data)) {
-              packet.data[packet.field] = this.oldField;
+          if($event.data[$event.field] == CONFIRMEE){
+            if (!this.checkPacketValidity($event.data)) {
+              $event.data[$event.field] = this.oldField;
+              this.loading = false;
               return;
             }
-            if (!this.checkPacketDescription(packet.data)) {
+            if (!this.checkPacketDescription($event.data)) {
               this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir la taille de l article' });
-              packet.data[packet.field] = this.oldField;
+              $event.data[$event.field] = this.oldField;
+              this.loading = false;
               return;
             }
 
-            this.selectedPacket = packet['data'].id;
-            this.isLoading = true;
+            this.selectedPacket = $event['data'].id;
+
           }
-          if(packet.data[packet.field] == null || packet.data[packet.field] == undefined){
-              packet.data[packet.field] = this.oldField;
-              this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Champ vide' });
-              return;
-          }
+
         }
+        else if ( $event.field == 'city' || $event.field == 'fbPage' || $event.field == 'date') {
+            console.log("edit city/page/date start:");
+            if($event.field == 'date'){
+              $event.data[$event.field].setHours($event.data[$event.field].getHours() + 1);
+            }
+            this.updatePacket($event.data);
+
+            return;
+        }
+        //console.log("edit start2",packet);
+        let updatedField = { [$event.field]: $event.data[$event.field] };
+        //console.log("edit start3",updatedField);
+        //console.log("edit fild start:",updatedField);
+        let msg = 'Le champ a été modifié avec succés';
 
         this.packetService
-          .patchPacket(packet['data'].id, updatedField)
+          .patchPacket($event['data'].id, updatedField)
           .pipe(
             catchError((err: any, caught: Observable<any>): Observable<any> => {
               this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la mise à jour ' + err.error.message });
-              packet.data[packet.field] = this.oldField;
+              $event.data[$event.field] = this.oldField;
               this.isLoading = false;
               return of();
             })
           )
           .subscribe({
               next: (responsePacket: Packet) => {
+                console.log("isloading",this.loading);
                 this.createNotification();
-                console.log(packet.data);
-                if(packet.data.stock < 10 && packet.field === 'status'
-                 && ((packet.data[packet.field] === CONFIRMEE && responsePacket.barcode != null)
-                 || packet.data[packet.field] === CANCELED
-                 || packet.data[packet.field] === RETOUR_RECU))
+                console.log($event.data);
+                if($event.data.stock < 10 && $event.field === 'status'
+                 && (($event.data[$event.field] === CONFIRMEE && responsePacket.barcode != null)
+                 || $event.data[$event.field] === CANCELED
+                 || $event.data[$event.field] === RETOUR_RECU))
                  {
-                   let x =this.getLastStock(packet.data.id)
-                   console.log("x",x);
+                   let x =this.getLastStock($event.data.id)
+                   //console.log("x",x);
 
                  }
                 //this.findAllPackets();
-                console.log("refresh all list");
+                //console.log("refresh all list");
 
-                if (packet.field === 'status' && packet.data[packet.field] === 'Confirmée') {
+                if ($event.field === 'status' && $event.data[$event.field] === 'Confirmée') {
+                  console.log("status confirmée");
 
-                  this.isLoading = false;
+
                   if (responsePacket.barcode != null) {
 
                       let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
@@ -400,23 +424,43 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
                       this.notificationList[0].count +=1;
 
                   } else {
-                    packet.data[packet.field] = this.oldField;
+                    $event.data[$event.field] = this.oldField;
                     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la creation du barcode' });
                   }
-                }
-                else if(responsePacket.oldClient!= undefined){
+
+                }else if(responsePacket.oldClient!= undefined){
                   let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
                     this.packets.splice(pos, 1, responsePacket);
                 };
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
+                this.loading = false;
                   },
                   error : (error: Error) => {
                     console.log(error);
+                    this.loading = false;
                   }
+
                 });
 
+
+      }else {
+          console.log("no changes");
+          this.loading = false;
+          return;
+
       }
+
+      //this.loading = false;
+    } catch (error) {
+      console.error(error);
+      //this.loading = false;
+      // Handle errors if necessary
+    } finally {
+      // Ensure that the loading indicator is turned off
+
+      this.oldField='';
     }
+
   }
 
   checkPacketValidity(packet: Packet): boolean {
@@ -477,7 +521,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       exchange: false,
       oldClient : 0,
       valid : false,
-      stock : -1
+      stock : -1,
+      deliveryCompany : this.deliveryCompany
     };
   }
 
@@ -487,11 +532,13 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         catchError((err: any, caught: Observable<any>): Observable<any> => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la mise à jour ' + err.error.message });
           packet.data[packet.field] = this.oldField;
+          this.loading = false;
           return of();
 
         })
       )
       .subscribe((response: any) => {
+        this.loading = false;
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés'});
       });
   }
@@ -979,6 +1026,11 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   selectCity( packet: Packet) {
     this.selectedCity = packet.city;
 }
+  selectPhoneNumber( packet: any) {
+    console.log('phnbr change');
+
+    this.selectedPhoneNumber = packet.customerPhoneNb;
+  }
 
 }
 

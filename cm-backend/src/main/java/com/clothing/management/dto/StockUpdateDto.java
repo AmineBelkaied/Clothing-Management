@@ -6,10 +6,12 @@ public class StockUpdateDto {
     List<Long> productsId;
     int qte;
     Long modelId;
+    String userName;
 
-    public StockUpdateDto(List<Long> productsId, int qte) {
+    public StockUpdateDto(List<Long> productsId, int qte,String userName) {
         this.productsId = productsId;
         this.qte = qte;
+        this.userName = userName;
     }
 
     public List<Long> getProductsId() {
@@ -36,12 +38,21 @@ public class StockUpdateDto {
         this.modelId = modelId;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     @Override
     public String toString() {
         return "StockUpdateDto{" +
                 "productsId=" + productsId +
                 ", qte=" + qte +
                 ", modelId=" + modelId +
+                ", userName=" + userName +
                 '}';
     }
 }

@@ -1,5 +1,5 @@
 package com.clothing.management.enums;
 
 public enum DeliveryCompany {
-    FIRST, EXPRESS
+    FIRST, EXPRESS, NAVEX
 }
