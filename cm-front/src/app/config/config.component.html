@@ -39,25 +39,39 @@
     </p-tabPanel>
 
     <p-tabPanel header="Pages FB">
-        <p-splitter [panelSizes]="[40,60]" [minSizes]="[30,70]">
-            <ng-template pTemplate>
-                <app-add-fbpage></app-add-fbpage>
-             </ng-template>
-             <ng-template pTemplate>
-                 <app-list-fbpages></app-list-fbpages>
-             </ng-template>
-        </p-splitter>
-    </p-tabPanel>
+      <p-splitter [panelSizes]="[40,60]" [minSizes]="[30,70]">
+          <ng-template pTemplate>
+              <app-add-fbpage></app-add-fbpage>
+           </ng-template>
+           <ng-template pTemplate>
+               <app-list-fbpages></app-list-fbpages>
+           </ng-template>
+      </p-splitter>
+  </p-tabPanel>
 
-    <p-tabPanel header="Utilisateurs">
-            <ng-template pTemplate>
-                <app-user></app-user>
-             </ng-template>
-    </p-tabPanel>
+  <p-tabPanel header="Ste livraison">
+    <p-splitter [panelSizes]="[40,60]" [minSizes]="[30,70]">
+        <ng-template pTemplate>
+            <app-add-ste-livraison></app-add-ste-livraison>
+         </ng-template>
+         <ng-template pTemplate>
+             <app-list-ste-Livraison></app-list-ste-Livraison>
+         </ng-template>
+    </p-splitter>
+</p-tabPanel>
+
+  <p-tabPanel header="Utilisateurs">
+    <ng-template pTemplate>
+      <app-user></app-user>
+    </ng-template>
+  </p-tabPanel>
+
+<p-tabPanel header="Config Global">
+    <app-global-conf></app-global-conf>
+</p-tabPanel>
 </p-tabView>
 </div>
 </div>
 </div>
-</div>  
+</div>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
-  

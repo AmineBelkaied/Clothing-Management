@@ -22,15 +22,17 @@ public class ProductHistory {
     @JoinColumn(name = "model_id")
     @JsonIgnore
     Model model;
+    private String userName;
     public ProductHistory() {
     }
 
-    public ProductHistory(Long productId, String reference, int quantity, Date lastModificationDate, Model model) {
+    public ProductHistory(Long productId, String reference, int quantity, Date lastModificationDate, Model model,String userName) {
         this.productId = productId;
         this.reference = reference;
         this.quantity = quantity;
         this.lastModificationDate = lastModificationDate;
         this.model = model;
+        this.userName = userName;
     }
 
     public Long getId() {
@@ -81,6 +83,14 @@ public class ProductHistory {
         this.model = model;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     @Override
     public String toString() {
         return "ProductHistory{" +
@@ -89,6 +99,7 @@ public class ProductHistory {
                 ", reference='" + reference + '\'' +
                 ", quantity=" + quantity +
                 ", lastModificationDate=" + lastModificationDate +
+                ", userName=" + userName +
                 '}';
     }
 }

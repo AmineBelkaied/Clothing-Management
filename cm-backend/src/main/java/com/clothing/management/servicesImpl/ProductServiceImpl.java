@@ -156,7 +156,7 @@ public class ProductServiceImpl implements ProductService {
                 productModel = product.get().getModel().getId();
                 product.get().setQuantity(product.get().getQuantity()+updateIdSockList.getQte());
                 updateProduct(product.get());
-                ProductHistory productHistory = new ProductHistory(productId, product.get().getReference(), updateIdSockList.getQte(), new Date(), product.get().getModel());
+                ProductHistory productHistory = new ProductHistory(productId, product.get().getReference(), updateIdSockList.getQte(), new Date(), product.get().getModel(),updateIdSockList.getUserName());
                 productHistoryRepository.save(productHistory);
             }
         });

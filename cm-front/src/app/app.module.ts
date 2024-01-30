@@ -51,7 +51,9 @@ import { AddColorComponent } from './config/color/add-color/add-color.component'
 import { ListColorsComponent } from './config/color/list-colors/list-colors.component';
 import { ConfigComponent } from './config/config.component';
 import { AddFbpageComponent } from './config/fbpage/add-fbpage/add-fbpage.component';
+import { AddSteLivraisonComponent } from './config/ste-livraison/add-ste-livraison/add-ste-livraison.component';
 import { ListFbpagesComponent } from './config/fbpage/list-fbpages/list-fbpages.component';
+import { ListSteLivraisonComponent } from './config/ste-livraison/list-ste-livraison/list-ste-livraison.component';
 import { ListGovernoratesComponent } from './config/list-governorates/list-governorates.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { AddModelComponent } from './model/add-model/add-model.component';
@@ -73,6 +75,7 @@ import { PayedReturnComponent } from './payed-return/payed-return.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { VerificationComponent } from './verification/verification.component';
 import { PickListModule } from 'primeng/picklist';
+import { GlobalConfComponent } from './config/global-conf/global-conf.component';
 
 import { AuthInterceptor } from 'src/shared/helpers/interceptor';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
@@ -100,7 +103,9 @@ import { PasswordModule } from 'primeng/password';
     ConfigComponent,
     ListGovernoratesComponent,
     AddFbpageComponent,
+    AddSteLivraisonComponent,
     ListFbpagesComponent,
+    ListSteLivraisonComponent,
     StockComponent,
     StatistiqueComponent,
     StockHistoryComponent,
@@ -108,7 +113,8 @@ import { PasswordModule } from 'primeng/password';
     DashboardComponent,
     VerificationComponent,
     PayedReturnComponent,
-    UserComponent
+    UserComponent,
+    GlobalConfComponent
   ],
   imports: [
     BrowserModule,

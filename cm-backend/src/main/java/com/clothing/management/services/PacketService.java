@@ -31,8 +31,8 @@ public interface PacketService {
     public void deletePacketById(Long idPacket);
     public void deleteSelectedPackets(List<Long> packetsId);
     public List<PacketStatus> findPacketTimeLineById(Long idPacket) throws Exception;
-    DeliveryResponseFirst createBarCode(Packet packet, String deliveryCompany) throws IOException, InterruptedException;
-    Packet getLastStatus(Packet packet, String deliveryCompany) throws Exception;
+    DeliveryResponse createBarCode(Packet packet, String deliveryCompany) throws IOException, InterruptedException;
+    Packet getLastStatus(Packet packet) throws Exception;
     int checkPhone(String phoneNumber);
     List<DashboardCard> createDashboard();
     List<DashboardCard> syncNotification();

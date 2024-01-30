@@ -1,18 +1,22 @@
+
+
 package com.clothing.management.dto;
 
 import net.minidev.json.annotate.JsonIgnore;
 
-public class DeliveryResponseFirst {
-
+public class DeliveryResponseFirst extends DeliveryResponse {
     private int status;
     private boolean isError;
     private String message;
     private Result result;
 
     @JsonIgnore
-    int responseCode;
+    public int responseCode;
+    @JsonIgnore
+    public String responseMessage;
 
     public DeliveryResponseFirst() {
+        super();
     }
 
     public DeliveryResponseFirst(int status, boolean isError, String message, Result result) {
@@ -22,11 +26,11 @@ public class DeliveryResponseFirst {
         this.result = result;
     }
 
+    /*public DeliveryResponseFirst(int status, String isError, String message, Result result) {
+        super(status, isError, message, result.getLink(), result.getState(), result.getBarCode());
+    }*/
     public int getStatus() {
         return status;
-    }
-    public void setResponseCode(int responseCode) {
-        this.responseCode = responseCode;
     }
 
     public void setStatus(int status) {
@@ -65,10 +69,6 @@ public class DeliveryResponseFirst {
                 ", message='" + message + '\'' +
                 ", result=" + result +
                 '}';
-    }
-
-    public int getResponseCode() {
-        return responseCode;
     }
 
     public static class Result {

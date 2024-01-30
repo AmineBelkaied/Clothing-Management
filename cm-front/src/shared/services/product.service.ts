@@ -27,8 +27,8 @@ export class ProductService {
     return this.http.get(this.baseUrl + "/getStock/" + modelId);
   }
 
-  addStock(productsId: number[],qte:number,modelId:number) {
-    let updateStock = {'productsId': productsId,'qte':qte,'modelId':modelId}
+  addStock(productsId: number[],qte:number,modelId:number,userName:String) {
+    let updateStock = {'productsId': productsId,'qte':qte,'modelId':modelId,'userName':userName}
     return this.http.post(this.baseUrl + "/addStock", updateStock);
   }
 }

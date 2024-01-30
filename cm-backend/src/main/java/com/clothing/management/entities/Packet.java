@@ -46,6 +46,9 @@ public class Packet {
     @ManyToOne
     @JoinColumn(name = "fbpage_id")
     private FbPage fbPage;
+    @ManyToOne
+    @JoinColumn(name = "deliveryCompany")
+    private DeliveryCompany deliveryCompany;
     private double price;
     @Column(name = "delivery_price")
     private double deliveryPrice;
@@ -65,7 +68,7 @@ public class Packet {
     public Packet() {
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, String dgStatus, boolean exchange, boolean valid, Integer stock, String printLink) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, String dgStatus, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompanyId) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -90,6 +93,7 @@ public class Packet {
         this.valid = valid;
         this.stock = stock;
         this.printLink = printLink;
+        this.deliveryCompany = deliveryCompany;
     }
 
     public Long getId() {
@@ -268,6 +272,14 @@ public class Packet {
         this.stock = stock;
     }
 
+    public DeliveryCompany getDeliveryCompany() {
+        return deliveryCompany;
+    }
+
+    public void setDeliveryCompany(DeliveryCompany deliveryCompany) {
+        this.deliveryCompany = deliveryCompany;
+    }
+
     @Override
     public String toString() {
         return "Packet{" +
@@ -291,6 +303,7 @@ public class Packet {
                 ", exchange=" + exchange +
                 ", stock=" + stock +
                 ", printLink='" + printLink + '\'' +
+                ", deliveryCompanyId='" + deliveryCompany + '\'' +
                 '}';
     }
 }

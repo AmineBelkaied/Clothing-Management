@@ -1,5 +1,6 @@
 package com.clothing.management.scheduler;
 
+import com.clothing.management.dto.DeliveryResponse;
 import com.clothing.management.auth.mastertenant.config.DBContextHolder;
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.entity.MasterUser;
@@ -47,7 +48,7 @@ public class UpdateStatusScheduler {
                 while (iterator.hasNext()) {
                     Packet packet = iterator.next();
                     try {
-                        this.packetService.getLastStatus(packet, DeliveryCompany.FIRST.toString());
+                        this.packetService.getLastStatus(packet);
                     } catch (IOException e) {
 
                         e.printStackTrace();

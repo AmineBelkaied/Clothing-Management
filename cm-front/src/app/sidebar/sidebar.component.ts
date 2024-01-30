@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
-import { DIGGIE, LYFT } from 'src/assets/constants';
+import { GlobalConf } from 'src/shared/models/GlobalConf';
+import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { PacketService } from 'src/shared/services/packet.service';
 import { StorageService } from 'src/shared/services/strorage.service';
 
@@ -21,11 +22,12 @@ export class SidebarComponent implements OnInit {
   isLoggedIn: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  globalConf!: GlobalConf;
   constructor(private packetService: PacketService,private messageService: MessageService,
-     private router: Router, public storageService: StorageService) { }
+              private globalConfService: GlobalConfService, private router: Router,  public storageService: StorageService) { }
 
   ngOnInit(): void {
-    this.storageService.isLoggedIn.subscribe(isLoggedIn => { 
+    this.storageService.isLoggedIn.subscribe(isLoggedIn => {
       this.isLoggedIn = isLoggedIn;
       this.storageService.getTenantName() === "diggie" ? this.appName = DIGGIE : this.appName = LYFT;
       this.userName = this.storageService.getUserName();
@@ -33,11 +35,12 @@ export class SidebarComponent implements OnInit {
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
     });
 
+    this.activeClass = true;
+    this.globalConfService.globalConf$.subscribe((globalConf: GlobalConf) => this.globalConf = Object.assign({}, globalConf));
   }
 
   changeClass() {
     this.activeClass = !this.activeClass;
-    
   }
 
   SyncFirst() {

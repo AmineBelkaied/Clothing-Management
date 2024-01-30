@@ -1,4 +1,5 @@
 package com.clothing.management.servicesImpl;
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.clothing.management.dto.*;
 import com.clothing.management.repository.enums.DeliveryCompany;
 import com.clothing.management.repository.enums.SystemStatus;
@@ -6,10 +7,12 @@ import com.clothing.management.repository.enums.FirstStatus;
 import com.clothing.management.models.DashboardCard;
 import com.clothing.management.repository.repositoryImpl.PacketRepositoryImpl;
 import com.clothing.management.repository.repositoryImpl.PacketRepositoryOldImpl;
+import com.clothing.management.services.GlobalConfService;
 import com.clothing.management.servicesImpl.api.FirstApiService;
 import com.clothing.management.entities.*;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.PacketService;
+import com.clothing.management.servicesImpl.api.NavexApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.EnableCaching;
@@ -23,7 +26,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.sql.ResultSet;
@@ -48,9 +50,12 @@ public class PacketServiceImpl implements PacketService {
     private final ISizeRepository sizeRepository;
     private final IPacketStatusRepository packetStatusRepository;
     private final FirstApiService firstApiService;
+    private final NavexApiService navexApiService;
     private final PacketRepositoryImpl packetRepositoryImpl;
     private final PacketRepositoryOldImpl packetRepositoryOld;
     private final UserRepository userRepository;
+    private com.clothing.management.entities.DeliveryCompany defaultDeliveryCompany;
+
     @Autowired
     public PacketServiceImpl(
             IPacketRepository packetRepository,
@@ -62,7 +67,9 @@ public class PacketServiceImpl implements PacketService {
             ISizeRepository sizeRepository,
             IPacketStatusRepository packetStatusRepository,
             FirstApiService firstApiService,
+            NavexApiService navexApiService,
             PacketRepositoryImpl packetRepositoryImpl,
+            GlobalConfService globalConfService,
             PacketRepositoryOldImpl packetRepositoryOld,
             UserRepository userRepository
     ) {
@@ -75,7 +82,9 @@ public class PacketServiceImpl implements PacketService {
         this.sizeRepository = sizeRepository;
         this.packetStatusRepository = packetStatusRepository;
         this.firstApiService = firstApiService;
+        this.navexApiService = navexApiService;
         this.packetRepositoryImpl = packetRepositoryImpl;
+        this.defaultDeliveryCompany = globalConfService.getGlobalConf().getDeliveryCompany();
         this.packetRepositoryOld = packetRepositoryOld;
         this.userRepository = userRepository;
     }
@@ -157,6 +166,7 @@ public class PacketServiceImpl implements PacketService {
         }
         return updatePacketStatus(optionalPacket.get(), SystemStatus.RETOUR_RECU.getStatus());
     }
+
     @Override
     public Packet patchPacket(Long idPacket, Map<String, Object> field) throws IOException {
         Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
@@ -366,38 +376,48 @@ public class PacketServiceImpl implements PacketService {
         return packet.getPacketStatus();
     }
     @Override
-    public DeliveryResponseFirst createBarCode(Packet packet, String deliveryCompany) throws IOException {
-        if(deliveryCompany.equals(DeliveryCompany.FIRST.toString())) {
-            DeliveryResponseFirst deliveryResponse = this.firstApiService.createBarCode(packet);
+    public DeliveryResponse createBarCode(Packet packet, String deliveryCompany) throws IOException {
+        DeliveryResponse deliveryResponse = new DeliveryResponse();
+        if(packet.getDeliveryCompany().getId() == 1)
+            deliveryResponse = new DeliveryResponse(this.firstApiService.createBarCode(packet));
+        if(packet.getDeliveryCompany().getId() == 3)
+            deliveryResponse = new DeliveryResponse(this.navexApiService.createBarCode(packet));
+        System.out.println("deliveryResponse");
+        System.out.println(deliveryResponse);
             if(deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 ) {
-                if(!deliveryResponse.isError()){
-
-                    packet.setPrintLink(deliveryResponse.getResult().getLink());
-                    packet.setBarcode(deliveryResponse.getResult().getBarCode());
+                /*if(!deliveryResponse.isError()){*/
+                    packet.setPrintLink(deliveryResponse.getLink());
+                    packet.setBarcode(deliveryResponse.getBarCode());
                     packet.setDate(new Date());
                     updatePacket(packet);
-                }
+                //}
                 return deliveryResponse;
             }
-        }
+
         return null;
     }
     @Override
-    public Packet getLastStatus(Packet packet, String deliveryCompany) throws Exception {
-        if(deliveryCompany.equals(DeliveryCompany.FIRST.toString())) {
+    public Packet getLastStatus(Packet packet) throws Exception {
+
             try {
                 //System.out.println("packet"+packet);
-                DeliveryResponseFirst deliveryResponse = this.firstApiService.getLastStatus(packet.getBarcode());
+                DeliveryResponse deliveryResponse;
+                if(packet.getDeliveryCompany().getId() == 1)
+                    deliveryResponse = new DeliveryResponse(this.firstApiService.getLastStatus(packet.getBarcode()));
+                else
+                    deliveryResponse = new DeliveryResponse(this.navexApiService.getLastStatus(packet.getBarcode()));
+                System.out.println("deliveryResponse");
+                System.out.println(deliveryResponse.toString());
                 if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {
                     String systemNewStatus = SystemStatus.A_VERIFIER.getStatus();
-                    if (deliveryResponse.getStatus()==404 || deliveryResponse.getResult().getState() == null || deliveryResponse.getResult().getState().equals("")) {
-                        throw new Exception("Problem API First");
+                    if (deliveryResponse.getStatus()==404 || deliveryResponse.getState() == null || deliveryResponse.getState().equals("")) {
+                        throw new Exception("Problem API");
                     }else if (deliveryResponse.getStatus()>199) {
                         //Convert input from first to System Status
                         //System.out.println(deliveryResponse);
-                        savePacketStatusToHistory(packet,"First:"+deliveryResponse.getResult().getState());
-                        systemNewStatus = mapFirstToSystemStatus(deliveryResponse.getResult().getState());
-                        packet.setLastDeliveryStatus(deliveryResponse.getResult().getState());
+                        savePacketStatusToHistory(packet,"First:"+deliveryResponse.getState());
+                        systemNewStatus = mapFirstToSystemStatus(deliveryResponse.getState());
+                        packet.setLastDeliveryStatus(deliveryResponse.getState());
                         systemNewStatus =
                                 (systemNewStatus.equals(SystemStatus.EN_COURS_1.getStatus())//First always return "en cours"
                                 || systemNewStatus.equals(SystemStatus.EN_COURS_2.getStatus())//not in First System
@@ -411,7 +431,7 @@ public class PacketServiceImpl implements PacketService {
                 packet.setLastDeliveryStatus(SystemStatus.INCORRECT_BARCODE.getStatus());
                 return updatePacketStatusAndSaveToHistory(packet, SystemStatus.A_VERIFIER.getStatus());
             }
-        }
+
         return null;
     }
     private String mapFirstToSystemStatus(String status) {
@@ -480,6 +500,7 @@ public class PacketServiceImpl implements PacketService {
             newPacket.setValid(false);
             newPacket.setExchange(true);
             newPacket.setStock(packet.getStock());
+            newPacket.setDeliveryCompany(packet.getDeliveryCompany());
         }
         Packet response = packetRepository.save(newPacket);
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
