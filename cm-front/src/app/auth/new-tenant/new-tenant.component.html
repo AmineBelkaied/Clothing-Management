@@ -1,0 +1,25 @@
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+    <div class="flex flex-column align-items-center justify-content-center">              
+        <div style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%);">
+            <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius:53px">
+                <div>
+                    <label for="Name" class="block text-900 text-xl font-medium mb-3">  Nom de l'entreprise</label>
+                    <input id="name" type="text" [(ngModel)]="tenantName" placeholder="Nom de l'entreprise" pInputText class="w-full md:w-30rem mb-5" style="padding:1rem">
+                    <div class="flex align-items-center justify-content-between mb-5 gap-5">
+                        <label for="Name" class="block text-900 text-xl font-medium mb-2">Choisir le logo</label>
+<!--                         <p-fileUpload mode="basic" name="demo[]" accept="image/*" [maxFileSize]="1000000"  (uploadHandler)="selectFile($event)"
+                        [customUpload]="true"></p-fileUpload> -->
+                        <input type="file" (change)="selectFile($event)"/> 
+<!--                         <div class="flex align-items-center">
+                            <p-checkbox id="rememberme1" [binary]="true" styleClass="mr-2"></p-checkbox>
+                            <label for="rememberme1">Remember me</label>
+                        </div> -->
+<!--                         <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(--primary-color)">Forgot password?</a> -->
+
+                    </div>
+                        <button pButton pRipple label="Ajouter" class="w-full p-3 text-xl" (click)="add()"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

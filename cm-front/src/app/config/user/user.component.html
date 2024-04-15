@@ -1,0 +1,90 @@
+
+<p-toolbar styleClass="mb-4 mt-3 gap-2">
+    <ng-template pTemplate="left">
+      <button pButton pRipple label="Ajouter" icon="pi pi-plus" class="p-button-success mr-2"
+        (click)="openNew()"></button>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <span class="p-input-icon-left mr-6">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" class="p-inputtext-sm"
+            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+            placeholder="Rechercher..." />
+    </span>
+
+    <button pButton pRipple icon="pi pi-trash" class="p-button-danger" style="margin-right: 55px" (click)="deleteSelectedUsers()" [disabled]="!selectedUsers || !selectedUsers.length"></button>
+ </ng-template>
+  </p-toolbar>
+
+  <div style="text-align: center">
+    <p-table #dt [value]="users" dataKey="userId" [(selection)]="selectedUsers" sortMode="single"
+    responsiveLayout="scroll" [scrollable]="true" [rows]="10" [paginator]="true"
+    [globalFilterFields]="['userId','fullName','userName']"
+    currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} entrées"
+    [showCurrentPageReport]="true"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="userId">Id<p-sortIcon field="userId"></p-sortIcon></th>
+          <th pSortableColumn="fullName">Nom Complet<p-sortIcon field="fullName"></p-sortIcon></th>
+          <th pSortableColumn="userName">Utilisateur <p-sortIcon field="userName"></p-sortIcon></th>
+          <th pSortableColumn="userName">Rôles <p-sortIcon field="roles"></p-sortIcon></th>
+          <th>Modifier</th>
+          <th>
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>{{ user.userId }}</td>
+          <td>{{ user.fullName }}</td>
+          <td>{{ user.userName }}</td>
+          <td>{{ getRoles(user.roles) }}</td>
+<!--           <td><span style="font-weight:bold; color:darkgreen">{{ displayTenants(user.masterTenants) }}</span></td> -->
+          <td>
+            <button pButton pRipple type="button" icon="pi pi-pencil" (click)="editUser(user)" class="p-button-rounded p-button-text"></button>
+          </td>
+          <td>
+            <p-tableCheckbox [value]="user"></p-tableCheckbox>
+        </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6">Il n'y a pas d'utilisateurs.</td>
+          </tr>
+        </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="userDialog" [style]="{width: '500px'}" [header]='editMode ? "Mettre à jour les paramètres" : "Nouveau Utilisateur"' [modal]="true"
+styleClass="p-fluid">
+<ng-template pTemplate="content">
+  <div class="field">
+      <label for="fullName">Nom Complet</label>
+      <input type="text" pInputText id="fullName" [(ngModel)]="user.fullName" [required]="editMode ? false : true" />
+<!--       <small class="p-error" *ngIf="submitted && !user.fullName">Le nom est obligatoire.</small> -->
+    </div>
+    <div class="field">
+        <label for="userName">Nom de l'utilisateur</label><span class="required pl-1">*</span>
+        <input type="text" pInputText id="userName" [(ngModel)]="user.userName" [required]="editMode ? false : true" />
+<!--         <small class="p-error" *ngIf="submitted && !user.userName">Le nom d'utilisateur est obligatoire.</small> -->
+      </div>
+<div class="field">
+  <label for="password">Mot de passe</label><span class="required pl-1">*</span>
+  <p-password [(ngModel)]="newPassword" [toggleMask]="true" [required]="editMode ? false : true"></p-password>
+<!--    <small class="p-error" *ngIf="submitted && !newPassword">Le mot de passe est obligatoire.</small>  -->
+</div>
+ <div class="field mb-4">
+    <label for="roles">Définir les rôles</label><span class="required pl-1">*</span>
+    <p-multiSelect [options]="roles" [(ngModel)]="user.roles" optionLabel="description" [required]="editMode ? false : true" defaultLabel="Choisir les rôles" display="chip" appendTo="body"></p-multiSelect>
+<!--      <small class="p-error" *ngIf="submitted && !user.roles">Les rôles sont obligatoires.</small> -->
+  </div>
+</ng-template> 
+
+<ng-template pTemplate="footer">
+<button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+<button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'" icon="pi pi-check" [disabled]="invalidUser(user)" class="p-button-text" (click)="saveUser()"></button>
+</ng-template>
+</p-dialog>

@@ -1,0 +1,26 @@
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+    <div class="flex flex-column align-items-center justify-content-center">              
+        <div style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%);">
+            <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius:53px">
+                <div class="text-center mb-5">
+                    <div class="text-900 text-3xl font-medium mb-3">Choisir l'entreprise</div>
+                </div>
+
+                <div>
+<!--                     <label for="username" class="block text-900 text-xl font-medium mb-3" >Choisir l'entreprise</label> -->
+                   <p-dropdown [options]="tenants" [style]="{'minWidth':'100%'}" placeholder="Choisir l'entreprise" [(ngModel)]="form.tenantOrClientId" optionLabel="tenantName" optionValue="tenantClientId" appendTo="body"></p-dropdown> 
+
+                    <div class="flex align-items-center justify-content-between mt-5 gap-5">
+<!--                         <div class="flex align-items-center">
+                            <p-checkbox id="rememberme1" [binary]="true" styleClass="mr-2"></p-checkbox>
+                            <label for="rememberme1">Remember me</label>
+                        </div> -->
+<!--                         <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(--primary-color)">Forgot password?</a> -->
+                        <button pButton pRipple label="Login" class="w-full p-3 text-xl" (click)="login()"></button> 
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
