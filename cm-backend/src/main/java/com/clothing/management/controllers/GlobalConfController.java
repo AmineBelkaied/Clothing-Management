@@ -22,10 +22,7 @@ public class GlobalConfController {
 
     @GetMapping(path = "/get")
     public GlobalConf getGlobalConf() {
-        System.out.println("globalConf0000000");
         GlobalConf globalConf = globalConfService.getGlobalConf();
-        System.out.println("globalConf000");
-        System.out.println(globalConf);
         return globalConf;
     }
 

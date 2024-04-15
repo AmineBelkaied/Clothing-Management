@@ -6,7 +6,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.Optional;
 
 public interface GlobalConfService {
-    GlobalConf getGlobalConf();
-    void updateGlobalConf(GlobalConf globalConf);
+    public GlobalConf getGlobalConf();
+    public void updateGlobalConf(GlobalConf globalConf);
+
 }
 

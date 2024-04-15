@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
+import { AsyncAction } from 'rxjs/internal/scheduler/AsyncAction';
 import { APPNAME } from 'src/assets/constants';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
@@ -19,10 +20,12 @@ export class SidebarComponent implements OnInit {
   appname : String = APPNAME;
   globalConf!: GlobalConf;
 
-  constructor(private packetService: PacketService, private globalConfService: GlobalConfService,private messageService: MessageService) { }
+  constructor(private packetService: PacketService, private globalConfService: GlobalConfService,private messageService: MessageService) {
+   }
 
   ngOnInit(): void {
     this.activeClass = true;
+
     this.globalConfService.globalConf$.subscribe((globalConf: GlobalConf) => this.globalConf = Object.assign({}, globalConf));
   }
 
@@ -32,7 +35,6 @@ export class SidebarComponent implements OnInit {
 
   SyncFirst() {
     console.log("syncronising");
-
     this.packetService
         .syncAllPacketsFirst()
         .pipe(takeUntil(this.$unsubscribe))

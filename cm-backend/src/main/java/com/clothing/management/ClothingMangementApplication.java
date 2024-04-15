@@ -1,7 +1,5 @@
 package com.clothing.management;
 
-import com.clothing.management.entities.GlobalConf;
-import com.clothing.management.repository.IGlobalConfRepository;
 import com.clothing.management.servicesImpl.PacketServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

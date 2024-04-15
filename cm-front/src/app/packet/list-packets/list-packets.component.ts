@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import { ConfirmationService, MessageService, SelectItemGroup, PrimeIcons, MenuItem } from 'primeng/api';
 import { Packet } from '../../../shared/models/Packet';
 import { OfferService } from '../../../shared/services/offer.service';
@@ -52,7 +52,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   today_2: Date = new Date(Date.now() - 172800000);
   editMode = false;
   isLoading = false;
-  selectedPacket: string = '';
+  selectedPacket: Packet;
 
 
   modelDialog!: boolean;
@@ -119,7 +119,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     }
   ];
 
-  @ViewChild('dt') dt?: Table;
+  @ViewChild('dt') dt: Table;
   private readonly reg: RegExp = /,/gi;
   regBS = /\n/gi;
   private readonly FIRST: string = 'FIRST';
@@ -127,6 +127,9 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   realTotalItems: number;
   selectedPhoneNumber: string = '';
   deliveryCompany?: DeliveryCompany;
+  @Output() confirmEvent: EventEmitter<string> = new EventEmitter<string>();
+  visibleNote: boolean = false;
+  note: string = '';
 
   constructor(
     private messageService: MessageService,
@@ -270,28 +273,30 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   onEditComplete($event: any): void {
-    this.loading = true;
-    try {
+    console.log("$event00:",$event);
+    this.loading = true
+    //setTimeout(() => , 0);
+    try
+    {
+      //console.log("this.selectedPhoneNumber0",this.selectedPhoneNumber);
+      if(($event.data.customerPhoneNb == null || $event.data.customerPhoneNb == '') && this.selectedPhoneNumber != '' && $event.field == 'customerPhoneNb'){
+        $event.data.customerPhoneNb= this.selectedPhoneNumber;
+          this.selectedPhoneNumber = '';
+        }
+      if(($event.data.city == null || $event.data.city == '') && this.selectedCity != undefined && $event.field == 'city'){
+        $event.data.city= this.selectedCity;
+          this.selectedCity = undefined;
+      }
 
-/*       if((packet.data.customerPhoneNb == null || packet.data.customerPhoneNb == '') && this.selectedPhoneNumber != '' && packet.field == 'customerPhoneNb'){
-        packet.data.customerPhoneNb= this.selectedPhoneNumber;
-        this.selectedPhoneNumber = '';
-      } */
-    // Access the updated value directly from the Pack et object
+
       if (this.oldField !== $event.data[$event.field] && $event.data[$event.field] != undefined ){
 
-        if($event.data.city == null && this.selectedCity != null && $event.field == 'city'){
-          //console.log("edit city start");
-          $event.data.city = this.selectedCity;
-          this.updatePacket($event.data);
-          this.selectedCity = undefined;
-          return;
-        }
-        else if ( $event.field == 'status') {
+        if ( $event.field == 'status') {
           console.log("edit status start");
           if($event.data[$event.field] == DELETED && $event.data.barcode != null && $event.data.barcode != "" ){
             this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez ne pas supprimée les packets sorties' });
             $event.data[$event.field] = this.oldField;
+            console.log("false0");
             this.loading = false;
             return;
           }
@@ -299,6 +304,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
           if($event.data[$event.field] == CANCELED && this.oldField != CONFIRMEE && this.oldField != A_VERIFIER && this.oldField != DELETED){
             this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez ne pas annuler que les packets sorties' });
             $event.data[$event.field] = this.oldField;
+            console.log("false1");
             this.loading = false;
             return;
           }
@@ -312,6 +318,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
             )){
             this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Ce Colis est déja en cours' });
             $event.data[$event.field] = this.oldField;
+            console.log("false2");
             this.loading = false;
             return;
           }
@@ -329,6 +336,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
             )){
             this.messageService.add({ severity: 'error',summary: 'Error', detail: "Ce Colis n'a pas sorti" });
             $event.data[$event.field] = this.oldField;
+            console.log("false3");
             this.loading = false;
             return;
           }
@@ -348,6 +356,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
             )){
             this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Ce Colis est déja Terminée' });
             $event.data[$event.field] = this.oldField;
+            console.log("false4");
             this.loading = false;
             return;
           }
@@ -355,28 +364,28 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
           if($event.data[$event.field] == CONFIRMEE){
             if (!this.checkPacketValidity($event.data)) {
               $event.data[$event.field] = this.oldField;
+              console.log("false5");
               this.loading = false;
               return;
             }
             if (!this.checkPacketDescription($event.data)) {
-              this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir la taille de l article' });
+              this.messageService.add({ severity: 'error',summary: 'Error', detail: "Veuillez saisir la taille de l'article" });
               $event.data[$event.field] = this.oldField;
+              console.log("false6");
               this.loading = false;
               return;
             }
-
-            this.selectedPacket = $event['data'].id;
+            //this.selectedPacket_id = $event['data'].id;
 
           }
 
         }
         else if ( $event.field == 'city' || $event.field == 'fbPage' || $event.field == 'date') {
-            console.log("edit city/page/date start:");
+            //console.log("edit city/page/date start:");
             if($event.field == 'date'){
               $event.data[$event.field].setHours($event.data[$event.field].getHours() + 1);
             }
             this.updatePacket($event.data);
-
             return;
         }
         //console.log("edit start2",packet);
@@ -391,6 +400,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
             catchError((err: any, caught: Observable<any>): Observable<any> => {
               this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la mise à jour ' + err.error.message });
               $event.data[$event.field] = this.oldField;
+              console.log("false7");
               this.isLoading = false;
               return of();
             })
@@ -398,7 +408,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
           .subscribe({
               next: (responsePacket: Packet) => {
                 console.log("isloading",this.loading);
-                this.createNotification();
+                if($event.field=="status")this.createNotification();
                 console.log($event.data);
                 if($event.data.stock < 10 && $event.field === 'status'
                  && (($event.data[$event.field] === CONFIRMEE && responsePacket.barcode != null)
@@ -407,10 +417,10 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
                  {
                    let x =this.getLastStock($event.data.id)
                    //console.log("x",x);
-
                  }
                 //this.findAllPackets();
                 //console.log("refresh all list");
+
 
                 if ($event.field === 'status' && $event.data[$event.field] === 'Confirmée') {
                   console.log("status confirmée");
@@ -433,18 +443,18 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
                     this.packets.splice(pos, 1, responsePacket);
                 };
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
+                console.log("false8");
+
                 this.loading = false;
                   },
                   error : (error: Error) => {
                     console.log(error);
                     this.loading = false;
                   }
-
                 });
-
-
       }else {
           console.log("no changes");
+          console.log("false9");
           this.loading = false;
           return;
 
@@ -505,27 +515,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     return packet.packetDescription!= undefined && packet.packetDescription.includes('(');
   }
 
-  newPacket(): Packet {
-    return {
-      date: this.dateUtils.getDate(this.today),
-      barcode: '',
-      lastDeliveryStatus: '',
-      customerName: '',
-      customerPhoneNb: '',
-      address: '',
-      relatedProducts: '',
-      packetReference: '',
-      packetDescription: '',
-      price: 0,
-      status: 'Non confirmée',
-      exchange: false,
-      oldClient : 0,
-      valid : false,
-      stock : -1,
-      deliveryCompany : this.deliveryCompany
-    };
-  }
-
   updatePacket(packet: any): void {
     this.packetService.updatePacket(packet)
       .pipe(
@@ -545,7 +534,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   getLastStatus(packet: Packet): void {
     if (packet.status != PAYEE && packet.status != RETOUR_RECU && packet.status != LIVREE)
-    this.packetService.getLastStatus(packet, this.FIRST)
+    this.packetService.getLastStatus(packet)
       .subscribe({
           next: (response: Packet) => {
             this.packets.splice(this.packets.indexOf(packet), 1, response);
@@ -557,6 +546,31 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         });
   }
 
+  addAttempt(packet: Packet): void {
+    this.visibleNote = true;
+    this.selectedPacket = packet;
+    this.note="";
+  }
+  confirmNote() {
+    console.log("Confirm button clicked!");
+    let note = "Client injoignable"
+    if (this.note.trim() !== '')  // Check if value is not empty
+      {
+        this.confirmEvent.emit(this.note);
+        note = this.note;
+      }
+
+      this.packetService.addAttempt(this.selectedPacket,note)
+      .subscribe({
+          next: (response: Packet) => {
+            this.packets.splice(this.packets.indexOf(this.selectedPacket), 1, response);
+          },
+          error : (error: Error) => {
+            console.log(error);
+          }
+        });
+    this.visibleNote = false;
+  }
   getLastStock(packetId: number): void {
     console.log("getLasStock-packetId", packetId);
     //if (packet.status != PAYEE && packet.status != RETOUR_RECU && packet.status != LIVREE)
@@ -577,8 +591,11 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         });
   }
 
-  openLinkGetter(code: any): void {
-    window.open(firstUrl+"/recherche.php?code=" + code, '_blank');
+  openLinkGetter(code: any,deliveryCompany: DeliveryCompany): void {
+
+    let link = deliveryCompany.barreCodeUrl + code;
+    console.log("link",link+"/code:"+code);
+    window.open(link, '_blank');
   }
 
   printFirst(link: string): void {
@@ -608,7 +625,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     if(this.loading == false){
       this.loading=true;
       this.packetService
-      .addPacket(this.newPacket())
+      .addPacket()
       .subscribe((response: Packet) => {
         this.loading=false;
         this.packets.unshift(response);
@@ -867,6 +884,14 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         }
       },
       {
+        label: 'Ajouter tentative',
+        icon: 'pi pi-refresh',
+        disabled:packet.status!=INJOIGNABLE,
+        command: () => {
+          this.addAttempt(packet)
+        }
+      },
+      {
         label: 'Valider stock',
         icon: 'pi pi-refresh',
         disabled:packet.stock>15 || packet.stock==-1,
@@ -901,23 +926,23 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         }
       },
       {
-        label: 'Tel First',
+        label: 'Tel',
         icon: 'pi pi-search-plus',
         disabled:!(this.checkPhoneNbExist(packet)),
         command: () => {
-          this.openLinkGetter(packet.customerPhoneNb);
+          this.openLinkGetter(packet.customerPhone,packet.deliveryCompany);
         }
       },
       {
-        label: 'BarreCode First',
+        label: 'BarreCode',
         icon: 'pi pi-qrcode',
         disabled:!this.checkCodeABarreExist(packet),
         command: () => {
-          this.openLinkGetter(packet.barcode)
+          this.openLinkGetter(packet.barcode,packet.deliveryCompany)
         }
       },
       {
-        label: 'Print First',
+        label: 'Print',
         icon: 'pi pi-print',
         disabled:!(this.checkCodeABarreExist(packet)),
         command: () => {
@@ -1028,7 +1053,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 }
   selectPhoneNumber( packet: any) {
     console.log('phnbr change');
-
     this.selectedPhoneNumber = packet.customerPhoneNb;
   }
 

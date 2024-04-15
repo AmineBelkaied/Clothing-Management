@@ -1,10 +1,13 @@
 package com.clothing.management.servicesImpl.api;
 
 import com.clothing.management.dto.DeliveryResponseNavex;
+import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.entities.GlobalConf;
 import com.clothing.management.entities.Packet;
+import com.clothing.management.repository.IGlobalConfRepository;
 import com.clothing.management.services.GlobalConfService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -17,41 +20,53 @@ import java.net.URL;
 @Service
 public class NavexApiService {
 
-    public static final String createBarCodeEndPoint = "https://app.navex.tn/api/";
+    @Autowired
+    public IGlobalConfRepository globalConfRepository;
+
+    //public static final String createBarCodeEndPoint = "https://app.navex.tn/api/";
     public static final String apiUrl = "https://app.navex.tn/api/";
-    public static final String apiName ="diggie";
+    public String apiName ="apiName";
     public static final String endUrl ="/v1/post.php";
     //public static final String getLastStatusEndPoint = "https://app.navex.tn/api/strada-etat-SDFKSNC48IK329084J34534LJLJ453DJL/v1/post.php";
     public static final String reg = "/,/gi";
     public static final String regBS = "/\\n/gi";
-    private String bearerToken="aaa";//"af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";//diggie
+    private String bearerToken="token";//"af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";//diggie
     private String exchangeProduct="Diggie pants";//diggie
     private String comment="يسمح بفتح الطرد عند طلب الحريف";//diggie
 
 
-    public NavexApiService(GlobalConfService globalConfService) {
-        GlobalConf globalConf = globalConfService.getGlobalConf();
+    public NavexApiService() {
+        /*GlobalConf globalConf = globalConfService.getGlobalConf();
         System.out.println(globalConf);
         if (globalConf != null) {
             System.out.println("globalConf");
             comment = globalConf.getComment();
             bearerToken = globalConf.getDeliveryCompany().getToken();
             exchangeProduct = globalConf.getExchangeComment();
-            System.out.println(comment);
-        }
+            apiName = globalConf.getDeliveryCompany().getApiName();
+            //System.out.println(comment);
+        }*/
     }
 
     public DeliveryResponseNavex createBarCode(Packet packet) throws IOException {
-        return executeHttpRequest(apiUrl+apiName+"-"+bearerToken+endUrl, createRequestBody(packet));
+        String url = apiUrl+packet.getDeliveryCompany().getApiName()+"-"+packet.getDeliveryCompany().getToken()+endUrl;
+        return executeHttpRequest(url, createRequestBody(packet));
     }
 
-    public DeliveryResponseNavex getLastStatus(String barCode) throws IOException {
+    public DeliveryResponseNavex getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException {
         StringBuilder body = new StringBuilder();
         body.append("code=").append(barCode);
-        return executeHttpRequest(apiUrl+apiName+"-etat-"+bearerToken+endUrl, body.toString());
+        String url = apiUrl+deliveryCompany.getApiName()+"-etat-"+deliveryCompany.getToken()+endUrl;
+        return executeHttpRequest(url, body.toString());
     }
 
     private DeliveryResponseNavex executeHttpRequest(String url, String body) throws IOException {
+        GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
+        System.out.println("global:"+globalConf);
+        if (globalConf != null) {
+            comment = globalConf.getComment();
+            exchangeProduct = globalConf.getExchangeComment();
+        }
         // Create a new HTTP connection and set the request method to POST
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("POST");
@@ -61,8 +76,6 @@ public class NavexApiService {
         try (OutputStream out = connection.getOutputStream()) {
             out.write(body.getBytes());
         }
-
-        // Read the response from the server
         DeliveryResponseNavex deliveryResponse= new DeliveryResponseNavex();
         int responseCode = connection.getResponseCode();
         String responseMessage = connection.getResponseMessage();
@@ -102,12 +115,16 @@ public class NavexApiService {
                 .append("&msg=")
                 .append(comment)
                 .append("&echange=")
-                .append(packet.isExchange()?"oui":"non")
+                .append(packet.isExchange()?"1":"0")
+                .append("&ouvrir=Oui")
                 .append("&article=")
                 .append(exchangeProduct)
-                .append("&nb_echange=1")
-                .append("&nb_article=1&prix=")
-                .append(this.getPacketPrice(packet));
+                .append("&nb_echange=")
+                .append(packet.isExchange()?"1":"0")
+                .append("&nb_article=")
+                .append(1)
+                .append("&prix=")
+                .append(this.getPacketPrice(packet)+"");
         return body.toString();
     }
 

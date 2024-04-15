@@ -83,6 +83,8 @@ findAllConfirmedPackets(): void {
 }
 
 Validate(){
+  if(this.barCode.length == 13)
+  this.barCode = this.barCode.slice(0,12);
   //console.log('validé',this.barCode);
   if (this.type == CONFIRMEE){
     if (!(this.sourcePackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1)){

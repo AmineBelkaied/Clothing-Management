@@ -13,19 +13,20 @@ public class DeliveryCompany {
     private Long id;
     private String name;
     private String token;
+    private String apiName;
+
+    private String barreCodeUrl;
     @JsonIgnore
     @OneToMany(mappedBy = "deliveryCompany")
     List<Packet> packets;
 
-    private boolean enabled;
-
     public DeliveryCompany() {
     }
 
-    public DeliveryCompany(Long id, String link) {
-        this.id = id;
+    public DeliveryCompany(String name, String token, String apiName) {
+        this.name = name;
         this.token = token;
-        this.enabled = true;
+        this.apiName = apiName;
     }
 
     public DeliveryCompany(String name) {
@@ -69,19 +70,28 @@ public class DeliveryCompany {
         this.token = token;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public String getApiName() {
+        return apiName;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setApiName(String apiName) {
+        this.apiName = apiName;
+    }
+
+    public String getBarreCodeUrl() {
+        return barreCodeUrl;
+    }
+
+    public void setBarreCodeUrl(String barreCodeUrl) {
+        this.barreCodeUrl = barreCodeUrl;
     }
 
     @Override
     public String toString() {
-        return "FbPage{" +
+        return "DeliveryCompany{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", apiName='" + apiName + '\'' +
                 ", token='" + token + '\''+
                 '}';
     }

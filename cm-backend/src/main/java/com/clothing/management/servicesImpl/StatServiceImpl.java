@@ -301,18 +301,22 @@ public class StatServiceImpl implements StatService {
         List<Long> countOut = new ArrayList<>();
         List<Long> countPayed = new ArrayList<>();
         List<Long> countReturn = new ArrayList<>();
+        List<Long> countInProgress = new ArrayList<>();
 
         StatTableDTO exchangeRecap= new StatTableDTO("Exchange");
         StatTableDTO retourRecap= new StatTableDTO("Retour");
         StatTableDTO payedRecap= new StatTableDTO("Payée");
         StatTableDTO outRecap= new StatTableDTO("Sortie");
         StatTableDTO allRecap= new StatTableDTO("All");
+        StatTableDTO inProgressRecap= new StatTableDTO("En Cours");
                 for (PacketsStatCountDTO dayStat: existingPackets) {
                     countAll.add(dayStat.getCountAll());
                     countExchange.add(dayStat.getCountExchange());
                     countOut.add(dayStat.getCountOut());
                     countPayed.add(dayStat.getCountPayed());
                     countReturn.add(dayStat.getCountReturn());
+                    Long inProgress = dayStat.getCountOut()-dayStat.getCountReturn()-dayStat.getCountPayed();
+                    countInProgress.add(inProgress);
 
                     exchangeRecap.setMin(dayStat.getCountExchange()<exchangeRecap.getMin()?dayStat.getCountExchange():exchangeRecap.getMin());
                     exchangeRecap.setMax(dayStat.getCountExchange()>exchangeRecap.getMax()?dayStat.getCountExchange():exchangeRecap.getMax());
@@ -333,23 +337,56 @@ public class StatServiceImpl implements StatService {
                     retourRecap.setMin(dayStat.getCountReturn()<retourRecap.getMin()?dayStat.getCountReturn():retourRecap.getMin());
                     retourRecap.setMax(dayStat.getCountReturn()>retourRecap.getMax()?dayStat.getCountReturn():retourRecap.getMax());
                     retourRecap.setSum(dayStat.getCountReturn()+retourRecap.getSum());
+
+                    inProgressRecap.setMin(inProgress<inProgressRecap.getMin()?inProgress:inProgressRecap.getMin());
+                    inProgressRecap.setMax(inProgress>inProgressRecap.getMax()?inProgress:inProgressRecap.getMax());
+                    inProgressRecap.setSum(inProgress+inProgressRecap.getSum());
                     }
-        exchangeRecap.setAvg(exchangeRecap.getSum()/uniqueDates.size());
-        outRecap.setAvg(outRecap.getSum()/uniqueDates.size());
-        allRecap.setAvg(allRecap.getSum()/uniqueDates.size());
-        payedRecap.setAvg(payedRecap.getSum()/uniqueDates.size());
-        retourRecap.setAvg(retourRecap.getSum()/uniqueDates.size());
+                int uniqueDatesSize = uniqueDates.size();
+                if( uniqueDatesSize == 0 )
+                    uniqueDatesSize = 1;
+        allRecap.setAvg(allRecap.getSum()/uniqueDatesSize);
+        allRecap.setPer(100L);
+        double payedSum = payedRecap.getSum();
+        double percentage= 0;
+        if (payedSum != 0) {
+            percentage = exchangeRecap.getSum()*100/payedSum;
+            percentage = Math.round(percentage*10);
+            exchangeRecap.setPer(percentage/10);
+        }
+        double allSum = allRecap.getSum();
+        if (allSum != 0) {
+            percentage = outRecap.getSum() * 100 / allSum;
+            percentage = Math.round(percentage*10);
+            outRecap.setPer(percentage/10);
+        }
+        double outSum = outRecap.getSum();
+        if (allSum != 0) {
+            percentage = payedRecap.getSum() * 100 / outSum;
+            percentage = Math.round(percentage*10);
+            payedRecap.setPer(percentage/10);
+            percentage = retourRecap.getSum()*100/ outSum;
+            percentage = Math.round(percentage*10);
+            retourRecap.setPer(percentage/10);
+        }
+        exchangeRecap.setAvg(exchangeRecap.getSum()/uniqueDatesSize);
+        outRecap.setAvg(outRecap.getSum()/uniqueDatesSize);
+        payedRecap.setAvg(payedRecap.getSum()/uniqueDatesSize);
+        retourRecap.setAvg(retourRecap.getSum()/uniqueDatesSize);
+        inProgressRecap.setAvg(inProgressRecap.getSum()/uniqueDatesSize);
 
         statusRecapCount.add(exchangeRecap);
         statusRecapCount.add(retourRecap);
         statusRecapCount.add(payedRecap);
         statusRecapCount.add(outRecap);
+        statusRecapCount.add(inProgressRecap);
         statusRecapCount.add(allRecap);
 
         statusCountLists.add(countExchange);
         statusCountLists.add(countReturn);
         statusCountLists.add(countPayed);
         statusCountLists.add(countOut);
+        statusCountLists.add(countInProgress);
         statusCountLists.add(countAll);
 
         Map <String , List<?>> data =new HashMap<>();

@@ -9,6 +9,8 @@ public enum FirstStatus {
     EN_COURS("En cours"),
     LIVREE("Livré"),
 
+    LIVRER("Livrer"),
+
     EXCHANGE("Echange"),
     RETOUR_EXPEDITEUR("Retour Expéditeur"),
     RETOUR_CLIENT_AGENCE("Rtn client/agence"),

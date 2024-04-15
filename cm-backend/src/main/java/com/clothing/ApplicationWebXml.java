@@ -1,9 +1,6 @@
 package com.clothing;
 
 import com.clothing.management.ClothingMangementApplication;
-import com.clothing.management.entities.GlobalConf;
-import com.clothing.management.repository.IGlobalConfRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.core.env.Environment;
