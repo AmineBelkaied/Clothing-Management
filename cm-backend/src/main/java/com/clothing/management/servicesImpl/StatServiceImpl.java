@@ -12,9 +12,6 @@ import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.services.StatService;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service

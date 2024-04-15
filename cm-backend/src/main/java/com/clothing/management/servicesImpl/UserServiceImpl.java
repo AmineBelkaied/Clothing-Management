@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService {
             String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
             LOGGER.info("encodedPassword " + encodedPassword);
             user.setPassword(encodedPassword);
+            user.setEnabled(true);
         }
         return userRepository.save(user);
     }

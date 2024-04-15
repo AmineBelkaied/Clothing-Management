@@ -18,16 +18,19 @@ public class PacketStatus {
     @ManyToOne
     @JoinColumn(name = "packet_id")
     private Packet packet;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
     public PacketStatus() {
     }
 
-    public PacketStatus(Long id, Packet packet, Date date, String status) {
+    public PacketStatus(Long id, Date date, String status, Packet packet, User user) {
         this.id = id;
-        this.packet = packet;
         this.date = date;
         this.status = status;
+        this.packet = packet;
+        this.user = user;
     }
-
 
     public Long getId() {
         return id;
@@ -61,6 +64,13 @@ public class PacketStatus {
         this.status = status;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     @Override
     public String toString() {

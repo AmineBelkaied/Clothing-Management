@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
@@ -47,9 +49,8 @@ public class PacketServiceImpl implements PacketService {
     private final IPacketStatusRepository packetStatusRepository;
     private final FirstApiService firstApiService;
     private final PacketRepositoryImpl packetRepositoryImpl;
-
     private final PacketRepositoryOldImpl packetRepositoryOld;
-
+    private final UserRepository userRepository;
     @Autowired
     public PacketServiceImpl(
             IPacketRepository packetRepository,
@@ -62,7 +63,8 @@ public class PacketServiceImpl implements PacketService {
             IPacketStatusRepository packetStatusRepository,
             FirstApiService firstApiService,
             PacketRepositoryImpl packetRepositoryImpl,
-            PacketRepositoryOldImpl packetRepositoryOld
+            PacketRepositoryOldImpl packetRepositoryOld,
+            UserRepository userRepository
     ) {
         this.packetRepository = packetRepository;
         this.productRepository = productRepository;
@@ -75,6 +77,7 @@ public class PacketServiceImpl implements PacketService {
         this.firstApiService = firstApiService;
         this.packetRepositoryImpl = packetRepositoryImpl;
         this.packetRepositoryOld = packetRepositoryOld;
+        this.userRepository = userRepository;
     }
     @Override
     public List<Packet> findAllPackets() {
@@ -128,7 +131,7 @@ public class PacketServiceImpl implements PacketService {
         return packetRepository.findById(idPacket);
     }
 
-    @Transactional
+    @Transactional("tenantTransactionManager")
     @Override
     public int deleteEmptyPacket() {
         return packetRepository.deleteEmptyPacket();
@@ -357,13 +360,10 @@ public class PacketServiceImpl implements PacketService {
         return packetRepository.createNotification();
     }
     @Override
-    public List<PacketStatus> findPacketTimeLineById(Long idPacket) {
-        Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
-        if (optionalPacket.isPresent()) {
-            Packet packet = optionalPacket.get();
-            return packet.getPacketStatus();
-        }
-        return null;
+    public List<PacketStatus> findPacketTimeLineById(Long idPacket) throws Exception {
+        Packet packet = packetRepository.findById(idPacket)
+                .orElseThrow(() -> new Exception("Packet not found!"));
+        return packet.getPacketStatus();
     }
     @Override
     public DeliveryResponseFirst createBarCode(Packet packet, String deliveryCompany) throws IOException {
@@ -570,6 +570,14 @@ public class PacketServiceImpl implements PacketService {
         packetStatus.setPacket(packet);
         packetStatus.setStatus(status);
         packetStatus.setDate(new Date());
+        System.out.println("SecurityContextHolder.getContext().getAuthentication().getPrincipal();");
+        if(SecurityContextHolder.getContext().getAuthentication() != null) {
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if(userDetails != null) {
+                User user = userRepository.findByUserName(userDetails.getUsername());
+                packetStatus.setUser(user);
+            }
+        }
         packetStatusRepository.save(packetStatus);
     }
     private void updateProducts_Status(Packet packet,String status){

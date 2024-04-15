@@ -140,7 +140,7 @@ public class PacketController {
     //}
 
     @GetMapping(path = "/getPacketTimeLine/{idPacket}")
-    public List<PacketStatus> findAllPacketStatus(@PathVariable Long idPacket) {
+    public List<PacketStatus> findAllPacketStatus(@PathVariable Long idPacket) throws Exception {
         return packetService.findPacketTimeLineById(idPacket);
     }
 

@@ -30,7 +30,7 @@ public interface PacketService {
     public List<Packet> checkPacketProductsValidity(Long packetId);
     public void deletePacketById(Long idPacket);
     public void deleteSelectedPackets(List<Long> packetsId);
-    public List<PacketStatus> findPacketTimeLineById(Long idPacket);
+    public List<PacketStatus> findPacketTimeLineById(Long idPacket) throws Exception;
     DeliveryResponseFirst createBarCode(Packet packet, String deliveryCompany) throws IOException, InterruptedException;
     Packet getLastStatus(Packet packet, String deliveryCompany) throws Exception;
     int checkPhone(String phoneNumber);

@@ -1,5 +1,11 @@
 package com.clothing.management.scheduler;
 
+import com.clothing.management.auth.mastertenant.config.DBContextHolder;
+import com.clothing.management.auth.mastertenant.entity.MasterTenant;
+import com.clothing.management.auth.mastertenant.entity.MasterUser;
+import com.clothing.management.auth.mastertenant.repository.MasterTenantRepository;
+import com.clothing.management.auth.mastertenant.service.MasterTenantService;
+import com.clothing.management.auth.mastertenant.service.MasterUserService;
 import com.clothing.management.entities.ModelStockHistory;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.enums.DeliveryCompany;
@@ -23,36 +29,45 @@ public class UpdateStatusScheduler {
     PacketService packetService;
     @Autowired
     ProductService productService;
-
-    @Scheduled(cron = "0 10 8 ? * *")
+    @Autowired
+    MasterTenantService masterTenantService;
+    @Scheduled(cron = "*/5 * * * * *")
     public int cronJobSch() throws Exception{
 
-        System.out.println("CRON STARTED");
-        int x = packetService.deleteEmptyPacket();
-        System.out.println(x+"rows deleted");
-        List<Packet> packets = Collections.synchronizedList(packetService.findAllDiggiePackets());
-        synchronized (packets) {
-            Iterator<Packet> iterator = packets.iterator();
-            while (iterator.hasNext()) {
-                Packet packet = iterator.next();
-                try {
-                     this.packetService.getLastStatus(packet, DeliveryCompany.FIRST.toString());
-                } catch (IOException e) {
+        List<MasterTenant> masterTenants = masterTenantService.findAllMasterTenants();
+        masterTenants.stream().filter(masterTenant -> !masterTenant.getDbName().equalsIgnoreCase("master_db"))
+                .forEach(masterTenant -> {
+            DBContextHolder.setCurrentDb(masterTenant.getDbName());
+            System.out.println("CRON STARTED FOR TENANT - " + masterTenant.getTenantName());
+            int x = packetService.deleteEmptyPacket();
+            System.out.println(x + "rows deleted");
+            List<Packet> packets = Collections.synchronizedList(packetService.findAllDiggiePackets());
+            synchronized (packets) {
+                Iterator<Packet> iterator = packets.iterator();
+                while (iterator.hasNext()) {
+                    Packet packet = iterator.next();
+                    try {
+                        this.packetService.getLastStatus(packet, DeliveryCompany.FIRST.toString());
+                    } catch (IOException e) {
 
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    Thread.sleep(2000); // You can adjust the sleep time as needed
-                } catch (InterruptedException e2) {
-                    e2.printStackTrace();
-                }
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+                        Thread.sleep(2000); // You can adjust the sleep time as needed
+                    } catch (InterruptedException e2) {
+                        e2.printStackTrace();
+                    }
 
+                }
             }
-        }
-        System.out.println("CRON ENDED");
-        return packets.size();
+            System.out.println("CRON ENDED");
+            //return packets.size();
+        });
+        return 200;
     }
 
     @Scheduled(cron = "0 0 3 ? * *")

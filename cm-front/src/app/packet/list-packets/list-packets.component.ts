@@ -543,10 +543,10 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     try {
       this.packetService.getPacketTimeLine(packet.id).subscribe((response: any) => {
           this.statusEvents = [];
-          this.suiviHeader = 'Suivi Status de packet num :' + packet.id;
+          this.suiviHeader = "Suivi Historique - Commande N° " + packet.id;
           if (response != null && response.length > 0) {
             response.forEach((element: any) => {
-              this.statusEvents.push({status: element.status, date: element.date, icon: PrimeIcons.ENVELOPE, color: '#9C27B0'});
+              this.statusEvents.push({status: element.status, date: element.date, user: element.user?.fullName, icon: PrimeIcons.ENVELOPE, color: '#9C27B0'});
             });
           }
           this.cdRef.detectChanges();
@@ -838,7 +838,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         }
       },
       {
-        label: 'History',
+        label: 'Historique',
         icon: 'pi pi-history',
         disabled:false,
         command: () => {
