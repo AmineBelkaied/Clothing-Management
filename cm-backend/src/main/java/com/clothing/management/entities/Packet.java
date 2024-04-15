@@ -3,7 +3,6 @@ package com.clothing.management.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
-
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import java.util.List;
         @Index(name = "idx_barcode", columnList = "barcode"),
 })
 public class Packet {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,10 +65,41 @@ public class Packet {
 
     private Integer stock;
 
+    private Integer attempt;
+    private String note;
+
     public Packet() {
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, String dgStatus, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompanyId) {
+    public Packet(DeliveryCompany deliveryCompany) {
+        this.customerName= "";
+        this.customerPhoneNb= "";
+        this.oldClient= 0;
+        this.address= "";
+        this.relatedProducts= "";
+        this.packetReference= "";
+        this.packetDescription= "";
+        this.barcode= "";
+        this.lastDeliveryStatus = "";
+        this.packetStatus = null;
+        this.fbPage = null;
+        this.price= 0;
+        this.deliveryPrice = 0;
+        this.discount = 0;
+        this.status= "Non confirmée";
+        this.date=new Date();
+        this.status = null;
+        this.lastUpdateDate = null;
+        this.exchange=false;
+        this.valid= false;
+        this.stock= -1;
+        this.printLink = null;
+        this.deliveryCompany=deliveryCompany;
+        this.attempt = 1;
+        this.note = "";
+    }
+
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -94,6 +125,7 @@ public class Packet {
         this.stock = stock;
         this.printLink = printLink;
         this.deliveryCompany = deliveryCompany;
+        this.attempt = attempt;
     }
 
     public Long getId() {
@@ -276,8 +308,24 @@ public class Packet {
         return deliveryCompany;
     }
 
+    public Integer getAttempt() {
+        return attempt;
+    }
+
+    public void setAttempt(Integer attempt) {
+        this.attempt = attempt;
+    }
+
     public void setDeliveryCompany(DeliveryCompany deliveryCompany) {
         this.deliveryCompany = deliveryCompany;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     @Override
@@ -303,7 +351,9 @@ public class Packet {
                 ", exchange=" + exchange +
                 ", stock=" + stock +
                 ", printLink='" + printLink + '\'' +
-                ", deliveryCompanyId='" + deliveryCompany + '\'' +
+                ", deliveryCompany='" + deliveryCompany + '\'' +
+                ", attempt='" + attempt + '\'' +
+                ", note='" + note + '\'' +
                 '}';
     }
 }

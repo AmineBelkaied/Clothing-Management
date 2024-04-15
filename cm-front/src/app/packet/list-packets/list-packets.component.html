@@ -125,9 +125,6 @@
   </div>
 </div>
 
-
-
-
 <div class="table-container" style="height: max-content;">
 <p-table
   #dt
@@ -227,31 +224,38 @@
         </p-cellEditor>
       </td>
       <td
-        pEditableColumn
-        [pEditableColumn]="packet"
-        [pEditableColumnField]="'customerName'"
-        style="cursor: pointer;padding: 0.1rem 0.1rem !important;"
-        class="breakWord"
-      >
-        <p-cellEditor>
-          <ng-template pTemplate="input">
-            <input
-              pInputText
-              type="text"
-              [(ngModel)]="packet.customerName"
-              class="p-inputtext-sm"
-            />
-          </ng-template>
-          <ng-template pTemplate="output">
-            {{ packet.customerName }}
-          </ng-template>
-        </p-cellEditor>
-      </td>
+    pEditableColumn
+    [pEditableColumn]="packet"
+    [pEditableColumnField]="'customerName'"
+    style="cursor: pointer;padding: 0.1rem 0.1rem !important;"
+    class="breakWord"
+  >
+  <div style="min-width: 15rem;min-height: 2rem;">
+    <p-cellEditor>
+      <ng-template pTemplate="input">
+        <input
+          pInputText
+          type="text"
+          [(ngModel)]="packet.customerName"
+          class="p-inputtext-sm"
+        />
+      </ng-template>
+      <ng-template pTemplate="output">
+        {{ packet.customerName }}
+      </ng-template>
+    </p-cellEditor>
+  </div>
+  <div *ngIf="packet.note && packet.note !== '' && packet.note !== 'Client injoignable'" style="background-color: #fcff2e !important;border-radius: 10px;">
+    {{ packet.note }}
+  </div>
+</td>
+
       <td
         pEditableColumn
+        style="cursor: pointer;width: 3%;padding: 0.1rem 0.1rem !important;"
         [pEditableColumn]="packet"
         [pEditableColumnField]="'customerPhoneNb'"
-        style="cursor: pointer;width: 3%;padding: 0.1rem 0.1rem !important;"
+
       >
         <p-cellEditor>
           <ng-template pTemplate="input">
@@ -263,7 +267,7 @@
               maxlength="17"
               class="p-inputtext-sm"
               placeholder="(+216)"
-            />
+              (input)="selectPhoneNumber(packet)"/>
           </ng-template>
           <ng-template pTemplate="output">
             <ng-container>
@@ -272,11 +276,8 @@
               </i>
               <h6 *ngIf="packet.oldClient === 0 || packet.oldClient == null">{{ packet.customerPhoneNb }}</h6>
             </ng-container>
-
-
           </ng-template>
         </p-cellEditor>
-
       </td>
       <td
         pEditableColumn
@@ -373,13 +374,12 @@
         [pEditableColumnField]="'status'"
         [ngStyle]="{
           'border-right-width': '4px',
-          'border-right-color': packet.deliveryCompany.name === 'First' ? 'green' : (packet.deliveryCompany.name === 'Navex' ? 'gold' : '')
+          'border-right-color': packet.deliveryCompany.name === 'FIRST' ? 'green' : (packet.deliveryCompany.name === 'NAVEX' ? 'gold' : '')
       }"
       >
         <p-cellEditor>
           <ng-template pTemplate="input">
             <p-dropdown
-
               [options]="packetStatusList"
               [(ngModel)]="packet.status"
               class="p-inputtext-sm"
@@ -389,19 +389,23 @@
               appendTo="body"
             >
               <ng-template let-packet pTemplate="group">
+                cccc
                 <div class="p-d-flex p-ai-left">
                   <span>{{ packet.status }}</span>
                 </div>
               </ng-template>
             </p-dropdown>
           </ng-template>
-          <ng-template pTemplate="output">
-
-            <div  [ngClass]="{'noModelSelectedStatus': packet.stock <0 && packet.barcode == '','outofstockStatus': packet.stock == 0 && packet.barcode == '', 'lowstockStatus': (packet.stock  > 0 && packet.stock  < 10) && packet.barcode == '','instockStatus': packet.stock  > 10 && packet.barcode == ''}">
-              {{ packet.status }}
-            </div>
-
-          </ng-template>
+            <ng-template pTemplate="output">
+                <i severity="warning" pBadge [value]="packet.attempt" *ngIf="packet.status === 'Injoignable'">
+                  <div  [ngClass]="{'noModelSelectedStatus': packet.stock <0 && packet.barcode == '','outofstockStatus': packet.stock == 0 && packet.barcode == '', 'lowstockStatus': (packet.stock  > 0 && packet.stock  < 10) && packet.barcode == '','instockStatus': packet.stock  > 10 && packet.barcode == ''}">
+                    {{ packet.status }}
+                  </div>
+                </i>
+                  <div *ngIf="packet.status != 'Injoignable'" [ngClass]="{'noModelSelectedStatus': packet.stock <0 && packet.barcode == '','outofstockStatus': packet.stock == 0 && packet.barcode == '', 'lowstockStatus': (packet.stock  > 0 && packet.stock  < 10) && packet.barcode == '','instockStatus': packet.stock  > 10 && packet.barcode == ''}">
+                    {{ packet.status }}
+                  </div>
+            </ng-template>
         </p-cellEditor>
         <div>
           {{ packet.lastUpdateDate | date : 'yyyy-MM-dd' }}
@@ -418,6 +422,16 @@
         <p-cellEditor>
           <ng-template pTemplate="input">
             <input
+            *ngIf="!packet.valid"
+            pInputText
+            type="text"
+            [(ngModel)]="packet.barcode"
+            maxlength="17"
+            class="p-inputtext-sm"
+            placeholder="Code à barre"
+          />
+
+            <input
               pInputText
               type="text"
               [(ngModel)]="packet.barcode"
@@ -427,7 +441,9 @@
             />
           </ng-template>
           <ng-template pTemplate="output">
+
             {{ packet.barcode }}
+            <i *ngIf="packet.valid" class="pi pi-check-circle" style="color: green"></i>
           </ng-template>
         </p-cellEditor>
         <div class="p-2">{{ packet.lastDeliveryStatus }}</div>
@@ -500,3 +516,13 @@ currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} command
   </p-timeline>
 </p-dialog>
 <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+
+<p-dialog header="Ajouter une remarque" [(visible)]="visibleNote" [style]="{ width: '50vw' }">
+  <div class="flex py-2 justify-content-center">
+    <textarea rows="5" cols="30" [(ngModel)]="note" style="min-height: 10rem;" placeholder="Client injoignable" pInputTextarea [autoResize]="true"></textarea>
+  </div>
+  <div class="flex justify-content-center py-2">
+    <button type="button" pButton (click)="confirmNote()" label="Confirm"></button>
+  </div>
+</p-dialog>
+

@@ -16,6 +16,20 @@
                 [(ngModel)]="deliveryCompany.token" />
             </div>
           </div>
+          <div class="row">
+            <div class="col-md-10">
+              <label for="apiName" class="form-label">Api Name</label>
+              <input type="text" class="form-control" id="apiName" placeholder="Nom api donnée par la société" name="apiName"
+                [(ngModel)]="deliveryCompany.apiName" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-10">
+              <label for="barreCodeUrl" class="form-label">Lien colis par barreCode</label>
+              <input type="text" class="form-control" id="barreCodeUrl" placeholder="Lien d'accées recherche par code a barre" name="barreCodeUrl"
+                [(ngModel)]="deliveryCompany.barreCodeUrl" />
+            </div>
+          </div>
           <br>
           <div class="col-md-12 mt-2 pull-left">
             <ng-container *ngIf="steLivraisonService.editMode;else addMode">

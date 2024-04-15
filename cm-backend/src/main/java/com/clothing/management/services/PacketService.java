@@ -23,7 +23,7 @@ public interface PacketService {
     public List<Packet> findAllDiggiePackets();
     public Optional<Packet> findPacketById(Long idPacket);
     public PacketDTO findPacketRelatedProducts(Long idPacket);
-    public Packet addPacket(Packet packet);
+    public Packet addPacket();
     public Packet updatePacket(Packet packet);
     public Packet patchPacket(Long idPacket , Map<String , Object> packet) throws IOException;
     public Packet addProductsToPacket(SelectedProductsDTO selectedProductsDTO,Integer stock);
@@ -31,12 +31,13 @@ public interface PacketService {
     public void deletePacketById(Long idPacket);
     public void deleteSelectedPackets(List<Long> packetsId);
     public List<PacketStatus> findPacketTimeLineById(Long idPacket) throws Exception;
-    DeliveryResponse createBarCode(Packet packet, String deliveryCompany) throws IOException, InterruptedException;
+    DeliveryResponse createBarCode(Packet packet) throws IOException, InterruptedException;
     Packet getLastStatus(Packet packet) throws Exception;
+    Packet addAttempt(Packet packet,String note) throws ParseException;
     int checkPhone(String phoneNumber);
     List<DashboardCard> createDashboard();
     List<DashboardCard> syncNotification();
-    Packet duplicatePacket(Long idPacket);
+    Packet duplicatePacket(Long idPacketidPacket);
     List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO);
     Long getExchangeId(Packet packet);
     int deleteEmptyPacket();

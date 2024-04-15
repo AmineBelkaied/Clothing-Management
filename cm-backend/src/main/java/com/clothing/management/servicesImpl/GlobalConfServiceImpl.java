@@ -13,7 +13,7 @@ import java.util.Optional;
 @Service
 public class GlobalConfServiceImpl implements GlobalConfService {
     @Autowired
-    private IGlobalConfRepository globalConfRepository;
+    public IGlobalConfRepository globalConfRepository;
 
     @Override
     public GlobalConf getGlobalConf() {

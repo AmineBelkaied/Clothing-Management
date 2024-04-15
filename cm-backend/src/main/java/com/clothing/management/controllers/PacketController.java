@@ -102,9 +102,9 @@ public class PacketController {
         return packetService.findPacketRelatedProducts(idPacket);
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public Packet addPacket(@RequestBody  Packet packet) {
-        return packetService.addPacket(packet);
+    @GetMapping(value = "/add")
+    public Packet addPacket() {
+        return packetService.addPacket();
     }
 
     @PutMapping(value = "/update" , produces = "application/json")
@@ -121,8 +121,6 @@ public class PacketController {
     public Packet updatePacketValid(@PathVariable String barCode,@RequestBody String type) throws Exception {
         return packetService.updatePacketValid(barCode,type);
     }
-
-
 
     @DeleteMapping(value = "/deleteById/{idPacket}" , produces = "application/json")
     public void deletePacketById(@PathVariable Long idPacket) {
@@ -144,19 +142,26 @@ public class PacketController {
         return packetService.findPacketTimeLineById(idPacket);
     }
 
-    @PostMapping(value = "/createBarCode", produces = "application/json")
-    public ResponseEntity<DeliveryResponse>  createBarCode(@RequestBody Packet packet, @RequestParam("deliveryCompany") String deliveryCompany) throws IOException, InterruptedException {
-        DeliveryResponse deliveryResponse = packetService.createBarCode(packet, deliveryCompany);
+    /*@PostMapping(value = "/createBarCode", produces = "application/json")
+    public ResponseEntity<DeliveryResponse>  createBarCode(@RequestBody Packet packet) throws IOException, InterruptedException {
+        DeliveryResponse deliveryResponse = packetService.createBarCode(packet);
             if(deliveryResponse.getResponseCode() != 200)
                 return new ResponseEntity<>(deliveryResponse, HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(deliveryResponse, HttpStatus.OK);
-    }
+    }*/
 
-    @PostMapping(value = "/getLastStatus", produces = "application/json")
+    @GetMapping(value = "/getLastStatus")
     @CrossOrigin("*")
-    public ResponseEntity<Packet> getLastStatus(@RequestBody Packet packet, @RequestParam("deliveryCompany") String deliveryCompany) throws Exception {
+    public ResponseEntity<Packet> getLastStatus(@RequestBody Packet packet) throws Exception {
         return new ResponseEntity<>(
                 packetService.getLastStatus(packet),
+                HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/addAttempt/{note}", produces = "application/json")
+    public ResponseEntity<Packet> addAttempt(@PathVariable String note,@RequestBody Packet packet) throws ParseException {
+        return new ResponseEntity<>(
+                packetService.addAttempt(packet,note),
                 HttpStatus.OK);
     }
 

@@ -12,11 +12,12 @@ export class GlobalConfService {
 
   private baseUrl: string = baseUrl + "/globalConf";
   public editMode = false;
-  public globalConf$ = this.getGlobalConf().pipe(shareReplay(1))
+  public globalConf$ = this.getGlobalConf();
 
   constructor(private http: HttpClient) {}
 
-  getGlobalConf(): Observable<any> {
+
+  getGlobalConf():Observable<any> {
     return this.http.get<any>(this.baseUrl + "/get");
   }
 

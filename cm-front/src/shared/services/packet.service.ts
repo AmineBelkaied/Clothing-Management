@@ -88,9 +88,9 @@ export class PacketService {
     return this.http.get(this.baseUrl + '/findPacketRelatedProducts/' + id);
   }
 
-  addPacket(packet: Packet): Observable<any> {
+  addPacket(): Observable<any> {
     //console.log('packet front before submit', packet);
-    return this.http.post(this.baseUrl + '/add', packet);
+    return this.http.get(this.baseUrl + '/add');
   }
 
   updatePacket(packet: Packet): Observable<any> {
@@ -146,9 +146,17 @@ export class PacketService {
     return this.http.get(this.baseUrl + '/getPacketTimeLine/' + idPacket);
   }
 
-  getLastStatus(packet: Packet, deliveryCompany?: string) {
+  getLastStatus(packet: Packet) {
     return this.http.post(
-      this.baseUrl + '/getLastStatus?deliveryCompany=' + deliveryCompany,packet
+      this.baseUrl + '/getLastStatus',packet
+    );
+  }
+
+
+  addAttempt(packet: Packet,note: string) {
+    //packet.note = note;
+    return this.http.post(
+      this.baseUrl + '/addAttempt/'+note,packet
     );
   }
 

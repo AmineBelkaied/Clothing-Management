@@ -26,6 +26,8 @@ export class AddSteLivraisonComponent implements OnInit {
     if(this.steLivraisonService.editMode){
       this.deliveryCompany.name = form.value.name;
       this.deliveryCompany.token = form.value.token;
+      this.deliveryCompany.barreCodeUrl = form.value.barreCodeUrl;
+      this.deliveryCompany.apiName = form.value.apiName;
       this.steLivraisonService.updateSte(this.deliveryCompany)
       .subscribe((updatedFbPage: any) => {
         console.log(updatedFbPage)

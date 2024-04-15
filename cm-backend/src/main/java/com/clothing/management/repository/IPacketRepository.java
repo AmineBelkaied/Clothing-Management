@@ -23,13 +23,16 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value=" SELECT * FROM packet p WHERE DATEDIFF(NOW() , p.date) < 2", nativeQuery = true)
     List<Packet> findAllByDate(@Param("date") Date d);
 
-    @Query(value="SELECT * FROM packet p WHERE DATE(p.date) = DATE(NOW()) ORDER BY p.id DESC",
+    /*@Query(value="SELECT * FROM packet p WHERE DATE(p.date) = DATE(NOW()) ORDER BY p.id DESC",
             countQuery = "SELECT count(*) FROM packet p WHERE DATE(p.date) = DATE(NOW()) ORDER BY p.id DESC",
             nativeQuery = true)
-    Page<Packet> findAllTodayPackets(Pageable pageable);
+    Page<Packet> findAllTodayPackets(Pageable pageable);*/
 
-    @Query(value="SELECT * FROM packet p WHERE p.status != 'Payée' and p.status != 'Annuler' and p.status != 'Pas serieux' and p.status != 'Livrée' AND p.status != 'Retour reçu' and p.status != 'Retour' and p.status != 'Supprimé' AND p.status != 'En rupture' AND p.status != 'Problème' AND p.barcode != '' AND p.barcode NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
+    @Query(value="SELECT * FROM packet p WHERE p.status != 'Payée' and p.status != 'Annuler' and p.status != 'Pas serieux' and p.status != 'Livrée' AND p.status != 'Retour reçu' and p.status != 'Retour' and p.status != 'Supprimé' AND p.status != 'En rupture' AND p.status != 'Problème' AND p.barcode != '' AND p.barcode AND p.valid NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
     public List<Packet> findAllDiggiePackets();
+
+    @Query(value="UPDATE packet p SET p.attempt = p.attempt + 1 WHERE  id= :packetId", nativeQuery = true)
+    Optional<Packet> addAttempt(@Param("packetId") Long packetId);
 
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
     Optional<Packet> findByBarCode(@Param("barCode") String barCode);

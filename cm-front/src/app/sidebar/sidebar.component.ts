@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
+import { AsyncAction } from 'rxjs/internal/scheduler/AsyncAction';
+import { APPNAME } from 'src/assets/constants';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { PacketService } from 'src/shared/services/packet.service';
@@ -24,7 +26,8 @@ export class SidebarComponent implements OnInit {
   isSuperAdmin: boolean;
   globalConf!: GlobalConf;
   constructor(private packetService: PacketService,private messageService: MessageService,
-              private globalConfService: GlobalConfService, private router: Router,  public storageService: StorageService) { }
+              private globalConfService: GlobalConfService, private router: Router,  public storageService: StorageService) {
+   }
 
   ngOnInit(): void {
     this.storageService.isLoggedIn.subscribe(isLoggedIn => {
@@ -45,7 +48,6 @@ export class SidebarComponent implements OnInit {
 
   SyncFirst() {
     console.log("syncronising");
-
     this.packetService
         .syncAllPacketsFirst()
         .pipe(takeUntil(this.$unsubscribe))

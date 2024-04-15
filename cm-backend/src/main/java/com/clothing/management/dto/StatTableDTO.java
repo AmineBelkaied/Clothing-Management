@@ -14,12 +14,14 @@ public class StatTableDTO {
 
     private Long Sum;
 
+    private  double Per;
+
     public StatTableDTO(String name) {
         this.name = name;
         this.Min = 1000;
         this.Max = 0;
         this.Avg = 0L;
-        this.Sum = 0L;
+        this.Per = 0L;
     }
     public StatTableDTO(String name, Integer min, Integer max, Long avg, Long sum) {
         this.name = name;
@@ -69,11 +71,20 @@ public class StatTableDTO {
     }
 
     public Long getSum() {
+        if(Sum == null)return 0L;
         return Sum;
     }
 
     public void setSum(Long sum) {
         Sum = sum;
+    }
+
+    public double getPer() {
+        return Per;
+    }
+
+    public void setPer(double per) {
+        Per = per;
     }
 
     @Override
@@ -84,6 +95,7 @@ public class StatTableDTO {
                 ", Max=" + Max +
                 ", Avg=" + Avg +
                 ", Sum=" + Sum +
+                ", Per=" + Per +
                 '}';
     }
 }

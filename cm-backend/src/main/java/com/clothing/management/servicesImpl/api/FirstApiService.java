@@ -3,8 +3,10 @@ package com.clothing.management.servicesImpl.api;
 import com.clothing.management.controllers.GlobalConfController;
 import com.clothing.management.dto.DeliveryResponse;
 import com.clothing.management.dto.DeliveryResponseFirst;
+import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.entities.GlobalConf;
 import com.clothing.management.entities.Packet;
+import com.clothing.management.repository.IGlobalConfRepository;
 import com.clothing.management.services.GlobalConfService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
@@ -30,9 +32,8 @@ import java.util.Properties;
 public class FirstApiService {
 
     @Autowired
-    private Environment environment;
+    public IGlobalConfRepository globalConfRepository;
 
-    GlobalConfController globalConfController;
     //private final String comment="Le colis peut être ouvert à la demande du client";
     public static final String createBarCodeEndPoint = "https://www.firstdeliverygroup.com/api/v2/create";
     public static final String getLastStatusEndPoint = "https://www.firstdeliverygroup.com/api/v2/etat";
@@ -47,48 +48,26 @@ public class FirstApiService {
     private String comment="يسمح بفتح الطرد عند طلب الحريف";//diggie
 
 
-    public FirstApiService(GlobalConfService globalConfService) {
-        GlobalConf globalConf = globalConfService.getGlobalConf();
-        System.out.println(globalConf);
-        if (globalConf != null) {
-            System.out.println("globalConf");
-            comment = globalConf.getComment();
-            bearerToken = globalConf.getDeliveryCompany().getToken();
-            exchangeProduct = globalConf.getExchangeComment();
-            System.out.println(comment);
-        }
+    public FirstApiService() {
     }
-    /*private void retrieveDataAndUpdateProperties() {
-        System.out.println("running");
-        try{
-            GlobalConf globalConf = globalConfController.getGlobalConf();
-            System.out.println(globalConf);
-            if (globalConf != null) {
-                System.out.println("globalConf");
-                comment = globalConf.getComment();
-                System.out.println(comment);
-            }
-        }catch (Exception e) {
-            System.out.println("globalConf error");
-        }
-    }*/
+
     public DeliveryResponseFirst createBarCode(Packet packet) throws IOException {
         String jsonBody = createJsonPacketForFirst(packet).toString();
-        return executeHttpRequest(createBarCodeEndPoint, jsonBody);
+        return executeHttpRequest(createBarCodeEndPoint, jsonBody,packet.getDeliveryCompany());
     }
 
-    public DeliveryResponseFirst getLastStatus(String barCode) throws IOException {
+    public DeliveryResponseFirst getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException {
         JSONObject jsonBody = createJsonBarCode(barCode);
         //System.out.println("jsonBody:"+jsonBody);
-        return executeHttpRequest(getLastStatusEndPoint, jsonBody.toString());
+        return executeHttpRequest(getLastStatusEndPoint, jsonBody.toString(),deliveryCompany);
     }
 
-    private DeliveryResponseFirst executeHttpRequest(String url, String jsonBody) throws IOException {
+    private DeliveryResponseFirst executeHttpRequest(String url, String jsonBody,DeliveryCompany deliveryCompany) throws IOException {
         //System.out.println("jsonBody: " + jsonBody);
         URL urlConnection = new URL(url);
         HttpsURLConnection connection = (HttpsURLConnection) urlConnection.openConnection();
         connection.setRequestMethod("POST");
-        connection.setRequestProperty("Authorization", "Bearer " + bearerToken);
+        connection.setRequestProperty("Authorization", "Bearer " + deliveryCompany.getToken());
         connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
         connection.setRequestProperty("User-Agent", "curl/7.29.0");
         connection.setDoOutput(true);
@@ -152,6 +131,12 @@ public class FirstApiService {
     }
 
     private JSONObject createJsonPacketForFirst(Packet packet) {
+        GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
+        //System.out.println("global:"+globalConf);
+        if (globalConf != null) {
+            comment = globalConf.getComment();
+            exchangeProduct = globalConf.getExchangeComment();
+        }
         JSONObject json = new JSONObject();
         JSONObject client = new JSONObject();
         client.put("nom", this.getValue(packet.getCustomerName()));

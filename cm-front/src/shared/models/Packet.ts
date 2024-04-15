@@ -27,6 +27,8 @@ export interface Packet {
     valid?: boolean;
     stock?: number;
     deliveryCompany?: DeliveryCompany;
+    attempt?: number;
+    note?: string
     [key: string]: any;
 
 }

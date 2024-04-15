@@ -139,15 +139,15 @@ public class DeliveryResponse {
     @Override
     public String toString() {
         return "DeliveryResponse{" +
-                "responseCode=" + responseCode +
+                "responseCode=" + responseCode + '\'' +
                 ", responseMessage='" + responseMessage + '\'' +
                 ", status=" + status +
                 ", link='" + link + '\'' +
                 ", state='" + state + '\'' +
                 ", barCode='" + barCode + '\'' +
-                ", isError=" + isError +
+                ", isError=" + isError + '\'' +
                 ", message='" + message + '\'' +
-                ", result=" + result +
+                ", result=" + result + '\'' +
                 '}';
     }
 }
