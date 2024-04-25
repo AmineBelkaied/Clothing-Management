@@ -73,12 +73,4 @@ public class FbPage {
         this.enabled = enabled;
     }
 
-    @Override
-    public String toString() {
-        return "FbPage{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", link='" + link + '\''+
-                '}';
-    }
 }

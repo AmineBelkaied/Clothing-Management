@@ -6,4 +6,5 @@ export interface GlobalConf {
   deliveryCompany?: DeliveryCompany;
   comment?: string;
   exchangeComment?: string;
+  cronExpression?: string;
 }

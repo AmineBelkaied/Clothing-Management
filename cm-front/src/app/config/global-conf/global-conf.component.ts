@@ -29,7 +29,7 @@ export class GlobalConfComponent implements OnInit, OnDestroy {
     this.globalConfService.globalConf$
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe((globalConf: GlobalConf) => {
-
+      if(globalConf)
       this.globalConf = globalConf
       console.log(this.globalConf);})
 

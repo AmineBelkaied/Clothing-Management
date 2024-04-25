@@ -1,9 +1,8 @@
 package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.springframework.http.ResponseEntity;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 @Entity
 @Table(name = "global_conf")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
@@ -15,18 +14,22 @@ public class GlobalConf{
     @Column(name = "application_name")
     private String applicationName;
     @OneToOne
+    @JoinColumn(name = "delivery_company_id")
     private DeliveryCompany deliveryCompany;
     private String comment;
     @Column(name = "exchange_comment")
     private String exchangeComment;
+    @Column(name = "cron_expression")
+    private String cronExpression;
 
     public GlobalConf() {}
 
-    public GlobalConf(String applicationName, DeliveryCompany deliveryCompany, String comment, String exchangeComment) {
+    public GlobalConf(String applicationName, DeliveryCompany deliveryCompany, String comment, String exchangeComment, String cronExpression) {
         this.applicationName = applicationName;
         this.deliveryCompany = deliveryCompany;
         this.comment = comment;
         this.exchangeComment = exchangeComment;
+        this.cronExpression = cronExpression;
     }
 
     public Long getId() {
@@ -69,6 +72,14 @@ public class GlobalConf{
         this.exchangeComment = exchangeComment;
     }
 
+    public String getCronExpression() {
+        return cronExpression;
+    }
+
+    public void setCronExpression(String cronExpression) {
+        this.cronExpression = cronExpression;
+    }
+
     @Override
     public String toString() {
         return "GlobalConf{" +
@@ -77,6 +88,7 @@ public class GlobalConf{
                 ", deliveryCompany=" + deliveryCompany +
                 ", comment='" + comment + '\'' +
                 ", exchangeComment='" + exchangeComment + '\'' +
+                ", cronExpression='" + cronExpression + '\'' +
                 '}';
     }
 }

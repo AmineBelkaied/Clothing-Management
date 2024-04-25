@@ -2,9 +2,8 @@ package com.clothing.management.auth.controller;
 
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
-import com.clothing.management.tenant.TenantDatabaseCreator;
+import com.clothing.management.tenant.TenantDatabaseManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -18,7 +17,7 @@ import java.util.List;
 public class TenantController {
 
     @Autowired
-    TenantDatabaseCreator tenantDatabaseCreator;
+    TenantDatabaseManager tenantDatabaseCreator;
 
     @Autowired
     MasterTenantService masterTenantService;

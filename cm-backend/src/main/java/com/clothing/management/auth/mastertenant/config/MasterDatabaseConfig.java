@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -30,6 +31,16 @@ import java.util.Properties;
 public class MasterDatabaseConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(MasterDatabaseConfig.class);
+    @Value("${master.db.user}")
+    private String masterDbUserName;
+    @Value("${master.db.password}")
+    private String masterDbPassword;
+    @Value("${master.db.url}")
+    private String masterDbUrl;
+    @Value("${spring.datasource.driver-class-name}")
+    private String driverClassName;
+    @Value("${spring.jpa.properties.hibernate.dialect}")
+    private String hibernateDialect;
 
     @Autowired
     private MasterDatabaseConfigProperties masterDbProperties;
@@ -38,10 +49,10 @@ public class MasterDatabaseConfig {
     @Bean(name = "masterDataSource")
     public DataSource masterDataSource() {
         HikariDataSource hikariDataSource = new HikariDataSource();
-        hikariDataSource.setUsername("root");
-        hikariDataSource.setPassword("");
-        hikariDataSource.setJdbcUrl("jdbc:mysql://localhost:3306/master_db?useSSL=false");
-        hikariDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        hikariDataSource.setUsername(masterDbUserName);
+        hikariDataSource.setPassword(masterDbPassword);
+        hikariDataSource.setJdbcUrl(masterDbUrl);
+        hikariDataSource.setDriverClassName(driverClassName);
         LOG.info("Setup of masterDataSource succeeded.");
         return hikariDataSource;
     }
@@ -81,7 +92,7 @@ public class MasterDatabaseConfig {
     //Hibernate configuration properties
     private Properties hibernateProperties() {
         Properties properties = new Properties();
-        properties.put(org.hibernate.cfg.Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+        properties.put(org.hibernate.cfg.Environment.DIALECT, hibernateDialect);
         properties.put(org.hibernate.cfg.Environment.SHOW_SQL, false);
         properties.put(org.hibernate.cfg.Environment.FORMAT_SQL, false);
         properties.put(org.hibernate.cfg.Environment.HBM2DDL_AUTO, "none");

@@ -56,12 +56,8 @@ public class PacketServiceImpl implements PacketService {
     private final PacketRepositoryImpl packetRepositoryImpl;
     private final PacketRepositoryOldImpl packetRepositoryOld;
     private final UserRepository userRepository;
-    private com.clothing.management.entities.DeliveryCompany defaultDeliveryCompany;
-    @Autowired
-    public IGlobalConfRepository globalConfRepository;
     private DeliveryCompany defaultDeliveryCompany;
-
-
+    private final IGlobalConfRepository globalConfRepository;
 
     @Autowired
     public PacketServiceImpl(

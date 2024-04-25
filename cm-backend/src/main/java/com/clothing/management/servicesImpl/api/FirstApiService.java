@@ -1,23 +1,15 @@
 package com.clothing.management.servicesImpl.api;
 
-import com.clothing.management.controllers.GlobalConfController;
-import com.clothing.management.dto.DeliveryResponse;
 import com.clothing.management.dto.DeliveryResponseFirst;
 import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.entities.GlobalConf;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.IGlobalConfRepository;
-import com.clothing.management.services.GlobalConfService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,7 +18,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.InputStream;
-import java.util.Properties;
+
 
 @Service
 public class FirstApiService {

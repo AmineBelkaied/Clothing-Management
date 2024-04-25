@@ -335,13 +335,11 @@ public class Packet {
                 ", customerName='" + customerName + '\'' +
                 ", customerPhoneNb='" + customerPhoneNb + '\'' +
                 ", oldClient='" + oldClient + '\'' +
-                ", city=" + city +
                 ", address='" + address + '\'' +
                 ", packetDescription='" + packetDescription + '\'' +
                 ", packetReference='" + packetReference + '\'' +
                 ", barcode='" + barcode + '\'' +
                 ", lastDeliveryStatus='" + lastDeliveryStatus + '\'' +
-                ", fbPage=" + fbPage +
                 ", price=" + price +
                 ", deliveryPrice=" + deliveryPrice +
                 ", discount=" + discount +

@@ -32,8 +32,8 @@ public class PacketController {
     @Autowired
     PacketService packetService;
 
-    @Autowired
-    UpdateStatusScheduler updateStatusScheduler;
+    /*@Autowired
+    UpdateStatusScheduler updateStatusScheduler;*/
 
     @GetMapping(path = "/findAll")
     public List<Packet> findAllPackets() {
@@ -193,10 +193,10 @@ public class PacketController {
     public Packet duplicatePacket(@PathVariable Long idPacket) {
         return packetService.duplicatePacket(idPacket);
     }
-    @GetMapping(path = "/syncAllPacketsStatus")
-    public int synchronizeAllPacketsStatus() throws Exception {
-        return updateStatusScheduler.cronJobSch();
-    }
+   /* @GetMapping(path = "/syncAllPacketsStatus")
+    public int synchronizeAllPacketsStatus() {
+        return updateStatusScheduler.launchCronTaskByTenant("");
+    }*/
 
     @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")
     public ResponseEntity<List<String>> updatePacketsByBarCode(@RequestBody BarCodeStatusDTO barCodeStatusDTO) {

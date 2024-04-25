@@ -50,13 +50,4 @@ public class City {
         this.postalCode = postalCode;
     }
 
-    @Override
-    public String toString() {
-        return "City{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", governorate=" + governorate +
-                ", postalCode='" + postalCode + '\'' +
-                '}';
-    }
 }

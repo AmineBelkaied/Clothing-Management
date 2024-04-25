@@ -3,6 +3,7 @@ package com.clothing.management.auth.security;
 import com.clothing.management.entities.User;
 import com.clothing.management.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,7 +14,6 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     @Autowired
     UserRepository userRepository;
-
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
         User user = userRepository.findByUserName(userName);

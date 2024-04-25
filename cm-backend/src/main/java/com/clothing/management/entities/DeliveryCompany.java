@@ -1,10 +1,12 @@
 package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
+
 import java.util.List;
 
+@Table(name = "delivery_company")
 @Entity
 public class DeliveryCompany {
 
@@ -13,8 +15,9 @@ public class DeliveryCompany {
     private Long id;
     private String name;
     private String token;
+    @Column(name = "api_name")
     private String apiName;
-
+    @Column(name = "barre_code_url")
     private String barreCodeUrl;
     @JsonIgnore
     @OneToMany(mappedBy = "deliveryCompany")

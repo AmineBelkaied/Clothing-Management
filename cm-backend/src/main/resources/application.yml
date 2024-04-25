@@ -2,7 +2,7 @@ spring:
   jpa:
     database: mysql
     show-sql: false
-    generate-ddl: false
+    generate-ddl: true
     hibernate:
       ddl-auto: update
     properties:

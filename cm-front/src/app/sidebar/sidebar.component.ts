@@ -32,7 +32,7 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.storageService.isLoggedIn.subscribe(isLoggedIn => {
       this.isLoggedIn = isLoggedIn;
-      this.storageService.getTenantName() === "diggie" ? this.appName = DIGGIE : this.appName = LYFT;
+      //this.storageService.getTenantName() === "diggie" ? this.appName = DIGGIE : this.appName = LYFT;
       this.userName = this.storageService.getUserName();
       this.isAdmin = this.storageService.hasRoleAdmin();
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
