@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, shareReplay } from 'rxjs';
+import { BehaviorSubject, Observable, shareReplay } from 'rxjs';
 import { baseUrl } from 'src/assets/constants';
 import { GlobalConf } from '../models/GlobalConf';
 
@@ -12,12 +12,18 @@ export class GlobalConfService {
 
   private baseUrl: string = baseUrl + "/globalConf";
   public editMode = false;
-  public globalConf$ = this.getGlobalConf();
+  //public globalConf$ = this.getGlobalConf();
+
+  public globalConfSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
+  public globalConf: BehaviorSubject<any> = new BehaviorSubject([]);
 
   constructor(private http: HttpClient) {}
 
+  getGlobalConfig(){
 
-  getGlobalConf():Observable<any> {
+  }
+
+  getGlobalConf(){
     return this.http.get<any>(this.baseUrl + "/get");
   }
 

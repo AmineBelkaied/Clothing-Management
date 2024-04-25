@@ -642,7 +642,7 @@ export class StatistiqueComponent implements OnInit {
           label: 'En cours/av:' + this.calculateAverage(statusCounts[4]),
           data: statusCounts[4],
           fill: false,
-          borderColor: 'blue',
+          borderColor: 'green',
           tension: 0.4,
         },
         {

@@ -145,7 +145,7 @@ public class PacketController {
         return new ResponseEntity<>(deliveryResponse, HttpStatus.OK);
     }*/
 
-    @GetMapping(value = "/getLastStatus")
+    @PostMapping(value = "/getLastStatus")
     @CrossOrigin("*")
     public ResponseEntity<Packet> getLastStatus(@RequestBody Packet packet) throws Exception {
         return new ResponseEntity<>(

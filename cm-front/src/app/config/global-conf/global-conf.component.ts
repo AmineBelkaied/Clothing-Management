@@ -26,12 +26,12 @@ export class GlobalConfComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    this.globalConfService.globalConf$
+    /*this.globalConfService.globalConf$
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe((globalConf: GlobalConf) => {
 
       this.globalConf = globalConf
-      console.log(this.globalConf);})
+      console.log(this.globalConf);})*/
 
     this.deliveryCompanyService.findAllStes()
     .subscribe((deliveryCompanies: any) => this.deliveryCompanies = deliveryCompanies)

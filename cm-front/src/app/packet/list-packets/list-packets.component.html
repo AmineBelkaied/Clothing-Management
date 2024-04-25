@@ -4,7 +4,7 @@
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb" style="position: relative;">
 
     <div class="notification-container">
-         <i class="pi mr-4 p-text-secondary"
+         <!--<i class="pi mr-4 p-text-secondary"
           pBadge
          [ngClass]="notification.class"
          style="font-size: 1.5rem; cursor: pointer;"
@@ -12,7 +12,7 @@
          [severity]="notification.severity"
          (click)="onNotificationClick(notification.status)"
          *ngFor="let notification of notificationList">
-      </i>
+      </i>-->
       <p-avatar [label]="realTotalItems==undefined?0+'':realTotalItems>pageSize?realTotalItems+'':totalItems+''" styleClass="mr-2" size="large"
       [style]="{ 'background-color': '#32CD32', color: '#ffffff' }" shape="circle"></p-avatar>
     </div>
@@ -91,7 +91,10 @@
             tooltipPosition="bottom"
           ></button>
       </div>
-      <div class="col d-flex flex-wrap align-items-center w-100" style="min-width:300px;max-width:425px;">
+      <div class="col d-flex flex-wrap align-items-center w-100" style="min-width:150px;max-width:250px;">
+        <p-button [label]="items[activeIndex].title" size="large" (click) = showStatusButton() severity="success"></p-button>
+      </div>
+      <!-- <div class="col d-flex flex-wrap align-items-center w-100" style="min-width:300px;max-width:425px;">
           <p-multiSelect
             [options]="statusList"
             [formControl]="selectedStatus"
@@ -120,10 +123,20 @@
             class="w-auto mt-2"
             placeholder="Etat"
           ></p-dropdown>
+      </div> -->
+    </div>
+    <div class="container-fluid" *ngIf="showStatus">
+      <div class="card ml-4 mt-2 mb-3 scrollable-div " style="background-color: #fbfbfb; display: flex; align-items: center;" style="position: relative; padding-left: 2rem; padding-right: 2rem;padding:2px;">
+          <p-steps [model]="items" [readonly]="false" [activeIndex]="activeIndex" (activeIndexChange)="onActiveIndexChange($event)">
+          </p-steps>
       </div>
     </div>
   </div>
+
 </div>
+
+
+
 
 <div class="table-container" style="height: max-content;">
 <p-table
@@ -143,7 +156,7 @@
   [rowTrackBy]="trackByFunction"
   [loading]="loading"
   [lazy]="true"
-  (onLazyLoad)="findAllPackets()">
+  >
   <ng-template pTemplate="header" let-columns>
     <tr>
       <th style="width: 3rem;padding: 0.1rem 0.1rem !important" class="align-center">
@@ -245,7 +258,7 @@
       </ng-template>
     </p-cellEditor>
   </div>
-  <div *ngIf="packet.note && packet.note !== '' && packet.note !== 'Client injoignable'" style="background-color: #fcff2e !important;border-radius: 10px;">
+  <div *ngIf="packet.note && packet.note !== '' && packet.status === 'Injoignable'" style="background-color: #fcff2e !important;border-radius: 10px;">
     {{ packet.note }}
   </div>
 </td>
@@ -389,7 +402,6 @@
               appendTo="body"
             >
               <ng-template let-packet pTemplate="group">
-                cccc
                 <div class="p-d-flex p-ai-left">
                   <span>{{ packet.status }}</span>
                 </div>
@@ -507,7 +519,7 @@ currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} command
   <p-timeline [value]="statusEvents">
     <ng-template pTemplate="content" let-event>
       <!-- Check if the event object is defined before accessing its properties -->
-      <small class="p-text-secondary" *ngIf="event">{{ event.date }}</small>
+      <small class="p-text-secondary" *ngIf="event">{{ event.date ? (event.date | date: 'yyyy/MM/dd HH:mm') : 'yyyy/MM/dd hh:mm' }}</small>
     </ng-template>
     <ng-template pTemplate="opposite" let-event>
       <!-- Check if the event object is defined before accessing its properties -->

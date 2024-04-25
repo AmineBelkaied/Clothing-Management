@@ -26,7 +26,7 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.activeClass = true;
 
-    this.globalConfService.globalConf$.subscribe((globalConf: GlobalConf) => this.globalConf = Object.assign({}, globalConf));
+    //this.globalConfService.globalConf$.subscribe((globalConf: GlobalConf) => this.globalConf = Object.assign({}, globalConf));
   }
 
   changeClass() {

@@ -2,6 +2,7 @@ package com.clothing.management.entities;
 
 import com.clothing.management.services.GlobalConfService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -52,7 +53,10 @@ public class Packet {
     private Date date;
     private String status;
     private Date lastUpdateDate;
-    private boolean exchange;
+    //private boolean exchange;
+
+    @Column(name = "exchange_id")
+    private Long exchangeId;
     private String printLink;
 
     private boolean valid;
@@ -84,16 +88,15 @@ public class Packet {
         this.date=new Date();
         this.status = null;
         this.lastUpdateDate = null;
-        this.exchange=false;
         this.valid= false;
         this.stock= -1;
         this.printLink = null;
         this.deliveryCompany=deliveryCompany;
-        this.attempt = 1;
+        this.attempt = 0;
         this.note = "";
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note, Long exchangeId) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -114,12 +117,12 @@ public class Packet {
         this.date = date;
         this.status = status;
         this.lastUpdateDate = lastUpdateDate;
-        this.exchange = exchange;
         this.valid = valid;
         this.stock = stock;
         this.printLink = printLink;
         this.deliveryCompany = deliveryCompany;
         this.attempt = attempt;
+        this.exchangeId = exchangeId;
     }
 
     public Long getId() {
@@ -258,14 +261,6 @@ public class Packet {
         this.packetStatus = packetStatus;
     }
 
-    public boolean isExchange() {
-        return exchange;
-    }
-
-    public void setExchange(boolean exchange) {
-        this.exchange = exchange;
-    }
-
     public String getPrintLink() {
         return printLink;
     }
@@ -322,6 +317,14 @@ public class Packet {
         this.note = note;
     }
 
+    public Long getExchangeId() {
+        return exchangeId;
+    }
+
+    public void setExchangeId(Long exchangeId) {
+        this.exchangeId = exchangeId;
+    }
+
     @Override
     public String toString() {
         return "Packet{" +
@@ -342,12 +345,13 @@ public class Packet {
                 ", date=" + date +
                 ", status='" + status + '\'' +
                 ", lastUpdateDate=" + lastUpdateDate +
-                ", exchange=" + exchange +
                 ", stock=" + stock +
                 ", printLink='" + printLink + '\'' +
                 ", deliveryCompany='" + deliveryCompany + '\'' +
                 ", attempt='" + attempt + '\'' +
                 ", note='" + note + '\'' +
+                ", exchangeId='" + exchangeId + '\'' +
                 '}';
+
     }
 }

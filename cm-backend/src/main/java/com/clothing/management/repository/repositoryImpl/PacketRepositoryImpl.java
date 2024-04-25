@@ -27,7 +27,8 @@ public class PacketRepositoryImpl {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable, boolean mandatoryDate) {CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable, boolean mandatoryDate) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Packet> criteriaQuery = criteriaBuilder.createQuery(Packet.class);
         Root<Packet> root = criteriaQuery.from(Packet.class);
 
@@ -47,20 +48,19 @@ public class PacketRepositoryImpl {
             if( (status!= null &&
                     (
                             !status.equals(SystemStatus.RETOUR.getStatus())
-                            && !status.equals(SystemStatus.A_VERIFIER.getStatus())
-                            && !status.equals(SystemStatus.INJOIGNABLE.getStatus())
-                            && !status.equals(SystemStatus.DELETED.getStatus())
-                            && !status.equals(SystemStatus.ENDED.getStatus())
-                            && !status.equals(SystemStatus.EN_COURS_1.getStatus())
-                            && !status.equals(SystemStatus.EN_COURS_2.getStatus())
-                            && !status.equals(SystemStatus.EN_COURS_3.getStatus())
-                            && !status.equals(SystemStatus.NON_CONFIRMEE.getStatus())
-
+                            && !status.contains(SystemStatus.A_VERIFIER.getStatus())
+                            && !status.contains(SystemStatus.INJOIGNABLE.getStatus())
+                            && !status.contains(SystemStatus.DELETED.getStatus())
+                            && !status.contains(SystemStatus.ENDED.getStatus())
+                            && !status.contains(SystemStatus.EN_COURS_1.getStatus())
+                            && !status.contains(SystemStatus.EN_COURS_2.getStatus())
+                            && !status.contains(SystemStatus.EN_COURS_3.getStatus())
+                            && !status.contains(SystemStatus.NON_CONFIRMEE.getStatus())
+                            && !status.contains(SystemStatus.CONFIRMEE.getStatus())
                     ))
                     || status== null || mandatoryDate )
             {
-
-                    predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(startDate)));
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(startDate)));
                 if(endDate != null)
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date").as(LocalDate.class), LocalDate.parse(endDate)));
 

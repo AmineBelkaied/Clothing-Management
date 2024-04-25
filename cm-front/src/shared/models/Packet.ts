@@ -21,7 +21,7 @@ export interface Packet {
     barcode?: any;
     lastDeliveryStatus?: any;
     lastUpdateDate?: any;
-    exchange?: boolean;
+    exchangeId?: number;
     printLink?:string;
     oldClient?: number;
     valid?: boolean;

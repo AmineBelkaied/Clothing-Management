@@ -1,9 +1,6 @@
 package com.clothing.management.enums;
 
-import java.util.Arrays;
-import java.util.Optional;
-
-public enum FirstStatus {
+public enum DeliveryCompanyStatus {
     EN_ATTENTE("En attente"),
 
     EN_COURS("En cours"),
@@ -18,6 +15,7 @@ public enum FirstStatus {
 
     RETOUR_DEPOT("Rtn dépôt"),
     A_VERIFIER("A vérifier"),
+    A_VERIFIER_NAVEX("A verifier"),
 
     RETOUR_RECU("Retour reçu"),
     RETOUR_DEFINITIF("Rtn définitif"),
@@ -25,11 +23,11 @@ public enum FirstStatus {
 
     private String status;
 
-    FirstStatus(String status) {
+    DeliveryCompanyStatus(String status) {
         this.status = status;
     }
 
-    FirstStatus() {
+    DeliveryCompanyStatus() {
     }
 
     public String getStatus() {
@@ -41,11 +39,11 @@ public enum FirstStatus {
     }
 
     // From the String method, it will return you the Enum for the provided input string
-    public static FirstStatus fromString(String status) {
+    public static DeliveryCompanyStatus fromString(String status) {
         if (status != null) {
-            for (FirstStatus firstStatus : FirstStatus.values()) {
-                if (status.equalsIgnoreCase(firstStatus.status)) {
-                    return firstStatus;
+            for (DeliveryCompanyStatus deliveryCompanyStatus : DeliveryCompanyStatus.values()) {
+                if (status.equalsIgnoreCase(deliveryCompanyStatus.status)) {
+                    return deliveryCompanyStatus;
                 }
             }
         }

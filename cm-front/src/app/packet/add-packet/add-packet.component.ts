@@ -277,6 +277,7 @@ export class AddPacketComponent implements OnInit {
     if(this.stockAvailable<1){
       this.enableFakeSize = true;
       this.confirmationService.confirm({
+
         target: event.target as EventTarget,
         message: this.stockAvailable<0?'Veiller remplir tous les champs':'Stock 0-Veiller le remplacer par un fake size.',
         icon: 'pi pi-exclamation-circle',
@@ -294,20 +295,23 @@ export class AddPacketComponent implements OnInit {
       });
     }
     else
-      {this.submitProductsOffers(productsOffers,this.stockAvailable);
+      {
+        this.submitProductsOffers(productsOffers,this.stockAvailable);
       }
 
   }
 
   submitProductsOffers(productsOffers: ProductOfferDTO[],stock:number){
+    //console.log("submitProductsOffers");
     let selectedProducts ={};
     if(stock)
-    selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': NON_CONFIRMEE};
+      selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': NON_CONFIRMEE};
     else
-    selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': ENDED };
+      selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': ENDED };
 
     this.packetService.addProductsToPacket(selectedProducts,this.stockAvailable)
       .subscribe((packet: any) => {
+        //console.log("addProductsToPacket");
         //let result = { 'packet': selectedProducts, 'modelDialog': false }
         let result = { 'packet': packet, 'modelDialog': false }
         this.submitEvent.emit(result);

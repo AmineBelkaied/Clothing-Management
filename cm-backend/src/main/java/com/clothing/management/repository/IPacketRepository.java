@@ -25,7 +25,12 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             nativeQuery = true)
     Page<Packet> findAllTodayPackets(Pageable pageable);*/
 
-    @Query(value="SELECT * FROM packet p WHERE p.status != 'Payée' and p.status != 'Annuler' and p.status != 'Pas serieux' and p.status != 'Livrée' AND p.status != 'Retour reçu' and p.status != 'Retour' and p.status != 'Supprimé' AND p.status != 'En rupture' AND p.status != 'Problème' AND p.barcode != '' AND p.barcode AND p.valid NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
+    @Query(value="SELECT * FROM packet p WHERE p.status != 'Payée' and p.status != 'Annuler' " +
+            "AND p.status != 'Pas serieux' AND p.status != 'Livrée' " +
+            "AND p.status != 'Retour reçu' AND p.status != 'Retour' " +
+            "AND p.status != 'Supprimé' AND p.status != 'En rupture' " +
+            "AND p.status != 'Problème' AND p.barcode != '' " +
+            "AND p.barcode AND p.valid NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
     public List<Packet> findAllDiggiePackets();
 
     @Query(value="UPDATE packet p SET p.attempt = p.attempt + 1 WHERE  id= :packetId", nativeQuery = true)
@@ -34,7 +39,8 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
     Optional<Packet> findByBarCode(@Param("barCode") String barCode);
 
-    @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% AND p.status != 'Supprimé' AND p.status != 'Non confirmée' AND p.exchange = false AND p.status != 'Annuler' AND p.status != 'Retour reçu' and p.status != 'Retour'", nativeQuery = true)
+    @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% " +
+            "AND p.barcode != '' AND p.barcode AND p.exchange_Id IS NULL", nativeQuery = true)
     public int findAllPacketsByPhone_number(@Param("phoneNumber") String phoneNumber);
 
     @Modifying
@@ -44,7 +50,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p GROUP BY p.status")
     List<DashboardCard> createDashboard();
 
-    @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p WHERE (p.status = 'Non Confirmée' OR p.status = 'Injoignable' OR p.status = 'A verifier') GROUP BY p.status")
+    @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p WHERE (p.status <> 'Problème' AND p.status <> 'Annuler' AND p.status <> 'Supprimé') GROUP BY p.status")
     List<DashboardCard> createNotification();//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
 
    //@Query(value = getQuery(searchText, endDate, se), countQuery = COUNT_FIELD_QUERY, nativeQuery = true)

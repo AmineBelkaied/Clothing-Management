@@ -152,9 +152,9 @@ public class FirstApiService {
         produit.put("designation", this.getPacketDesignation(packet));
         produit.put("nombreArticle", 1);
         produit.put("commentaire", comment);
-        produit.put("echange", packet.isExchange()?"oui":"non");
+        produit.put("echange", packet.getExchangeId() != null ?"oui":"non");
         produit.put("article", exchangeProduct);
-        produit.put("nombreEchange", packet.isExchange()?1:0);
+        produit.put("nombreEchange", packet.getExchangeId() != null ?1:0);
         json.put("Produit", produit);
 
         return json;

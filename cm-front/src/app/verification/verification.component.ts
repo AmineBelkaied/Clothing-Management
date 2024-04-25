@@ -71,8 +71,8 @@ findAllConfirmedPackets(): void {
           this.targetPackets = response.result.filter((packet: Packet) => packet.valid);
         }
         else {
-          this.sourcePackets = response.result.filter((packet: Packet) => packet.exchange == false);
-          this.targetPackets = response.result.filter((packet: Packet) => packet.exchange == true);
+          this.sourcePackets = response.result.filter((packet: Packet) => packet.exchangeId == null);
+          this.targetPackets = response.result.filter((packet: Packet) => packet.exchangeId);
         }
         console.log('this.sourceProducts',this.sourcePackets.length);
       },

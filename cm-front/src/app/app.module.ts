@@ -76,6 +76,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { VerificationComponent } from './verification/verification.component';
 import { PickListModule } from 'primeng/picklist';
 import { GlobalConfComponent } from './config/global-conf/global-conf.component';
+import { StepsModule } from 'primeng/steps';
+
 
 
 @NgModule({
@@ -152,7 +154,8 @@ import { GlobalConfComponent } from './config/global-conf/global-conf.component'
     PickListModule,
     ConfirmPopupModule,
     AvatarGroupModule,
-    AvatarModule
+    AvatarModule,
+    StepsModule
   ],
   providers: [MessageService, ConfirmationService, CityTreeService, DatePipe ],
   bootstrap: [AppComponent]

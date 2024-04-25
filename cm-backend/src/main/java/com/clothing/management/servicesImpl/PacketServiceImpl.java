@@ -1,9 +1,8 @@
 package com.clothing.management.servicesImpl;
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.clothing.management.dto.*;
 //import com.clothing.management.enums.DeliveryCompany;
 import com.clothing.management.enums.SystemStatus;
-import com.clothing.management.enums.FirstStatus;
+import com.clothing.management.enums.DeliveryCompanyStatus;
 import com.clothing.management.models.DashboardCard;
 import com.clothing.management.repository.repositoryImpl.PacketRepositoryImpl;
 import com.clothing.management.servicesImpl.api.FirstApiService;
@@ -385,7 +384,7 @@ public class PacketServiceImpl implements PacketService {
                 deliveryResponse = new DeliveryResponse(this.firstApiService.getLastStatus(packet.getBarcode(),packet.getDeliveryCompany()));
             else
                 deliveryResponse = new DeliveryResponse(this.navexApiService.getLastStatus(packet.getBarcode(),packet.getDeliveryCompany()));
-            System.out.println("deliveryResponse");
+
             System.out.println(deliveryResponse.toString());
             if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {
                 String systemNewStatus = SystemStatus.A_VERIFIER.getStatus();
@@ -394,7 +393,7 @@ public class PacketServiceImpl implements PacketService {
                 }else if (deliveryResponse.getStatus()>199) {
                     //Convert input from first to System Status
                     //System.out.println(deliveryResponse);
-                    savePacketStatusToHistory(packet,"First:"+deliveryResponse.getState());
+                    savePacketStatusToHistory(packet,packet.getDeliveryCompany().getName()+":"+deliveryResponse.getState());
                     systemNewStatus = mapFirstToSystemStatus(deliveryResponse.getState());
                     packet.setLastDeliveryStatus(deliveryResponse.getState());
                     systemNewStatus =
@@ -415,20 +414,24 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public Packet addAttempt(Packet packet,String note) throws ParseException {
-        packet.setAttempt(packet.getAttempt()+1);
+    public Packet addAttempt(Packet packet, String note) throws ParseException {
+        packet.setAttempt(packet.getAttempt() + 1);
         Date noteDate = new Date();
-        String noteWithDate = noteDate.toString() +" "+ note;
-        packet.setNote(packet.getNote()+" "+noteWithDate);
-        savePacketStatusToHistory(packet,"tentative: "+packet.getAttempt()+" "+note);
+
+        // Formatting the note date to "dd hh:mm" format
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-HH:mm");
+        String noteWithDate = "-Le "+sdf.format(noteDate) + " " + note;
+        if(packet.getNote().equals("")){packet.setNote(noteWithDate);}
+        else packet.setNote(String.format("%s\n%s", packet.getNote(), noteWithDate));
+        savePacketStatusToHistory(packet, "tentative: " + packet.getAttempt() + " " + note);
         return updatePacket(packet);
     }
 
     private String mapFirstToSystemStatus(String status) {
         if (status == null || status.equals(""))
             return SystemStatus.A_VERIFIER.getStatus();
-        FirstStatus firstStatus = FirstStatus.fromString(status);
-        switch (firstStatus) {
+        DeliveryCompanyStatus deliveryCompanyStatus = DeliveryCompanyStatus.fromString(status);
+        switch (deliveryCompanyStatus) {
             case LIVREE:
             case LIVRER:
             case EXCHANGE:
@@ -440,14 +443,14 @@ public class PacketServiceImpl implements PacketService {
             case EN_ATTENTE:
                 return SystemStatus.CONFIRMEE.getStatus();
             case A_VERIFIER:
+            case A_VERIFIER_NAVEX:
                 return SystemStatus.A_VERIFIER.getStatus();
         }
         return SystemStatus.EN_COURS_1.getStatus();
     }
     private String upgradeInProgressStatus(Packet packet) {
         SystemStatus systemStatus = SystemStatus.fromString(packet.getStatus());
-        if ((checkSameDateStatus(packet)
-                || packet.getStatus().equals(SystemStatus.A_VERIFIER.getStatus()))
+        if (checkSameDateStatus(packet)
                 && !packet.getStatus().equals(SystemStatus.CANCELED.getStatus()))
             return packet.getStatus();
         switch (systemStatus) {
@@ -457,6 +460,8 @@ public class PacketServiceImpl implements PacketService {
                 return SystemStatus.EN_COURS_3.getStatus();
             case EN_COURS_3:
                 return SystemStatus.A_VERIFIER.getStatus();
+            case A_VERIFIER:
+                return mapFirstToSystemStatus(packet.getLastDeliveryStatus());
             default:
                 return SystemStatus.EN_COURS_1.getStatus();
         }
@@ -490,9 +495,9 @@ public class PacketServiceImpl implements PacketService {
             newPacket.setCity(packet.getCity());
             newPacket.setDeliveryPrice(packet.getDeliveryPrice());
             newPacket.setValid(false);
-            newPacket.setExchange(true);
             newPacket.setStock(packet.getStock());
             newPacket.setDeliveryCompany(globalConf.getDeliveryCompany());
+            newPacket.setExchangeId(packet.getId());
         }
         Packet response = packetRepository.save(newPacket);
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
@@ -527,7 +532,7 @@ public class PacketServiceImpl implements PacketService {
         return errors;
     }
     private Packet updatePacketStatus(Packet packet,String status){
-        if(packet.isExchange()){
+        if(packet.getExchangeId() != null){
             if (status.equals(SystemStatus.PAYEE.getStatus())||status.equals(SystemStatus.LIVREE.getStatus()))
                 return updateExchangePacketStatusToPaid(packet,status);
             if (status.equals(SystemStatus.RETOUR_RECU.getStatus())){
@@ -537,7 +542,8 @@ public class PacketServiceImpl implements PacketService {
         return updatePacketStatusAndSaveToHistory(packet, status);
     }
     private Packet updateExchangePacketStatusToReturnReceived(Packet packet){
-        Long id = getExchangeId(packet);
+        //Long id = getExchangeId(packet);
+        Long id = packet.getExchangeId();
         Optional<Packet> optionalPacket = packetRepository.findById(id);
         if(packet.getStatus().equals(SystemStatus.LIVREE.getStatus())
                 ||packet.getStatus().equals(SystemStatus.PAYEE.getStatus())
@@ -546,14 +552,19 @@ public class PacketServiceImpl implements PacketService {
         else return updatePacketStatusAndSaveToHistory(packet, SystemStatus.RETOUR_RECU.getStatus());
     }
     private Packet updateExchangePacketStatusToPaid(Packet packet,String status){
-        Long id = getExchangeId(packet);
+        //Long id = getExchangeId(packet);
+        Long id = packet.getExchangeId();
         Optional<Packet> optionalPacket = packetRepository.findById(id);
         packet.setPrice(optionalPacket.get().getPrice()-optionalPacket.get().getDiscount()+packet.getPrice()-packet.getDiscount());
         if(!optionalPacket.get().getStatus().equals(SystemStatus.RETOUR_RECU.getStatus()))
             updatePacketStatusAndSaveToHistory(optionalPacket.get(), SystemStatus.RETOUR.getStatus());
         return updatePacketStatusAndSaveToHistory(packet, status);
     }
+
     private Packet updatePacketStatusAndSaveToHistory(Packet packet, String status) {
+        if (packet.getStatus() == null) {
+            packet.setStatus(SystemStatus.NON_CONFIRMEE.getStatus());
+        }
         if (
             !packet.getStatus().equals(status)&&
             !(
@@ -592,7 +603,6 @@ public class PacketServiceImpl implements PacketService {
                 ||status.equals(SystemStatus.RETOUR_RECU.getStatus())
                 ||status.equals(SystemStatus.CANCELED.getStatus()))
             updateProductsPacket_Status_ByPacketId(packet,status);
-
     }
     private void updateProducts_Quantity(Packet packet,String status){
         if (status.equals(SystemStatus.RETOUR_RECU.getStatus())
@@ -636,7 +646,7 @@ public class PacketServiceImpl implements PacketService {
         productRepository.save(product);
     }
 
-    public Long getExchangeId(Packet packet){
+    /*public Long getExchangeId(Packet packet){
         Long id = packet.getId();
         int indexStartOfString = packet.getCustomerName().lastIndexOf("id: ");
         if (indexStartOfString != -1) {
@@ -644,7 +654,7 @@ public class PacketServiceImpl implements PacketService {
             id = Long.valueOf(idSubstring.trim());
         }
         return id;
-    }
+    }*/
 
 
 }
