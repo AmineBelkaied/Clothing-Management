@@ -23,6 +23,7 @@ import * as FileSaver from 'file-saver';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
+import { Badge } from 'primeng/badge';
 
 @Component({
   selector: 'app-list-packets',
@@ -31,8 +32,6 @@ import { GlobalConf } from 'src/shared/models/GlobalConf';
   providers: [DatePipe],
 })
 export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy {
-
-
 
 
   display: boolean = false;
@@ -91,8 +90,80 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   dateOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
   value : boolean = this.mandatoryDateCheckBox;
   nbrConfirmed : number= 0;
+  countInjoignable :string = "0";
 
-  notificationList : any [] = [
+  items: any[] = [
+    {
+      label: "Erreur Chargement",
+      title: "Tous",
+      badge:0,
+      command: (event: any) => {
+      },
+      disabled:true
+  },
+  {
+    label: ENDED,
+    title: ENDED,
+    badge:0,
+    command: (event: any) => {
+    }
+  },
+    {
+      label: NON_CONFIRMEE,
+      title: NON_CONFIRMEE,
+      badge:0,
+      command: (event: any) => {
+      }
+  },
+    {
+        label: INJOIGNABLE,
+        title: INJOIGNABLE,
+        icon: 'pi-power-off',
+        badge:0,
+        command: (event: any) => {
+        }
+    },
+    {
+        label: CONFIRMEE,
+        title: CONFIRMEE,
+        badge:0,
+        command:
+          (event: any) => {
+        }
+    },
+    {
+      label: EN_COURS,
+      title: EN_COURS,
+      badge:0,
+      command: (event: any) => {
+      },
+    },
+    {
+      label: A_VERIFIER,
+      title: A_VERIFIER,
+      badge:0,
+      command: (event: any) => {
+        }
+    },
+    {
+      label: RETOUR,
+      title: RETOUR,
+      badge:0,
+      command: (event: any) => {
+        }
+    },
+    {
+      label: 'Terminé',
+      title: 'Terminé',
+      badge:0,
+      command: (event: any) => {}
+    }
+];
+  showStatus: boolean = false;
+  activeIndex: number = 2;
+  oldActiveIndex:number = 2;
+
+  /*notificationList : any [] = [
     {
       class:'pi-check-circle',
       severity:'info',
@@ -117,7 +188,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       status: NON_CONFIRMEE,
       count: '0'
     }
-  ];
+  ];*/
 
   @ViewChild('dt') dt: Table;
   private readonly reg: RegExp = /,/gi;
@@ -126,7 +197,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   countDeleted: number = 0;
   realTotalItems: number;
   selectedPhoneNumber: string = '';
-  deliveryCompany?: DeliveryCompany;
+  deliveryCompanyName?: DeliveryCompany;
   @Output() confirmEvent: EventEmitter<string> = new EventEmitter<string>();
   visibleNote: boolean = false;
   note: string = '';
@@ -151,51 +222,172 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   ngOnInit(): void {
-    this.createNotification();
+    //this.createNotification();
     this.createColumns();
     this.findAllOffers();
     this.findAllGroupedCities();
     this.findAllFbPages();
     this.rangeDates = [this.today];
+    this.onActiveIndexChange(2);
+    //this.onNotificationClick(NON_CONFIRMEE);
+    //this.onActiveIndexChange(0);
+
     this.selectedStatus.setValue([]);
-    this.globalConfService.globalConf$.subscribe((globalConf :GlobalConf) => this.deliveryCompany = globalConf.deliveryCompany);
+    //this.loadNotification();
+    //this.getGlobalConf();
+
+  }
+
+  loadNotification(){
+    this.items= [
+      {
+        label: "Tous",
+        title: "Tous",
+        badge:0,
+        command: (event: any) => {
+          this.messageService.add({severity:'info', summary:NON_CONFIRMEE, detail: event.item.label});
+          //this.onNotificationClick(event.item.title);
+          this.onActiveIndexChange(event.index);
+        },
+        disabled:true
+      },
+      {
+        label: ENDED+"("+this.items[0].badge+")",
+        title: ENDED,
+        badge:0,
+        command: (event: any) => {
+          this.messageService.add({severity:'info', summary:NON_CONFIRMEE, detail: event.item.label});
+          this.onActiveIndexChange(event.index);
+        }
+      },
+      {
+        label: NON_CONFIRMEE+"("+this.items[1].badge+")",
+        title: NON_CONFIRMEE,
+        badge:0,
+        command: (event: any) => {
+          this.messageService.add({severity:'info', summary:NON_CONFIRMEE, detail: event.item.label});
+          this.onActiveIndexChange(event.index);
+        }
+      },
+      {
+          label: INJOIGNABLE+"("+this.items[2].badge+")",
+          title: INJOIGNABLE,
+          icon: 'pi-power-off',
+          badge:0,
+          command: (event: any) => {
+            this.messageService.add({severity:'info', summary:INJOIGNABLE, detail: event.item.label});
+            this.onActiveIndexChange(event.index);
+          }
+      },
+      {
+          label: CONFIRMEE+"("+this.items[3].badge+")",
+          title: CONFIRMEE,
+          badge:0,
+          command:
+            (event: any) => {
+              this.messageService.add({severity:'info', summary:CONFIRMEE, detail: event.item.label});
+              this.onActiveIndexChange(event.index);
+          }
+      },
+      {
+        label: EN_COURS+"("+this.items[4].badge+")",
+        title: EN_COURS,
+        badge:0,
+        command: (event: any) => {
+          this.messageService.add({severity:'info', summary:EN_COURS, detail: event.item.label});
+          this.selectedStatus.patchValue([ A_VERIFIER, EN_COURS_1, EN_COURS_2, EN_COURS_3]);
+          this.filterPackets("status");
+        },
+      },
+      {
+        label: A_VERIFIER+"("+this.items[5].badge+")",
+        title: A_VERIFIER,
+        badge:0,
+        command: (event: any) => {
+          this.messageService.add({severity:'info', summary:A_VERIFIER, detail: event.item.label});
+          this.onActiveIndexChange(event.index);
+          }
+      },
+      {
+        label: RETOUR+"("+this.items[6].badge+")",
+        title: RETOUR,
+        badge:0,
+        command: (event: any) => {
+          this.messageService.add({severity:'info', summary:RETOUR, detail: event.item.label});
+          this.onActiveIndexChange(event.index);
+          }
+      },
+      {
+        label: 'Terminé',
+        title: 'Terminé',
+        badge:0,
+        command: (event: any) => {
+          this.messageService.add({severity:'info', summary:'Last Step', detail: event.item.label})
+          this.selectedStatus.patchValue([LIVREE,PAYEE,RETOUR_RECU]);
+          this.filterPackets("status");}
+      }
+  ];
+  }
+ /* getGlobalConf() {
+    this.globalConfService.getGlobalConf.subscribe((globalConf :GlobalConf) => {
+      this.deliveryCompanyName = globalConf.deliveryCompany;
+    });
+  }*/
+  findAllFbPages(): void {
+    console.log("findAllFbPages");
+
+    this.fbPageService.findAllFbPages().subscribe((result: any) => {
+      this.fbPages = result.filter((fbPage: any) => fbPage.enabled);
+    });
   }
 
   createNotification(): void {
+    console.log("createNotification");
+    let enCours =0;
     this.packetService.syncNotification()
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: DashboardCard[]) => {
-          //console.log('createDashboardResponse',response);
-          //this.notificationList = response;
-
           if (response != null && response.length > 0) {
             response.forEach((element: any) => {
-              if(element.status == A_VERIFIER) this.notificationList[1].count = element.statusCount;
-              else if(element.status == INJOIGNABLE) this.notificationList[2].count = element.statusCount;
-              else if(element.status == NON_CONFIRMEE) this.notificationList[3].count = element.statusCount;
+              if(element.status == ENDED) this.items[0].badge = element.statusCount;
+              else if(element.status == NON_CONFIRMEE) this.items[1].badge = element.statusCount;
+              else if(element.status == INJOIGNABLE) this.items[2].badge = element.statusCount;
+              else if(element.status == CONFIRMEE) this.items[3].badge = element.statusCount;
+              else if(element.status == EN_COURS_1) enCours += element.statusCount;
+              else if(element.status == EN_COURS_2) enCours += element.statusCount;
+              else if(element.status == EN_COURS_3) enCours += element.statusCount;
+              else if(element.status == A_VERIFIER) this.items[5].badge = element.statusCount;
+              else if(element.status == RETOUR) this.items[6].badge = element.statusCount;
             });
           }
+          this.items[4].badge = enCours;
+          this.loadNotification();
         },
         error: (error: Error) => {
           console.log('Error:', error);
         }
       });
+
   }
 
   findAllPackets(): void {
+    console.log("findAllPackets",this.params);
+
     this.loading = true;
     this.packetService.findAllPackets(this.params)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: ResponsePage) => {
+
           this.packets = response.result.filter((packet: any) => this.checkPacketNotNull(packet));
           this.realTotalItems = response.totalItems;
           this.totalItems = this.packets.length;
           let countConfirmed =response.result.filter(packet => packet.status === CONFIRMEE).length;
 
-          this.notificationList[0].count =  countConfirmed > 0 ? countConfirmed :this.notificationList[0].count;
+          this.items[2].badge = countConfirmed > 0 ? countConfirmed:0;
           this.loading = false;
+          this.createNotification();
         },
         error: (error: Error) => {
           console.log('Error:', error);
@@ -234,15 +426,10 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     });
   }
 
-  findAllFbPages(): void {
-    this.fbPageService.findAllFbPages().subscribe((result: any) => {
-      this.fbPages = result.filter((fbPage: any) => fbPage.enabled);
-    });
-  }
+
 
   onEditInit(packet: any): void {
     this.oldField = packet.data[packet.field];
-    console.log('onEditInit',packet);
     if ( packet.field == 'status'){
       this.packetStatusList = [];
       if(packet.data.stock === -1){
@@ -391,8 +578,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         }
         //console.log("edit start2",packet);
         let updatedField = { [$event.field]: $event.data[$event.field] };
-        //console.log("edit start3",updatedField);
-        //console.log("edit fild start:",updatedField);
         let msg = 'Le champ a été modifié avec succés';
 
         this.packetService
@@ -417,23 +602,17 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
                  || $event.data[$event.field] === RETOUR_RECU))
                  {
                    let x =this.getLastStock($event.data.id)
-                   //console.log("x",x);
                  }
-                //this.findAllPackets();
-                //console.log("refresh all list");
 
-
-                if ($event.field === 'status' && $event.data[$event.field] === 'Confirmée') {
+                if ($event.field === 'status' && $event.data[$event.field] === CONFIRMEE) {
                   console.log("status confirmée");
 
 
                   if (responsePacket.barcode != null) {
-
                       let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
                       this.packets.splice(pos, 1, responsePacket);
                       msg = 'Le barcode a été crée avec succés';
-                      this.notificationList[0].count +=1;
-
+                      this.items[2].badge +=1;
                   } else {
                     $event.data[$event.field] = this.oldField;
                     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la creation du barcode' });
@@ -443,6 +622,9 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
                   let pos = this.packets.map((packet: Packet) => packet.id).indexOf(responsePacket.id);
                     this.packets.splice(pos, 1, responsePacket);
                 };
+                if ($event.field === 'status' && $event.data[$event.field] === INJOIGNABLE){
+                  this.addAttempt(responsePacket);
+                }
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
                 console.log("false8");
 
@@ -453,6 +635,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
                     this.loading = false;
                   }
                 });
+
       }else {
           console.log("no changes");
           console.log("false9");
@@ -624,6 +807,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   addNewRow(): void {
     if(this.loading == false){
+      this.onActiveIndexChange(2);
+      //this.activeIndex=2;
       this.loading=true;
       this.packetService
       .addPacket()
@@ -682,6 +867,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   OnSubmit($event: any): void {
+    console.log("onsubmit list packet");
     this.modelDialog = $event.modelDialog;
     let pos = this.packets.map((packet: Packet) => packet.id).indexOf($event.packet.id);
     this.packets.splice(pos, 1, $event.packet);
@@ -697,26 +883,42 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   handleInputChange() {
     const inputValue = this.filter;
     const numbersCount = (inputValue.match(/\d/g) || []).length;
-    if (this.filter === '' || numbersCount === 5 || numbersCount === 8 || numbersCount === 12  ) {
+    if (numbersCount === 5 || numbersCount === 8 || numbersCount === 12  ) {
+      console.log("filterPackets-handleInputChange");
+      this.oldActiveIndex = this.activeIndex;
       this.filterPackets('global');
+      this.activeIndex = 0;
     }
+    if (this.filter === '') {
+      console.log("filterPackets-handleInputChange vide");
+      this.filterPackets('global');
+      this.activeIndex = this.oldActiveIndex;
+    }
+    console.log("this.activeIndex ",this.activeIndex );
+
+
   }
 
   filterPackets($event?: string): void {
+    //console.log("filterPackets",$event);
+
     this.createRangeDate();
     //this.setPacketStatusList();
     let page = 0;
 
     if ($event == 'states') {
       this.onStateChange();
-    }
-    else if ($event == 'clear') {
+    } else if ($event == 'clear') {
       this.selectedStates = [];
       //this.packetStatusList = this.statusList;
       this.selectedStatus.setValue([]);
     }else if($event == 'page')
       page = this.currentPage;
     if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
+
+    if (this.filter !== '' && this.filter !== undefined){ this.oldActiveIndex = this.activeIndex;this.activeIndex = 0;console.log("filter:",this.filter);
+    }
+    //else this.activeIndex = 0;
 
     this.params = {
       page: page,
@@ -727,26 +929,36 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join(),
       mandatoryDate: this.mandatoryDateCheckBox
     };
+
+    console.log("params : ", this.params);
+    
     this.findAllPackets();
   }
 
   createRangeDate(): void {
-    if (this.rangeDates !== null && this.rangeDates !== undefined) {
+    console.log("createRangeDate : ", this.startDate);
+    if (this.rangeDates !== null) {
       this.startDate = this.rangeDates[0];
       if (this.rangeDates[1]) {
         this.endDate = this.rangeDates[1];
       } else {
         this.endDate = this.startDate;
       }
+    } else {
+      this.startDate = this.today;
+      this.endDate = this.today;
     }
+      console.log("createRangeDate startDate: ", this.startDate);
   }
 
-  onNotificationClick($event?: string): void{
-    //console.log("aaaa",$event);
+  /*onNotificationClick($event?: string): void{
+    console.log("aaaa",$event);
+    //this.createNotification();
     this.selectedStatus.setValue([]);
     this.selectedStatus.patchValue([$event]);
+    console.log("filterPackets-onNotificationClick");
     this.filterPackets('status');
-  }
+  }*/
 
   onStateChange(): void {
     this.selectedStatus.setValue([]);
@@ -759,7 +971,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       this.selectedStatus.patchValue([ NON_CONFIRMEE, ENDED, A_VERIFIER, CONFIRMEE ]);
     }
     if (this.selectedStates.indexOf(EN_COURS) > -1) {
-      this.selectedStatus.patchValue([ A_VERIFIER, LIVREE, PAYEE, RETOUR, RETOUR_RECU]);
+      this.selectedStatus.patchValue([ A_VERIFIER, EN_COURS_1, EN_COURS_2, EN_COURS_3]);
       //this.packetStatusList = this.statusList;
     }
     if (this.selectedStates.indexOf(TERMINE) > -1) {
@@ -771,6 +983,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   onPageChange($event: any): void {
     this.currentPage = $event.page;
     this.pageSize = $event.rows;
+    console.log("filterPackets-onPageChange");
+
     this.filterPackets('page');
   }
 
@@ -781,6 +995,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.selectedPackets = [];
     this.selectedStatus.setValue([]);
     this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now())];
+    console.log("filterPackets-resetTable");
     this.filterPackets('global');
   }
 
@@ -843,12 +1058,13 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
   mandatoryDateChange(){
     if(this.selectedStatus.value != null && this.selectedStatus.value.length > 0)
+      console.log("filterPackets-mandatoryDateChange");
     this.filterPackets('global')
   }
 
   oldDateFilter(){
       this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now() - 86400000)];
-      //this.createRangeDate();
+      console.log("filterPackets-oldDateFilter");
       this.filterPackets('global');
 
     //console.log('aaa',this.rangeDates);
@@ -869,6 +1085,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   clearDate(){
     this.rangeDates = [];
     //this.createRangeDate();
+    console.log("filterPackets-clearDate");
     this.filterPackets('global');
   }
 
@@ -910,7 +1127,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         }
       },
       {
-        label: 'Historique',
+        label: 'History',
         icon: 'pi pi-history',
         disabled:false,
         command: () => {
@@ -929,7 +1146,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       {
         label: 'Tel',
         icon: 'pi pi-search-plus',
-        disabled:!(this.checkPhoneNbExist(packet)),
+        disabled:!this.checkPhoneNbExist(packet),
         command: () => {
           this.openLinkGetter(packet.customerPhone,packet.deliveryCompany);
         }
@@ -1030,7 +1247,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         }
       }
     });
-    this.download(csv, 'first - ' + this.dateUtils.formatDateToString(new Date()));
+    this.download(csv, 'first - ' + this.dateUtils.formatDateToString(this.today));
   }
 
   download(text: any, filename: any) {
@@ -1053,9 +1270,21 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.selectedCity = packet.city;
 }
   selectPhoneNumber( packet: any) {
-    console.log('phnbr change');
     this.selectedPhoneNumber = packet.customerPhoneNb;
   }
+
+  onActiveIndexChange(event: number) {
+    this.activeIndex = event;
+    //this.createNotification();
+    this.selectedStatus.setValue([]);
+
+    this.selectedStatus.patchValue([this.items[event].title]);
+    this.filterPackets('status');
+  }
+
+  showStatusButton() {
+    this.showStatus= !this.showStatus;
+}
 
 }
 

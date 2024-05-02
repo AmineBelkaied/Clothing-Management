@@ -91,7 +91,7 @@ export class StatsService {
           || packet.status == EN_COURS_1 || packet.status == EN_COURS_2 || packet.status == EN_COURS_3 || packet.status == EN_COURS
           ) {
           //|| packet.status.substring(0,7) == 'En Cours'
-          if (packet.exchange) {
+          if (packet.exchangeId) {
             dateCounts[date].exchange++;
           }
           dateCounts[date].out++;

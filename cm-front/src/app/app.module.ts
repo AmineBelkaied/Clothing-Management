@@ -76,6 +76,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { VerificationComponent } from './verification/verification.component';
 import { PickListModule } from 'primeng/picklist';
 import { GlobalConfComponent } from './config/global-conf/global-conf.component';
+import { StepsModule } from 'primeng/steps';
+
 
 import { AuthInterceptor } from 'src/shared/helpers/interceptor';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
@@ -160,7 +162,8 @@ import { PasswordModule } from 'primeng/password';
     PickListModule,
     ConfirmPopupModule,
     AvatarGroupModule,
-    AvatarModule
+    AvatarModule,
+    StepsModule
   ],
   providers: [MessageService, ConfirmationService, CityTreeService, DatePipe, AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],

@@ -16,13 +16,16 @@ export class ListFbpagesComponent implements OnInit {
   constructor(private fbPageService: FbPageService,private messageService: MessageService, private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
-    this.fbPageService.fbPageSubscriber
+    /*this.fbPageService.fbPageSubscriber
     .subscribe((fbPageList: any) => {
       console.log(fbPageList);
       
       this.fbPages = fbPageList;
       console.log("this.fbPages",this.fbPages);
 
+    });*/
+    this.fbPageService.findAllFbPages().subscribe((result: any) => {
+      this.fbPages = result;
     });
   }
 

@@ -15,14 +15,15 @@ export class FbPageService {
   public fbPages: FbPage[] = [];
   public editMode = false;
   constructor(private http: HttpClient) {
-    this.findAllFbPages()
+
+    /*this.findAllFbPages()
     .subscribe((fbPagesList: any) => {
         this.fbPageSubscriber.next(fbPagesList);
-        this.fbPages = fbPagesList.filter((fbPage: any) => fbPage.enabled);
-    });
+        //this.fbPages = fbPagesList.filter((fbPage: any) => fbPage.enabled);
+    });*/
   }
 
-  findAllFbPages() {
+  findAllFbPages() : Observable<any> {
     return this.http.get(this.baseUrl + "/findAll");
   }
 

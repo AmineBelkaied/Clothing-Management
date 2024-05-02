@@ -39,7 +39,7 @@ public interface PacketService {
     List<DashboardCard> syncNotification();
     Packet duplicatePacket(Long idPacketidPacket);
     List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO);
-    Long getExchangeId(Packet packet);
+    //Long getExchangeId(Packet packet);
     int deleteEmptyPacket();
     Packet updatePacketValid(String barCode,String type) throws Exception;
 }

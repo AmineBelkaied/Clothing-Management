@@ -24,9 +24,12 @@ export class SidebarComponent implements OnInit {
   isLoggedIn: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
-  globalConf!: GlobalConf;
-  constructor(private packetService: PacketService,private messageService: MessageService,
-              private globalConfService: GlobalConfService, private router: Router,  public storageService: StorageService) {
+  globalConf: GlobalConf = {
+    applicationName: ""
+  };
+
+  constructor(private packetService: PacketService, private globalConfService: GlobalConfService,private messageService: MessageService,
+              private router: Router,  public storageService: StorageService) {
    }
 
   ngOnInit(): void {
@@ -39,14 +42,17 @@ export class SidebarComponent implements OnInit {
     });
 
     this.activeClass = true;
-    this.globalConfService.globalConf$.subscribe((globalConf: GlobalConf) => this.globalConf = Object.assign({}, globalConf));
+    this.globalConfService.globalConf$.subscribe((globalConf: GlobalConf) => {
+      if(globalConf)
+        this.globalConf = Object.assign({}, globalConf)
+    });
   }
 
   changeClass() {
     this.activeClass = !this.activeClass;
   }
 
-  SyncFirst() {
+  syncFirst() {
     console.log("syncronising");
     this.packetService
         .syncAllPacketsFirst()

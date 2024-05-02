@@ -1,4 +1,4 @@
-package com.clothing.management.repository.enums;
+package com.clothing.management.enums;
 
 public enum SystemStatus {
 

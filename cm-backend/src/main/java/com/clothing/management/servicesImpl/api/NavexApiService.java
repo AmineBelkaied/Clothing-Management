@@ -5,7 +5,6 @@ import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.entities.GlobalConf;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.IGlobalConfRepository;
-import com.clothing.management.services.GlobalConfService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,15 +21,12 @@ public class NavexApiService {
 
     @Autowired
     public IGlobalConfRepository globalConfRepository;
-
-    //public static final String createBarCodeEndPoint = "https://app.navex.tn/api/";
     public static final String apiUrl = "https://app.navex.tn/api/";
-    public String apiName ="apiName";
+    //public String apiName ="apiName";
     public static final String endUrl ="/v1/post.php";
     //public static final String getLastStatusEndPoint = "https://app.navex.tn/api/strada-etat-SDFKSNC48IK329084J34534LJLJ453DJL/v1/post.php";
     public static final String reg = "/,/gi";
     public static final String regBS = "/\\n/gi";
-    private String bearerToken="token";//"af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";//diggie
     private String exchangeProduct="Diggie pants";//diggie
     private String comment="يسمح بفتح الطرد عند طلب الحريف";//diggie
 
@@ -115,12 +111,12 @@ public class NavexApiService {
                 .append("&msg=")
                 .append(comment)
                 .append("&echange=")
-                .append(packet.isExchange()?"1":"0")
+                .append(packet.getExchangeId() != null?"1":"0")
                 .append("&ouvrir=Oui")
                 .append("&article=")
                 .append(exchangeProduct)
                 .append("&nb_echange=")
-                .append(packet.isExchange()?"1":"0")
+                .append(packet.getExchangeId() != null?"1":"0")
                 .append("&nb_article=")
                 .append(1)
                 .append("&prix=")

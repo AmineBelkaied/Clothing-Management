@@ -1,5 +1,8 @@
 package com.clothing.management.controllers;
 
+import com.clothing.management.auth.mastertenant.config.DBContextHolder;
+import com.clothing.management.auth.mastertenant.entity.MasterTenant;
+import com.clothing.management.auth.mastertenant.service.MasterTenantService;
 import com.clothing.management.dto.*;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
@@ -31,9 +34,10 @@ public class PacketController {
 
     @Autowired
     PacketService packetService;
-
-    /*@Autowired
-    UpdateStatusScheduler updateStatusScheduler;*/
+    @Autowired
+    UpdateStatusScheduler updateStatusScheduler;
+    @Autowired
+    MasterTenantService masterTenantService;
 
     @GetMapping(path = "/findAll")
     public List<Packet> findAllPackets() {
@@ -150,7 +154,7 @@ public class PacketController {
         return new ResponseEntity<>(deliveryResponse, HttpStatus.OK);
     }*/
 
-    @GetMapping(value = "/getLastStatus")
+    @PostMapping(value = "/getLastStatus")
     @CrossOrigin("*")
     public ResponseEntity<Packet> getLastStatus(@RequestBody Packet packet) throws Exception {
         return new ResponseEntity<>(
@@ -193,10 +197,14 @@ public class PacketController {
     public Packet duplicatePacket(@PathVariable Long idPacket) {
         return packetService.duplicatePacket(idPacket);
     }
-   /* @GetMapping(path = "/syncAllPacketsStatus")
+
+    @GetMapping(path = "/syncAllPacketsStatus")
     public int synchronizeAllPacketsStatus() {
-        return updateStatusScheduler.launchCronTaskByTenant("");
-    }*/
+        System.out.println("current db >>  " + DBContextHolder.getCurrentDb());
+        MasterTenant masterTenant = masterTenantService.findByTenantName(DBContextHolder.getCurrentDb());
+        System.out.println("masterTenant >>  " + masterTenant.getTenantName());
+        return updateStatusScheduler.startUpdateStatusCronTask(masterTenant);
+    }
 
     @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")
     public ResponseEntity<List<String>> updatePacketsByBarCode(@RequestBody BarCodeStatusDTO barCodeStatusDTO) {

@@ -17,6 +17,14 @@ td {
   height: 28px !important;
  }
 
+ .scrollable-div {
+  max-height: 300px; /* ou toute autre valeur appropriée */
+  overflow-y: auto; /* Pour rendre la div scrollable uniquement verticalement */
+  /* overflow: auto; si vous souhaitez également un défilement horizontal lorsque nécessaire */
+}
+
+
+
 
  .outofstockStatus {
   font-weight: 700;
