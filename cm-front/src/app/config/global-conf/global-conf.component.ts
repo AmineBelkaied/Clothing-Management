@@ -26,7 +26,7 @@ export class GlobalConfComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    this.globalConfService.globalConf$
+    this.globalConfService.getGlobalConf()
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe((globalConf: GlobalConf) => {
       if(globalConf)
