@@ -64,6 +64,8 @@ public class CityServiceImpl implements CityService {
         Map<Governorate, List<City>> groupedCitiesDTO = cityRepository.findAll()
                 .stream()
                 .collect(groupingBy(City::getGovernorate));
+        //Map<Governorate, List<City>> groupedCitiesDTOSQL = cityRepository.findAllgroupedCities();
+
         List<GroupedCitiesDTO> groupedCitiesDTOList = new ArrayList<>();
         for (Governorate governorate : groupedCitiesDTO.keySet()) {
             GroupedCitiesDTO groupedCity = new GroupedCitiesDTO(governorate , groupedCitiesDTO.get(governorate));

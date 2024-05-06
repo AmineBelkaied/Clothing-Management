@@ -15,9 +15,6 @@ public interface PacketService {
 
     public List<Packet> findAllPackets();
     public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status, boolean mandatoryDate) throws ParseException;
-    //public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable, boolean mandatoryDate);
-    //public Page<Packet> findAllPackets(String searchText, int page, int size);
-    //public Page<Packet> findAllTodaysPackets(Pageable paging);
     public List<Packet> findAllPacketsByDate(String start,String end) throws ParseException;
    public List<Packet> findAllPacketsByDate(Date date);
     public List<Packet> findAllDiggiePackets();

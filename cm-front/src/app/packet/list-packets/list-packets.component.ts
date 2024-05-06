@@ -245,7 +245,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         title: "Tous",
         badge:0,
         command: (event: any) => {
-          this.messageService.add({severity:'info', summary:NON_CONFIRMEE, detail: event.item.label});
+          this.messageService.add({severity:'info', summary:"All", detail: event.item.label});
           //this.onNotificationClick(event.item.title);
           this.onActiveIndexChange(event.index);
         },
@@ -256,8 +256,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         title: ENDED,
         badge:0,
         command: (event: any) => {
-          this.messageService.add({severity:'info', summary:NON_CONFIRMEE, detail: event.item.label});
-          this.onActiveIndexChange(event.index);
+          this.messageService.add({severity:'info', summary:ENDED, detail: event.item.label});
+          //this.onActiveIndexChange(event.index);
         }
       },
       {
@@ -266,7 +266,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         badge:0,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:NON_CONFIRMEE, detail: event.item.label});
-          this.onActiveIndexChange(event.index);
+          //this.onActiveIndexChange(event.index);
         }
       },
       {
@@ -276,7 +276,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
           badge:0,
           command: (event: any) => {
             this.messageService.add({severity:'info', summary:INJOIGNABLE, detail: event.item.label});
-            this.onActiveIndexChange(event.index);
+            //this.onActiveIndexChange(event.index);
           }
       },
       {
@@ -286,7 +286,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
           command:
             (event: any) => {
               this.messageService.add({severity:'info', summary:CONFIRMEE, detail: event.item.label});
-              this.onActiveIndexChange(event.index);
+              //this.onActiveIndexChange(event.index);
           }
       },
       {
@@ -295,8 +295,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         badge:0,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:EN_COURS, detail: event.item.label});
-          this.selectedStatus.patchValue([ A_VERIFIER, EN_COURS_1, EN_COURS_2, EN_COURS_3]);
-          this.filterPackets("status");
+          //this.onActiveIndexChange(event.index);
         },
       },
       {
@@ -305,7 +304,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         badge:0,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:A_VERIFIER, detail: event.item.label});
-          this.onActiveIndexChange(event.index);
+          //this.onActiveIndexChange(event.index);
           }
       },
       {
@@ -314,7 +313,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         badge:0,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:RETOUR, detail: event.item.label});
-          this.onActiveIndexChange(event.index);
+          //this.onActiveIndexChange(event.index);
           }
       },
       {
@@ -323,8 +322,9 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         badge:0,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:'Last Step', detail: event.item.label})
-          this.selectedStatus.patchValue([LIVREE,PAYEE,RETOUR_RECU]);
-          this.filterPackets("status");}
+
+          //this.onActiveIndexChange(event.index);
+        }
       }
   ];
   }
@@ -806,8 +806,9 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   addNewRow(): void {
+    if(this.activeIndex!=2)
+    this.onActiveIndexChange(2);
     if(this.loading == false){
-      this.onActiveIndexChange(2);
       //this.activeIndex=2;
       this.loading=true;
       this.packetService
@@ -906,9 +907,10 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     //this.setPacketStatusList();
     let page = 0;
 
-    if ($event == 'states') {
+    /* if ($event == 'states') {
       this.onStateChange();
-    } else if ($event == 'clear') {
+    } else  */
+    if ($event == 'clear') {
       this.selectedStates = [];
       //this.packetStatusList = this.statusList;
       this.selectedStatus.setValue([]);
@@ -930,8 +932,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       mandatoryDate: this.mandatoryDateCheckBox
     };
 
-    console.log("params : ", this.params);
-    
+    console.log("filterPackets params : ", this.params);
+
     this.findAllPackets();
   }
 
@@ -951,34 +953,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       console.log("createRangeDate startDate: ", this.startDate);
   }
 
-  /*onNotificationClick($event?: string): void{
-    console.log("aaaa",$event);
-    //this.createNotification();
-    this.selectedStatus.setValue([]);
-    this.selectedStatus.patchValue([$event]);
-    console.log("filterPackets-onNotificationClick");
-    this.filterPackets('status');
-  }*/
-
-  onStateChange(): void {
-    this.selectedStatus.setValue([]);
-    //this.packetStatusList = [];
-    if (this.selectedStates.indexOf(CORBEIL) > -1) {
-      this.selectedStatus.patchValue([DELETED]);
-    }
-
-    if (this.selectedStates.indexOf(BUREAU) > -1) {
-      this.selectedStatus.patchValue([ NON_CONFIRMEE, ENDED, A_VERIFIER, CONFIRMEE ]);
-    }
-    if (this.selectedStates.indexOf(EN_COURS) > -1) {
-      this.selectedStatus.patchValue([ A_VERIFIER, EN_COURS_1, EN_COURS_2, EN_COURS_3]);
-      //this.packetStatusList = this.statusList;
-    }
-    if (this.selectedStates.indexOf(TERMINE) > -1) {
-      this.selectedStatus.patchValue([PAYEE, RETOUR_RECU]);
-    }
-  }
-
 
   onPageChange($event: any): void {
     this.currentPage = $event.page;
@@ -989,8 +963,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   }
 
   resetTable(): void{
-    //console.log('reset');
-
     this.selectedStates = [];
     this.selectedPackets = [];
     this.selectedStatus.setValue([]);
@@ -1276,9 +1248,15 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   onActiveIndexChange(event: number) {
     this.activeIndex = event;
     //this.createNotification();
-    this.selectedStatus.setValue([]);
-
-    this.selectedStatus.patchValue([this.items[event].title]);
+    if(this.items[event].title == "En Cours")
+      this.selectedStatus.patchValue([ A_VERIFIER, EN_COURS_1, EN_COURS_2, EN_COURS_3]);
+    else if(this.items[event].title == "Terminé")
+      this.selectedStatus.patchValue([LIVREE,PAYEE,RETOUR_RECU]);
+    else {
+      this.selectedStatus.setValue([]);
+      this.selectedStatus.patchValue([this.items[event].title]);
+    }
+    //console.log("filterPackets-onActiveIndexChange",this.params);
     this.filterPackets('status');
   }
 
@@ -1288,6 +1266,33 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
 
 }
 
+  /*onNotificationClick($event?: string): void{
+    console.log("aaaa",$event);
+    //this.createNotification();
+    this.selectedStatus.setValue([]);
+    this.selectedStatus.patchValue([$event]);
+    console.log("filterPackets-onNotificationClick");
+    this.filterPackets('status');
+  }*/
+
+  /*onStateChange(): void {
+    this.selectedStatus.setValue([]);
+    //this.packetStatusList = [];
+    if (this.selectedStates.indexOf(CORBEIL) > -1) {
+      this.selectedStatus.patchValue([DELETED]);
+    }
+
+    if (this.selectedStates.indexOf(BUREAU) > -1) {
+      this.selectedStatus.patchValue([ NON_CONFIRMEE, ENDED, A_VERIFIER, CONFIRMEE ]);
+    }
+    if (this.selectedStates.indexOf(EN_COURS) > -1) {
+      this.selectedStatus.patchValue([ A_VERIFIER, EN_COURS_1, EN_COURS_2, EN_COURS_3]);
+      //this.packetStatusList = this.statusList;
+    }
+    if (this.selectedStates.indexOf(TERMINE) > -1) {
+      this.selectedStatus.patchValue([PAYEE, RETOUR_RECU]);
+    }
+  }*/
     /*exportExcel() {
     console.log(this.dt?._totalRecords);
     console.log(this.dt?.totalRecords);

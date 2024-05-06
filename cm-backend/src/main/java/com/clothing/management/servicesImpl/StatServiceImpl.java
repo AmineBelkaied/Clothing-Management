@@ -235,9 +235,13 @@ public class StatServiceImpl implements StatService {
     @Override
     public Map<String , List<?>> statAllColorsChart(String beginDate, String endDate,List<Long> lookForModelIds){
         System.out.println(beginDate);
-        if(lookForModelIds.size() == 0)lookForModelIds = new ArrayList<Long>();
-        List<ProductsDayCountDTO> existingProductsPacketColor = productsPacketRepository.statAllModelsByColor(beginDate,endDate,lookForModelIds);
-        Map<String, List<?>> uniqueValues = getUnique((existingProductsPacketColor));
+        List<ProductsDayCountDTO> existingProductsPacketColor;
+        if(lookForModelIds.isEmpty()){
+            existingProductsPacketColor = productsPacketRepository.statAllModelsByColor(beginDate,endDate);
+        }else{
+            existingProductsPacketColor = productsPacketRepository.statByColorAndModels(beginDate,endDate,lookForModelIds);
+        }
+       Map<String, List<?>> uniqueValues = getUnique((existingProductsPacketColor));
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<Color> uniqueColors = (List<Color>) uniqueValues.get("uniqueColors");
 
