@@ -12,7 +12,6 @@ export class GlobalConfService {
 
   private baseUrl: string = baseUrl + "/globalConf";
   public editMode = false;
-  public globalConf$ = this.getGlobalConf();
 
   constructor(private http: HttpClient) {}
 

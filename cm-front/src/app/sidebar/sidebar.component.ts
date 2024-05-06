@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
-import { AsyncAction } from 'rxjs/internal/scheduler/AsyncAction';
-import { APPNAME } from 'src/assets/constants';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { PacketService } from 'src/shared/services/packet.service';
@@ -27,6 +25,7 @@ export class SidebarComponent implements OnInit {
   globalConf: GlobalConf = {
     applicationName: ""
   };
+  readonly clothingManagementLabel: string = 'Clothing Management';
 
   constructor(private packetService: PacketService, private globalConfService: GlobalConfService,private messageService: MessageService,
               private router: Router,  public storageService: StorageService) {
@@ -35,16 +34,14 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.storageService.isLoggedIn.subscribe(isLoggedIn => {
       this.isLoggedIn = isLoggedIn;
-      //this.storageService.getTenantName() === "diggie" ? this.appName = DIGGIE : this.appName = LYFT;
       this.userName = this.storageService.getUserName();
       this.isAdmin = this.storageService.hasRoleAdmin();
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
-    });
-
-    this.activeClass = true;
-    this.globalConfService.globalConf$.subscribe((globalConf: GlobalConf) => {
-      if(globalConf)
-        this.globalConf = Object.assign({}, globalConf)
+      this.activeClass = true;
+      this.globalConfService.getGlobalConf().subscribe((globalConf: GlobalConf) => {
+        if(globalConf)
+          this.globalConf = {...globalConf};
+      });
     });
   }
 
