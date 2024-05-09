@@ -1,5 +1,6 @@
 
-import { ConfirmationService, MessageService, SelectItemGroup, PrimeIcons, MenuItem } from 'primeng/api';
+import { ConfirmationService, SelectItemGroup, PrimeIcons, MenuItem } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { Packet } from '../../../shared/models/Packet';
 import { OfferService } from '../../../shared/services/offer.service';
 import { PacketService } from '../../../shared/services/packet.service';
@@ -10,7 +11,6 @@ import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../../../shared/services/fb-page.service';
 import { catchError, identity, Observable, of, Subject,takeUntil} from 'rxjs';
 import { Offer } from 'src/shared/models/Offer';
-import { FormControl } from '@angular/forms';
 import { StorageService } from 'src/shared/services/strorage.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { A_VERIFIER, BUREAU, CANCELED, CONFIRMEE, CORBEIL, ENDED, EN_COURS, EN_COURS_1, EN_COURS_2,
@@ -25,6 +25,7 @@ import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { AfterViewChecked, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-list-packets',
@@ -237,7 +238,6 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   ];
 
   constructor(
-    private messageService: MessageService,
     private packetService: PacketService,
     private confirmationService: ConfirmationService,
     private offerService: OfferService,
@@ -245,7 +245,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     private fbPageService: FbPageService,
     private dateUtils: DateUtils,
     private globalConfService: GlobalConfService,
-    public storageService: StorageService
+    public storageService: StorageService,
+    public messageService:MessageService
     ) {//private cdRef: ChangeDetectorRef,
     this.statusList = statusList;
     this.statesList = statesList;

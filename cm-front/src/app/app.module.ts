@@ -39,7 +39,6 @@ import { ChipModule } from 'primeng/chip';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AvatarModule } from 'primeng/avatar';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 
@@ -84,9 +83,11 @@ import { AuthInterceptor } from 'src/shared/helpers/interceptor';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { UserComponent } from './config/user/user.component';
 import { PasswordModule } from 'primeng/password';
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+
 import 'tslib';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule } from '@angular/core';
 
 @NgModule({
   declarations: [
@@ -125,8 +126,6 @@ import 'tslib';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
     CommonModule,
     AppRoutingModule, TimelineModule,
     InputTextModule,

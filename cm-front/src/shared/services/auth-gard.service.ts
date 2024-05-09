@@ -14,7 +14,7 @@ export class AuthGuard  {
 
         if (this.storageService.isUserLoggedIn()) {
             if (route.data['role'] && !StringUtils.checkExistence(route.data['role'], this.storageService.getRoles())) {
-                this.router.navigateByUrl('/');
+                this.router.navigateByUrl('/packets');
                 return false;
             }
             return true;

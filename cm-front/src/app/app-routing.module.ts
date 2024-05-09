@@ -55,11 +55,14 @@ const routes: Routes = [
   { path: "dashboard", "component": DashboardComponent },
   { path: "verification", "component": VerificationComponent },
   {
-    path: "packets", "component": ListPacketsComponent, canActivate: [AuthGuard], data: {
+    path: "packets",
+    component: ListPacketsComponent,
+    canActivate: [AuthGuard],
+    data: {
       role: [Roles.ADMIN, Roles.USER]
-    }, children: [
-      { path: "", redirectTo: "/packets", pathMatch: "full" },
-      { path: "add", "component": AddPacketComponent }
+    },
+    children: [
+      { path: "add", component: AddPacketComponent }
     ]
   },
   { path: 'auth', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },

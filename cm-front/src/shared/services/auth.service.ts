@@ -14,11 +14,11 @@ const httpOptions = {
 export class AuthService {
   constructor(private http: HttpClient) {}
 
-  
-  private baseUrl: string = baseUrl + '/auth';
+
+  private authUrl: string = '/api/auth';
   login(form: any): Observable<any> {
     return this.http.post(
-      baseUrl + '/api/auth/login',
+      baseUrl + this.authUrl +'/login',
       form,
       httpOptions
     );
@@ -26,7 +26,7 @@ export class AuthService {
 
   register(username: string, email: string, password: string): Observable<any> {
     return this.http.post(
-      baseUrl + 'api/auth/signup',
+      baseUrl + this.authUrl +'/signup',
       {
         username,
         email,
@@ -37,12 +37,12 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
-    return this.http.post(baseUrl + 'api/auth/signout', { }, httpOptions);
+    return this.http.post(baseUrl + this.authUrl+'/signout', { }, httpOptions);
   }
 
   secondLogin(form: any): Observable<any> {
     return this.http.post(
-      baseUrl + 'api/auth/secondLogin',
+      baseUrl + this.authUrl +'/secondLogin',
       form,
       httpOptions
     );
@@ -50,14 +50,14 @@ export class AuthService {
 
   getTenantsByUser(userName: any): Observable<any> {
     return this.http.get(
-      baseUrl + 'api/auth/getTenantsByUser/'+ userName,
+      baseUrl + this.authUrl +'/getTenantsByUser/'+ userName,
       httpOptions
     );
   }
 
   loginMaster(form: any): Observable<any> {
     return this.http.post(
-      baseUrl + '/api/auth/login-master',
+      baseUrl + this.authUrl +'/login-master',
       form,
       httpOptions
     );
