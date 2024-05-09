@@ -11,6 +11,7 @@ import { FbPageService } from '../../../shared/services/fb-page.service';
 import { catchError, identity, Observable, of, Subject,takeUntil} from 'rxjs';
 import { Offer } from 'src/shared/models/Offer';
 import { FormControl } from '@angular/forms';
+import { StorageService } from 'src/shared/services/strorage.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { A_VERIFIER, BUREAU, CANCELED, CONFIRMEE, CORBEIL, ENDED, EN_COURS, EN_COURS_1, EN_COURS_2,
   EN_COURS_3, INJOIGNABLE, LIVREE, NON_CONFIRMEE, NOT_SERIOUS, PAYEE, PROBLEME, RETOUR, RETOUR_RECU,
@@ -23,7 +24,6 @@ import * as FileSaver from 'file-saver';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
-import { Badge } from 'primeng/badge';
 
 @Component({
   selector: 'app-list-packets',
@@ -69,6 +69,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   //selectedCity: string | undefined;
   filter: string;
 
+  enCoursStatus: string[] = [];
   statusList: string[] = [];
   optionButtons: MenuItem[];
   packetStatusList: string[] = [];
@@ -201,6 +202,38 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   @Output() confirmEvent: EventEmitter<string> = new EventEmitter<string>();
   visibleNote: boolean = false;
   note: string = '';
+  enCoursOptionsValue !:any;
+  enCoursOptions: any[] = [
+      { name: '1' , value:EN_COURS_1},
+      { name: '2' , value:EN_COURS_2},
+      { name: '3' , value:EN_COURS_3},
+      { name: A_VERIFIER , value:A_VERIFIER}
+  ];
+
+  nonConfirmedOptionsValue !:any;
+  nonConfirmedOptions: any[] = [
+      { name: NON_CONFIRMEE , value:NON_CONFIRMEE},
+      { name: INJOIGNABLE , value:INJOIGNABLE},
+  ];
+
+  endedOptionsValue !:any;
+  endedOptions: any[] = [
+      { name: LIVREE , value:LIVREE},
+      { name: PAYEE , value:PAYEE},
+      { name: RETOUR_RECU , value:RETOUR_RECU}
+  ];
+
+  activeClass: boolean;
+  userName: string;
+  isLoggedIn: boolean;
+  isAdmin: boolean;
+  isSuperAdmin: boolean;
+  globalConf: GlobalConf = {
+    applicationName: ""
+  };
+  meterGroupValue= [
+    { label: 'Space used', value: 15, color: '#34d399' }
+  ];
 
   constructor(
     private messageService: MessageService,
@@ -211,7 +244,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     private fbPageService: FbPageService,
     private dateUtils: DateUtils,
     private cdRef: ChangeDetectorRef,
-    private globalConfService: GlobalConfService
+    private globalConfService: GlobalConfService,
+    public storageService: StorageService
     ) {
     this.statusList = statusList;
     this.statesList = statesList;
@@ -221,7 +255,21 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.cdRef.detectChanges();
   }
 
+
+
   ngOnInit(): void {
+    this.storageService.isLoggedIn.subscribe(isLoggedIn => {
+      this.isLoggedIn = isLoggedIn;
+      this.userName = this.storageService.getUserName();
+      this.isAdmin = this.storageService.hasRoleAdmin();
+      this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
+      this.activeClass = true;
+      this.globalConfService.getGlobalConf().subscribe((globalConf: GlobalConf) => {
+        if(globalConf)
+          this.globalConf = {...globalConf};
+        this.deliveryCompanyName = this.globalConf.deliveryCompany;
+      });
+    });
     //this.createNotification();
     this.createColumns();
     this.findAllOffers();
@@ -243,7 +291,9 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       {
         label: "Tous",
         title: "Tous",
-        badge:0,
+        icon: 'pi pi-align-justify',
+        color: 'green',
+        badge:this.items[0].badge,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:"All", detail: event.item.label});
           //this.onNotificationClick(event.item.title);
@@ -252,37 +302,33 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
         disabled:true
       },
       {
-        label: ENDED+"("+this.items[0].badge+")",
+        label: ENDED+"("+this.items[1].badge+")",
         title: ENDED,
-        badge:0,
+        icon: 'pi pi-times',
+        color: 'red',
+        badge:this.items[1].badge,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:ENDED, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
         }
       },
       {
-        label: NON_CONFIRMEE+"("+this.items[1].badge+")",
+        label: NON_CONFIRMEE+"("+this.items[2].badge+")",
         title: NON_CONFIRMEE,
-        badge:0,
+        icon: 'pi pi-phone',
+        color: 'orange',
+        badge:this.items[2].badge,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:NON_CONFIRMEE, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
         }
       },
       {
-          label: INJOIGNABLE+"("+this.items[2].badge+")",
-          title: INJOIGNABLE,
-          icon: 'pi-power-off',
-          badge:0,
-          command: (event: any) => {
-            this.messageService.add({severity:'info', summary:INJOIGNABLE, detail: event.item.label});
-            //this.onActiveIndexChange(event.index);
-          }
-      },
-      {
           label: CONFIRMEE+"("+this.items[3].badge+")",
           title: CONFIRMEE,
-          badge:0,
+          icon: 'pi pi-thumbs-up',
+          color: 'green',
+          badge:this.items[3].badge,
           command:
             (event: any) => {
               this.messageService.add({severity:'info', summary:CONFIRMEE, detail: event.item.label});
@@ -292,25 +338,20 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       {
         label: EN_COURS+"("+this.items[4].badge+")",
         title: EN_COURS,
-        badge:0,
+        icon: 'pi pi-truck',
+        color: 'purple',
+        badge:this.items[4].badge,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:EN_COURS, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
         },
       },
       {
-        label: A_VERIFIER+"("+this.items[5].badge+")",
-        title: A_VERIFIER,
-        badge:0,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:A_VERIFIER, detail: event.item.label});
-          //this.onActiveIndexChange(event.index);
-          }
-      },
-      {
-        label: RETOUR+"("+this.items[6].badge+")",
+        label: RETOUR+"("+this.items[5].badge+")",
         title: RETOUR,
-        badge:0,
+        icon: 'pi pi-thumbs-down',
+        color: 'red',
+        badge:this.items[5].badge,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:RETOUR, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
@@ -319,7 +360,9 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       {
         label: 'Terminé',
         title: 'Terminé',
-        badge:0,
+        icon: 'pi pi-flag',
+        color: 'red',
+        badge:this.items[6].badge,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:'Last Step', detail: event.item.label})
 
@@ -344,24 +387,35 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   createNotification(): void {
     console.log("createNotification");
     let enCours =0;
+    let nonConfirmed =0;
+    let closed =0;
+    let all =0;
     this.packetService.syncNotification()
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: DashboardCard[]) => {
           if (response != null && response.length > 0) {
             response.forEach((element: any) => {
-              if(element.status == ENDED) this.items[0].badge = element.statusCount;
-              else if(element.status == NON_CONFIRMEE) this.items[1].badge = element.statusCount;
-              else if(element.status == INJOIGNABLE) this.items[2].badge = element.statusCount;
+              if(element.status == ENDED) this.items[1].badge = element.statusCount;
+              else if(element.status == NON_CONFIRMEE) nonConfirmed += element.statusCount;
+              else if(element.status == INJOIGNABLE) nonConfirmed += element.statusCount;
               else if(element.status == CONFIRMEE) this.items[3].badge = element.statusCount;
               else if(element.status == EN_COURS_1) enCours += element.statusCount;
               else if(element.status == EN_COURS_2) enCours += element.statusCount;
               else if(element.status == EN_COURS_3) enCours += element.statusCount;
-              else if(element.status == A_VERIFIER) this.items[5].badge = element.statusCount;
-              else if(element.status == RETOUR) this.items[6].badge = element.statusCount;
+              else if(element.status == A_VERIFIER) enCours += element.statusCount;
+              else if(element.status == RETOUR) this.items[5].badge = element.statusCount;
+              else if(element.status == LIVREE) closed += element.statusCount;
+              else if(element.status == PAYEE) closed += element.statusCount;
+              else if(element.status == RETOUR_RECU) closed += element.statusCount;
+              all += element.statusCount;
             });
           }
+          this.items[0].badge = all;
+          this.items[2].badge = nonConfirmed;
           this.items[4].badge = enCours;
+          this.items[6].badge = closed;
+
           this.loadNotification();
         },
         error: (error: Error) => {
@@ -814,6 +868,8 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       this.packetService
       .addPacket()
       .subscribe((response: Packet) => {
+        console.log("new pack", response);
+
         this.loading=false;
         this.packets.unshift(response);
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
@@ -1142,7 +1198,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
   ];
   }
 
-  exportCSV() {
+  /*exportCSV() {
     let packets: any[] = [];
     let selectedPackets = this.selectedPackets.map((p) => p.id);
     packets = this.packets.slice();
@@ -1220,7 +1276,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
       }
     });
     this.download(csv, 'first - ' + this.dateUtils.formatDateToString(this.today));
-  }
+  }*/
 
   download(text: any, filename: any) {
     let element = document.createElement('a');
@@ -1245,13 +1301,33 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     this.selectedPhoneNumber = packet.customerPhoneNb;
   }
 
-  onActiveIndexChange(event: number) {
+  onActiveIndexChange(event: any) {
+
+    console.log(event,this.enCoursOptionsValue);
     this.activeIndex = event;
-    //this.createNotification();
-    if(this.items[event].title == "En Cours")
-      this.selectedStatus.patchValue([ A_VERIFIER, EN_COURS_1, EN_COURS_2, EN_COURS_3]);
+
+    if(this.items[event].title == EN_COURS)
+      {
+        if(this.enCoursOptionsValue != undefined && this.enCoursOptionsValue.length > 0)
+        this.selectedStatus.patchValue(this.enCoursOptionsValue);
+        else
+        this.selectedStatus.patchValue([ A_VERIFIER, EN_COURS_1, EN_COURS_2, EN_COURS_3]);
+      }
+    else if(this.items[event].title == NON_CONFIRMEE)
+      {
+        if(this.nonConfirmedOptionsValue != undefined && this.nonConfirmedOptionsValue.length > 0)
+            this.selectedStatus.patchValue(this.nonConfirmedOptionsValue);
+        else
+            this.selectedStatus.patchValue([ NON_CONFIRMEE, INJOIGNABLE]);
+      }
+
     else if(this.items[event].title == "Terminé")
-      this.selectedStatus.patchValue([LIVREE,PAYEE,RETOUR_RECU]);
+      {
+        if(this.endedOptionsValue != undefined && this.endedOptionsValue.length > 0)
+          this.selectedStatus.patchValue(this.endedOptionsValue);
+      else
+        this.selectedStatus.patchValue([LIVREE,PAYEE,RETOUR_RECU]);
+      }
     else {
       this.selectedStatus.setValue([]);
       this.selectedStatus.patchValue([this.items[event].title]);

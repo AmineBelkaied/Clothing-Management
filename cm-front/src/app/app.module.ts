@@ -41,6 +41,9 @@ import { ChipModule } from 'primeng/chip';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AvatarModule } from 'primeng/avatar';
+import { MeterGroupModule } from 'primeng/metergroup';
+
+
 
 
 // import components
@@ -77,6 +80,7 @@ import { VerificationComponent } from './verification/verification.component';
 import { PickListModule } from 'primeng/picklist';
 import { GlobalConfComponent } from './config/global-conf/global-conf.component';
 import { StepsModule } from 'primeng/steps';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 
 import { AuthInterceptor } from 'src/shared/helpers/interceptor';
@@ -163,7 +167,9 @@ import { PasswordModule } from 'primeng/password';
     ConfirmPopupModule,
     AvatarGroupModule,
     AvatarModule,
-    StepsModule
+    StepsModule,
+    BreadcrumbModule,
+    MeterGroupModule
   ],
   providers: [MessageService, ConfirmationService, CityTreeService, DatePipe, AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],

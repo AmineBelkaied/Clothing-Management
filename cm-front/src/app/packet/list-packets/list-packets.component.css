@@ -23,8 +23,24 @@ td {
   /* overflow: auto; si vous souhaitez également un défilement horizontal lorsque nécessaire */
 }
 
+:host ::ng-deep .small-select-button .p-button {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.8rem !important;
+}
 
 
+
+.grid {
+  display: flex;
+  justify-content: center; /* Align cards horizontally centered */
+  flex-wrap: wrap;
+}
+
+.statusCard{
+  flex: 1; /* Make cards fill available horizontal space */
+  max-width: 100%; /* Ensure cards don't exceed parent width */
+  height: 100%;
+}
 
  .outofstockStatus {
   font-weight: 700;
