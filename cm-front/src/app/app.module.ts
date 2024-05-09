@@ -1,11 +1,9 @@
-import { NO_ERRORS_SCHEMA, NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+
 
 // import modules, directives and services
 import { AppRoutingModule } from './app-routing.module';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -41,8 +39,7 @@ import { ChipModule } from 'primeng/chip';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AvatarModule } from 'primeng/avatar';
-import { MeterGroupModule } from 'primeng/metergroup';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 
@@ -87,6 +84,9 @@ import { AuthInterceptor } from 'src/shared/helpers/interceptor';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { UserComponent } from './config/user/user.component';
 import { PasswordModule } from 'primeng/password';
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import 'tslib';
 
 @NgModule({
   declarations: [
@@ -168,8 +168,7 @@ import { PasswordModule } from 'primeng/password';
     AvatarGroupModule,
     AvatarModule,
     StepsModule,
-    BreadcrumbModule,
-    MeterGroupModule
+    BreadcrumbModule
   ],
   providers: [MessageService, ConfirmationService, CityTreeService, DatePipe, AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],

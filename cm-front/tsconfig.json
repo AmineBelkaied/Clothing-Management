@@ -26,6 +26,7 @@
       "es6",
       "dom.iterable"
     ],
+    "types": ["tslib"],
     "useDefineForClassFields": false
   },
   "angularCompilerOptions": {

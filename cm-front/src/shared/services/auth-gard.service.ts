@@ -19,7 +19,6 @@ export class AuthGuard  {
             }
             return true;
         }
-
         this.router.navigate(['/auth/login/'] + this.storageService.getTenantName())
         return false;
     }

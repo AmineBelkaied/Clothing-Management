@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+
 import { ConfirmationService, MessageService, SelectItemGroup, PrimeIcons, MenuItem } from 'primeng/api';
 import { Packet } from '../../../shared/models/Packet';
 import { OfferService } from '../../../shared/services/offer.service';
@@ -24,6 +24,7 @@ import * as FileSaver from 'file-saver';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
+import { AfterViewChecked, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-list-packets',
@@ -243,16 +244,15 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
     private cityService: CityService,
     private fbPageService: FbPageService,
     private dateUtils: DateUtils,
-    private cdRef: ChangeDetectorRef,
     private globalConfService: GlobalConfService,
     public storageService: StorageService
-    ) {
+    ) {//private cdRef: ChangeDetectorRef,
     this.statusList = statusList;
     this.statesList = statesList;
   }
 
   ngAfterViewChecked() {
-    this.cdRef.detectChanges();
+    //this.cdRef.detectChanges();
   }
 
 
@@ -850,7 +850,7 @@ export class ListPacketsComponent implements OnInit, AfterViewChecked, OnDestroy
               this.statusEvents.push({status: element.status, date: element.date, user: element.user?.fullName, icon: PrimeIcons.ENVELOPE, color: '#9C27B0'});
             });
           }
-          this.cdRef.detectChanges();
+        //  this.cdRef.detectChanges();
           this.displayStatus = true;
         }
       );
