@@ -54,13 +54,17 @@ public class TenantDatabaseManager {
 
     public void updateAllTenantDatabases() {
         List<MasterTenant> masterTenants = masterTenantService.findAllMasterTenants();
-        for (MasterTenant masterTenant : masterTenants) {
-            LOG.info("--- STARTING UPDATING DATABASE --- " + masterTenant.getDbName() + " FOR TENANT >> " + masterTenant.getTenantName());
+        try {
+            for (MasterTenant masterTenant : masterTenants) {
+                LOG.info("--- STARTING UPDATING DATABASE --- " + masterTenant.getDbName() + " FOR TENANT >> " + masterTenant.getTenantName());
 
-            DriverManagerDataSource dataSource = getDriverManagerDataSource(masterTenant);
-            getEntityManagerFactoryBean(masterTenant, dataSource);
+                DriverManagerDataSource dataSource = getDriverManagerDataSource(masterTenant);
+                getEntityManagerFactoryBean(masterTenant, dataSource);
 
-            LOG.info("--- END OF UPDATING DATABASE --- " + masterTenant.getDbName() + " FOR TENANT >> " + masterTenant.getTenantName());
+                LOG.info("--- END OF UPDATING DATABASE --- " + masterTenant.getDbName() + " FOR TENANT >> " + masterTenant.getTenantName());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
