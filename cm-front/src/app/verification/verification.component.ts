@@ -5,7 +5,7 @@ import { Packet } from 'src/shared/models/Packet';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { PacketService } from 'src/shared/services/packet.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { CONFIRMEE, RETOUR } from 'src/shared/utils/status-list';
+import { CONFIRMED, RETURN } from 'src/shared/utils/status-list';
 
 @Component({
   selector: 'app-verification',
@@ -25,7 +25,7 @@ export class VerificationComponent implements OnInit {
   packets: Packet[];
   totalItems: number;
   packet: Packet;
-  type : string = CONFIRMEE;
+  type : string = CONFIRMED;
   sourceString : string = "Non Validé";
   targetString : string = "Validé";
 
@@ -36,7 +36,7 @@ export class VerificationComponent implements OnInit {
     startDate: null,
     endDate: null,
     mandatoryDate: true,
-    status: CONFIRMEE,
+    status: CONFIRMED,
   };
 
 
@@ -50,12 +50,12 @@ export class VerificationComponent implements OnInit {
 }
 
 findAllConfirmedPackets(): void {
-  if(this.type == CONFIRMEE){
+  if(this.type == CONFIRMED){
     this.sourceString = "Non validé";
     this.targetString = "Validé";
   }
   else {
-    this.sourceString = RETOUR;
+    this.sourceString = RETURN;
     this.targetString = "Retour Echange";
   }
   this.params.status = this.type;
@@ -66,7 +66,7 @@ findAllConfirmedPackets(): void {
         this.packets = response.result;
         //console.log('response',response);
         this.totalItems = response.totalItems;
-        if(this.type == CONFIRMEE){
+        if(this.type == CONFIRMED){
           this.sourcePackets = response.result.filter((packet: Packet) => packet.valid == false);
           this.targetPackets = response.result.filter((packet: Packet) => packet.valid);
         }
@@ -86,7 +86,7 @@ Validate(){
   if(this.barCode.length == 13)
   this.barCode = this.barCode.slice(0,12);
   //console.log('validé',this.barCode);
-  if (this.type == CONFIRMEE){
+  if (this.type == CONFIRMED){
     if (!(this.sourcePackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1)){
       if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
         alert('Error: BarreCode déja validé');

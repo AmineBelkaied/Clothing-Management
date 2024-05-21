@@ -20,11 +20,6 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value=" SELECT * FROM packet p WHERE DATEDIFF(NOW() , p.date) < 2", nativeQuery = true)
     List<Packet> findAllByDate(@Param("date") Date d);
 
-    /*@Query(value="SELECT * FROM packet p WHERE DATE(p.date) = DATE(NOW()) ORDER BY p.id DESC",
-            countQuery = "SELECT count(*) FROM packet p WHERE DATE(p.date) = DATE(NOW()) ORDER BY p.id DESC",
-            nativeQuery = true)
-    Page<Packet> findAllTodayPackets(Pageable pageable);*/
-
     @Query(value="SELECT * FROM packet p WHERE p.status != 'Payée' and p.status != 'Annuler' " +
             "AND p.status != 'Pas serieux' AND p.status != 'Livrée' " +
             "AND p.status != 'Retour reçu' AND p.status != 'Retour' " +
@@ -61,9 +56,6 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value ="SELECT p FROM Packet p WHERE CAST(p.id as String) LIKE %:searchField% OR  p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.barcode LIKE %:searchField% AND DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)")
     Page<Packet> findAllPacketsByFieldAndDate(@Param("searchField") String searchField, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 
-    @Query(value ="SELECT p FROM Packet p WHERE (p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.address LIKE %:searchField% OR p.city.name LIKE %:searchField% OR p.fbPage.name LIKE %:searchField%) AND p.status IN (:statusList)")
-    Page<Packet> findAllPacketsByFieldAndStatus(@Param("searchField") String searchField, @Param("statusList") List<String> statusList, Pageable pageable);
-
     @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList) AND (p.status IN (:ignoredDateStatusList) OR (DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)))")
     Page<Packet> findAllPacketsByStatus(@Param("ignoredDateStatusList") List<String> ignoredDateStatusList, @Param("selectedList") List<String> selectedList, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 
@@ -73,10 +65,17 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value ="SELECT p FROM Packet p WHERE DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate) AND p.status IN (:statusList)")
     Page<Packet> findAllPacketsByDateAndStatus(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("statusList") List<String> statusList, Pageable pageable);
 
-    @Query(value ="SELECT p FROM Packet p WHERE (p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.address LIKE %:searchField% OR p.city.name LIKE %:searchField% OR p.fbPage.name LIKE %:searchField%) AND DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate) AND p.status IN (:statusList)")
-    Page<Packet> findAllPacketsByFieldAndDateAndStatus(@Param("searchField") String searchField, @Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("statusList") List<String> statusList, Pageable pageable);
-
     @Query(value ="SELECT p FROM Packet p WHERE DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)")
     List<Packet> findAllPacketsByDate(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
+        /*@Query(value="SELECT * FROM packet p WHERE DATE(p.date) = DATE(NOW()) ORDER BY p.id DESC",
+            countQuery = "SELECT count(*) FROM packet p WHERE DATE(p.date) = DATE(NOW()) ORDER BY p.id DESC",
+            nativeQuery = true)
+    Page<Packet> findAllTodayPackets(Pageable pageable);
+
+        @Query(value ="SELECT p FROM Packet p WHERE (p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.address LIKE %:searchField% OR p.city.name LIKE %:searchField% OR p.fbPage.name LIKE %:searchField%) AND p.status IN (:statusList)")
+    Page<Packet> findAllPacketsByFieldAndStatus(@Param("searchField") String searchField, @Param("statusList") List<String> statusList, Pageable pageable);
+        @Query(value ="SELECT p FROM Packet p WHERE (p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.address LIKE %:searchField% OR p.city.name LIKE %:searchField% OR p.fbPage.name LIKE %:searchField%) AND DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate) AND p.status IN (:statusList)")
+    Page<Packet> findAllPacketsByFieldAndDateAndStatus(@Param("searchField") String searchField, @Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("statusList") List<String> statusList, Pageable pageable);
+    */
 }

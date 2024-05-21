@@ -175,6 +175,4 @@ td {
     z-index: 999; /* Pour s'assurer que les notifications sont au-dessus de tout le reste */
   }
 
-  ol, ul {
-    padding-left: 0 !important;
-  }
+

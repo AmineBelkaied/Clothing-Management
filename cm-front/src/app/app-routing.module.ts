@@ -1,5 +1,4 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+
 import { AddPacketComponent } from './packet/add-packet/add-packet.component';
 import { ConfigComponent } from './config/config.component';
 import { ListModelsComponent } from './model/list-models/list-models.component';
@@ -13,6 +12,9 @@ import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { Roles } from 'src/shared/enums/roles';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { VerificationComponent } from './verification/verification.component';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import 'tslib';
 
 const routes: Routes = [
   { path: "", redirectTo: "/packets", pathMatch: "full", },
@@ -55,14 +57,10 @@ const routes: Routes = [
   { path: "dashboard", "component": DashboardComponent },
   { path: "verification", "component": VerificationComponent },
   {
-    path: "packets",
-    component: ListPacketsComponent,
-    canActivate: [AuthGuard],
-    data: {
+    path: "packets", "component": ListPacketsComponent, canActivate: [AuthGuard], data: {
       role: [Roles.ADMIN, Roles.USER]
-    },
-    children: [
-      { path: "add", component: AddPacketComponent }
+    }, children: [
+      { path: "add", "component": AddPacketComponent }
     ]
   },
   { path: 'auth', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },

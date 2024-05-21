@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 import { StorageService } from "./strorage.service";
 import { StringUtils } from "../utils/string-utils";
-
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 @Injectable()
 export class AuthGuard  {
     constructor(
@@ -14,7 +13,7 @@ export class AuthGuard  {
 
         if (this.storageService.isUserLoggedIn()) {
             if (route.data['role'] && !StringUtils.checkExistence(route.data['role'], this.storageService.getRoles())) {
-                this.router.navigateByUrl('/packets');
+                this.router.navigateByUrl('/');
                 return false;
             }
             return true;

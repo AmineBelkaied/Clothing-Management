@@ -36,7 +36,6 @@ export class StockComponent implements OnInit {
 
   productsHistory: any;
   selectedProducts: number[] = [];
-  isRowSelectable = true;
   isMultiple = false;
   qte: number = 0;
   userName: String = "Oumaima";

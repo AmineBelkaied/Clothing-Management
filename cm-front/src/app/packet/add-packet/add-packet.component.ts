@@ -7,7 +7,7 @@ import { StringUtils } from 'src/shared/utils/string-utils';
 import { Color } from 'src/shared/models/Color';
 import { Size } from 'src/shared/models/Size';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { ENDED, NON_CONFIRMEE } from 'src/shared/utils/status-list';
+import { ENDED, NOT_CONFIRMED } from 'src/shared/utils/status-list';
 
 @Component({
   selector: 'app-add-packet',
@@ -261,15 +261,6 @@ export class AddPacketComponent implements OnInit {
     this.createPacketDescription();
   }
 
-/*
-  createProductRef(modelRef: any, colorRef: any, sizeRef: any) {
-    let ref = (modelRef != null && modelRef != '') ? modelRef : '?';
-    let colorModel = (colorRef != null && colorRef != '') ? colorRef : '?';
-    let sizeModel = (sizeRef != null && sizeRef != '') ? sizeRef : '?';
-    let productRef = ref.concat(colorModel).concat(sizeModel);
-    return productRef;
-  } */
-
   onSubmit(event:Event) {
 
     let productsOffers: ProductOfferDTO[] = this.prepareProductsOffers(this.packetForm.value);
@@ -305,14 +296,12 @@ export class AddPacketComponent implements OnInit {
     //console.log("submitProductsOffers");
     let selectedProducts ={};
     if(stock)
-      selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': NON_CONFIRMEE};
+      selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': NOT_CONFIRMED};
     else
       selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': ENDED };
 
     this.packetService.addProductsToPacket(selectedProducts,this.stockAvailable)
       .subscribe((packet: any) => {
-        //console.log("addProductsToPacket");
-        //let result = { 'packet': selectedProducts, 'modelDialog': false }
         let result = { 'packet': packet, 'modelDialog': false }
         this.submitEvent.emit(result);
       });
@@ -401,6 +390,15 @@ export class AddPacketComponent implements OnInit {
   enableFake(){
     this.enableFakeSize = !this.enableFakeSize
   }
+
+  /*
+  createProductRef(modelRef: any, colorRef: any, sizeRef: any) {
+    let ref = (modelRef != null && modelRef != '') ? modelRef : '?';
+    let colorModel = (colorRef != null && colorRef != '') ? colorRef : '?';
+    let sizeModel = (sizeRef != null && sizeRef != '') ? sizeRef : '?';
+    let productRef = ref.concat(colorModel).concat(sizeModel);
+    return productRef;
+  } */
 
 /*   getStock(model: any,offer:any) {
     console.log("model",model);

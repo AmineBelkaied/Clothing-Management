@@ -3,7 +3,7 @@ import { DeliveryCompany } from "./DeliveryCompany";
 import { FbPage } from "./FbPage";
 
 export interface Packet {
-    id?: string;
+    id?: number;
     date?: any;
     customerName?: string;
     customerPhoneNb?: string;

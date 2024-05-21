@@ -83,7 +83,7 @@
         <div class="container-fluid">
             <div class="card mt-2 mb-3" style="background-color: #fbfbfb">
               <div class="card-body">
-                    <p-table [value]="products" styleClass="p-datatable-gridlines" [rowSelectable]="isRowSelectable" #dt >
+                    <p-table [value]="products" styleClass="p-datatable-gridlines"  #dt ><!--[rowSelectable]="isRowSelectable"-->
                       <ng-template pTemplate="body" let-productSizes let-j="rowIndex">
                         <tr *ngIf="!(hide0==true && totalRow(j)<1)">
                           <td style="background-color: #fafafa;" (click)="handleColorClick(j)">
@@ -114,7 +114,7 @@
 
                                   </div>
                                   <div class="text-center" style="margin-top: 10px;" *ngIf="stock==true">
-                                    <p-tag [value]="getSeverity(productSize,productSize.quantity, false)" [severity]="getSeverity(productSize,productSize.quantity, true)"></p-tag>
+                                    <p-tag [value]="getSeverity(productSize,productSize.quantity, false)" ><!--[severity]="getSeverity(productSize,productSize.quantity, true)"--></p-tag>
                                   </div>
                                 </ng-container>
                                 <ng-template #colors>{{ productSize.name }}</ng-template>

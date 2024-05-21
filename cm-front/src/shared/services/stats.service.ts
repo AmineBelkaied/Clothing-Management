@@ -4,7 +4,7 @@ import { Packet } from '../models/Packet';
 import { BehaviorSubject, Observable, Subject, tap, throwError } from 'rxjs';
 import { baseUrl } from '../../assets/constants';
 import { DateUtils } from '../utils/date-utils';
-import { A_VERIFIER, CONFIRMEE, EN_COURS, EN_COURS_1, EN_COURS_2, EN_COURS_3, LIVREE, PAYEE, RETOUR, RETOUR_RECU } from '../utils/status-list';
+import { TO_VERIFY, CONFIRMED, IN_PROGRESS, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, PAID, RETURN_RECEIVED, RETURN, DELIVERED } from '../utils/status-list';
 
 @Injectable({
   providedIn: 'root'
@@ -79,16 +79,16 @@ export class StatsService {
         else {
           dateCounts[date] ={ count: 1, payed: 0, return: 0, exchange: 0, out:0 };
         }
-        if (packet.status == PAYEE || packet.status == LIVREE) {
+        if (packet.status == PAID || packet.status == DELIVERED) {
           dateCounts[date].payed++;
         }
-        else if (packet.status == RETOUR || packet.status == RETOUR_RECU) {
+        else if (packet.status == RETURN || packet.status == RETURN_RECEIVED) {
           dateCounts[date].return++;
         }
 
-        if (packet.status == CONFIRMEE || packet.status == PAYEE || packet.status == LIVREE
-          || packet.status == RETOUR || packet.status == RETOUR_RECU || packet.status == A_VERIFIER
-          || packet.status == EN_COURS_1 || packet.status == EN_COURS_2 || packet.status == EN_COURS_3 || packet.status == EN_COURS
+        if (packet.status == CONFIRMED || packet.status == PAID || packet.status == DELIVERED
+          || packet.status == RETURN || packet.status == RETURN_RECEIVED || packet.status == TO_VERIFY
+          || packet.status == IN_PROGRESS_1 || packet.status == IN_PROGRESS_2 || packet.status == IN_PROGRESS_3 || packet.status == IN_PROGRESS
           ) {
           //|| packet.status.substring(0,7) == 'En Cours'
           if (packet.exchangeId) {
@@ -114,7 +114,7 @@ export class StatsService {
           cityCounts[packet.city?.governorate.name] = { count: 1, confirm: 0 ,citys:{}};
           cityCounts[packet.city?.governorate.name].citys[packet.city.name] = { count: 1, confirm: 0 };
         }
-        if (packet.status == PAYEE || packet.status == LIVREE) {
+        if (packet.status == PAID || packet.status == DELIVERED) {
           cityCounts[packet.city?.governorate.name].confirm++;
           cityCounts[packet.city?.governorate.name].citys[packet.city.name].confirm++;
         }

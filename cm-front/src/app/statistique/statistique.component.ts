@@ -9,8 +9,8 @@ import { Subject, takeUntil } from 'rxjs';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { ModelService } from 'src/shared/services/model.service';
 import { ActivatedRoute } from '@angular/router';
-import { FormControl } from '@angular/forms';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-statistique',

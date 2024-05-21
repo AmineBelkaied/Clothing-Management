@@ -6,7 +6,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
@@ -39,6 +38,9 @@ import { ChipModule } from 'primeng/chip';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AvatarModule } from 'primeng/avatar';
+
+import { ReactiveFormsModule } from '@angular/forms';
+import { RippleModule } from 'primeng/ripple';
 
 
 
@@ -80,7 +82,6 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 
 import { AuthInterceptor } from 'src/shared/helpers/interceptor';
-import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { UserComponent } from './config/user/user.component';
 import { PasswordModule } from 'primeng/password';
 
@@ -88,6 +89,7 @@ import 'tslib';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
+import { AuthGuard } from 'src/shared/services/auth-gard.service';
 
 @NgModule({
   declarations: [
@@ -167,9 +169,11 @@ import { NgModule } from '@angular/core';
     AvatarGroupModule,
     AvatarModule,
     StepsModule,
-    BreadcrumbModule
+    BreadcrumbModule,
+    ReactiveFormsModule,
+    RippleModule
   ],
-  providers: [MessageService, ConfirmationService, CityTreeService, DatePipe, AuthGuard,
+  providers: [MessageService, ConfirmationService, CityTreeService, DatePipe,AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
