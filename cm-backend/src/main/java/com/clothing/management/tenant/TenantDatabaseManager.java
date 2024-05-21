@@ -32,11 +32,11 @@ import static com.clothing.management.auth.constant.AppConstants.*;
 @Service
 public class TenantDatabaseManager {
     private static final Logger LOG = LoggerFactory.getLogger(TenantDatabaseManager.class);
-    @Value("${master.db.user}")
+    @Value("${spring.datasource.username}")
     private String masterDbUser;
-    @Value("${master.db.password}")
+    @Value("${spring.datasource.password}")
     private String masterDbPassword;
-    @Value("${master.db.url}")
+    @Value("${spring.datasource.url}")
     private String masterDbUrl;
     @Value("${application.datasource.host}")
     private String dataSourceHost;

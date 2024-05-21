@@ -31,19 +31,16 @@ import java.util.Properties;
 public class MasterDatabaseConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(MasterDatabaseConfig.class);
-    @Value("${master.db.user}")
+    @Value("${spring.datasource.username}")
     private String masterDbUserName;
-    @Value("${master.db.password}")
+    @Value("${spring.datasource.password}")
     private String masterDbPassword;
-    @Value("${master.db.url}")
+    @Value("${spring.datasource.url}")
     private String masterDbUrl;
     @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;
     @Value("${spring.jpa.properties.hibernate.dialect}")
     private String hibernateDialect;
-
-    @Autowired
-    private MasterDatabaseConfigProperties masterDbProperties;
 
     //Create Master Data Source using master properties and also configure HikariCP
     @Bean(name = "masterDataSource")
