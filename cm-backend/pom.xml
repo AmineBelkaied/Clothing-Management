@@ -106,7 +106,7 @@
 							<goal>npm</goal>
 						</goals>
 						<configuration>
-							<arguments>run build</arguments>
+							<arguments>build</arguments>
 							<workingDirectory>../cm-front</workingDirectory> <!-- Specify the frontend project directory -->
 						</configuration>
 					</execution>
