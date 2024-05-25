@@ -12,6 +12,8 @@ package com.clothing.management.enums;
 
         EXCHANGE("Echange"),
         RETOUR_EXPEDITEUR("Retour Expéditeur"),
+
+        RETOUR_EXPEDITEUR_NAVEX("Retour Expediteur"),
         RETOUR_CLIENT_AGENCE("Rtn client/agence"),
         AU_MAGASIN("Au magasin"),
 
@@ -20,6 +22,7 @@ package com.clothing.management.enums;
         A_VERIFIER_NAVEX("A verifier"),
 
         RETOUR_RECU("Retour reçu"),
+        RETOUR_RECU_NAVEX("Retour recu"),
         RETOUR_DEFINITIF("Rtn définitif"),
         OTHER_STATUS();
 
