@@ -129,7 +129,7 @@
 							<outputDirectory>src/main/resources/static</outputDirectory >
 							<resources>
 								<resource>
-									<directory>../cm-front/dist/clothing-management-frontend</directory>
+									<directory>../cm-front/dist/</directory>
 								</resource>
 							</resources>
 						</configuration>
