@@ -103,7 +103,7 @@
 					<execution>
 						<id>npm build</id>
 						<goals>
-							<goal>ng</goal>
+							<goal>npm</goal>
 						</goals>
 						<configuration>
 							<arguments>build --configuration production --aot</arguments>
@@ -122,7 +122,7 @@
 							<outputDirectory>src/main/resources/static</outputDirectory >
 							<resources>
 								<resource>
-									<directory>../cm-front/dist/clothing-management-frontend</directory>
+									<directory>../cm-front/dist/</directory>
 								</resource>
 							</resources>
 						</configuration>
