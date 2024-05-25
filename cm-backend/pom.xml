@@ -103,10 +103,10 @@
 					<execution>
 						<id>npm build</id>
 						<goals>
-							<goal>npm</goal>
+							<goal>ng</goal>
 						</goals>
 						<configuration>
-							<arguments>ng build --configuration production --aot</arguments>
+							<arguments>build --configuration production --aot</arguments>
 						</configuration>
 					</execution>
 				</executions>
