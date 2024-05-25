@@ -50,6 +50,7 @@ public class PacketServiceImpl implements PacketService {
     private final PacketRepositoryImpl packetRepositoryImpl;
     private final PacketRepositoryOldImpl packetRepositoryOld;
     private final UserRepository userRepository;
+    private final static String SYSTEM_USER = "SYSTEM";
     private DeliveryCompany defaultDeliveryCompany;
     private final IGlobalConfRepository globalConfRepository;
 
@@ -628,14 +629,7 @@ public class PacketServiceImpl implements PacketService {
         packetStatus.setPacket(packet);
         packetStatus.setStatus(status);
         packetStatus.setDate(new Date());
-        System.out.println("SecurityContextHolder.getContext().getAuthentication().getPrincipal();");
-        if(SecurityContextHolder.getContext().getAuthentication() != null) {
-            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if(userDetails != null) {
-                User user = userRepository.findByUserName(userDetails.getUsername());
-                packetStatus.setUser(user);
-            }
-        }
+        packetStatus.setUser(getCurrentUser());
         packetStatusRepository.save(packetStatus);
     }
     private void updateProducts_Status(Packet packet,String status){
@@ -689,6 +683,14 @@ public class PacketServiceImpl implements PacketService {
         product.setQuantity(product.getQuantity() + quantityChange);
         product.setDate(new Date());
         productRepository.save(product);
+    }
+
+    private User getCurrentUser() {
+        if(SecurityContextHolder.getContext().getAuthentication() != null) {
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return userDetails != null ? userRepository.findByUserName(userDetails.getUsername()) : userRepository.findByUserName(SYSTEM_USER);
+        }
+        return userRepository.findByUserName(SYSTEM_USER);
     }
 
     /*public Long getExchangeId(Packet packet){
