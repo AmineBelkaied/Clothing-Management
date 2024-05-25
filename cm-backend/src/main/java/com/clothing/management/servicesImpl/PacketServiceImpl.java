@@ -40,6 +40,8 @@ public class PacketServiceImpl implements PacketService {
     private final FirstApiService firstApiService;
     private final NavexApiService navexApiService;
     private final UserRepository userRepository;
+    private final static String SYSTEM_USER = "SYSTEM";
+    private DeliveryCompany defaultDeliveryCompany;
     private final IGlobalConfRepository globalConfRepository;
 
     private final static List<String> ignoredDateStatusList = List.of(new String[]{ RETOUR.getStatus(), NON_CONFIRMEE.getStatus(), INJOIGNABLE.getStatus(), PROBLEM.getStatus(), A_VERIFIER.getStatus(), ENDED.getStatus()});
@@ -597,14 +599,7 @@ public class PacketServiceImpl implements PacketService {
         packetStatus.setPacket(packet);
         packetStatus.setStatus(status);
         packetStatus.setDate(new Date());
-        System.out.println("SecurityContextHolder.getContext().getAuthentication().getPrincipal();");
-        if(SecurityContextHolder.getContext().getAuthentication() != null) {
-            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if(userDetails != null) {
-                User user = userRepository.findByUserName(userDetails.getUsername());
-                packetStatus.setUser(user);
-            }
-        }
+        packetStatus.setUser(getCurrentUser());
         packetStatusRepository.save(packetStatus);
     }
     private void updateProducts_Status(Packet packet,String status){
@@ -658,6 +653,14 @@ public class PacketServiceImpl implements PacketService {
         product.setQuantity(product.getQuantity() + quantityChange);
         product.setDate(new Date());
         productRepository.save(product);
+    }
+
+    private User getCurrentUser() {
+        if(SecurityContextHolder.getContext().getAuthentication() != null) {
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return userDetails != null ? userRepository.findByUserName(userDetails.getUsername()) : userRepository.findByUserName(SYSTEM_USER);
+        }
+        return userRepository.findByUserName(SYSTEM_USER);
     }
 
     /*public Long getExchangeId(Packet packet){
