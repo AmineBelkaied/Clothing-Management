@@ -106,7 +106,7 @@
 							<goal>npm</goal>
 						</goals>
 						<configuration>
-							<arguments>build --configuration production --aot</arguments>
+							<arguments>build</arguments>
 						</configuration>
 					</execution>
 				</executions>
