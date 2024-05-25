@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { PacketService } from 'src/shared/services/packet.service';
-import { PAYEE } from 'src/shared/utils/status-list';
+import { PAID } from 'src/shared/utils/status-list';
 
 @Component({
   selector: 'app-payed-return',
@@ -11,7 +11,7 @@ import { PAYEE } from 'src/shared/utils/status-list';
 export class PayedReturnComponent implements OnInit {
   text: string = ''; // Initialize with the provided text
   extractedBarcodes: string[] = [];
-  type: string= PAYEE
+  type: string= PAID;
   errorMessage :string ="";
 
   constructor(private packetService: PacketService,private messageService: MessageService) {

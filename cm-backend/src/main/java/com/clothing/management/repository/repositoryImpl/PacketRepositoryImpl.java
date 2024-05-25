@@ -1,32 +1,15 @@
 package com.clothing.management.repository.repositoryImpl;
 
-import com.clothing.management.entities.Packet;
-import com.clothing.management.enums.SystemStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class PacketRepositoryImpl {
 
     @PersistenceContext
     private EntityManager entityManager;
-
+/*
     public Page<Packet> findAllPackets(String searchText, String startDate, String endDate, String status, Pageable pageable, boolean mandatoryDate) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Packet> criteriaQuery = criteriaBuilder.createQuery(Packet.class);
@@ -124,5 +107,5 @@ public class PacketRepositoryImpl {
 
         TypedQuery<Long> typedCountQuery = entityManager.createQuery(countQuery);
         return typedCountQuery.getSingleResult();
-    }
+    }*/
 }

@@ -1,15 +1,9 @@
 import { Injectable } from "@angular/core";
-import {
-    ActivatedRouteSnapshot,
-    CanActivate,
-    Router,
-    RouterStateSnapshot
-} from "@angular/router";
 import { StorageService } from "./strorage.service";
 import { StringUtils } from "../utils/string-utils";
-
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthGuard  {
     constructor(
         private storageService: StorageService,
         private router: Router) { }
@@ -24,7 +18,6 @@ export class AuthGuard implements CanActivate {
             }
             return true;
         }
-
         this.router.navigate(['/auth/login/'] + this.storageService.getTenantName())
         return false;
     }

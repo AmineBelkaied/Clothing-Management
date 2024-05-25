@@ -1,12 +1,8 @@
 package com.clothing.management.servicesImpl;
 import com.clothing.management.dto.*;
-//import com.clothing.management.repository.enums.DeliveryCompany;
 import com.clothing.management.enums.DeliveryCompanyStatus;
 import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.models.DashboardCard;
-import com.clothing.management.repository.repositoryImpl.PacketRepositoryImpl;
-import com.clothing.management.repository.repositoryImpl.PacketRepositoryOldImpl;
-import com.clothing.management.services.GlobalConfService;
 import com.clothing.management.servicesImpl.api.FirstApiService;
 import com.clothing.management.entities.*;
 import com.clothing.management.repository.*;
@@ -40,15 +36,9 @@ public class PacketServiceImpl implements PacketService {
     private final IPacketRepository packetRepository;
     private final IProductRepository productRepository;
     private final IProductsPacketRepository productsPacketRepository;
-    private final IOfferRepository offerRepository;
-    private final IModelRepository modelRepository;
-    private final IColorRepository colorRepository;
-    private final ISizeRepository sizeRepository;
     private final IPacketStatusRepository packetStatusRepository;
     private final FirstApiService firstApiService;
     private final NavexApiService navexApiService;
-    private final PacketRepositoryImpl packetRepositoryImpl;
-    private final PacketRepositoryOldImpl packetRepositoryOld;
     private final UserRepository userRepository;
     private final static String SYSTEM_USER = "SYSTEM";
     private DeliveryCompany defaultDeliveryCompany;
@@ -62,33 +52,19 @@ public class PacketServiceImpl implements PacketService {
             IPacketRepository packetRepository,
             IProductRepository productRepository,
             IProductsPacketRepository productsPacketRepository,
-            IOfferRepository offerRepository,
-            IModelRepository modelRepository,
-            IColorRepository colorRepository,
-            ISizeRepository sizeRepository,
             IPacketStatusRepository packetStatusRepository,
             FirstApiService firstApiService,
             NavexApiService navexApiService,
-            PacketRepositoryImpl packetRepositoryImpl,
-            GlobalConfService globalConfService,
-            PacketRepositoryOldImpl packetRepositoryOld,
             UserRepository userRepository,
             IGlobalConfRepository globalConfRepository
     ) {
         this.packetRepository = packetRepository;
         this.productRepository = productRepository;
         this.productsPacketRepository = productsPacketRepository;
-        this.offerRepository = offerRepository;
-        this.modelRepository = modelRepository;
-        this.colorRepository = colorRepository;
-        this.sizeRepository = sizeRepository;
         this.packetStatusRepository = packetStatusRepository;
-        this.packetRepositoryImpl = packetRepositoryImpl;
         this.globalConfRepository = globalConfRepository;
         this.firstApiService = firstApiService;
         this.navexApiService = navexApiService;
-       // this.defaultDeliveryCompany = globalConfServiceImpl.getGlobalConf().getDeliveryCompany();
-        this.packetRepositoryOld = packetRepositoryOld;
         this.userRepository = userRepository;
     }
 
@@ -190,7 +166,7 @@ public class PacketServiceImpl implements PacketService {
             Optional<String> firstKeyOptional = field.keySet().stream().findFirst();
             if (firstKeyOptional.isPresent()) {
                 String firstKey = firstKeyOptional.get();
-                Field fieldPacket = ReflectionUtils.findField(Packet.class, (String) firstKey);
+                Field fieldPacket = ReflectionUtils.findField(Packet.class, firstKey);
                 fieldPacket.setAccessible(true);
                 //System.out.println("firstKey:"+firstKey+"/field.get(firstKey):"+field.get(firstKey));
 
@@ -229,8 +205,11 @@ public class PacketServiceImpl implements PacketService {
                     ||packet.getStatus().equals(SystemStatus.CANCELED.getStatus())
                     ||packet.getStatus().equals(SystemStatus.INJOIGNABLE.getStatus())))
                 packet.setStatus(SystemStatus.ENDED.getStatus());
-            if (noStockStatus!= null && noStockStatus.equals(SystemStatus.NON_CONFIRMEE.getStatus()))
-                packet.setStatus(SystemStatus.NON_CONFIRMEE.getStatus());
+            if (noStockStatus!= null && (noStockStatus.equals(SystemStatus.NON_CONFIRMEE.getStatus())||noStockStatus.equals(CANCELED.getStatus())))
+                {
+                    packet.setStatus(noStockStatus);
+                }
+
 
             List<ProductsPacket> existingProductsPacket = productsPacketRepository.findByPacketId(packet.getId());
             if(existingProductsPacket.size() > 0)
@@ -264,7 +243,7 @@ public class PacketServiceImpl implements PacketService {
                     else {
                         Integer oldQte = qte;
                         qte = Math.min(qte, product.get().getQuantity());
-                        if(qte!=oldQte)lowestProductQte = product.get().getId();
+                        if(!qte.equals(oldQte))lowestProductQte = product.get().getId();
                     }
                 }
             }
@@ -395,8 +374,7 @@ public class PacketServiceImpl implements PacketService {
             deliveryResponse = new DeliveryResponse(this.firstApiService.createBarCode(packet));
         else if(packet.getDeliveryCompany().getName().equals("NAVEX"))
             deliveryResponse = new DeliveryResponse(this.navexApiService.createBarCode(packet));
-        System.out.println("deliveryResponse");
-        System.out.println(deliveryResponse);
+        System.out.println("deliveryResponse"+deliveryResponse);
             if(deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 ) {
                 /*if(!deliveryResponse.isError()){*/
                     packet.setPrintLink(deliveryResponse.getLink());
@@ -420,7 +398,7 @@ public class PacketServiceImpl implements PacketService {
             else
                 deliveryResponse = new DeliveryResponse(this.navexApiService.getLastStatus(packet.getBarcode(),packet.getDeliveryCompany()));
 
-            System.out.println(deliveryResponse.toString());
+            System.out.println(deliveryResponse);
             if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {
                 String systemNewStatus = SystemStatus.A_VERIFIER.getStatus();
                 if (deliveryResponse.getStatus()==404 || deliveryResponse.getState() == null || deliveryResponse.getState().equals("")) {
@@ -466,22 +444,13 @@ public class PacketServiceImpl implements PacketService {
         if (status == null || status.equals(""))
             return SystemStatus.A_VERIFIER.getStatus();
         DeliveryCompanyStatus deliveryCompanyStatus = DeliveryCompanyStatus.fromString(status);
-        switch (deliveryCompanyStatus) {
-            case LIVREE:
-            case LIVRER:
-            case EXCHANGE:
-                return SystemStatus.LIVREE.getStatus();
-            case RETOUR_EXPEDITEUR:
-            case RETOUR_DEFINITIF:
-            case RETOUR_CLIENT_AGENCE:
-                return RETOUR.getStatus();
-            case EN_ATTENTE:
-                return SystemStatus.CONFIRMEE.getStatus();
-            case A_VERIFIER:
-            case A_VERIFIER_NAVEX:
-                return SystemStatus.A_VERIFIER.getStatus();
-        }
-        return SystemStatus.EN_COURS_1.getStatus();
+        return switch (deliveryCompanyStatus) {
+            case LIVREE, LIVRER, EXCHANGE -> SystemStatus.LIVREE.getStatus();
+            case RETOUR_EXPEDITEUR, RETOUR_DEFINITIF, RETOUR_CLIENT_AGENCE -> RETOUR.getStatus();
+            case EN_ATTENTE -> SystemStatus.CONFIRMEE.getStatus();
+            case A_VERIFIER, A_VERIFIER_NAVEX -> SystemStatus.A_VERIFIER.getStatus();
+            default -> SystemStatus.EN_COURS_1.getStatus();
+        };
     }
     private String upgradeInProgressStatus(Packet packet) {
         SystemStatus systemStatus = SystemStatus.fromString(packet.getStatus());
@@ -517,7 +486,7 @@ public class PacketServiceImpl implements PacketService {
         GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
         Packet packet = packetRepository.findById(idPacket).get();
         Packet newPacket = new Packet();
-        if(packet != null) {
+
             newPacket.setCustomerName(packet.getCustomerName() + "   echange id: " + packet.getId());
             newPacket.setCustomerPhoneNb(packet.getCustomerPhoneNb());
             newPacket.setAddress(packet.getAddress());
@@ -533,7 +502,7 @@ public class PacketServiceImpl implements PacketService {
             newPacket.setStock(packet.getStock());
             newPacket.setDeliveryCompany(globalConf.getDeliveryCompany());
             newPacket.setExchangeId(packet.getId());
-        }
+
         Packet response = packetRepository.save(newPacket);
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
         if(productsPackets.size()>0) {
@@ -658,7 +627,7 @@ public class PacketServiceImpl implements PacketService {
             for (ProductsPacket product : productsPackets) {
                 product.setStatus(x);
                 productsPacketRepository.save(product);
-            };
+            }
         }
     }
 
@@ -674,7 +643,7 @@ public class PacketServiceImpl implements PacketService {
                     updateProductQuantity(product.get(), quantity);
                 }
             }
-        }else return ;
+        }
         //checkPacketProductsValidity(packet.getId());
     }
 

@@ -47,7 +47,7 @@ public class Packet {
     @JoinColumn(name = "fbpage_id")
     private FbPage fbPage;
     @ManyToOne
-    @JoinColumn(name = "deliveryCompany")
+    @JoinColumn(name = "delivery_company")
     private DeliveryCompany deliveryCompany;
     private double price;
     @Column(name = "delivery_price")

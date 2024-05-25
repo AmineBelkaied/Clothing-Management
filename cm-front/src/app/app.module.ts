@@ -1,14 +1,11 @@
-import { NO_ERRORS_SCHEMA, NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+
 
 // import modules, directives and services
 import { AppRoutingModule } from './app-routing.module';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
@@ -41,6 +38,10 @@ import { ChipModule } from 'primeng/chip';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AvatarModule } from 'primeng/avatar';
+
+import { ReactiveFormsModule } from '@angular/forms';
+import { RippleModule } from 'primeng/ripple';
+
 
 
 // import components
@@ -77,12 +78,18 @@ import { VerificationComponent } from './verification/verification.component';
 import { PickListModule } from 'primeng/picklist';
 import { GlobalConfComponent } from './config/global-conf/global-conf.component';
 import { StepsModule } from 'primeng/steps';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 
 import { AuthInterceptor } from 'src/shared/helpers/interceptor';
-import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { UserComponent } from './config/user/user.component';
 import { PasswordModule } from 'primeng/password';
+
+import 'tslib';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule } from '@angular/core';
+import { AuthGuard } from 'src/shared/services/auth-gard.service';
 
 @NgModule({
   declarations: [
@@ -121,8 +128,6 @@ import { PasswordModule } from 'primeng/password';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
     CommonModule,
     AppRoutingModule, TimelineModule,
     InputTextModule,
@@ -163,9 +168,12 @@ import { PasswordModule } from 'primeng/password';
     ConfirmPopupModule,
     AvatarGroupModule,
     AvatarModule,
-    StepsModule
+    StepsModule,
+    BreadcrumbModule,
+    ReactiveFormsModule,
+    RippleModule
   ],
-  providers: [MessageService, ConfirmationService, CityTreeService, DatePipe, AuthGuard,
+  providers: [MessageService, ConfirmationService, CityTreeService, DatePipe,AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
