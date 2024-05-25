@@ -101,12 +101,22 @@
 						</configuration>
 					</execution>
 					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>install</arguments>
+							<workingDirectory>../cm-front</workingDirectory> <!-- Specify the frontend project directory -->
+						</configuration>
+					</execution>
+					<execution>
 						<id>npm build</id>
 						<goals>
 							<goal>npm</goal>
 						</goals>
 						<configuration>
-							<arguments>build</arguments>
+							<arguments>run build</arguments>
 							<workingDirectory>../cm-front</workingDirectory> <!-- Specify the frontend project directory -->
 						</configuration>
 					</execution>
