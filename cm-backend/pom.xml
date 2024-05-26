@@ -91,17 +91,6 @@
 				<version>1.12.0</version>
 				<executions>
 					<execution>
-						<id>install node and npm</id>
-						<goals>
-							<goal>install-node-and-npm</goal>
-						</goals>
-						<configuration>
-							<nodeVersion>${node.version}</nodeVersion>
-							<npmVersion>${npm.version}</npmVersion>
-							<installDirectory>${project.build.directory}/node</installDirectory>
-						</configuration>
-					</execution>
-					<execution>
 						<id>npm install</id>
 						<goals>
 							<goal>npm</goal>
