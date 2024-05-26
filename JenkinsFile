@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Print PATH') {
             steps {
-                sh 'echo $PATH'
+                bat 'echo $PATH'
             }
         }
         stage('Setup') {
@@ -22,7 +22,7 @@ pipeline {
                 echo 'Setting up environment...'
                 dir(FRONTEND_DIR) {
                     // Install Node.js dependencies
-                    sh 'npm install'
+                    bat 'npm install'
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
                 echo 'Building frontend...'
                 dir(FRONTEND_DIR) {
                     // Build the frontend project
-                    sh 'npm run build'
+                    bat 'npm run build'
                 }
             }
         }
@@ -39,7 +39,7 @@ pipeline {
             steps {
                 echo 'Copying built frontend to backend resources...'
                 // Copy the built frontend files to the backend's static resources directory
-                sh 'cp -r ${FRONTEND_DIR}/dist/* ${BACKEND_DIR}/src/main/resources/static/'
+                bat 'cp -r ${FRONTEND_DIR}/dist/* ${BACKEND_DIR}/src/main/resources/static/'
             }
         }
         stage('Build Backend') {
@@ -47,7 +47,7 @@ pipeline {
                 echo 'Building backend...'
                 dir(BACKEND_DIR) {
                     // Clean and package the backend using Maven
-                    sh 'mvn clean package -DskipTests'
+                    bat 'mvn clean package -DskipTests'
                 }
             }
         }
