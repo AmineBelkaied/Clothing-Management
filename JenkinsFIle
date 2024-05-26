@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'NodeJS 18' // Ensure this matches the name you configured in Global Tool Configuration
+        maven 'Maven 3.6.3' // Ensure this matches the name you configured in Global Tool Configuration
+    }
+
+    environment {
+        FRONTEND_DIR = "${WORKSPACE}/cm-front"
+        BACKEND_DIR = "${WORKSPACE}/cm-backend"
+    }
+
+    stages {
+        stage('Setup') {
+            steps {
+                echo 'Setting up environment...'
+                dir(FRONTEND_DIR) {
+                    // Install Node.js dependencies
+                    sh 'npm install'
+                }
+            }
+        }
+        stage('Build Frontend') {
+            steps {
+                echo 'Building frontend...'
+                dir(FRONTEND_DIR) {
+                    // Build the frontend project
+                    sh 'npm run build'
+                }
+            }
+        }
+        stage('Copy Frontend to Backend') {
+            steps {
+                echo 'Copying built frontend to backend resources...'
+                // Copy the built frontend files to the backend's static resources directory
+                sh 'cp -r ${FRONTEND_DIR}/dist/* ${BACKEND_DIR}/src/main/resources/static/'
+            }
+        }
+        stage('Build Backend') {
+            steps {
+                echo 'Building backend...'
+                dir(BACKEND_DIR) {
+                    // Clean and package the backend using Maven
+                    sh 'mvn clean package -DskipTests'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up...'
+            cleanWs()
+        }
+        success {
+            echo 'Build succeeded!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+    }
+}
