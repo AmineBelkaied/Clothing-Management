@@ -17,7 +17,7 @@ pipeline {
                 echo 'Building frontend...'
                 dir(FRONTEND_DIR) {
                     // Build the frontend project
-                    bat 'npm build'
+                    bat 'npm run build'
                 }
             }
         }
