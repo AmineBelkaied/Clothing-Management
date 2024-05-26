@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         nodejs 'NodeJS' // Ensure this matches the name you configured in Global Tool Configuration
-        maven 'Maven 3.6.3' // Ensure this matches the name you configured in Global Tool Configuration
+        maven 'MAVEN' // Ensure this matches the name you configured in Global Tool Configuration
     }
 
     environment {
