@@ -12,11 +12,6 @@ pipeline {
     }
 
     stages {
-        stage('Print PATH') {
-            steps {
-                bat 'echo $PATH'
-            }
-        }
         stage('Build Frontend') {
             steps {
                 echo 'Building frontend...'
