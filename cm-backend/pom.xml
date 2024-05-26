@@ -79,7 +79,6 @@
 	</dependencies>
 
 	<build>
-    <build>
         <plugins>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
