@@ -12,6 +12,11 @@ pipeline {
     }
 
     stages {
+        stage('Print PATH') {
+            steps {
+                sh 'echo $PATH'
+            }
+        }
         stage('Setup') {
             steps {
                 echo 'Setting up environment...'
