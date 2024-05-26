@@ -12,6 +12,15 @@ pipeline {
     }
 
     stages {
+        stage('Setup') {
+            steps {
+                echo 'Setting up environment...'
+                dir(FRONTEND_DIR) {
+                    // Install Node.js dependencies
+                    bat 'npm install'
+                }
+            }
+        }
         stage('Build Frontend') {
             steps {
                 echo 'Building frontend...'
