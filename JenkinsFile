@@ -30,13 +30,6 @@ pipeline {
                 }
             }
         }
-        stage('Copy Frontend to Backend') {
-            steps {
-                echo 'Copying built frontend to backend resources...'
-                // Copy the built frontend files to the backend's static resources directory
-                bat "xcopy ${FRONTEND_DIR}\\dist\\* ${BACKEND_DIR}\\src\\main\\resources\\public\\ /s /i"
-            }
-        }
         stage('Build Backend') {
             steps {
                 echo 'Building backend...'
