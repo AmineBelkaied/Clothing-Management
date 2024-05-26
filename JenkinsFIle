@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS 18' // Ensure this matches the name you configured in Global Tool Configuration
+        nodejs 'NodeJS' // Ensure this matches the name you configured in Global Tool Configuration
         maven 'Maven 3.6.3' // Ensure this matches the name you configured in Global Tool Configuration
     }
 
