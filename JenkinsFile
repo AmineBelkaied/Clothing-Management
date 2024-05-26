@@ -30,12 +30,21 @@ pipeline {
                 }
             }
         }
+        stage('Clean and Install Backend Dependencies') {
+            steps {
+                echo 'Cleaning and installing backend dependencies...'
+                dir(BACKEND_DIR) {
+                    // Clean and install backend dependencies using Maven
+                    bat 'mvn clean install -DskipTests'
+                }
+            }
+        }
         stage('Build Backend') {
             steps {
                 echo 'Building backend...'
                 dir(BACKEND_DIR) {
                     // Clean and package the backend using Maven
-                    bat 'mvn clean package -DskipTests'
+                    bat 'mvn package -DskipTests'
                 }
             }
         }
