@@ -106,20 +106,20 @@
 						<goals>
 							<goal>npm</goal>
 						</goals>
-						<configuration>
-							<arguments>install</arguments>
-							<workingDirectory>../cm-front</workingDirectory> <!-- Specify the frontend project directory -->
-						</configuration>
+                        <configuration>
+                            <arguments>install</arguments>
+                            <workingDirectory>${project.basedir}/../cm-front</workingDirectory>
+                        </configuration>
 					</execution>
 					<execution>
 						<id>npm build</id>
 						<goals>
 							<goal>npm</goal>
 						</goals>
-						<configuration>
-							<arguments>run build</arguments>
-							<workingDirectory>../cm-front</workingDirectory> <!-- Specify the frontend project directory -->
-						</configuration>
+                        <configuration>
+                            <arguments>run build</arguments>
+                            <workingDirectory>${project.basedir}/../cm-front</workingDirectory>
+                        </configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -134,7 +134,7 @@
 							<outputDirectory>src/main/resources/static</outputDirectory >
 							<resources>
 								<resource>
-									<directory>../cm-front/dist/</directory>
+									 <directory>${project.basedir}/../cm-front/dist/</directory>
 								</resource>
 							</resources>
 						</configuration>
