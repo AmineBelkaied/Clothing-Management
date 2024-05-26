@@ -17,21 +17,12 @@ pipeline {
                 bat 'echo $PATH'
             }
         }
-        stage('Setup') {
-            steps {
-                echo 'Setting up environment...'
-                dir(FRONTEND_DIR) {
-                    // Install Node.js dependencies
-                    bat 'npm install'
-                }
-            }
-        }
         stage('Build Frontend') {
             steps {
                 echo 'Building frontend...'
                 dir(FRONTEND_DIR) {
                     // Build the frontend project
-                    bat 'npm run build'
+                    bat 'ng build --configuration production --aot'
                 }
             }
         }
@@ -39,7 +30,7 @@ pipeline {
             steps {
                 echo 'Copying built frontend to backend resources...'
                 // Copy the built frontend files to the backend's static resources directory
-                bat 'cp -r ${FRONTEND_DIR}/dist/* ${BACKEND_DIR}/src/main/resources/static/'
+                bat 'cp -r ${FRONTEND_DIR}/dist/* ${BACKEND_DIR}/src/main/resources/public/'
             }
         }
         stage('Build Backend') {
