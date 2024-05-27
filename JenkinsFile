@@ -13,6 +13,8 @@ pipeline {
 
     options {
         skipDefaultCheckout() // Skip the default checkout to control workspace cleanup
+        disableConcurrentBuilds() // Disable concurrent builds to prevent potential workspace cleanup conflicts
+        disableResume() // Disable resuming of pipelines to maintain workspace state
     }
 
 
