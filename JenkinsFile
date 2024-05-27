@@ -11,7 +11,18 @@ pipeline {
         BACKEND_DIR = "${WORKSPACE}/cm-backend"
     }
 
+    options {
+        skipDefaultCheckout() // Skip the default checkout to control workspace cleanup
+    }
+
+
     stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out the code...'
+                checkout scm
+            }
+        }
         stage('Setup') {
             steps {
                 echo 'Setting up environment...'
