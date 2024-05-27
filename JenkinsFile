@@ -44,7 +44,7 @@ pipeline {
                 echo 'Building backend...'
                 dir(BACKEND_DIR) {
                     // Clean and package the backend using Maven
-                    bat 'mvn package -DskipTests'
+                    bat 'mvn package -Dspring.profiles.active=prod -DskipTests'
                 }
             }
         }
