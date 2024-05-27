@@ -9,22 +9,11 @@ pipeline {
     environment {
         FRONTEND_DIR = "${WORKSPACE}/cm-front"
         BACKEND_DIR = "${WORKSPACE}/cm-backend"
+        WAR_FILE = "${BACKEND_DIR}/target/Clothing-Management-0.0.2-SNAPSHOT.war" // Update with the actual WAR file name
+        LOCAL_TOMCAT_DIR = 'C://xampp/Tomcat/webapps'
     }
-
-    options {
-        skipDefaultCheckout() // Skip the default checkout to control workspace cleanup
-        disableConcurrentBuilds() // Disable concurrent builds to prevent potential workspace cleanup conflicts
-        disableResume() // Disable resuming of pipelines to maintain workspace state
-    }
-
 
     stages {
-        stage('Checkout') {
-            steps {
-                echo 'Checking out the code...'
-                checkout scm
-            }
-        }
         stage('Setup') {
             steps {
                 echo 'Setting up environment...'
@@ -60,6 +49,27 @@ pipeline {
                     bat 'mvn package -Dspring.profiles.active=prod -DskipTests'
                 }
             }
+        }
+        stage('Deploy to Tomcat') {
+            steps {
+                echo 'Deploying to Tomcat...'
+                sh """
+                    cp ${WAR_FILE} ${LOCAL_TOMCAT_DIR}
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up...'
+            cleanWs()
+        }
+        success {
+            echo 'Build succeeded!'
+        }
+        failure {
+            echo 'Build failed!'
         }
     }
 }
