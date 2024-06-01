@@ -52,7 +52,7 @@ export class SidebarComponent implements OnInit {
   syncFirst() {
     console.log("syncronising");
     this.packetService
-        .syncAllPacketsFirst()
+        .syncAllPacketsFirst(this.storageService.getTenantName())
         .pipe(takeUntil(this.$unsubscribe))
         .subscribe({
           next: (response: number) => {

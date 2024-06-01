@@ -23,8 +23,8 @@ export class PacketService {
     return this.http.post(this.baseUrl + "/updatePacketsByBarCode", updateStock);
   }
 
-  public syncAllPacketsFirst() : Observable<any> {
-    let path = '/syncAllPacketsStatus';
+  public syncAllPacketsFirst(tenantName: string) : Observable<any> {
+    let path = '/syncAllPacketsStatus?tenantName=' + tenantName;
     return this.http.get(this.baseUrl + path);
   }
   // Call this method whenever you want to access the "cached" request

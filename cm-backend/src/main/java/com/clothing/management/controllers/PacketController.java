@@ -3,6 +3,8 @@ package com.clothing.management.controllers;
 import com.clothing.management.auth.mastertenant.config.DBContextHolder;
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
+import com.clothing.management.auth.util.DataSourceUtil;
+import com.clothing.management.auth.util.JwtTokenUtil;
 import com.clothing.management.dto.*;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
@@ -12,6 +14,7 @@ import com.clothing.management.scheduler.UpdateStatusScheduler;
 import com.clothing.management.services.PacketService;
 
 import com.clothing.management.services.StatService;
+import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +23,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -38,6 +43,9 @@ public class PacketController {
     UpdateStatusScheduler updateStatusScheduler;
     @Autowired
     MasterTenantService masterTenantService;
+
+    @Autowired
+    JwtTokenUtil jwtTokenUtil;
 
     @GetMapping(path = "/findAll")
     public List<Packet> findAllPackets() {
@@ -73,23 +81,6 @@ public class PacketController {
             @RequestParam(required = false) String endDate) throws ParseException {
         return packetService.findAllPacketsByDate(startDate, endDate);
     }
-
-    /*@GetMapping(path = "/findAllTodaysPackets")
-    public ResponseEntity<ResponsePage> findAllTodaysPackets(@RequestParam(defaultValue = "0") int page,
-                                             @RequestParam(defaultValue = "500") int size) {
-        try {
-            Pageable paging = PageRequest.of(page, size);
-            Page<Packet> allTodaysPackets = packetService.findAllTodaysPackets(paging);
-            return new ResponseEntity<>(new ResponsePage.Builder()
-                    .result(allTodaysPackets.getContent())
-                    .currentPage(allTodaysPackets.getNumber())
-                    .totalItems(allTodaysPackets.getTotalElements())
-                    .totalPages(allTodaysPackets.getTotalPages())
-                    .build(), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }*/
 
     @GetMapping(path = "/findAllByDate/{date}")
     public List<Packet> findAllPacketsByDate(Date date) {
@@ -136,23 +127,10 @@ public class PacketController {
         packetService.deleteSelectedPackets(packetsId);
     }
 
-    //@PostMapping(value = "/updateStatus/{idPacket}/{status}")
-    //public void updatePacketStatus(@PathVariable Long idPacket , @PathVariable String status) {
-      //    packetService.savePacketStatusToHistory(idPacket , status);
-    //}
-
     @GetMapping(path = "/getPacketTimeLine/{idPacket}")
     public List<PacketStatus> findAllPacketStatus(@PathVariable Long idPacket) throws Exception {
         return packetService.findPacketTimeLineById(idPacket);
     }
-
-    /*@PostMapping(value = "/createBarCode", produces = "application/json")
-    public ResponseEntity<DeliveryResponse>  createBarCode(@RequestBody Packet packet) throws IOException, InterruptedException {
-        DeliveryResponse deliveryResponse = packetService.createBarCode(packet);
-            if(deliveryResponse.getResponseCode() != 200)
-                return new ResponseEntity<>(deliveryResponse, HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(deliveryResponse, HttpStatus.OK);
-    }*/
 
     @PostMapping(value = "/getLastStatus")
     @CrossOrigin("*")
@@ -173,10 +151,6 @@ public class PacketController {
     public Packet addProductsToPacket(@RequestBody SelectedProductsDTO selectedProductsDTO, @RequestParam("stock") Integer stock){
         return packetService.addProductsToPacket(selectedProductsDTO,stock);
     }
-    /*@PostMapping(value = "/checkPhone", produces = "application/json")
-    public int checkPhone(@RequestBody String phoneNumber) throws Exception {
-        return packetService.checkPhone(phoneNumber);
-    }*/
 
     @GetMapping(value = "/checkPacketProductsValidity/{packetId}")
     public List<Packet> checkPacketProductsValidity(@PathVariable Long packetId) throws Exception {
@@ -199,9 +173,8 @@ public class PacketController {
     }
 
     @GetMapping(path = "/syncAllPacketsStatus")
-    public int synchronizeAllPacketsStatus() {
-        System.out.println("current db >>  " + DBContextHolder.getCurrentDb());
-        MasterTenant masterTenant = masterTenantService.findByTenantName(DBContextHolder.getCurrentDb());
+    public int synchronizeAllPacketsStatus(@PathParam("tenantName") String tenantName) {
+        MasterTenant masterTenant = masterTenantService.findByTenantName(tenantName);
         System.out.println("masterTenant >>  " + masterTenant.getTenantName());
         return updateStatusScheduler.startUpdateStatusCronTask(masterTenant);
     }

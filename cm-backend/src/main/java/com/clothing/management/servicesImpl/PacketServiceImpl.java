@@ -2,6 +2,7 @@ package com.clothing.management.servicesImpl;
 import com.clothing.management.dto.*;
 import com.clothing.management.enums.DeliveryCompanyStatus;
 import com.clothing.management.enums.SystemStatus;
+import com.clothing.management.exceptions.UserNotAuthenticatedException;
 import com.clothing.management.models.DashboardCard;
 import com.clothing.management.servicesImpl.api.FirstApiService;
 import com.clothing.management.entities.*;
@@ -391,7 +392,6 @@ public class PacketServiceImpl implements PacketService {
     public Packet getLastStatus(Packet packet) throws Exception {
 
         try {
-            //System.out.println("packet"+packet);
             DeliveryResponse deliveryResponse;
             if(packet.getDeliveryCompany().getName().equals("FIRST"))
                 deliveryResponse = new DeliveryResponse(this.firstApiService.getLastStatus(packet.getBarcode(),packet.getDeliveryCompany()));
@@ -418,7 +418,7 @@ public class PacketServiceImpl implements PacketService {
                 }
                 return updatePacketStatus(packet, systemNewStatus);
             }
-        }catch (Exception e ){
+        } catch (Exception e ){
             packet.setLastDeliveryStatus(SystemStatus.INCORRECT_BARCODE.getStatus());
             return updatePacketStatusAndSaveToHistory(packet, SystemStatus.A_VERIFIER.getStatus());
         }
@@ -657,19 +657,12 @@ public class PacketServiceImpl implements PacketService {
     private User getCurrentUser() {
         if(SecurityContextHolder.getContext().getAuthentication() != null) {
             UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return userDetails != null ? userRepository.findByUserName(userDetails.getUsername()) : userRepository.findByUserName(SYSTEM_USER);
+            if (userDetails != null) {
+                return userRepository.findByUserName(userDetails.getUsername());
+            } else {
+                throw new UserNotAuthenticatedException("User details are null. User not authenticated.");
+            }
         }
         return userRepository.findByUserName(SYSTEM_USER);
     }
-
-    /*public Long getExchangeId(Packet packet){
-        Long id = packet.getId();
-        int indexStartOfString = packet.getCustomerName().lastIndexOf("id: ");
-        if (indexStartOfString != -1) {
-            String idSubstring = packet.getCustomerName().substring(indexStartOfString + 4); // +4 to skip "id: "
-            id = Long.valueOf(idSubstring.trim());
-        }
-        return id;
-    }*/
-
 }

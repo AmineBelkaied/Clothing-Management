@@ -359,7 +359,6 @@ public class Packet {
                 ", lastUpdateDate=" + lastUpdateDate +
                 ", stock=" + stock +
                 ", printLink='" + printLink + '\'' +
-                ", deliveryCompany='" + deliveryCompany + '\'' +
                 ", attempt='" + attempt + '\'' +
                 ", note='" + note + '\'' +
                 ", exchangeId='" + exchangeId + '\'' +
