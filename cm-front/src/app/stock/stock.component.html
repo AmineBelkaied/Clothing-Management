@@ -70,86 +70,77 @@
     </div>
   </div>
 
-
-
-
-    <div class="justify-content-center row" >
-      <div class="col mt-1" style="overflow-x: hidden;min-width:200px;max-width:300px;">
+  <div class="justify-content-center row">
+    <div class="col" style="overflow-x: hidden;min-width:200px;max-width:300px;">
+      <div class="card mt-2 mb-3" style="background-color: #fbfbfb">
         <div class="card-body">
-        <p-listbox [options]="models" [(ngModel)]="selectedModel" optionLabel="name" [filter]="true" [routerLink]="['/stock', selectedModel!.id]"></p-listbox>
+          <p-listbox [listStyle]="{'max-height': 'fit-content'}"  [options]="models" [(ngModel)]="selectedModel" optionLabel="name" [filter]="true" [routerLink]="['/stock', selectedModel!.id]"></p-listbox>
         </div>
       </div>
-      <div class="col order-first order-xl-1 stock-width" style="overflow-x: hidden;">
-        <div class="container-fluid">
-            <div class="card mt-2 mb-3" style="background-color: #fbfbfb">
-              <div class="card-body">
-                    <p-table [value]="products" styleClass="p-datatable-gridlines"  #dt ><!--[rowSelectable]="isRowSelectable"-->
-                      <ng-template pTemplate="body" let-productSizes let-j="rowIndex">
-                        <tr *ngIf="!(hide0==true && totalRow(j)<1)">
-                          <td style="background-color: #fafafa;" (click)="handleColorClick(j)">
-                            <h6>{{products[j][0].color.name + " : " + totalRow(j) }}</h6>
-                          </td>
-                          <!-- <td (click)="hideRow(j)" (click)="handleColorClick(j)">{{products[j][0].color.name}}</td> -->
-                          <ng-container *ngFor="let productSize of productSizes;let index = index">
-                            <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)">
-                              <td pEditableColumn (click)="onCellClick(productSize, $event, j)">
-                                <ng-container class="d-flex flex-column align-items-center">
-                                  <div class="text-center">
-                                    <i *ngIf="getCountRupture(productSize.id) !== 0" class="text-3xl" severity="danger" pBadge [value]="getCountRupture(productSize.id)+''">
-                                      <h6>{{ "(" + productSize.color.name + " " + productSize.size.reference + ")" }}</h6>
-                                    </i>
-                                    <h6 *ngIf="getCountRupture(productSize.id) === 0">{{ "(" + productSize.color.name + " " + productSize.size.reference + ")" }}</h6>
-                                    <ng-container *ngIf="stock === false">
-
-                                      <i *ngIf="getCountProgress(productSize.id) !== 0" class="text-3xl" pBadge [value]="getCountProgress(productSize.id) + ''">
-                                        <h4>{{ getCount(productSize.id) }}</h4>
-                                      </i>
-                                      <h4 *ngIf="getCountProgress(productSize.id) === 0">{{ getCount(productSize.id) }}</h4>
-                                      <h6 *ngIf="getCountExchange(productSize.id) !== 0" >Echange : {{getCountExchange(productSize.id)}}</h6>
-                                      <!--<h6 *ngIf="getCountRupture(productSize.id) !== 0" >Rupture : {{getCountExchange(productSize.id)}}</h6>-->
-                                    </ng-container>
-
-                                    <h6 *ngIf="stock==true" >{{ productSize.quantity }}</h6>
-                                    <h4 *ngIf="delai === true">{{ getDaysStock(productSize.quantity,productSize.id) }}j</h4>
-
-                                  </div>
-                                  <div class="text-center" style="margin-top: 10px;" *ngIf="stock==true">
-                                    <p-tag [value]="getSeverity(productSize,productSize.quantity, false)" ><!--[severity]="getSeverity(productSize,productSize.quantity, true)"--></p-tag>
-                                  </div>
-                                </ng-container>
-                                <ng-template #colors>{{ productSize.name }}</ng-template>
-                              </td>
-                            </ng-container>
-                          </ng-container>
-                        </tr>
-                        </ng-template>
-                        <ng-template pTemplate="footer">
-                          <tr>
-                            <td>
-                              Total Size {{ totalTable()}}
-                            </td>
-                            <ng-container *ngFor="let size of sizes;let index = index">
-                              <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)" >
-                            <td (click)="handleSizeClick(index)">
-                              {{ totalColumn(index) }}
-                            </td>
-                              </ng-container>
-                            </ng-container>
-                          </tr>
-                        </ng-template>
-                      </p-table>
-              </div>
-            </div>
-        </div>
-      </div>
-      <div class="col order-last" style="overflow-x: hidden;min-width:380px">
+    </div>
+    <div class="col order-first order-xl-1 stock-width" style="overflow-x: hidden;">
+      <div class="container-fluid">
         <div class="card mt-2 mb-3" style="background-color: #fbfbfb">
           <div class="card-body">
-              <app-stock-history [productsHistory]="productsHistory" [modelId]="modelId" (deleteProductsHistoryEvent)="onDeleteProductsHistory($event)"></app-stock-history>
+            <p-table [value]="products" styleClass="p-datatable-gridlines" #dt>
+              <ng-template pTemplate="body" let-productSizes let-j="rowIndex">
+                <tr *ngIf="!(hide0==true && totalRow(j)<1)">
+                  <td style="background-color: #fafafa;" (click)="handleColorClick(j)">
+                    <h6>{{products[j][0].color.name + ' : ' + totalRow(j) }}</h6>
+                  </td>
+                  <ng-container *ngFor="let productSize of productSizes; let index = index">
+                    <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)">
+                      <td pEditableColumn (click)="onCellClick(productSize, $event, j)">
+                        <ng-container class="d-flex flex-column align-items-center">
+                          <div class="text-center">
+                            <i *ngIf="getCountRupture(productSize.id) !== 0" class="text-3xl" severity="danger" pBadge [value]="getCountRupture(productSize.id)+' '">
+                              <h6>{{ '(' + productSize.color.name + ' ' + productSize.size.reference + ')' }}</h6>
+                            </i>
+                            <h6 *ngIf="getCountRupture(productSize.id) === 0">{{ '(' + productSize.color.name + ' ' + productSize.size.reference + ')' }}</h6>
+                            <ng-container *ngIf="stock === false">
+                              <i *ngIf="getCountProgress(productSize.id) !== 0" class="text-3xl" pBadge [value]="getCountProgress(productSize.id) + ''">
+                                <h4>{{ getCount(productSize.id) }}</h4>
+                              </i>
+                              <h4 *ngIf="getCountProgress(productSize.id) === 0">{{ getCount(productSize.id) }}</h4>
+                              <h6 *ngIf="getCountExchange(productSize.id) !== 0">Echange : {{getCountExchange(productSize.id)}}</h6>
+                            </ng-container>
+                            <h6 *ngIf="stock==true">{{ productSize.quantity }}</h6>
+                            <h4 *ngIf="delai === true">{{ getDaysStock(productSize.quantity,productSize.id) }}j</h4>
+                          </div>
+                          <div class="text-center" style="margin-top: 10px;" *ngIf="stock==true">
+                            <p-tag [value]="getSeverity(productSize,productSize.quantity, false)"></p-tag>
+                          </div>
+                        </ng-container>
+                        <ng-template #colors>{{ productSize.name }}</ng-template>
+                      </td>
+                    </ng-container>
+                  </ng-container>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="footer">
+                <tr>
+                  <td>Total Size {{ totalTable()}}</td>
+                  <ng-container *ngFor="let size of sizes; let index = index">
+                    <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)">
+                      <td (click)="handleSizeClick(index)">{{ totalColumn(index) }}</td>
+                    </ng-container>
+                  </ng-container>
+                </tr>
+              </ng-template>
+            </p-table>
           </div>
         </div>
       </div>
-</div>
+    </div>
+    <div class="col order-last" style="overflow-x: hidden;min-width:380px">
+      <div class="card mt-2 mb-3" style="background-color: #fbfbfb">
+        <div class="card-body">
+          <app-stock-history [productsHistory]="productsHistory" [modelId]="modelId" (deleteProductsHistoryEvent)="onDeleteProductsHistory($event)"></app-stock-history>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">

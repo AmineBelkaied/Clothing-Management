@@ -1,5 +1,6 @@
 package com.clothing.management.controllers;
 
+import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.entities.ProductHistory;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.services.ProductHistoryService;
@@ -34,7 +35,7 @@ public class ProductHistoryController {
         @RequestParam(defaultValue = "10") int size
       ) {
             try {
-                Page<ProductHistory> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size, reference, beginDate, endDate);
+                Page<ProductHistoryDTO> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size, reference, beginDate, endDate);
                 return new ResponseEntity<>(new ResponsePage.Builder()
                         .result(pageProductHistory.getContent())
                         .currentPage(pageProductHistory.getNumber())
@@ -74,7 +75,7 @@ public class ProductHistoryController {
     @PostMapping(value = "/deleteProductsHistory/{modelId}" , produces = "application/json")
     public ResponseEntity<ResponsePage> deleteProductHistory(@RequestBody List<ProductHistory> productsHistory,@PathVariable("modelId")Long modelId, @RequestParam int page) {
         try {
-            Page<ProductHistory> pageProductHistory = productHistoryService.deleteProductsHistory(productsHistory, modelId, page);
+            Page<ProductHistoryDTO> pageProductHistory = productHistoryService.deleteProductsHistory(productsHistory, modelId, page);
             return new ResponseEntity<>(new ResponsePage.Builder()
                     .result(pageProductHistory.getContent())
                     .currentPage(pageProductHistory.getNumber())

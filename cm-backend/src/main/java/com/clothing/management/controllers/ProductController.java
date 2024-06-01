@@ -1,5 +1,6 @@
 package com.clothing.management.controllers;
 
+import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.ProductQuantity;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDto;
@@ -66,7 +67,7 @@ public class ProductController {
     @PostMapping(path = "/addStock" , produces = "application/json")
     public ResponseEntity<ResponsePage>  getStock(@RequestBody StockUpdateDto updateIdSockList) {
         try {
-            Page<ProductHistory> pageProductHistory = productService.addStock(updateIdSockList);
+            Page<ProductHistoryDTO> pageProductHistory = productService.addStock(updateIdSockList);
             return new ResponseEntity<>(new ResponsePage.Builder()
                     .result(pageProductHistory.getContent())
                     .currentPage(pageProductHistory.getNumber())

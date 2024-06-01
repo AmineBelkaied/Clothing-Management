@@ -12,23 +12,24 @@ public class ProductHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "product_id")
-    private Long productId;
-    private String reference;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
     private int quantity;
     @Column(name = "last_modification_date")
     private Date lastModificationDate;
-    @ManyToOne
+
+
     @JoinColumn(name = "model_id")
     @JsonIgnore
+    @ManyToOne
     Model model;
     private String userName;
     public ProductHistory() {
     }
 
-    public ProductHistory(Long productId, String reference, int quantity, Date lastModificationDate, Model model,String userName) {
-        this.productId = productId;
-        this.reference = reference;
+    public ProductHistory(Product product, int quantity, Date lastModificationDate, Model model,String userName) {
+        this.product = product;
         this.quantity = quantity;
         this.lastModificationDate = lastModificationDate;
         this.model = model;
@@ -43,20 +44,12 @@ public class ProductHistory {
         this.id = id;
     }
 
-    public Long getProductId() {
-        return productId;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
-    }
-
-    public String getReference() {
-        return reference;
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public int getQuantity() {
@@ -95,8 +88,7 @@ public class ProductHistory {
     public String toString() {
         return "ProductHistory{" +
                 "id=" + id +
-                ", productId=" + productId +
-                ", reference='" + reference + '\'' +
+                ", product=" + product +
                 ", quantity=" + quantity +
                 ", lastModificationDate=" + lastModificationDate +
                 ", userName=" + userName +

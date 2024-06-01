@@ -1,5 +1,6 @@
 package com.clothing.management.servicesImpl;
 
+import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.*;
@@ -149,19 +150,19 @@ public class ProductServiceImpl implements ProductService {
         return -1; // Default index if not found (shouldn't happen in this example)
     }
 
-    public Page<ProductHistory> addStock(StockUpdateDto updateIdSockList) {
+    public Page<ProductHistoryDTO> addStock(StockUpdateDto updateIdSockList) {
         updateIdSockList.getProductsId().forEach(productId -> {
             Optional<Product> product = findProductById(productId);
             if(product.isPresent()) {
-                productModel = product.get().getModel().getId();
+                productModel = updateIdSockList.getModelId();//product.get().getModel().getId();
                 product.get().setQuantity(product.get().getQuantity()+updateIdSockList.getQte());
                 updateProduct(product.get());
-                ProductHistory productHistory = new ProductHistory(productId, product.get().getReference(), updateIdSockList.getQte(), new Date(), product.get().getModel(),updateIdSockList.getUserName());
+                ProductHistory productHistory = new ProductHistory(product.get(),updateIdSockList.getQte(), new Date(), product.get().getModel(),updateIdSockList.getUserName());
                 productHistoryRepository.save(productHistory);
             }
         });
 
-        Pageable paging = PageRequest.of(0, 10, Sort.by("last_modification_date").descending());
+        Pageable paging = PageRequest.of(0, 10, Sort.by("lastModificationDate").descending());
         return productHistoryRepository.findAll(updateIdSockList.getModelId(), paging);
     }
 

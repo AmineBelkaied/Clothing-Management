@@ -491,7 +491,6 @@ public class PacketServiceImpl implements PacketService {
             newPacket.setCustomerName(packet.getCustomerName() + "   echange id: " + packet.getId());
             newPacket.setCustomerPhoneNb(packet.getCustomerPhoneNb());
             newPacket.setAddress(packet.getAddress());
-            newPacket.setRelatedProducts(packet.getRelatedProducts());
             newPacket.setPacketDescription(packet.getPacketDescription());
             newPacket.setPrice(packet.getPrice());
             newPacket.setDate(new Date());

@@ -10,11 +10,9 @@ import java.util.List;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id",scope = Product.class)
 public class Product {
 
-    private String reference;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //private String reference;
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "size_id")
     private Size size;
@@ -27,6 +25,10 @@ public class Product {
     @OneToMany(mappedBy = "product" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<ProductsPacket> commands;
+
+    @OneToMany(mappedBy = "product" , cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ProductHistory> productHistory;
+
     @ManyToOne
     @JoinColumn(name = "model_id")
     private Model model;
@@ -38,8 +40,7 @@ public class Product {
         this.id = id;
     }
 
-    public Product(String reference, Size size, Color color, int quantity, Date date, Model model) {
-        this.reference = reference;
+    public Product(Size size, Color color, int quantity, Date date, Model model) {
         this.size = size;
         this.color = color;
         this.quantity = quantity;
@@ -66,10 +67,6 @@ public class Product {
     public void setId(Long id) {
         this.id = id;
     }
-
-    public String getReference() {return reference;}
-
-    public void setReference(String reference) {this.reference = reference;}
 
     public Size getSize() {
         return size;
@@ -119,11 +116,18 @@ public class Product {
         this.model = model;
     }
 
+    public List<ProductHistory> getProductHistory() {
+        return productHistory;
+    }
+
+    public void setProductHistory(List<ProductHistory> productHistory) {
+        this.productHistory = productHistory;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
                 "id=" + id +
-                ", reference=" + reference +
                 ", quantity=" + quantity +
                 ", date=" + date +
                 '}';

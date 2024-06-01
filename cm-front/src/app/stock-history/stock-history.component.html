@@ -25,13 +25,13 @@ class="p-button-danger mb-2  buttonSize"
     </ng-template>
     <ng-template pTemplate="body" let-productHistory>
         <tr>
-            <td>{{productHistory.reference}}</td>
+            <td>{{productHistory.description}}</td>
             <td style="font-weight: bold;"><span
                     [ngStyle]="{'color': productHistory.quantity > 0 ? 'green' : 'red'}">{{displayQuantity(productHistory.quantity)}}</span>
             </td>
-            <td>{{productHistory.lastModificationDate | date : "dd/MM/yyyy hh:mm:ss"}}</td>
+            <td>{{productHistory.date | date : "dd/MM/yyyy hh:mm:ss"}}</td>
             <td>{{productHistory.userName}}</td>
-           <td><p-tableCheckbox [value]="productHistory" class="mb-2"></p-tableCheckbox></td>
+             <td><p-tableCheckbox [value]="productHistory" class="mb-2"></p-tableCheckbox></td>
 
             <!--             <td>
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-4 buttonSize"
