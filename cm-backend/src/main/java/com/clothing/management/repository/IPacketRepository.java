@@ -45,7 +45,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p GROUP BY p.status")
     List<DashboardCard> createDashboard();
 
-    @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p WHERE (p.status <> 'Problème' AND p.status <> 'Annuler' AND p.status <> 'Supprimé') GROUP BY p.status")
+    @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p WHERE (p.status <> 'Problème') GROUP BY p.status")
     List<DashboardCard> createNotification();//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
 
    //@Query(value = getQuery(searchField, endDate, se), countQuery = COUNT_FIELD_QUERY, nativeQuery = true)

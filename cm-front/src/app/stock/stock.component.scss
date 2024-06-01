@@ -9,6 +9,23 @@
 
 }
 
+.full-height {
+  height: 100%;
+}
+
+.full-height .card {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.full-height .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+
 :host ::ng-deep .no-products {
     background-color:   #ffebeb !important;
   }

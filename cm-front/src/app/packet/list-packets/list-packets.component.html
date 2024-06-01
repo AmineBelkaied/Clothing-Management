@@ -161,7 +161,7 @@
             >
               <div
                 class="statusCard surface-card shadow-6 p-3 border-round"
-                *ngIf="!(j == 0 || j == 7) || isAdmin"
+                *ngIf="!(j == 0 || j == 5 || j == 6) || isAdmin"
               >
                 <div
                   class="flex justify-content-between mb-1"
@@ -188,17 +188,6 @@
                 </div>
 
                 <p-selectButton
-                  *ngIf="j == 4"
-                  [options]="enCoursOptions"
-                  [(ngModel)]="enCoursOptionsValue"
-                  [multiple]="true"
-                  optionLabel="name"
-                  optionValue="value"
-                  class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(4)"
-                ></p-selectButton>
-
-                <p-selectButton
                   *ngIf="j == 2"
                   [options]="nonConfirmedOptions"
                   [(ngModel)]="nonConfirmedOptionsValue"
@@ -210,33 +199,44 @@
                 ></p-selectButton>
 
                 <p-selectButton
-                  *ngIf="j == 6"
+                  *ngIf="j == 3"
+                  [options]="enCoursOptions"
+                  [(ngModel)]="enCoursOptionsValue"
+                  [multiple]="true"
+                  optionLabel="name"
+                  optionValue="value"
+                  class="small-select-button"
+                  (onOptionClick)="onActiveIndexChange(3)"
+                ></p-selectButton>
+
+                <p-selectButton
+                  *ngIf="j == 5"
                   [options]="canceledOptions"
                   [(ngModel)]="canceledOptionsValue"
                   [multiple]="true"
                   optionLabel="name"
                   optionValue="value"
                   class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(6)"
+                  (onOptionClick)="onActiveIndexChange(5)"
                 ></p-selectButton>
 
                 <p-selectButton
-                  *ngIf="j == 7"
+                  *ngIf="j == 6"
                   [options]="endedOptions"
                   [(ngModel)]="endedOptionsValue"
                   [multiple]="true"
                   optionLabel="name"
                   optionValue="value"
                   class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(7)"
+                  (onOptionClick)="onActiveIndexChange(6)"
                 ></p-selectButton>
                 <span
-                  *ngIf="j != 2 && j != 3 && j != 4 && j != 6"
+                  *ngIf="j != 2 && j != 3 && j != 5 && j != 6"
                   class="text-green-500 font-medium"
                   >loading</span
                 >
                 <span
-                  *ngIf="j != 2 && j != 3 && j != 4 && j != 6"
+                  *ngIf="j != 2 && j != 3 && j != 5 && j != 6"
                   class="text-500"
                   >since last visit</span
                 >

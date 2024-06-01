@@ -1,5 +1,6 @@
 package com.clothing.management.repository;
 
+import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.entities.ProductHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,20 +17,58 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
     @Query(value = "select * from product_history p order by p.last_modification_date LIMIT :limit OFFSET :skip", nativeQuery = true)
     public List<ProductHistory> findAllProductsHistory(@Param("limit") int limit, @Param("skip") int skip);
 
-    @Query(value = "select * from product_history pr where pr.model_id = :modelId",
+
+
+    /*@Query(value = "select * from product_history pr where pr.model_id = :modelId",
             countQuery = "select count(*) from product_history pr where pr.model_id = :modelId",
             nativeQuery = true)
-    public Page<ProductHistory> findAll(@Param("modelId") Long modelId, Pageable pageable);
+    public Page<ProductHistory> findAll(@Param("modelId") Long modelId, Pageable pageable);*/
 
-    @Query(value = "select * from product_history pr where pr.model_id = :modelId and pr.reference LIKE %:reference%",
+    @Query(value = "SELECT NEW com.clothing.management.dto.ProductHistoryDTO("
+            + "pr.id, "
+            + "CONCAT(pr.product.color.name, ' ', pr.product.size.reference), "
+            + "pr.model.id, "
+            + "pr.quantity, "
+            + "pr.lastModificationDate, "
+            + "pr.userName) "
+            + "FROM ProductHistory pr "
+            + "WHERE pr.model.id = :modelId")
+    public Page<ProductHistoryDTO> findAll(@Param("modelId") Long modelId, Pageable pageable);
+
+
+    /*@Query(value = "select * from product_history pr where pr.model_id = :modelId and pr.reference LIKE %:reference%",
             countQuery = "select count(*) from product_history pr where pr.model_id = :modelId and pr.reference LIKE %:reference%",
             nativeQuery = true)
-    public Page<ProductHistory> findAllByReference(@Param("modelId") Long modelId, @Param("reference") String reference, Pageable pageable);
+    public Page<ProductHistory> findAllByReference(@Param("modelId") Long modelId, @Param("reference") String reference, Pageable pageable);*/
 
-    @Query(value = "select * from product_history pr where pr.model_id = :modelId and DATE(pr.last_modification_date) >= :beginDate and DATE(pr.last_modification_date) <= :endDate",
-            countQuery = "select count(*) from product_history pr where pr.model_id = :modelId and DATE(pr.last_modification_date) >= :beginDate and DATE(pr.last_modification_date) <= :endDate",
-            nativeQuery = true)
-    public Page<ProductHistory> findAllByDateRange(@Param("modelId") Long modelId, @Param("beginDate") String beginDate, @Param("endDate") String endDate, Pageable pageable);
+    @Query(value = "SELECT NEW com.clothing.management.dto.ProductHistoryDTO("
+            + "pr.id, "
+            + "CONCAT(pr.product.color.name, ' ', pr.product.size.reference), "
+            + "pr.model.id, "
+            + "pr.quantity, "
+            + "pr.lastModificationDate, "
+            + "pr.userName) "
+            + "FROM ProductHistory pr "
+            + "WHERE pr.model.id = :modelId AND CONCAT(pr.product.color.name, ' ', pr.product.size.reference) LIKE %:reference%")
+    public Page<ProductHistoryDTO> findAllByReference(@Param("modelId") Long modelId, @Param("reference") String reference, Pageable pageable);
+
+
+    @Query(value = "SELECT NEW com.clothing.management.dto.ProductHistoryDTO("
+            + "pr.id, "
+            + "CONCAT(pr.product.color.name, ' ', pr.product.size.reference), "
+            + "pr.model.id, "
+            + "pr.quantity, "
+            + "pr.lastModificationDate, "
+            + "pr.userName) "
+            + "FROM ProductHistory pr "
+            + "WHERE pr.model.id = :modelId "
+            + "AND DATE(pr.lastModificationDate) >= :beginDate "
+            + "AND DATE(pr.lastModificationDate) <= :endDate")
+    public Page<ProductHistoryDTO> findAllByDateRange(
+            @Param("modelId") Long modelId,
+            @Param("beginDate") Date beginDate,
+            @Param("endDate") Date endDate,
+            Pageable pageable);
 
     @Query(value = "select * from product_history pr where pr.model_id = :modelId and pr.reference LIKE %:reference% and DATE(pr.last_modification_date) >= :beginDate and DATE(pr.last_modification_date) <= :endDate",
             countQuery = "select count(*) from product_history pr where pr.model_id = :modelId and pr.reference LIKE %:reference% and DATE(pr.last_modification_date) >= :beginDate and DATE(pr.last_modification_date) <= :endDate",

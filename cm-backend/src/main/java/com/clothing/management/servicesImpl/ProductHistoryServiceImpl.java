@@ -1,5 +1,6 @@
 package com.clothing.management.servicesImpl;
 
+import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.entities.Product;
 import com.clothing.management.entities.ProductHistory;
 import com.clothing.management.repository.IProductHistoryRepository;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,17 +29,19 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
     IProductRepository productRepository;
 
     @Override
-    public Page<ProductHistory> findAllProductsHistory(Long modelId , int page, int size, String reference, String beginDate, String endDate) {
-        Pageable paging = PageRequest.of(page, size, Sort.by("last_modification_date").descending());
+    public Page<ProductHistoryDTO> findAllProductsHistory(Long modelId , int page, int size, String reference, String beginDate, String endDate) throws ParseException {
+        Pageable paging = PageRequest.of(page, size, Sort.by("lastModificationDate").descending());
         if(beginDate.isEmpty() && endDate.isEmpty()) {
             if(reference.isEmpty())
                 return productHistoryRepository.findAll(modelId, paging);
             else
                 return productHistoryRepository.findAllByReference(modelId, reference, paging);
         } else {
-            if(!reference.isEmpty())
-                return productHistoryRepository.findAllByDateRangeAndReference(modelId, reference, beginDate, endDate, paging);
-            return productHistoryRepository.findAllByDateRange(modelId, beginDate, endDate, paging);
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            /*if(!reference.isEmpty())
+                return productHistoryRepository.findAllByDateRangeAndReference(modelId, reference, dateFormat.parse(beginDate), dateFormat.parse(endDate), paging);*/
+            return productHistoryRepository.findAllByDateRange(modelId, dateFormat.parse(beginDate), dateFormat.parse(endDate), paging);
         }
     }
     @Override
@@ -70,9 +75,9 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
     }
 
     @Override
-    public Page<ProductHistory> deleteProductsHistory(List<ProductHistory> productsHistory, Long modelId, int page) {
+    public Page<ProductHistoryDTO> deleteProductsHistory(List<ProductHistory> productsHistory, Long modelId, int page) {
         productsHistory.forEach(productHistory -> {
-           Optional<Product> optionalProduct = productRepository.findById(productHistory.getProductId());
+           Optional<Product> optionalProduct = productRepository.findById(productHistory.getProduct().getId());
            optionalProduct.ifPresent(product -> {
                product.setQuantity(product.getQuantity() - productHistory.getQuantity());
                productRepository.save(product);

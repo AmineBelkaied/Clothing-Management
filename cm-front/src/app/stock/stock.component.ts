@@ -93,17 +93,6 @@ export class StockComponent implements OnInit {
   ngOnInit(): void {
 
     this.getAllModel();
-    //this.rangeDates = [new Date()]
-
-/*     this.activateRoute.params.subscribe(params => {
-      console.log("params['id']",params['id']);
-      console.log("this.lastModelId",this.lastModelId);
-
-      if (params['id'] == 0){this.modelId = this.lastModelId;}
-        else this.modelId = +params['id'];
-        this.setCalendar();
-        this.getStats();
-    }); */
 
     // Create the line chart
     this.dataSetArray = [
@@ -161,22 +150,11 @@ export class StockComponent implements OnInit {
   };
   }
 
-  getStats(){
-    this.setCalendar();
-      this.getStatModelSoldChart(this.modelId,this.selectedChart);
-      //this.getStatAllModelsChart();
-      this.getStockByModelId(this.modelId);
-      this.getProductsCountByModel(this.modelId);
-      this.getProductHistory();
-  }
-
   getAllModel(){
     this.modelService.findAllModels().subscribe((data: any) => {
       this.models = data;
 
       this.activateRoute.params.subscribe(params => {
-        //console.log("params['id']",params['id']);
-        //console.log("this.lastModelId",this.lastModelId);
         let modelsLength = data.length-1;
 
         if (params['id'] == 0)this.navigateToStock(data[modelsLength].id);
@@ -184,8 +162,15 @@ export class StockComponent implements OnInit {
           this.setCalendar();
           this.getStats();
       });
-
     });
+  }
+
+  getStats(){
+    this.setCalendar();
+      this.getStatModelSoldChart(this.modelId,this.selectedChart);
+      this.getStockByModelId(this.modelId);
+      this.getProductsCountByModelId(this.modelId);
+      this.getProductHistory();
   }
 
   navigateToStock(selectedModelId: number): void {
@@ -193,7 +178,7 @@ export class StockComponent implements OnInit {
   }
 
 
-  getProductsCountByModel(modelId : number){
+  getProductsCountByModelId(modelId : number){
 
     this.statsService.productsCount(
       modelId,
@@ -303,7 +288,6 @@ export class StockComponent implements OnInit {
     if (numbers.length === 0) {
         return 0; // Handle division by zero
     }
-
     const sum = numbers.reduce((acc, current) => acc + current, 0);
     const average = sum / numbers.length;
     return Number(average.toFixed(1));

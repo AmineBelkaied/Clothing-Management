@@ -1,8 +1,6 @@
 package com.clothing.management.repository;
-
 import com.clothing.management.dto.PacketsStatCountDTO;
 import com.clothing.management.dto.ProductsDayCountDTO;
-import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.ProductsPacket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

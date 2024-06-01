@@ -74,15 +74,11 @@ public class ModelServiceImpl implements ModelService {
                         for(Size size : model.getSizes()) {
                             Product product1 = productRepository.findByModelAndColorAndSize(model.getId(), color.getId(), size.getId());
                             if( product1 == null) {
-                                //System.out.println("notFound ");
-                                System.out.println("color:"+color.getId());
-                                String productRef = model.getReference().concat(color.getReference()).concat(size.getReference());
-                                Product product = new Product(productRef, size, color, 0, new Date(), model);
+                                //System.out.println("color:"+color.getId());
+                                //String productRef = model.getReference().concat(color.getReference()).concat(size.getReference());
+                                Product product = new Product( size, color, 0, new Date(), model);
                                 productRepository.save(product);
                             }
-                            //else System.out.println("found ");
-                            //System.out.println("color:"+color.getId());
-                            //System.out.println("size:"+size.getId());
                         }
                     }
                 }

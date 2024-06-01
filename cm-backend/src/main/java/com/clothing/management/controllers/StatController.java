@@ -1,7 +1,5 @@
 package com.clothing.management.controllers;
-
 import com.clothing.management.dto.ProductsDayCountDTO;
-import com.clothing.management.entities.ModelStockHistory;
 import com.clothing.management.services.StatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

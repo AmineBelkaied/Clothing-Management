@@ -72,7 +72,6 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
                 });
     }
 
-
     public int startUpdateStatusCronTask(MasterTenant masterTenant) {
         LOG.info("--- UPDATE STATUS CRON STARTED FOR TENANT --- " + masterTenant.getTenantName());
         DBContextHolder.setCurrentDb(masterTenant.getDbName());

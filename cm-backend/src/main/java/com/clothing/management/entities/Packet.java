@@ -25,12 +25,10 @@ public class Packet {
     @JoinColumn(name = "city_id")
     private City city;
     private String address;
-    @Column(name = "related_products")
-    private String relatedProducts;
+
     @Column(name = "packet_description")
     private String packetDescription;
-    @Column(name = "packet_reference")
-    private String packetReference;
+
     private String barcode;
     @Column(name = "last_delivery_status")
     private String lastDeliveryStatus;
@@ -80,8 +78,6 @@ public class Packet {
         this.customerPhoneNb= "";
         this.oldClient= 0;
         this.address= "";
-        this.relatedProducts= "";
-        this.packetReference= "";
         this.packetDescription= "";
         this.barcode= "";
         this.lastDeliveryStatus = "";
@@ -102,16 +98,14 @@ public class Packet {
         this.note = "";
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String relatedProducts, String packetDescription, String packetReference, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note, Long exchangeId) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note, Long exchangeId) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
         this.oldClient = oldClient;
         this.city = city;
         this.address = address;
-        this.relatedProducts = relatedProducts;
         this.packetDescription = packetDescription;
-        this.packetReference = packetReference;
         this.barcode = barcode;
         this.lastDeliveryStatus = lastDeliveryStatus;
         this.products = products;
@@ -162,14 +156,6 @@ public class Packet {
     public String getAddress() { return address; }
 
     public void setAddress(String address) { this.address = address; }
-
-    public String getRelatedProducts() { return relatedProducts; }
-
-    public void setRelatedProducts(String relatedProducts) { this.relatedProducts = relatedProducts; }
-
-    public String getPacketReference() { return packetReference; }
-
-    public void setPacketReference(String packetReference) { this.packetReference = packetReference; }
 
     public List<ProductsPacket> getProducts() {
         return products;
@@ -348,7 +334,6 @@ public class Packet {
                 ", oldClient='" + oldClient + '\'' +
                 ", address='" + address + '\'' +
                 ", packetDescription='" + packetDescription + '\'' +
-                ", packetReference='" + packetReference + '\'' +
                 ", barcode='" + barcode + '\'' +
                 ", lastDeliveryStatus='" + lastDeliveryStatus + '\'' +
                 ", price=" + price +

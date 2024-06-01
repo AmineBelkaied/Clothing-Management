@@ -1,5 +1,6 @@
 package com.clothing.management.services;
 
+import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.ModelStockHistory;
@@ -22,7 +23,7 @@ public interface ProductService {
     void deleteSelectedProducts(List<Long> productsId);
     StockDTO getStock(Long modelId);
     List<ModelStockHistory> countStock();
-    Page<ProductHistory> addStock(StockUpdateDto updateStock);
+    Page<ProductHistoryDTO> addStock(StockUpdateDto updateStock);
     Product findByModelAndColorAndSize(Long modelId, Long colorId, Long sizeId);
 
 }
