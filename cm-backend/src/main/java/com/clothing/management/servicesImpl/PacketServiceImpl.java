@@ -90,9 +90,11 @@ public class PacketServiceImpl implements PacketService {
         } else {
             if (searchText != null)
                 return packetRepository.findAllPacketsByField(searchText, pageable);
+            if (startDate != null && status != null)
+                return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status),dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
 
             if (status != null)
-                return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status),dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
+                return packetRepository.findAllPacketsByStatus(convertStatusToList(status), pageable);
         }
 
         return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
@@ -397,14 +399,13 @@ public class PacketServiceImpl implements PacketService {
             else
                 deliveryResponse = new DeliveryResponse(this.navexApiService.getLastStatus(packet.getBarcode(),packet.getDeliveryCompany()));
 
-            System.out.println(deliveryResponse);
+            //System.out.println(deliveryResponse);
             if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {
                 String systemNewStatus = A_VERIFIER.getStatus();
-                if (deliveryResponse.getStatus()==404 || deliveryResponse.getState() == null || deliveryResponse.getState().equals("")) {
+                if (deliveryResponse.getStatus()==404  || deliveryResponse.getState().equals("")) {
                     throw new Exception("Problem API");
-                }else if (deliveryResponse.getStatus()>199) {
+                }else if (deliveryResponse.getStatus()>199 && deliveryResponse.getState() != null) {
                     //Convert input from first to System Status
-                    //System.out.println(deliveryResponse);
                     savePacketStatusToHistory(packet,packet.getDeliveryCompany().getName()+":"+deliveryResponse.getState());
                     systemNewStatus = mapFirstToSystemStatus(deliveryResponse.getState());
                     packet.setLastDeliveryStatus(deliveryResponse.getState());
@@ -418,8 +419,9 @@ public class PacketServiceImpl implements PacketService {
                 return updatePacketStatus(packet, systemNewStatus);
             }
         } catch (Exception e ){
-            packet.setLastDeliveryStatus(INCORRECT_BARCODE.getStatus());
-            return updatePacketStatusAndSaveToHistory(packet, A_VERIFIER.getStatus());
+            //packet.setLastDeliveryStatus(INCORRECT_BARCODE.getStatus());
+            //return updatePacketStatusAndSaveToHistory(packet, A_VERIFIER.getStatus());
+            System.out.println("errorahmed"+e);
         }
 
         return null;
@@ -446,7 +448,7 @@ public class PacketServiceImpl implements PacketService {
         return switch (deliveryCompanyStatus) {
             case LIVREE, LIVRER, EXCHANGE -> LIVREE.getStatus();
             case RETOUR_EXPEDITEUR, RETOUR_EXPEDITEUR_NAVEX ,
-                    RETOUR_DEFINITIF, RETOUR_CLIENT_AGENCE,
+                    RETOUR_DEFINITIF,RETOUR_DEFINITIF_NAVEX, RETOUR_CLIENT_AGENCE,
                     RETOUR_RECU, RETOUR_RECU_NAVEX -> RETOUR.getStatus();
             case EN_ATTENTE -> CONFIRMEE.getStatus();
             case A_VERIFIER, A_VERIFIER_NAVEX -> A_VERIFIER.getStatus();

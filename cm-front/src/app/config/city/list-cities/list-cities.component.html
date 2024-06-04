@@ -3,7 +3,7 @@
     <div class="card ml-3 mr-3 mt-2 mb-3" style="background-color: #ffffff">
         <div class="card-body">
         <div class="row">
-            <div class="col-md-7">  
+            <div class="col-md-7">
                 <h5>Liste des villes</h5>
             </div>
             <div class="col-md-3">
@@ -23,7 +23,6 @@
             sortMode="single" selectionMode="multiple" [(selection)]="selectedCities"  responsiveLayout="scroll"  (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)"  [globalFilterFields]="['governorate.name', 'name' , 'postalCode']">
             <ng-template pTemplate="header">
                 <tr>
-<!--                     <th>Gouvernorat</th> -->
                     <th>Ville</th>
                     <th>Code Postal</th>
             <th style="width: 10px;" class="align-center">
@@ -38,16 +37,8 @@
                     </td>
                 </tr>
             </ng-template>
-<!--             <ng-template pTemplate="groupfooter" let-city>
-                <tr>
-                    <td style="text-align: right;font-weight: bold;background-color: lightgray;" class="font-bold pr-6">{{city.model.description}} - {{product.model.reference}}</td>
-                </tr>
-            </ng-template> -->
             <ng-template pTemplate="body" let-city>
                 <tr>
-<!--                     <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
-                        <span class="font-bold ml-2">{{city.governorate?.name}}</span>
-                    </td> -->
                     <td pEditableColumn [pEditableColumn]="city" [pEditableColumnField]="'name'" style="cursor: pointer;">
                         <p-cellEditor>
                             <ng-template pTemplate="input">

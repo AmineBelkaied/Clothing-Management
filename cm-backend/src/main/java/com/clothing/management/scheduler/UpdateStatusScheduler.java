@@ -31,7 +31,7 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
     private final ProductService productService;
     private final MasterTenantService masterTenantService;
     private final GlobalConfService globalConfService;
-    private final static int THREAD_SLEEP_INTERVAL = 2000;
+    private final static int THREAD_SLEEP_INTERVAL = 1000;
     @Value("${default.update.status.cron-expression}")
     private String defaultUpdateStatusCronExp;
     @Value("${default.count.stock.cron-expression}")

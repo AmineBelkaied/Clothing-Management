@@ -326,11 +326,22 @@ onRowSelect($event: TableRowSelectEvent) {
         }
       },
       {
-        label: IN_PROGRESS+"("+this.statusItems[3].badge+")",
+        label: CONFIRMED+"("+this.statusItems[3].badge+")",
+        title: CONFIRMED,
+        icon: 'pi pi-check',
+        color: 'green',
+        badge:this.statusItems[3].badge,
+        command: (event: any) => {
+          this.messageService.add({severity:'info', summary:NOT_CONFIRMED, detail: event.item.label});
+          //this.onActiveIndexChange(event.index);
+        }
+      },
+      {
+        label: IN_PROGRESS+"("+this.statusItems[4].badge+")",
         title: IN_PROGRESS,
         icon: 'pi pi-truck',
         color: 'purple',
-        badge:this.statusItems[3].badge,
+        badge:this.statusItems[4].badge,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:IN_PROGRESS, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
@@ -341,7 +352,7 @@ onRowSelect($event: TableRowSelectEvent) {
         title: RETURN,
         icon: 'pi pi-thumbs-down',
         color: 'red',
-        badge:this.statusItems[4].badge,
+        badge:this.statusItems[5].badge,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:RETURN, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
@@ -397,7 +408,7 @@ onRowSelect($event: TableRowSelectEvent) {
                 case ENDED:
                   this.statusItems[1].badge = element.statusCount;
                   break;
-                case 'NOT_CONFIRMED':
+                case NOT_CONFIRMED:
                 case UNREACHABLE:
                   nonConfirmed += element.statusCount;
                   break;
@@ -411,7 +422,7 @@ onRowSelect($event: TableRowSelectEvent) {
                   enCours += element.statusCount;
                   break;
                 case RETURN:
-                  this.statusItems[4].badge = element.statusCount;
+                  this.statusItems[5].badge = element.statusCount;
                   break;
                 case CANCELED:
                 case DELETED:
@@ -429,9 +440,9 @@ onRowSelect($event: TableRowSelectEvent) {
           }
           this.statusItems[0].badge = all;
           this.statusItems[2].badge = nonConfirmed;
-          this.statusItems[3].badge = enCours;
-          this.statusItems[5].badge = canceled;
-          this.statusItems[6].badge = closed;
+          this.statusItems[4].badge = enCours;
+          this.statusItems[6].badge = canceled;
+          this.statusItems[7].badge = closed;
 
           this.loadNotification();
         },
@@ -454,7 +465,7 @@ onRowSelect($event: TableRowSelectEvent) {
           this.totalItems = this.packets.length;
           let countConfirmed =response.result.filter(packet => packet.status === CONFIRMED).length;
 
-          this.statusItems[2].badge = countConfirmed > 0 ? countConfirmed:0;
+          this.statusItems[3].badge = countConfirmed > 0 ? countConfirmed:0;
           this.loading = false;
           this.createNotification();
           this.cdRef.detectChanges();
@@ -657,7 +668,7 @@ onRowSelect($event: TableRowSelectEvent) {
           if (this.selectedField === 'status' && status === CONFIRMED && responsePacket.barcode != null) {
             this.updatePacketFields(responsePacket);
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Barcode created successfully' });
-            this.statusItems[2].badge += 1;
+            this.statusItems[3].badge += 1;
           } else if (responsePacket.oldClient !== undefined && this.selectedField === 'customerPhoneNb') {
             const packetIndex = this.packets.findIndex((p: any) => p.id === responsePacket.id);
             if (packetIndex !== -1) {

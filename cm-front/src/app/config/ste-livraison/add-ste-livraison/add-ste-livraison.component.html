@@ -6,27 +6,27 @@
         <div class="container">
           <div class="row">
             <div class="col-md-6">
-              <label for="name" class="form-label">Nom</label>
-              <input type="text" class="form-control" id="name" placeholder="Nom de la société de livraison" name="name"
+              <label for="name">Nom</label>
+              <input pInputText id="name" placeholder="Nom de la société de livraison" name="name"
                 [(ngModel)]="deliveryCompany.name" />
             </div>
             <div class="col-md-6">
-              <label for="link" class="form-label">Token</label>
-              <input type="text" class="form-control" id="token" placeholder="Token" name="token"
+              <label for="link">Token</label>
+              <input pInputText id="token" placeholder="Token" name="token"
                 [(ngModel)]="deliveryCompany.token" />
             </div>
           </div>
           <div class="row">
             <div class="col-md-10">
-              <label for="apiName" class="form-label">Api Name</label>
-              <input type="text" class="form-control" id="apiName" placeholder="Nom api donnée par la société" name="apiName"
+              <label for="apiName">Api Name</label>
+              <input pInputText id="apiName" placeholder="Nom api donnée par la société" name="apiName"
                 [(ngModel)]="deliveryCompany.apiName" />
             </div>
           </div>
           <div class="row">
             <div class="col-md-10">
               <label for="barreCodeUrl" class="form-label">Lien colis par barreCode</label>
-              <input type="text" class="form-control" id="barreCodeUrl" placeholder="Lien d'accées recherche par code a barre" name="barreCodeUrl"
+              <input pInputText id="barreCodeUrl" placeholder="Lien d'accées recherche par code a barre" name="barreCodeUrl"
                 [(ngModel)]="deliveryCompany.barreCodeUrl" />
             </div>
           </div>

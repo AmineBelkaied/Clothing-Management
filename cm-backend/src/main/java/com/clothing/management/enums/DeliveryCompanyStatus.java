@@ -18,12 +18,15 @@ package com.clothing.management.enums;
         AU_MAGASIN("Au magasin"),
 
         RETOUR_DEPOT("Rtn dépôt"),
+        RETOUR_DEPOT_NAVEX("Rtn dépôt"),
         A_VERIFIER("A vérifier"),
         A_VERIFIER_NAVEX("A verifier"),
 
         RETOUR_RECU("Retour reçu"),
         RETOUR_RECU_NAVEX("Retour recu"),
         RETOUR_DEFINITIF("Rtn définitif"),
+
+        RETOUR_DEFINITIF_NAVEX("Rtn definitif"),
         OTHER_STATUS();
 
         private String status;

@@ -9,10 +9,16 @@
 
 }
 
+.model-menu {
+  position: relative;
+  overflow: visible;
+  z-index: 1000;
+}
+
 :host ::ng-deep .no-products {
     background-color:   #ffebeb !important;
   }
-  
+
   :host ::ng-deep .warning-product {
     background-color:   #fdfdba!important;
   }

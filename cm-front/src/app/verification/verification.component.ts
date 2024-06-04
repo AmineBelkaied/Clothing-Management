@@ -35,7 +35,7 @@ export class VerificationComponent implements OnInit {
     size: 300,
     startDate: null,
     endDate: null,
-    mandatoryDate: true,
+    mandatoryDate: false,
     status: CONFIRMED,
   };
 

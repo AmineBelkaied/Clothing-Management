@@ -4,16 +4,16 @@
     <div class="card-text">
       <form #modelForm="ngForm" (ngSubmit)="addColor(modelForm)">
         <div class="container">
-          <div class="row">
+          <div class="row justify-content-between">
             <div class="col-md-6">
-              <label for="name" class="form-label">Nom</label>
-              <input type="text" class="form-control" id="name" placeholder="Nom de la couleur" name="name"
+              <label for="name">Nom</label>
+              <input pInputText id="name" placeholder="Nom de la couleur" name="name" style="width: 10rem;"
                 [(ngModel)]="color.name" />
             </div>
-            <div class="col-md-6">
-              <label for="reference" class="form-label">Référence</label>
-              <input type="text" class="form-control" id="reference" placeholder="Référence de la couleur"
-                name="reference" [(ngModel)]="color.reference" minlength="2" maxlength="2" />
+            <div class="col-md-5">
+              <label for="reference">Référence </label>
+              <input pInputText id="reference" placeholder="Référence de la couleur"
+                name="reference" [(ngModel)]="color.reference" minlength="2" maxlength="2" style="width: 7rem;" />
             </div>
           </div>
           <br>
