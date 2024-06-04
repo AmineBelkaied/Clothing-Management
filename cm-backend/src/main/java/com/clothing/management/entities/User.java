@@ -39,6 +39,10 @@ public class User implements Serializable {
     @JsonIgnore
     private List<PacketStatus> packetStatusList;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ProductHistory> productHistoryList;
+
     public User() {
     }
 
@@ -107,6 +111,14 @@ public class User implements Serializable {
 
     public void setPacketStatusList(List<PacketStatus> packetStatusList) {
         this.packetStatusList = packetStatusList;
+    }
+
+    public List<ProductHistory> getProductHistoryList() {
+        return productHistoryList;
+    }
+
+    public void setProductHistoryList(List<ProductHistory> productHistoryList) {
+        this.productHistoryList = productHistoryList;
     }
 
     @Override

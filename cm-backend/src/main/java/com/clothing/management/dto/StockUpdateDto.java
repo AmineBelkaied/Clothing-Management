@@ -6,12 +6,12 @@ public class StockUpdateDto {
     List<Long> productsId;
     int qte;
     Long modelId;
-    String userName;
+    String comment;
 
-    public StockUpdateDto(List<Long> productsId, int qte,String userName) {
+    public StockUpdateDto(List<Long> productsId, int qte, String comment) {
         this.productsId = productsId;
         this.qte = qte;
-        this.userName = userName;
+        this.comment = comment;
     }
 
     public List<Long> getProductsId() {
@@ -38,12 +38,12 @@ public class StockUpdateDto {
         this.modelId = modelId;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getComment() {
+        return comment;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class StockUpdateDto {
                 "productsId=" + productsId +
                 ", qte=" + qte +
                 ", modelId=" + modelId +
-                ", userName=" + userName +
+                ", comment=" + comment +
                 '}';
     }
 }

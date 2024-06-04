@@ -8,7 +8,8 @@
             <th >Quantité
             </th>
             <th >Date</th>
-            <th >User</th>
+            <th >Utilisateur</th>
+            <th >Commentaire</th>
             <th style="width: 3rem;padding: 0.1rem 0.1rem !important" class="align-center" *ngIf="productsHistory?.result?.length > 0">
 
                 <button
@@ -29,8 +30,9 @@ class="p-button-danger mb-2  buttonSize"
             <td style="font-weight: bold;"><span
                     [ngStyle]="{'color': productHistory.quantity > 0 ? 'green' : 'red'}">{{displayQuantity(productHistory.quantity)}}</span>
             </td>
-            <td>{{productHistory.date | date : "dd/MM/yyyy hh:mm:ss"}}</td>
-            <td>{{productHistory.userName}}</td>
+            <td>{{productHistory.date}}</td>
+            <td>{{productHistory.user?.userName}}</td>
+            <td>{{productHistory.comment}}</td>
              <td><p-tableCheckbox [value]="productHistory" class="mb-2"></p-tableCheckbox></td>
 
             <!--             <td>
