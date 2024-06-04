@@ -38,7 +38,7 @@ export class StockComponent implements OnInit {
   selectedProducts: number[] = [];
   isMultiple = false;
   qte: number = 0;
-  userName: String = "Oumaima";
+  comment: string;
   @ViewChild('dt') dt!: Table;
   @ViewChild('el') el!: ElementRef;
   sizes: any[] = [];
@@ -436,7 +436,7 @@ export class StockComponent implements OnInit {
     if(this.addEnabled){
       this.addEnabled=false;
       this.productService
-      .addStock(this.selectedProducts, this.qte, +this.modelId, this.userName)
+      .addStock(this.selectedProducts, this.qte, +this.modelId, this.comment)
       .subscribe((result: any) => {
         console.log('result', result);
 

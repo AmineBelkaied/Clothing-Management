@@ -18,22 +18,25 @@ public class ProductHistory {
     private int quantity;
     @Column(name = "last_modification_date")
     private Date lastModificationDate;
-
-
     @JoinColumn(name = "model_id")
     @JsonIgnore
     @ManyToOne
     Model model;
-    private String userName;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    private String comment;
     public ProductHistory() {
     }
 
-    public ProductHistory(Product product, int quantity, Date lastModificationDate, Model model,String userName) {
+    public ProductHistory(Product product, int quantity, Date lastModificationDate, Model model, User user, String comment) {
         this.product = product;
         this.quantity = quantity;
         this.lastModificationDate = lastModificationDate;
         this.model = model;
-        this.userName = userName;
+        this.user = user;
+        this.comment = comment;
     }
 
     public Long getId() {
@@ -76,12 +79,16 @@ public class ProductHistory {
         this.model = model;
     }
 
-    public String getUserName() {
-        return userName;
+    public ProductHistory(User user) {
+        this.user = user;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     @Override
@@ -91,7 +98,9 @@ public class ProductHistory {
                 ", product=" + product +
                 ", quantity=" + quantity +
                 ", lastModificationDate=" + lastModificationDate +
-                ", userName=" + userName +
+                ", model=" + model +
+                ", user=" + user +
+                ", comment='" + comment + '\'' +
                 '}';
     }
 }

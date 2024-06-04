@@ -30,7 +30,8 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
             + "pr.model.id, "
             + "pr.quantity, "
             + "pr.lastModificationDate, "
-            + "pr.userName) "
+            + "pr.user,"
+            + "pr.comment) "
             + "FROM ProductHistory pr "
             + "WHERE pr.model.id = :modelId")
     public Page<ProductHistoryDTO> findAll(@Param("modelId") Long modelId, Pageable pageable);
@@ -47,7 +48,8 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
             + "pr.model.id, "
             + "pr.quantity, "
             + "pr.lastModificationDate, "
-            + "pr.userName) "
+            + "pr.user,"
+            + "pr.comment) "
             + "FROM ProductHistory pr "
             + "WHERE pr.model.id = :modelId AND CONCAT(pr.product.color.name, ' ', pr.product.size.reference) LIKE %:reference%")
     public Page<ProductHistoryDTO> findAllByReference(@Param("modelId") Long modelId, @Param("reference") String reference, Pageable pageable);
@@ -59,7 +61,8 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
             + "pr.model.id, "
             + "pr.quantity, "
             + "pr.lastModificationDate, "
-            + "pr.userName) "
+            + "pr.user,"
+            + "pr.comment) "
             + "FROM ProductHistory pr "
             + "WHERE pr.model.id = :modelId "
             + "AND DATE(pr.lastModificationDate) >= :beginDate "

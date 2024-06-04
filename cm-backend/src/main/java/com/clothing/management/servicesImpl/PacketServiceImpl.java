@@ -1,8 +1,8 @@
 package com.clothing.management.servicesImpl;
+import com.clothing.management.auth.util.SessionUtils;
 import com.clothing.management.dto.*;
 import com.clothing.management.enums.DeliveryCompanyStatus;
 import com.clothing.management.enums.SystemStatus;
-import com.clothing.management.exceptions.UserNotAuthenticatedException;
 import com.clothing.management.models.DashboardCard;
 import com.clothing.management.servicesImpl.api.FirstApiService;
 import com.clothing.management.entities.*;
@@ -12,8 +12,6 @@ import com.clothing.management.servicesImpl.api.NavexApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
@@ -40,13 +38,10 @@ public class PacketServiceImpl implements PacketService {
     private final IPacketStatusRepository packetStatusRepository;
     private final FirstApiService firstApiService;
     private final NavexApiService navexApiService;
-    private final UserRepository userRepository;
-    private final static String SYSTEM_USER = "SYSTEM";
-    private DeliveryCompany defaultDeliveryCompany;
+
+    private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
-
     private final static List<String> ignoredDateStatusList = List.of(new String[]{ RETOUR.getStatus(), NON_CONFIRMEE.getStatus(), INJOIGNABLE.getStatus(), PROBLEM.getStatus(), A_VERIFIER.getStatus(), ENDED.getStatus()});
-
 
     @Autowired
     public PacketServiceImpl(
@@ -56,7 +51,7 @@ public class PacketServiceImpl implements PacketService {
             IPacketStatusRepository packetStatusRepository,
             FirstApiService firstApiService,
             NavexApiService navexApiService,
-            UserRepository userRepository,
+            SessionUtils sessionUtils,
             IGlobalConfRepository globalConfRepository
     ) {
         this.packetRepository = packetRepository;
@@ -66,7 +61,7 @@ public class PacketServiceImpl implements PacketService {
         this.globalConfRepository = globalConfRepository;
         this.firstApiService = firstApiService;
         this.navexApiService = navexApiService;
-        this.userRepository = userRepository;
+        this.sessionUtils = sessionUtils;
     }
 
     @Override
@@ -598,7 +593,7 @@ public class PacketServiceImpl implements PacketService {
         packetStatus.setPacket(packet);
         packetStatus.setStatus(status);
         packetStatus.setDate(new Date());
-        packetStatus.setUser(getCurrentUser());
+        packetStatus.setUser(sessionUtils.getCurrentUser());
         packetStatusRepository.save(packetStatus);
     }
     private void updateProducts_Status(Packet packet,String status){
@@ -644,7 +639,6 @@ public class PacketServiceImpl implements PacketService {
                 }
             }
         }
-        //checkPacketProductsValidity(packet.getId());
     }
 
     private void updateProductQuantity(Product product, int quantityChange) {
@@ -652,17 +646,5 @@ public class PacketServiceImpl implements PacketService {
         product.setQuantity(product.getQuantity() + quantityChange);
         product.setDate(new Date());
         productRepository.save(product);
-    }
-
-    private User getCurrentUser() {
-        if(SecurityContextHolder.getContext().getAuthentication() != null) {
-            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (userDetails != null) {
-                return userRepository.findByUserName(userDetails.getUsername());
-            } else {
-                throw new UserNotAuthenticatedException("User details are null. User not authenticated.");
-            }
-        }
-        return userRepository.findByUserName(SYSTEM_USER);
     }
 }

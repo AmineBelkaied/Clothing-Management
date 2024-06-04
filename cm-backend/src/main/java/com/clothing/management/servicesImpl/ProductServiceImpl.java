@@ -1,9 +1,11 @@
 package com.clothing.management.servicesImpl;
 
+import com.clothing.management.auth.util.SessionUtils;
 import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.*;
+import com.clothing.management.exceptions.ProductNotFoundException;
 import com.clothing.management.repository.IModelRepository;
 import com.clothing.management.repository.IOfferRepository;
 import com.clothing.management.repository.IProductHistoryRepository;
@@ -34,6 +36,9 @@ public class ProductServiceImpl implements ProductService {
     IOfferRepository offerRepository;
     @Autowired
     IProductHistoryRepository productHistoryRepository;
+
+    @Autowired
+    SessionUtils sessionUtils;
     private Long productModel;
 
     @Override
@@ -152,14 +157,16 @@ public class ProductServiceImpl implements ProductService {
 
     public Page<ProductHistoryDTO> addStock(StockUpdateDto updateIdSockList) {
         updateIdSockList.getProductsId().forEach(productId -> {
-            Optional<Product> product = findProductById(productId);
-            if(product.isPresent()) {
-                productModel = updateIdSockList.getModelId();//product.get().getModel().getId();
-                product.get().setQuantity(product.get().getQuantity()+updateIdSockList.getQte());
-                updateProduct(product.get());
-                ProductHistory productHistory = new ProductHistory(product.get(),updateIdSockList.getQte(), new Date(), product.get().getModel(),updateIdSockList.getUserName());
-                productHistoryRepository.save(productHistory);
-            }
+            Product product = findProductById(productId)
+                    .orElseThrow(() -> {
+                        throw new ProductNotFoundException("The product does not exists!");
+                    });
+            productModel = updateIdSockList.getModelId();
+            product.setQuantity(product.getQuantity() + updateIdSockList.getQte());
+            updateProduct(product);
+
+            ProductHistory productHistory = new ProductHistory(product, updateIdSockList.getQte(), new Date(), product.getModel(), sessionUtils.getCurrentUser(), updateIdSockList.getComment());
+            productHistoryRepository.save(productHistory);
         });
 
         Pageable paging = PageRequest.of(0, 10, Sort.by("lastModificationDate").descending());

@@ -84,7 +84,7 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
            });
            productHistoryRepository.deleteById(productHistory.getId());
         });
-        Pageable paging = PageRequest.of(page, 10, Sort.by("last_modification_date").descending());
+        Pageable paging = PageRequest.of(page, 10, Sort.by("lastModificationDate").descending());
         return productHistoryRepository.findAll(modelId, paging);
     }
 

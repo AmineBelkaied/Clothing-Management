@@ -1,5 +1,7 @@
 package com.clothing.management.dto;
 
+import com.clothing.management.entities.User;
+
 import java.util.Date;
 import java.util.List;
 
@@ -10,16 +12,17 @@ public class ProductHistoryDTO {
     private Long productId;
     private int quantity;
     private Date date;
+    private User user;
+    private String comment;
 
-    private String userName;
-
-    public ProductHistoryDTO(Long id, String description, Long productId, int quantity, Date date, String userName) {
+    public ProductHistoryDTO(Long id, String description, Long productId, int quantity, Date date, User user, String comment) {
         this.id = id;
         this.description = description;
         this.productId = productId;
         this.quantity = quantity;
         this.date = date;
-        this.userName = userName;
+        this.user = user;
+        this.comment = comment;
     }
 
     public String getDescription() {
@@ -54,12 +57,12 @@ public class ProductHistoryDTO {
         this.date = date;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getComment() {
+        return comment;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public Long getId() {
@@ -70,15 +73,24 @@ public class ProductHistoryDTO {
         this.id = id;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @Override
     public String toString() {
         return "ProductHistoryDTO{" +
-                "id='" + id + '\'' +
-                "description='" + description + '\'' +
+                "id=" + id +
+                ", description='" + description + '\'' +
                 ", productId=" + productId +
                 ", quantity=" + quantity +
-                ", date='" + date + '\'' +
-                ", userName='" + userName + '\'' +
+                ", date=" + date +
+                ", user=" + user +
+                ", comment='" + comment + '\'' +
                 '}';
     }
 }
