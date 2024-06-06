@@ -153,10 +153,10 @@ export class PacketService {
   }
 
 
-  addAttempt(packet: Packet,note: string) {
+  addAttempt(packetId: number,note: string) {
     //packet.note = note;
     return this.http.post(
-      this.baseUrl + '/addAttempt/'+note,packet
+      this.baseUrl + '/addAttempt/'+packetId,note
     );
   }
 

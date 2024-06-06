@@ -592,7 +592,7 @@ onRowSelect($event: TableRowSelectEvent) {
       case CANCELED:
         if (this.oldFieldValue !== CONFIRMED && this.oldFieldValue !== TO_VERIFY && this.oldFieldValue !== DELETED) {
           errorMessage = 'Please do not cancel outgoing packets';
-        }
+        }else this.addAttempt(packet);
         break;
       case NOT_CONFIRMED:
       case ENDED:
@@ -776,22 +776,28 @@ onRowSelect($event: TableRowSelectEvent) {
   }
 
   addAttempt(packet: Packet): void {
+    console.log("packet:",packet);
     this.visibleNote = true;
     this.selectedPacket = packet;
     this.note="";
   }
+
   confirmNote() {
     console.log("Confirm button clicked!");
-    let note = "Client UNREACHABLE"
+    let note = "Client injoignable";
+
     if (this.note.trim() !== '')  // Check if value is not empty
       {
         this.confirmEvent.emit(this.note);
         note = this.note;
       }
+      console.log("this.selectedPacket",this.selectedPacket);
 
-      this.packetService.addAttempt(this.selectedPacket,note)
+      this.packetService.addAttempt(this.selectedPacket.id!,note)
       .subscribe({
           next: (response: Packet) => {
+            console.log("response",response);
+
             this.updatePacketFields(response);
           },
           error : (error: Error) => {
@@ -874,16 +880,19 @@ onRowSelect($event: TableRowSelectEvent) {
   }
 
   deleteSelectedPackets(): void {
-    let selectedPacketsById = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id);
+    console.log("this.selectedPackets",this.selectedPackets);
+
+    let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id);
     this.confirmationService.confirm({
       message:'Êtes-vous sûr de vouloir supprimer les commandes séléctionnées ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.packetService
-          .deleteSelectedPackets(selectedPacketsById)
+          .deleteSelectedPackets(selectedPacketsByIds)
           .subscribe(() => {
-            this.packets = this.packets.filter((packet: Packet) => selectedPacketsById.indexOf(packet.id) == -1);
+            this.addAttempt(this.selectedPackets[0]);
+            this.packets = this.packets.filter((packet: Packet) => selectedPacketsByIds.indexOf(packet.id) == -1);
             this.selectedPackets = [];
             this.messageService.add({severity: 'success',summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000});
           });

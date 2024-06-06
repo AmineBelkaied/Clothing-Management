@@ -30,7 +30,7 @@ public interface PacketService {
     public List<PacketStatus> findPacketTimeLineById(Long idPacket) throws Exception;
     DeliveryResponse createBarCode(Packet packet) throws IOException, InterruptedException;
     Packet getLastStatus(Packet packet) throws Exception;
-    Packet addAttempt(Packet packet,String note) throws ParseException;
+    Packet addAttempt(Long packetId,String note) throws ParseException;
     int checkPhone(String phoneNumber);
     List<DashboardCard> createDashboard();
     List<DashboardCard> syncNotification();
