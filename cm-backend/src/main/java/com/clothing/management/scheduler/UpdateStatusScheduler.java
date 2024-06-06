@@ -36,6 +36,8 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
     private String defaultUpdateStatusCronExp;
     @Value("${default.count.stock.cron-expression}")
     private String defaultCountStockCronExp;
+    @Value("${server.database.prefix}")
+    private String serverDbPrefix;
 
     public UpdateStatusScheduler(ModelStockHistoryService modelStockHistoryService, PacketService packetService, ProductService productService, MasterTenantService masterTenantService, GlobalConfService globalConfService) {
         this.modelStockHistoryService = modelStockHistoryService;
@@ -48,7 +50,7 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         List<MasterTenant> masterTenants = masterTenantService.findAllMasterTenants();
-        masterTenants.stream().filter(masterTenant -> !masterTenant.getDbName().equalsIgnoreCase(AppConstants.MASTER_DB))
+        masterTenants.stream().filter(masterTenant -> !masterTenant.getDbName().equalsIgnoreCase(serverDbPrefix + AppConstants.MASTER_DB))
                 .forEach(masterTenant -> {
                     DBContextHolder.setCurrentDb(masterTenant.getDbName());
                     GlobalConf globalConf = globalConfService.getGlobalConf();
