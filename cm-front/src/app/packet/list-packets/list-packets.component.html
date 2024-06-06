@@ -199,44 +199,44 @@
                 ></p-selectButton>
 
                 <p-selectButton
-                  *ngIf="j == 3"
+                  *ngIf="j == 4"
                   [options]="enCoursOptions"
                   [(ngModel)]="enCoursOptionsValue"
                   [multiple]="true"
                   optionLabel="name"
                   optionValue="value"
                   class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(3)"
+                  (onOptionClick)="onActiveIndexChange(4)"
                 ></p-selectButton>
 
                 <p-selectButton
-                  *ngIf="j == 5"
+                  *ngIf="j == 6"
                   [options]="canceledOptions"
                   [(ngModel)]="canceledOptionsValue"
                   [multiple]="true"
                   optionLabel="name"
                   optionValue="value"
                   class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(5)"
+                  (onOptionClick)="onActiveIndexChange(6)"
                 ></p-selectButton>
 
                 <p-selectButton
-                  *ngIf="j == 6"
+                  *ngIf="j == 7"
                   [options]="endedOptions"
                   [(ngModel)]="endedOptionsValue"
                   [multiple]="true"
                   optionLabel="name"
                   optionValue="value"
                   class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(6)"
+                  (onOptionClick)="onActiveIndexChange(7)"
                 ></p-selectButton>
                 <span
-                  *ngIf="j != 2 && j != 3 && j != 5 && j != 6"
+                  *ngIf="j != 2 && j != 4 && j != 6 && j != 7"
                   class="text-green-500 font-medium"
                   >loading</span
                 >
                 <span
-                  *ngIf="j != 2 && j != 3 && j != 5 && j != 6"
+                *ngIf="j != 2 && j != 4 && j != 6 && j != 7"
                   class="text-500"
                   >since last visit</span
                 >
@@ -396,7 +396,7 @@
             *ngIf="
               packet.note &&
               packet.note !== '' &&
-              (packet.status === 'Injoignable' || packet.status === 'Supprimé')
+              (packet.status === 'Injoignable' || packet.status === 'Supprimé' || packet.status === 'Annuler')
             "
             style="background-color: #fcff2e !important; border-radius: 10px"
           >

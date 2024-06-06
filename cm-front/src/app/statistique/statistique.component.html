@@ -193,9 +193,14 @@
           <H3>Colors Chart</H3>
         </div>
         <div>
-          <p-selectButton [options]="enablerOptions" [(ngModel)]="colorsChartEnabler" optionLabel="label" optionValue="value" (click)="colorsChartEnablerChange()"></p-selectButton>
+          <p-selectButton [options]="enablerOptions"
+          [(ngModel)]="colorsChartEnabler"
+          optionLabel="label"
+          optionValue="value"
+          (click)="colorsChartEnablerChange()"></p-selectButton>
         </div>
         <div class="d-flex align-items-center">
+
           <p-multiSelect
             [options]="allModelsList"
             [(ngModel)]="selectedModels"
@@ -206,10 +211,10 @@
             [showClear]="true"
             [showHeader]="false"
             selectedItemsLabel="{0} model sélectionnés"
-            class="ml-2"
-            [style]="{ width: '10rem' }"
-            appendTo="body"
+
+            class="model-menu"
             optionLabel="name"
+            placeholder="Select Models"
           ></p-multiSelect>
           <p-button label="Filter" class="ml-2" icon="pi pi-check" iconPos="right" (click)="getStatAllColorsChart()"></p-button>
         </div>

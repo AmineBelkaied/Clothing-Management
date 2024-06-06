@@ -20,13 +20,14 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value=" SELECT * FROM packet p WHERE DATEDIFF(NOW() , p.date) < 2", nativeQuery = true)
     List<Packet> findAllByDate(@Param("date") Date d);
 
-    @Query(value="SELECT * FROM packet p WHERE p.status != 'Payée' and p.status != 'Annuler' " +
-            "AND p.status != 'Pas serieux' AND p.status != 'Livrée' " +
-            "AND p.status != 'Retour reçu' AND p.status != 'Retour' " +
-            "AND p.status != 'Supprimé' AND p.status != 'En rupture' " +
-            "AND p.status != 'Problème' AND p.barcode != '' " +
-            "AND p.barcode AND p.valid NOT LIKE 'b%' ORDER BY p.id DESC;", nativeQuery = true)
+    @Query(value="SELECT p FROM Packet p WHERE p.status <> 'Payée' and p.status <> 'Annuler' " +
+            "AND p.status <> 'Livrée' AND p.status <> 'Supprimé'" +
+            "AND p.status <> 'Retour reçu' AND p.status <> 'Retour' " +
+            "AND p.status <> 'Annuler' AND p.status <> 'Pas Serieux' " +
+            "AND p.status <> 'Problème' AND p.barcode <> '' " +
+            "AND p.barcode NOT LIKE 'b%' AND p.valid")
     public List<Packet> findAllDiggiePackets();
+
 
     @Query(value="UPDATE packet p SET p.attempt = p.attempt + 1 WHERE  id= :packetId", nativeQuery = true)
     Optional<Packet> addAttempt(@Param("packetId") Long packetId);
@@ -45,7 +46,8 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p GROUP BY p.status")
     List<DashboardCard> createDashboard();
 
-    @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p WHERE (p.status <> 'Problème') GROUP BY p.status")
+    @Query(value="SELECT NEW com.clothing.management.models.DashboardCard(" +
+            " p.status, COUNT(p.status)) FROM Packet p WHERE (p.status <> 'Problème') GROUP BY p.status")
     List<DashboardCard> createNotification();//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
 
    //@Query(value = getQuery(searchField, endDate, se), countQuery = COUNT_FIELD_QUERY, nativeQuery = true)
@@ -58,6 +60,10 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
 
     @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList) AND (p.status IN (:ignoredDateStatusList) OR (DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)))")
     Page<Packet> findAllPacketsByStatus(@Param("ignoredDateStatusList") List<String> ignoredDateStatusList, @Param("selectedList") List<String> selectedList, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
+
+    @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList)")
+    Page<Packet> findAllPacketsByStatus(@Param("selectedList") List<String> selectedList, Pageable pageable);
+
 
     @Query(value ="SELECT p FROM Packet p WHERE DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)")
     Page<Packet> findAllPacketsByDate(@Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);

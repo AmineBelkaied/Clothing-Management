@@ -4,26 +4,26 @@ public enum SystemStatus {
 
     CREATION("Creation"),
     LIVREE("Livrée"),
-    INJOIGNABLE("Injoignable"),
-    CONFIRMEE("Confirmée"),
-    NON_CONFIRMEE("Non confirmée"),
-    EN_COURS_1("En cours (1)"),
-    EN_COURS_2("En cours (2)"),
-    EN_COURS_3("En cours (3)"),
+    UNREACHABLE("Injoignable"),
+    CONFIRMED("Confirmée"),
+    NOT_CONFIRMED("Non confirmée"),
+    IN_PROGRESS_1("En cours (1)"),
+    IN_PROGRESS_2("En cours (2)"),
+    IN_PROGRESS_3("En cours (3)"),
 
     AU_MAGASIN("Au magasin"),
-    A_VERIFIER("A verifier"),
-    RETOUR("Retour"),
+    TO_VERIFY("A verifier"),
+    RETURN("Retour"),
     PROBLEM("Problème"),
 
     RETOUR_EXCHANGE("Retour Echange"),
-    RETOUR_RECU("Retour reçu"),
+    RETURN_RECEIVED("Retour reçu"),
 
     NOTSERIOUS("Pas Serieux"),
 
     CANCELED("Annuler"),
     RETOUR_EXPEDITEUR("Retour Expediteur"),
-    PAYEE("Payée"),
+    PAID("Payée"),
 
     EXCHANGE("Echange"),
     INCORRECT_BARCODE("Code à barre incorrect"),

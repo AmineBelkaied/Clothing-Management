@@ -140,10 +140,10 @@ public class PacketController {
                 HttpStatus.OK);
     }
 
-    @PostMapping(value = "/addAttempt/{note}", produces = "application/json")
-    public ResponseEntity<Packet> addAttempt(@PathVariable String note,@RequestBody Packet packet) throws ParseException {
+    @PostMapping(value = "/addAttempt/{packetId}", produces = "application/json")
+    public ResponseEntity<Packet> addAttempt(@PathVariable Long packetId,@RequestBody String note) throws ParseException {
         return new ResponseEntity<>(
-                packetService.addAttempt(packet,note),
+                packetService.addAttempt(packetId,note),
                 HttpStatus.OK);
     }
 

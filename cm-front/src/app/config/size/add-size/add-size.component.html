@@ -4,15 +4,15 @@
     <div class="card-text">
       <form #sizeForm="ngForm" (ngSubmit)="addSize(sizeForm)">
         <div class="container">
-          <div class="row">
+          <div class="row justify-content-between">
             <div class="col-md-6">
               <label for="reference" class="form-label">Référence</label>
-              <input type="text" class="form-control" id="reference" placeholder="Référence de la taille"
+              <input pInputText id="reference" placeholder="Référence de la taille" style="width: 10rem;"
                 name="reference" [(ngModel)]="size.reference" />
             </div>
-            <div class="col-md-6">
+            <div class="col-md-5">
               <label for="description" class="form-label">Description</label>
-              <input type="text" class="form-control" id="description" placeholder="Description de la taille"
+              <input pInputText id="description" placeholder="Description de la taille" style="width: 7rem;"
                 name="description" [(ngModel)]="size.description" />
             </div>
           </div>

@@ -4,15 +4,15 @@
     <div class="card-text">
       <form #modelForm="ngForm" (ngSubmit)="addFbPage(modelForm)">
         <div class="container">
-          <div class="row">
-            <div class="col-md-6">
+          <div class="row justify-content-between">
+            <div class="col-md-5">
               <label for="name" class="form-label">Nom</label>
-              <input type="text" class="form-control" id="name" placeholder="Nom de la page facebook" name="name"
+              <input pInputText  style="width: 7rem;" id="name" placeholder="Nom de la page facebook" name="name"
                 [(ngModel)]="fbPage.name" />
             </div>
             <div class="col-md-6">
               <label for="link" class="form-label">Lien</label>
-              <input type="text" class="form-control" id="link" placeholder="Lien de la page facebook" name="link"
+              <input pInputText  style="width: 10rem;" id="link" placeholder="Lien de la page facebook" name="link"
                 [(ngModel)]="fbPage.link" />
             </div>
           </div>
