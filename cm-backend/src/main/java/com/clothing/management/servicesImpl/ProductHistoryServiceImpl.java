@@ -41,6 +41,7 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             /*if(!reference.isEmpty())
                 return productHistoryRepository.findAllByDateRangeAndReference(modelId, reference, dateFormat.parse(beginDate), dateFormat.parse(endDate), paging);*/
+            //return productHistoryRepository.findAll(modelId, paging);
             return productHistoryRepository.findAllByDateRange(modelId, dateFormat.parse(beginDate), dateFormat.parse(endDate), paging);
         }
     }

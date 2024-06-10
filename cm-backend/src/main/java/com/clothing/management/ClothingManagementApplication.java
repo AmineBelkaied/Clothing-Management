@@ -9,16 +9,16 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class ClothingMangementApplication {
+public class ClothingManagementApplication {
 
 	private final TenantDatabaseManager tenantDatabaseManager;
 
-	public ClothingMangementApplication(TenantDatabaseManager tenantDatabaseManager) {
+	public ClothingManagementApplication(TenantDatabaseManager tenantDatabaseManager) {
 		this.tenantDatabaseManager = tenantDatabaseManager;
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(ClothingMangementApplication.class, args);
+		SpringApplication.run(ClothingManagementApplication.class, args);
 	}
 
 	@PostConstruct

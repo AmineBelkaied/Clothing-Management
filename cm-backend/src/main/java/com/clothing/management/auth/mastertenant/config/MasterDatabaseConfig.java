@@ -6,7 +6,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -50,8 +49,15 @@ public class MasterDatabaseConfig {
         hikariDataSource.setPassword(masterDbPassword);
         hikariDataSource.setJdbcUrl(masterDbUrl);
         hikariDataSource.setDriverClassName(driverClassName);
-        LOG.info("Setup of masterDataSource succeeded.");
+        LOG.debug("Setup of masterDataSource succeeded.");
         return hikariDataSource;
+    }
+
+    @Bean(name = "masterTransactionManager")
+    public JpaTransactionManager masterTransactionManager(@Qualifier("masterEntityManagerFactory") EntityManagerFactory emf) {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(emf);
+        return transactionManager;
     }
 
     @Primary
@@ -68,17 +74,10 @@ public class MasterDatabaseConfig {
         // Setting Hibernate as the JPA provider
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
-        // Set the hibernate properties
+        // Set to hibernate properties
         em.setJpaProperties(hibernateProperties());
-        LOG.info("Setup of masterEntityManagerFactory succeeded.");
+        LOG.debug("Setup of masterEntityManagerFactory succeeded.");
         return em;
-    }
-
-    @Bean(name = "masterTransactionManager")
-    public JpaTransactionManager masterTransactionManager(@Qualifier("masterEntityManagerFactory") EntityManagerFactory emf) {
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(emf);
-        return transactionManager;
     }
 
     @Bean
@@ -90,7 +89,7 @@ public class MasterDatabaseConfig {
     private Properties hibernateProperties() {
         Properties properties = new Properties();
         properties.put(org.hibernate.cfg.Environment.DIALECT, hibernateDialect);
-        properties.put(org.hibernate.cfg.Environment.SHOW_SQL, false);
+        properties.put(org.hibernate.cfg.Environment.SHOW_SQL, true);
         properties.put(org.hibernate.cfg.Environment.FORMAT_SQL, false);
         properties.put(org.hibernate.cfg.Environment.HBM2DDL_AUTO, "none");
         return properties;

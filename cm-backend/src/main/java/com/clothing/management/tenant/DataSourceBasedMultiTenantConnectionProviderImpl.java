@@ -39,7 +39,7 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
         // is empty. If it is then rescan master_tenant table for all tenant
         if (dataSourcesMtApp.isEmpty()) {
             List<MasterTenant> masterTenants = masterTenantRepository.findAll();
-            LOG.info("selectAnyDataSource() method call...Total tenants:" + masterTenants.size());
+            LOG.debug("selectAnyDataSource() method call...Total tenants:" + masterTenants.size());
             for (MasterTenant masterTenant : masterTenants) {
                 dataSourcesMtApp.put(masterTenant.getDbName(), DataSourceUtil.createAndConfigureDataSource(masterTenant));
             }
@@ -54,7 +54,7 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
         tenantIdentifier = initializeTenantIfLost(tenantIdentifier);
         if (!this.dataSourcesMtApp.containsKey(tenantIdentifier)) {
             List<MasterTenant> masterTenants = masterTenantRepository.findAll();
-            LOG.info("selectDataSource() method call...Tenant:" + tenantIdentifier + " Total tenants:" + masterTenants.size());
+            LOG.debug("selectDataSource() method call...Tenant:" + tenantIdentifier + " Total tenants:" + masterTenants.size());
             for (MasterTenant masterTenant : masterTenants) {
                 dataSourcesMtApp.put(masterTenant.getDbName(), DataSourceUtil.createAndConfigureDataSource(masterTenant));
             }
