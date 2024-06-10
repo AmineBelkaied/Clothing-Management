@@ -1,6 +1,7 @@
 package com.clothing.management.dto;
 
 import com.clothing.management.entities.User;
+import jakarta.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,7 @@ public class ProductHistoryDTO {
     private Long productId;
     private int quantity;
     private Date date;
+    @Nullable
     private User user;
     private String comment;
 

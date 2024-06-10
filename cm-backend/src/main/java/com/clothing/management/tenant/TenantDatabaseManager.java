@@ -72,7 +72,7 @@ public class TenantDatabaseManager {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(driverClassName);
         dataSource.setSchema(masterTenant.getDbName());
-        dataSource.setUrl(dataSourceHost + masterTenant.getDbName() + dataSourceParams);
+        dataSource.setUrl(dataSourceHost +  masterTenant.getDbName() + dataSourceParams);
         dataSource.setUsername(masterDbUser);
         dataSource.setPassword(masterDbPassword);
         return dataSource;
@@ -107,7 +107,7 @@ public class TenantDatabaseManager {
         //Getting the connection
         Class.forName(driverClassName);
         Connection con = DriverManager.getConnection(masterDbUser, masterDbUrl, masterDbPassword);
-        LOG.info("Connection established......");
+        LOG.debug("Connection established......");
 
         //Initialize the script runner
         ScriptRunner sr = new ScriptRunner(con);
