@@ -3,6 +3,7 @@ package com.clothing.management.entities;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "city")
 public class City {
 
     @Id

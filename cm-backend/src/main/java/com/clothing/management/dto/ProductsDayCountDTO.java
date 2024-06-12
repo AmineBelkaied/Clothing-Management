@@ -31,7 +31,7 @@ public class ProductsDayCountDTO {
             Date packetDate, Long productId,
             Offer offer, Long modelId, String modelName,
             Color color, Size size,
-            Long countExchange,Long countRupture,Long countProgress, Long count
+            Long countExchange,Long countProgress, Long count,Long countRupture
     ) {
         this.packetDate = packetDate;
         this.productId = productId;
@@ -42,9 +42,9 @@ public class ProductsDayCountDTO {
         this.color = color;
         this.size = size;
         this.countExchange = countExchange;
-        this.countRupture = countRupture;
         this.countProgress = countProgress;
         this.count = count;
+        this.countRupture = countRupture;
     }
 
     public ProductsDayCountDTO(

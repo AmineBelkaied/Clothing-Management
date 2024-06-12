@@ -63,7 +63,7 @@ export class AddPacketComponent implements OnInit {
   }
 
   models(offerIndex: number): FormArray {
-//    console.log("this.offers()",this.offers().at(offerIndex).get('models') as FormArray);
+//  console.log("this.offers()",this.offers().at(offerIndex).get('models') as FormArray);
 
     return this.offers().at(offerIndex).get('models') as FormArray
   }

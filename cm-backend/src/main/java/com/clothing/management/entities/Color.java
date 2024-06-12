@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "color")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Color {
 

@@ -562,7 +562,7 @@ onRowSelect($event: TableRowSelectEvent) {
             this.updatePacket(packet);
             break;
           default:
-            this.updatePacketService(packet);
+            this.patchPacketService(packet);
             break;
         }
       } else {
@@ -638,11 +638,11 @@ onRowSelect($event: TableRowSelectEvent) {
     }
 
 
-    this.updatePacketService(packet);
+    this.patchPacketService(packet);
 
   }
 
-  updatePacketService(packet : Packet) {
+  patchPacketService(packet : Packet) {
     const updatedField = { [this.selectedField]: packet[this.selectedField] };
     let status = packet.status;
     this.packetService.patchPacket(packet.id, updatedField)
@@ -659,6 +659,7 @@ onRowSelect($event: TableRowSelectEvent) {
       )
       .subscribe({
         next: (responsePacket: any) => {
+          let msg = "Packet updated successfully";
           if (this.selectedField === 'status') {
             this.createNotification();
           }
@@ -667,14 +668,17 @@ onRowSelect($event: TableRowSelectEvent) {
           }
           if (this.selectedField === 'status' && status === CONFIRMED && responsePacket.barcode != null) {
             this.updatePacketFields(responsePacket);
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Barcode created successfully' });
-            this.statusItems[3].badge += 1;
+            msg ='Barcode created successfully';
+            //this.statusItems[3].badge += 1;
           } else if (responsePacket.oldClient !== undefined && this.selectedField === 'customerPhoneNb') {
             const packetIndex = this.packets.findIndex((p: any) => p.id === responsePacket.id);
             if (packetIndex !== -1) {
               this.packets[packetIndex].oldClient = responsePacket.oldClient;
+              msg ='Phone number updated successfully';
             }
           }
+
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
           this.loading = false;
         },
         error: () => {
@@ -772,6 +776,9 @@ onRowSelect($event: TableRowSelectEvent) {
       this.packets[X].packetDescription=packet.packetDescription;
       this.packets[X].oldClient=packet.oldClient;
       this.packets[X].stock=packet.stock;
+      this.packets[X].price=packet.price;
+      this.packets[X].deliveryPrice=packet.deliveryPrice;
+      this.packets[X].discount=packet.discount;
     }
   }
 

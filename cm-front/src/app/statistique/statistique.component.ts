@@ -645,11 +645,19 @@ export class StatistiqueComponent implements OnInit {
           borderColor: 'green',
           tension: 0.4,
         },
+
         {
           label: 'All/av:' + this.calculateAverage(statusCounts[5]),
           data: statusCounts[5],
           fill: false,
           borderColor: 'blue',
+          tension: 0.4,
+        },
+        {
+          label: 'En rupture/av:' + this.calculateAverage(statusCounts[6]),
+          data: statusCounts[6],
+          fill: false,
+          borderColor: 'black',
           tension: 0.4,
         }
       ],

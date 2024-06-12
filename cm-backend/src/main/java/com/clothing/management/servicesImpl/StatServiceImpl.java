@@ -7,6 +7,7 @@ import com.clothing.management.entities.Color;
 import com.clothing.management.entities.ModelStockHistory;
 import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.Size;
+import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.services.StatService;
@@ -302,11 +303,13 @@ public class StatServiceImpl implements StatService {
         List<Long> countOut = new ArrayList<>();
         List<Long> countPayed = new ArrayList<>();
         List<Long> countReturn = new ArrayList<>();
+        List<Long> countEnded = new ArrayList<>();
         List<Long> countInProgress = new ArrayList<>();
 
-        StatTableDTO exchangeRecap= new StatTableDTO("Exchange");
-        StatTableDTO retourRecap= new StatTableDTO("Retour");
-        StatTableDTO payedRecap= new StatTableDTO("Payée");
+        StatTableDTO exchangeRecap= new StatTableDTO(SystemStatus.EXCHANGE.getStatus());
+        StatTableDTO returnRecap= new StatTableDTO(SystemStatus.RETURN.getStatus());
+        StatTableDTO payedRecap= new StatTableDTO(SystemStatus.PAID.getStatus());
+        StatTableDTO endedRecap= new StatTableDTO(SystemStatus.ENDED.getStatus());
         StatTableDTO outRecap= new StatTableDTO("Sortie");
         StatTableDTO allRecap= new StatTableDTO("All");
         StatTableDTO inProgressRecap= new StatTableDTO("En Cours");
@@ -316,6 +319,8 @@ public class StatServiceImpl implements StatService {
                     countOut.add(dayStat.getCountOut());
                     countPayed.add(dayStat.getCountPayed());
                     countReturn.add(dayStat.getCountReturn());
+                    countEnded.add(dayStat.getCountEnded());
+
                     Long inProgress = dayStat.getCountOut()-dayStat.getCountReturn()-dayStat.getCountPayed();
                     countInProgress.add(inProgress);
 
@@ -335,9 +340,13 @@ public class StatServiceImpl implements StatService {
                     payedRecap.setMax(dayStat.getCountPayed()>payedRecap.getMax()?dayStat.getCountPayed():payedRecap.getMax());
                     payedRecap.setSum(dayStat.getCountPayed()+payedRecap.getSum());
 
-                    retourRecap.setMin(dayStat.getCountReturn()<retourRecap.getMin()?dayStat.getCountReturn():retourRecap.getMin());
-                    retourRecap.setMax(dayStat.getCountReturn()>retourRecap.getMax()?dayStat.getCountReturn():retourRecap.getMax());
-                    retourRecap.setSum(dayStat.getCountReturn()+retourRecap.getSum());
+                    returnRecap.setMin(dayStat.getCountReturn()<returnRecap.getMin()?dayStat.getCountReturn():returnRecap.getMin());
+                    returnRecap.setMax(dayStat.getCountReturn()>returnRecap.getMax()?dayStat.getCountReturn():returnRecap.getMax());
+                    returnRecap.setSum(dayStat.getCountReturn()+returnRecap.getSum());
+
+                    endedRecap.setMin(dayStat.getCountEnded()<endedRecap.getMin()?dayStat.getCountEnded():endedRecap.getMin());
+                    endedRecap.setMax(dayStat.getCountEnded()>endedRecap.getMax()?dayStat.getCountEnded():endedRecap.getMax());
+                    endedRecap.setSum(dayStat.getCountEnded()+endedRecap.getSum());
 
                     inProgressRecap.setMin(inProgress<inProgressRecap.getMin()?inProgress:inProgressRecap.getMin());
                     inProgressRecap.setMax(inProgress>inProgressRecap.getMax()?inProgress:inProgressRecap.getMax());
@@ -360,27 +369,33 @@ public class StatServiceImpl implements StatService {
             percentage = outRecap.getSum() * 100 / allSum;
             percentage = Math.round(percentage*10);
             outRecap.setPer(percentage/10);
+            percentage = endedRecap.getSum()*100/ allSum;
+            percentage = Math.round(percentage*10);
+            endedRecap.setPer(percentage/10);
         }
         double outSum = outRecap.getSum();
         if (allSum != 0) {
             percentage = payedRecap.getSum() * 100 / outSum;
             percentage = Math.round(percentage*10);
             payedRecap.setPer(percentage/10);
-            percentage = retourRecap.getSum()*100/ outSum;
+            percentage = returnRecap.getSum()*100/ outSum;
             percentage = Math.round(percentage*10);
-            retourRecap.setPer(percentage/10);
+            returnRecap.setPer(percentage/10);
         }
+
         exchangeRecap.setAvg(exchangeRecap.getSum()/uniqueDatesSize);
         outRecap.setAvg(outRecap.getSum()/uniqueDatesSize);
         payedRecap.setAvg(payedRecap.getSum()/uniqueDatesSize);
-        retourRecap.setAvg(retourRecap.getSum()/uniqueDatesSize);
+        returnRecap.setAvg(returnRecap.getSum()/uniqueDatesSize);
+        endedRecap.setAvg(endedRecap.getSum()/uniqueDatesSize);
         inProgressRecap.setAvg(inProgressRecap.getSum()/uniqueDatesSize);
 
         statusRecapCount.add(exchangeRecap);
-        statusRecapCount.add(retourRecap);
+        statusRecapCount.add(returnRecap);
         statusRecapCount.add(payedRecap);
         statusRecapCount.add(outRecap);
         statusRecapCount.add(inProgressRecap);
+        statusRecapCount.add(endedRecap);
         statusRecapCount.add(allRecap);
 
         statusCountLists.add(countExchange);
@@ -388,6 +403,7 @@ public class StatServiceImpl implements StatService {
         statusCountLists.add(countPayed);
         statusCountLists.add(countOut);
         statusCountLists.add(countInProgress);
+        statusCountLists.add(countEnded);
         statusCountLists.add(countAll);
 
         Map <String , List<?>> data =new HashMap<>();
@@ -438,8 +454,6 @@ public class StatServiceImpl implements StatService {
                     uniqueSizes.add(size);
                 }
             }
-
-
             if(product.getColor()!=null){
                 String productRef = product.getColor().getName()+" "+product.getSize().getReference() ;
                 if (!uniqueProductRefs.contains(productRef)) {

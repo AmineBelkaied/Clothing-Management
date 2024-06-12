@@ -8,7 +8,9 @@ import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@Table(name = "model")
+@JsonIgnoreProperties({
+        "hibernateLazyInitializer", "handler" })
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id",scope = Model.class)
 public class Model {
     @Id

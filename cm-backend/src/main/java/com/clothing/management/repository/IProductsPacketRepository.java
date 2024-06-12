@@ -43,7 +43,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN p.packet.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 OR p.status = 2 THEN 1 ELSE 0 END)) " +
+            "SUM(CASE WHEN p.status = 1 OR p.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 0 ELSE 1 END)) " +//En rupture
             "FROM ProductsPacket p " +
             "WHERE (p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
             "AND p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
@@ -70,7 +71,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN p.packet.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 OR p.status = 2 THEN 1 ELSE 0 END)) " +
+            "SUM(CASE WHEN p.status = 1 OR p.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 0 ELSE 1 END)) " +//En rupture
             "FROM ProductsPacket p " +
             "WHERE (p.status = 1 OR p.status = 2) " +
             "AND p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
@@ -86,7 +88,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN p.packet.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(1)) " +
+            "COUNT(p), " +
+            "COUNT(p)) " +//En rupture
             "FROM ProductsPacket p " +
             "WHERE (p.status = 1 OR p.status = 2) " +
             "AND DATE(p.packetDate) >= DATE(:beginDate) " +
@@ -101,7 +104,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN p.packet.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(1)) " +
+            "SUM(1), " +
+            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END)) " +//En rupture
             "FROM ProductsPacket p " +
             "WHERE (p.status = 1 OR p.status = 2) " +
             "AND p.product.model.id IN :modelIds " +
@@ -117,7 +121,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN p.packet.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(1)) " +
+            "SUM(1), " +
+            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END)) " +//En rupture
             "FROM ProductsPacket p " +
             "WHERE (p.status = 1 OR p.status = 2) " +
             "AND DATE(p.packetDate) >= DATE(:beginDate) " +
@@ -127,16 +132,17 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
 
     //count: number,payed: number, return: number, exchange: number, out: number
     @Query(value = "SELECT NEW com.clothing.management.dto.PacketsStatCountDTO(" +
-            "DATE(date), " +
-            "SUM(CASE WHEN status = 'Livrée' OR status = 'Payée' THEN 1 ELSE 0 END), " +//payé
-            "SUM(CASE WHEN valid = true THEN 1 ELSE 0 END), " +// out
-            "SUM(CASE WHEN exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +//echange
-            "SUM(CASE WHEN status = 'Retour' OR status = 'Retour reçu' THEN 1 ELSE 0 END), " +//retour
-            "SUM(CASE WHEN status = 'Supprimé' THEN 0 ELSE 1 END)) " +//tout
-            "FROM Packet " +
-            "WHERE DATE(date) >= DATE(:beginDate) " +
-            "AND DATE(date) <= DATE(:endDate) " +
-            "GROUP BY DATE(date) ORDER BY DATE(date) ASC")
+            "DATE(p.date), " +
+            "SUM(CASE WHEN p.status = 'Livrée' OR p.status = 'Payée' THEN 1 ELSE 0 END), " +//payé
+            "SUM(CASE WHEN p.valid = true THEN 1 ELSE 0 END), " +// out
+            "SUM(CASE WHEN p.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +//echange
+            "SUM(CASE WHEN p.status = 'Retour' OR p.status = 'Retour reçu' THEN 1 ELSE 0 END), " +//retour
+            "COUNT(p), " +//tout
+            "SUM(CASE WHEN p.status = 'En rupture' THEN 1 ELSE 0 END)) " +//En rupture
+            "FROM Packet p " +
+            "WHERE DATE(p.date) >= DATE(:beginDate) " +
+            "AND DATE(p.date) <= DATE(:endDate) " +
+            "GROUP BY DATE(p.date) ORDER BY DATE(p.date) ASC")
     public List<PacketsStatCountDTO> statAllPackets(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
 }
