@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "size")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Size implements Comparable<Size> {
 

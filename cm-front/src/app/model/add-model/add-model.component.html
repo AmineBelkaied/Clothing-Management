@@ -7,17 +7,17 @@
           <div class="row">
             <div class="col-md-4">
               <label for="name" class="form-label">Nom</label>
-              <input type="text" class="form-control" id="name" placeholder="Nom du modèle" name="name"
+              <input pInputText id="name" placeholder="Nom du modèle" name="name"
                 [(ngModel)]="model.name" />
             </div>
             <div class="col-md-4">
               <label for="reference" class="form-label">Référence</label>
-              <input type="text" class="form-control" id="reference" placeholder="Référence du modèle" name="reference"
-                [(ngModel)]="model.reference" minlength="2" maxlength="2" [disabled]="editMode" />
+              <input pInputText id="reference" placeholder="Référence du modèle" name="reference"
+                [(ngModel)]="model.reference" minlength="2" maxlength="10" [disabled]="editMode" />
             </div>
             <div class="col-md-4">
-              <label for="description" class="form-label">Description</label>
-              <input type="text" class="form-control" id="description" placeholder="Description du modèle"
+              <label  for="description" class="form-label">Description</label>
+              <input pInputText id="description" placeholder="Description du modèle"
                 name="description" [(ngModel)]="model.description" />
             </div>
           </div>

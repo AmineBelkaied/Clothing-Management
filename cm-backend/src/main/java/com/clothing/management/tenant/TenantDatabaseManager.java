@@ -95,8 +95,8 @@ public class TenantDatabaseManager {
     private Map<String, Object> getProperties(MasterTenant masterTenant) {
         Map<String, Object> properties = new HashMap<>();
         properties.put(Environment.DIALECT, hibernateDialect);
-        properties.put(Environment.SHOW_SQL, true);
-        properties.put(Environment.FORMAT_SQL, true);
+        properties.put(Environment.SHOW_SQL, false);
+        properties.put(Environment.FORMAT_SQL, false);
         properties.put(Environment.HBM2DDL_AUTO, UPDATE);
         properties.put(Environment.DEFAULT_SCHEMA, masterTenant.getDbName());
         return properties;

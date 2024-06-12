@@ -25,7 +25,6 @@
     >
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="userId">Id<p-sortIcon field="userId"></p-sortIcon></th>
           <th pSortableColumn="fullName">Nom Complet<p-sortIcon field="fullName"></p-sortIcon></th>
           <th pSortableColumn="userName">Utilisateur <p-sortIcon field="userName"></p-sortIcon></th>
           <th pSortableColumn="userName">Rôles <p-sortIcon field="roles"></p-sortIcon></th>
@@ -36,17 +35,16 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-user>
-        <tr>
-          <td>{{ user.userId }}</td>
+        <tr >
           <td>{{ user.fullName }}</td>
           <td>{{ user.userName }}</td>
           <td>{{ getRoles(user.roles) }}</td>
 <!--           <td><span style="font-weight:bold; color:darkgreen">{{ displayTenants(user.masterTenants) }}</span></td> -->
           <td>
-            <button pButton pRipple type="button" icon="pi pi-pencil" (click)="editUser(user)" class="p-button-rounded p-button-text"></button>
+            <button pButton pRipple type="button" icon="pi pi-pencil" *ngIf="user.fullName !='SYSTEM'" (click)="editUser(user)" class="p-button-rounded p-button-text"></button>
           </td>
           <td>
-            <p-tableCheckbox [value]="user"></p-tableCheckbox>
+            <p-tableCheckbox [value]="user" *ngIf="user.fullName !='SYSTEM'"></p-tableCheckbox>
         </td>
         </tr>
       </ng-template>
@@ -81,7 +79,7 @@ styleClass="p-fluid">
     <p-multiSelect [options]="roles" [(ngModel)]="user.roles" optionLabel="description" [required]="editMode ? false : true" defaultLabel="Choisir les rôles" display="chip" appendTo="body"></p-multiSelect>
 <!--      <small class="p-error" *ngIf="submitted && !user.roles">Les rôles sont obligatoires.</small> -->
   </div>
-</ng-template> 
+</ng-template>
 
 <ng-template pTemplate="footer">
 <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>

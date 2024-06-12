@@ -10,17 +10,20 @@ public class PacketsStatCountDTO {
     private Long countOut;
     private Long countExchange;
     private Long countReturn;
+    private Long countEnded;
+
     private Long countAll;
 
     public PacketsStatCountDTO() {
     }
 
-    public PacketsStatCountDTO(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countAll) {
+    public PacketsStatCountDTO(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countEnded, Long countAll) {
         this.date = date;
         this.countPayed = countPayed;
         this.countOut = countOut;
         this.countExchange = countExchange;
         this.countReturn = countReturn;
+        this.countEnded = countEnded;
         this.countAll = countAll;
     }
 
@@ -64,6 +67,14 @@ public class PacketsStatCountDTO {
         this.countReturn = countReturn;
     }
 
+    public Long getCountEnded() {
+        return countEnded;
+    }
+
+    public void setCountEnded(Long countEnded) {
+        this.countEnded = countEnded;
+    }
+
     public Long getCountAll() {
         return countAll;
     }
@@ -75,11 +86,12 @@ public class PacketsStatCountDTO {
     @Override
     public String toString() {
         return "PacketsStatCountDTO{" +
-                ", date=" + date +
+                "date=" + date +
                 ", countPayed=" + countPayed +
                 ", countOut=" + countOut +
                 ", countExchange=" + countExchange +
                 ", countReturn=" + countReturn +
+                ", countEnded=" + countEnded +
                 ", countAll=" + countAll +
                 '}';
     }
