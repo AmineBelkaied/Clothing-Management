@@ -2,12 +2,13 @@ package com.clothing.management.servicesImpl.api;
 
 import com.clothing.management.dto.DeliveryResponseFirst;
 import com.clothing.management.entities.DeliveryCompany;
-import com.clothing.management.entities.GlobalConf;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.IGlobalConfRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -18,101 +19,101 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Service
-public class FirstApiService {
+public class FirstApiService extends DeliveryCompanyService {
 
-    @Autowired
-    public IGlobalConfRepository globalConfRepository;
+    private final static String createBarCodeEndPoint = "https://www.firstdeliverygroup.com/api/v2/create";
+    private final static String getLastStatusEndPoint = "https://www.firstdeliverygroup.com/api/v2/etat";
 
-    //private final String comment="Le colis peut être ouvert à la demande du client";
-    public static final String createBarCodeEndPoint = "https://www.firstdeliverygroup.com/api/v2/create";
-    public static final String getLastStatusEndPoint = "https://www.firstdeliverygroup.com/api/v2/etat";
-    public static final String reg = "/,/gi";
-    public static final String regBS = "/\\n/gi";
-    //private final String comment="يسمح بفتح الطرد للحريف، لايرجع المال بعد الدفع";//lyft
-    //private final String bearerToken="198de763-841f-4b3f-96b0-dcbfa4a6b369";//lyft
-    //private final String exchangeProduct="Lyft sport";//lyft
-
-    private String bearerToken="aaa";//"af62884f-bfd1-4aff-8bf4-71dd0c92a7f4";//diggie
-    private String exchangeProduct="Diggie pants";//diggie
-    private String comment="يسمح بفتح الطرد عند طلب الحريف";//diggie
-
-
-    public FirstApiService() {
+    protected FirstApiService(IGlobalConfRepository globalConfRepository) {
+        super(globalConfRepository);
     }
 
+    @Override
     public DeliveryResponseFirst createBarCode(Packet packet) throws IOException {
         String jsonBody = createJsonPacketForFirst(packet).toString();
         return executeHttpRequest(createBarCodeEndPoint, jsonBody,packet.getDeliveryCompany());
     }
 
+    @Override
     public DeliveryResponseFirst getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException {
         JSONObject jsonBody = createJsonBarCode(barCode);
-        //System.out.println("jsonBody:"+jsonBody);
         return executeHttpRequest(getLastStatusEndPoint, jsonBody.toString(),deliveryCompany);
     }
 
     private DeliveryResponseFirst executeHttpRequest(String url, String jsonBody,DeliveryCompany deliveryCompany) throws IOException {
-        //System.out.println("jsonBody: " + jsonBody);
-        URL urlConnection = new URL(url);
-        HttpsURLConnection connection = (HttpsURLConnection) urlConnection.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Authorization", "Bearer " + deliveryCompany.getToken());
-        connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-        connection.setRequestProperty("User-Agent", "curl/7.29.0");
-        connection.setDoOutput(true);
-        StringBuilder response = new StringBuilder();
+        HttpsURLConnection connection = getHttpsURLConnection(url, deliveryCompany);
 
+        StringBuilder response = new StringBuilder();
         DeliveryResponseFirst deliveryResponse = new DeliveryResponseFirst();
 
         try (OutputStream outputStream = connection.getOutputStream()) {
-            byte[] input = jsonBody.getBytes("utf-8");
+            byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
             outputStream.write(input, 0, input.length);
         } catch (Exception e) {
-            System.out.println("Error in writing to OutputStream: " + e);
+            LOGGER.error("Error in writing to OutputStream : ", e);
         }
 
         int responseCode = connection.getResponseCode();
         String responseMessage = connection.getResponseMessage();
-
         if (responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println("line: " + line);
-                    response.append(line);
-                }
-            } catch (Exception e) {
-                System.out.println("Error in reading InputStream: " + e);
-            }
-            ObjectMapper mapper = new ObjectMapper();
-            deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseFirst.class);
-            //deliveryResponse = (DeliveryResponseFirst) new DeliveryResponse(deliveryResponse);
-            deliveryResponse.setResponseCode(responseCode);
-            deliveryResponse.setResponseMessage(responseMessage);
+            deliveryResponse = getDeliveryResponseFirstSuccess(connection, response, responseCode, responseMessage);
         } else {
-            InputStream errorStream = connection.getErrorStream();
-            if (errorStream != null) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-                } catch (Exception e) {
-                    System.out.println("Error in reading ErrorStream: " + e);
-                }
-            } else {
-                System.out.println("Error stream is null.");
-            }
-
-            deliveryResponse.setResponseMessage("not found");
-            deliveryResponse.setStatus(responseCode);
-            deliveryResponse.setResponseCode(responseCode);
-            deliveryResponse.setIsError(true);
+            getDeliveryResponseFirstError(connection, response, deliveryResponse, responseCode);
         }
         connection.disconnect();
         return deliveryResponse;
+    }
+
+    private static void getDeliveryResponseFirstError(HttpsURLConnection connection, StringBuilder response, DeliveryResponseFirst deliveryResponse, int responseCode) {
+        InputStream errorStream = connection.getErrorStream();
+        if (errorStream != null) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error in reading ErrorStream : ",  e);
+            }
+        } else {
+            LOGGER.error("Error stream is null.");
+        }
+        deliveryResponse.setResponseMessage("not found");
+        deliveryResponse.setStatus(responseCode);
+        deliveryResponse.setResponseCode(responseCode);
+        deliveryResponse.setIsError(true);
+    }
+
+    private static DeliveryResponseFirst getDeliveryResponseFirstSuccess(HttpsURLConnection connection, StringBuilder response, int responseCode, String responseMessage) throws JsonProcessingException {
+        DeliveryResponseFirst deliveryResponse;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                LOGGER.info("line: {}", line);
+                response.append(line);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error in reading InputStream : ", e);
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseFirst.class);
+        deliveryResponse.setResponseCode(responseCode);
+        deliveryResponse.setResponseMessage(responseMessage);
+        return deliveryResponse;
+    }
+
+    private static HttpsURLConnection getHttpsURLConnection(String url, DeliveryCompany deliveryCompany) throws IOException {
+        URL urlConnection = new URL(url);
+        HttpsURLConnection connection = (HttpsURLConnection) urlConnection.openConnection();
+        connection.setRequestMethod(HttpMethod.POST.name());
+        connection.setRequestProperty(HttpHeaders.AUTHORIZATION,"Bearer " + deliveryCompany.getToken());
+        connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
+        connection.setRequestProperty(HttpHeaders.USER_AGENT, "curl/7.29.0");
+        connection.setDoOutput(true);
+        return connection;
     }
 
     private JSONObject createJsonBarCode(String barCode) {
@@ -122,62 +123,40 @@ public class FirstApiService {
     }
 
     private JSONObject createJsonPacketForFirst(Packet packet) {
-        GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
-        //System.out.println("global:"+globalConf);
-        if (globalConf != null) {
-            comment = globalConf.getComment();
-            exchangeProduct = globalConf.getExchangeComment();
-        }
-        JSONObject json = new JSONObject();
-        JSONObject client = new JSONObject();
-        client.put("nom", this.getValue(packet.getCustomerName()));
-        client.put("gouvernerat", packet.getCity().getGovernorate().getName());
-        client.put("ville", packet.getCity().getName());
-        client.put("adresse", this.getValue(packet.getAddress()).replace(this.regBS, " "));
-        client.put("telephone", this.getPhoneNumber1(packet.getCustomerPhoneNb()));
-        client.put("telephone2", this.getPhoneNumber2(packet.getCustomerPhoneNb()));
-        json.put("Client", client);
+        setUpGlobalConfParams();
 
-        JSONObject produit = new JSONObject();
-        produit.put("prix", this.getPacketPrice(packet));
-        produit.put("designation", this.getPacketDesignation(packet));
-        produit.put("nombreArticle", 1);
-        produit.put("commentaire", comment);
-        produit.put("echange", packet.getExchangeId() != null ?"oui":"non");
-        produit.put("article", exchangeProduct);
-        produit.put("nombreEchange", packet.getExchangeId() != null ?1:0);
-        json.put("Produit", produit);
+        JSONObject json = new JSONObject();
+        json.put("Client", createClientJson(packet));
+        json.put("Produit", createProductJson(packet));
 
         return json;
     }
 
-    private String getPhoneNumber1(String telephoneNumber1) {
-        if (!this.getValue(telephoneNumber1).isEmpty() && telephoneNumber1.contains("/")) {
-            return telephoneNumber1.substring(0, 8);
-        }
-        return this.getValue(telephoneNumber1);
+    private JSONObject createClientJson(Packet packet) {
+        JSONObject client = new JSONObject();
+        client.put("nom", getValue(packet.getCustomerName()));
+        client.put("gouvernerat", packet.getCity().getGovernorate().getName());
+        client.put("ville", packet.getCity().getName());
+        client.put("adresse", getValue(packet.getAddress()).replace(REG_BS, " "));
+        client.put("telephone", getPhoneNumber1(packet.getCustomerPhoneNb()));
+        client.put("telephone2", getPhoneNumber2(packet.getCustomerPhoneNb()));
+        return client;
     }
 
-    private String getPhoneNumber2(String telephoneNumber2) {
-        if (!this.getValue(telephoneNumber2).isEmpty() && telephoneNumber2.contains("/")) {
-            return telephoneNumber2.substring(9, telephoneNumber2.length());
-        }
-        return "";
+    private JSONObject createProductJson(Packet packet) {
+        JSONObject product = new JSONObject();
+        product.put("prix", getPacketPrice(packet));
+        product.put("designation", getPacketDesignation(packet));
+        product.put("nombreArticle", 1);
+        product.put("commentaire", comment);
+        product.put("echange", packet.getExchangeId() != null ? "oui" : "non");
+        product.put("article", exchangeProduct);
+        product.put("nombreEchange", packet.getExchangeId() != null ? 1 : 0);
+        return product;
     }
 
-    private String getValue(String fieldName) {
-        return fieldName != null ? fieldName : "";
-    }
-
-    private String getPacketDesignation(Packet packet) {
-        return this.getValue(packet.getId().toString())
-                .concat(" ")
-                .concat(packet.getFbPage() != null ? this.getValue(packet.getFbPage().getName()) : "")
-                .concat(" | ")
-                .concat(this.getValue(packet.getPacketDescription().replace(this.reg, ", ")));
-    }
-
-    private Double getPacketPrice(Packet packet) {
+    @Override
+    public Double getPacketPrice(Packet packet) {
         Double price = packet.getPrice() + packet.getDeliveryPrice() - packet.getDiscount();
         if(price == 0.0 ) price = 0.1;
         return price;
