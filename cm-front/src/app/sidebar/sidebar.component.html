@@ -15,31 +15,31 @@
     </h1>
     <ul class="list-unstyled components mb-5" *ngIf="!isSuperAdmin">
       <li [routerLinkActive]="['active']">
-        <a routerLink="/packets"><span class="fa fa-shopping-cart  mr-3"></span> Commandes</a>
+        <a routerLink="/packets"><span class="pi pi-shopping-cart mr-2"></span> Commandes</a>
       </li>
       <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/models"><span class="fa fa-shopping-bag mr-3"></span> Modèles</a>
+        <a routerLink="/models"><span class="pi pi-shopping-bag mr-2"></span> Modèles</a>
       </li>
       <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/offers"><span class="fa fa-gift mr-3"></span> Offres</a>
+        <a routerLink="/offers"><span class="pi pi-gift mr-2"></span> Offres</a>
       </li>
       <li [routerLinkActive]="['active']">
-        <a routerLink="/stock/0"><span class="fa fa-inbox mr-3"></span> Stock</a>
+        <a routerLink="/stock/0"><span class="pi pi-inbox mr-2"></span> Stock</a>
       </li>
       <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/config"><span class="pi pi-cog mr-3"></span> Configuration</a>
+        <a routerLink="/config"><span class="pi pi-cog mr-2"></span> Configuration</a>
       </li>
       <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/statistique"><span class="pi pi-chart-bar mr-3"></span> Statistique</a>
+        <a routerLink="/statistique"><span class="pi pi-chart-bar mr-2"></span> Statistique</a>
       </li>
       <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/payed-return"><span class="fa fa-edit mr-3"></span> Suivie packet</a>
+        <a routerLink="/payed-return"><span class="pi pi-file-edit mr-2"></span> Suivie packet</a>
       </li>
       <li [routerLinkActive]="['active']">
-        <a routerLink="/dashboard"><span class="pi pi-server mr-3"></span> Dashboard</a>
+        <a routerLink="/dashboard"><span class="pi pi-server mr-2"></span> Dashboard</a>
       </li>
       <li [routerLinkActive]="['active']">
-        <a routerLink="/verification"><span class="fa fa-truck mr-3"></span> Validation</a>
+        <a routerLink="/verification"><span class="pi pi-truck mr-2"></span> Validation</a>
       </li>
     </ul>
     <span style="color: lightgray;font-size: small;" class="mt-auto">Bienvenue, {{userName}}</span>
@@ -53,3 +53,4 @@
     </button>
   </div>
 </nav>
+
