@@ -29,7 +29,7 @@
             : totalItems + ''
         "
         styleClass="mr-2"
-        size="large"
+        size="normal"
         [style]="{ 'background-color': '#32CD32', color: '#ffffff' }"
         shape="circle"
       ></p-avatar>
@@ -70,8 +70,8 @@
             (onChange)="(filter)"
             (keyup.enter)="filterPackets()"
             (input)="handleInputChange()"
-            placeholder="Client, Tel, Ville, Adresse, Page,Id"
-            [style]="{ width: '12rem' }"
+            placeholder="Client, Tel, Ville, Adresse, Page, Id"
+            [style]="{ width: '250px' }"
           />
           <!--(input)="dt.filterGlobal($any($event.target).value, 'contains')"-->
         </span>
@@ -405,7 +405,7 @@
         </td>
 
         <td
-          style="cursor: pointer; width: 3%; padding: 0.1rem 0.1rem !important"
+          style="cursor: pointer;"
           [pEditableColumn]="packet"
           pEditableColumnField="customerPhoneNb"
         >

@@ -14,6 +14,7 @@ import { StorageService } from 'src/shared/services/strorage.service';
             margin-right: 1rem;
             color: var(--primary-color) !important;
         }
+            
     `]
 })
 export class LoginComponent {
