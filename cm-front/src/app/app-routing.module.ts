@@ -20,12 +20,12 @@ const routes: Routes = [
   { path: "", redirectTo: "/packets", pathMatch: "full", },
   {
     path: "models", "component": ListModelsComponent, canActivate: [AuthGuard], data: {
-      role: [Roles.ADMIN, Roles.USER]
+      role: [Roles.ADMIN]
     }
   },
   {
     path: "offers", "component": ListOffersComponent, canActivate: [AuthGuard], data: {
-      role: [Roles.ADMIN, Roles.USER]
+      role: [Roles.ADMIN]
     }
   },
   {
@@ -35,7 +35,7 @@ const routes: Routes = [
   },
   {
     path: "stock/:id", "component": StockComponent, canActivate: [AuthGuard], data: {
-      role: [Roles.ADMIN]
+      role: [Roles.ADMIN, Roles.USER]
     }
   },
   {
@@ -51,7 +51,7 @@ const routes: Routes = [
   },
   {
     path: "payed-return", "component": PayedReturnComponent, canActivate: [AuthGuard], data: {
-      role: [Roles.ADMIN]
+      role: [Roles.ADMIN,, Roles.USER]
     }
   },
   { path: "dashboard", "component": DashboardComponent },

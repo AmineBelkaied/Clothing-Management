@@ -303,13 +303,13 @@ public class StatServiceImpl implements StatService {
         List<Long> countOut = new ArrayList<>();
         List<Long> countPayed = new ArrayList<>();
         List<Long> countReturn = new ArrayList<>();
-        List<Long> countEnded = new ArrayList<>();
+        List<Long> countOos = new ArrayList<>();
         List<Long> countInProgress = new ArrayList<>();
 
         StatTableDTO exchangeRecap= new StatTableDTO(SystemStatus.EXCHANGE.getStatus());
         StatTableDTO returnRecap= new StatTableDTO(SystemStatus.RETURN.getStatus());
         StatTableDTO payedRecap= new StatTableDTO(SystemStatus.PAID.getStatus());
-        StatTableDTO endedRecap= new StatTableDTO(SystemStatus.ENDED.getStatus());
+        StatTableDTO oosRecap= new StatTableDTO(SystemStatus.OOS.getStatus());
         StatTableDTO outRecap= new StatTableDTO("Sortie");
         StatTableDTO allRecap= new StatTableDTO("All");
         StatTableDTO inProgressRecap= new StatTableDTO("En Cours");
@@ -319,7 +319,7 @@ public class StatServiceImpl implements StatService {
                     countOut.add(dayStat.getCountOut());
                     countPayed.add(dayStat.getCountPayed());
                     countReturn.add(dayStat.getCountReturn());
-                    countEnded.add(dayStat.getCountEnded());
+                    countOos.add(dayStat.getCountOos());
 
                     Long inProgress = dayStat.getCountOut()-dayStat.getCountReturn()-dayStat.getCountPayed();
                     countInProgress.add(inProgress);
@@ -344,9 +344,9 @@ public class StatServiceImpl implements StatService {
                     returnRecap.setMax(dayStat.getCountReturn()>returnRecap.getMax()?dayStat.getCountReturn():returnRecap.getMax());
                     returnRecap.setSum(dayStat.getCountReturn()+returnRecap.getSum());
 
-                    endedRecap.setMin(dayStat.getCountEnded()<endedRecap.getMin()?dayStat.getCountEnded():endedRecap.getMin());
-                    endedRecap.setMax(dayStat.getCountEnded()>endedRecap.getMax()?dayStat.getCountEnded():endedRecap.getMax());
-                    endedRecap.setSum(dayStat.getCountEnded()+endedRecap.getSum());
+                    oosRecap.setMin(dayStat.getCountOos()<oosRecap.getMin()?dayStat.getCountOos():oosRecap.getMin());
+                    oosRecap.setMax(dayStat.getCountOos()>oosRecap.getMax()?dayStat.getCountOos():oosRecap.getMax());
+                    oosRecap.setSum(dayStat.getCountOos()+oosRecap.getSum());
 
                     inProgressRecap.setMin(inProgress<inProgressRecap.getMin()?inProgress:inProgressRecap.getMin());
                     inProgressRecap.setMax(inProgress>inProgressRecap.getMax()?inProgress:inProgressRecap.getMax());
@@ -369,9 +369,9 @@ public class StatServiceImpl implements StatService {
             percentage = outRecap.getSum() * 100 / allSum;
             percentage = Math.round(percentage*10);
             outRecap.setPer(percentage/10);
-            percentage = endedRecap.getSum()*100/ allSum;
+            percentage = oosRecap.getSum()*100/ allSum;
             percentage = Math.round(percentage*10);
-            endedRecap.setPer(percentage/10);
+            oosRecap.setPer(percentage/10);
         }
         double outSum = outRecap.getSum();
         if (allSum != 0) {
@@ -387,7 +387,7 @@ public class StatServiceImpl implements StatService {
         outRecap.setAvg(outRecap.getSum()/uniqueDatesSize);
         payedRecap.setAvg(payedRecap.getSum()/uniqueDatesSize);
         returnRecap.setAvg(returnRecap.getSum()/uniqueDatesSize);
-        endedRecap.setAvg(endedRecap.getSum()/uniqueDatesSize);
+        oosRecap.setAvg(oosRecap.getSum()/uniqueDatesSize);
         inProgressRecap.setAvg(inProgressRecap.getSum()/uniqueDatesSize);
 
         statusRecapCount.add(exchangeRecap);
@@ -395,7 +395,7 @@ public class StatServiceImpl implements StatService {
         statusRecapCount.add(payedRecap);
         statusRecapCount.add(outRecap);
         statusRecapCount.add(inProgressRecap);
-        statusRecapCount.add(endedRecap);
+        statusRecapCount.add(oosRecap);
         statusRecapCount.add(allRecap);
 
         statusCountLists.add(countExchange);
@@ -403,7 +403,7 @@ public class StatServiceImpl implements StatService {
         statusCountLists.add(countPayed);
         statusCountLists.add(countOut);
         statusCountLists.add(countInProgress);
-        statusCountLists.add(countEnded);
+        statusCountLists.add(countOos);
         statusCountLists.add(countAll);
 
         Map <String , List<?>> data =new HashMap<>();

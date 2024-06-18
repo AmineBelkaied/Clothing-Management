@@ -26,7 +26,7 @@ public enum SystemStatus {
     EXCHANGE("Echange"),
     INCORRECT_BARCODE("Code à barre incorrect"),
     DELETED("Supprimé"),
-    ENDED("En rupture"),
+    OOS("En rupture"),
     OTHER_STATUS();
 
     private String status;

@@ -3,6 +3,7 @@ package com.clothing.management.dto;
 import com.clothing.management.entities.Color;
 import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.Size;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.Date;
 
@@ -18,11 +19,10 @@ public class ProductsDayCountDTO {
     private Color color;
     private Size size;
 
-    private Long countExchange;
-
-    private Long countRupture;
-    private Long countProgress;
-    private Long count;
+    private long countExchange;
+    private long countOos;
+    private long countProgress;
+    private long count;
 
     public ProductsDayCountDTO() {
     }
@@ -30,27 +30,22 @@ public class ProductsDayCountDTO {
     public ProductsDayCountDTO(
             Date packetDate, Long productId,
             Offer offer, Long modelId, String modelName,
-            Color color, Size size,
-            Long countExchange,Long countProgress, Long count,Long countRupture
+            Color color, Size size, long count
     ) {
         this.packetDate = packetDate;
         this.productId = productId;
-        //this.productRef = productRef;
         this.offer = offer;
         this.modelId = modelId;
         this.modelName = modelName;
         this.color = color;
         this.size = size;
-        this.countExchange = countExchange;
-        this.countProgress = countProgress;
         this.count = count;
-        this.countRupture = countRupture;
     }
 
     public ProductsDayCountDTO(
             Date packetDate,
             Offer offer,
-            Long count
+            long count
     ) {
         this.packetDate = packetDate;
         this.productId = null;
@@ -60,9 +55,9 @@ public class ProductsDayCountDTO {
         this.modelName = null;
         this.color = null;
         this.size = null;
-        this.countExchange = null;
-        this.countRupture = null;
-        this.countProgress = null;
+        this.countExchange = 0;
+        this.countOos = 0;
+        this.countProgress = 0;
         this.count = count;
     }
 
@@ -101,31 +96,31 @@ public class ProductsDayCountDTO {
         this.size = size;
     }
 
-    public Long getCount() {
+    public long getCount() {
         return count;
     }
 
-    public Long getCountExchange() {
+    public long getCountExchange() {
         return countExchange;
     }
-    public void setCountExchange(Long countExchange) {
+    public void setCountExchange(long countExchange) {
         this.countExchange = countExchange;
     }
 
-    public Long getCountRupture() {
-        return countRupture;
+    public long getCountOos() {
+        return countOos;
     }
-    public void setCountRupture(Long countRupture) {
-        this.countRupture = countRupture;
+    public void setCountOos(long countOos) {
+        this.countOos = countOos;
     }
 
-    public Long getCountProgress() {
+    public long getCountProgress() {
         return countProgress;
     }
-    public void setCountProgress(Long countProgress) {
+    public void setCountProgress(long countProgress) {
         this.countProgress = countProgress;
     }
-    public void setCount(Long count) {
+    public void setCount(long count) {
         this.count = count;
     }
 
@@ -160,7 +155,7 @@ public class ProductsDayCountDTO {
                 ", color='" + color + '\'' +
                 ", size='" + size + '\'' +
                 ", countExchange=" + countExchange +
-                ", countRupture=" + countRupture +
+                ", countRupture=" + countOos +
                 ", countProgress=" + countProgress +
                 ", count=" + count +
                 '}';

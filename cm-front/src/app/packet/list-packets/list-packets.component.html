@@ -161,7 +161,7 @@
             >
               <div
                 class="statusCard surface-card shadow-6 p-3 border-round"
-                *ngIf="!(j == 0 || j == 5 || j == 6) || isAdmin"
+                *ngIf="!(j == 0) || isAdmin"
               >
                 <div
                   class="flex justify-content-between mb-1"
@@ -173,12 +173,12 @@
                     </div>
                   </div>
                   <div>
-                    <span class="block text-500 font-medium mt-1">{{
+                    <span class="block text-500 font-medium mt-1 ml-1">{{
                       item.title
                     }}</span>
                   </div>
                   <div
-                    class="flex align-items-center justify-content-center bg-{{
+                    class="flex ml-1 align-items-center justify-content-center bg-{{
                       item.color
                     }}-100 border-round"
                     style="width: 2rem; height: 2rem"
@@ -230,7 +230,7 @@
                   class="small-select-button"
                   (onOptionClick)="onActiveIndexChange(7)"
                 ></p-selectButton>
-                <span
+                <!--<span
                   *ngIf="j != 2 && j != 4 && j != 6 && j != 7"
                   class="text-green-500 font-medium"
                   >loading</span
@@ -239,7 +239,7 @@
                 *ngIf="j != 2 && j != 4 && j != 6 && j != 7"
                   class="text-500"
                   >since last visit</span
-                >
+                >-->
               </div>
             </div>
           </div>
