@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 public interface IProductsPacketRepository extends JpaRepository<ProductsPacket , Long> {
@@ -40,11 +41,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "DATE(p.packetDate), p.product.id, " +
             "p.offer, p.product.model.id ,  p.product.model.name, " +
             "p.product.color , p.product.size , " +
-            "SUM(CASE WHEN p.packet.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 OR p.status = 2 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 0 ELSE 1 END)) " +//En rupture
+            "SUM(1)) " +//En rupture
             "FROM ProductsPacket p " +
             "WHERE (p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
             "AND p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
@@ -68,11 +65,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "DATE(p.packetDate), p.product.id, " +
             "p.offer, p.product.model.id ,  p.product.model.name, " +
             "p.product.color , p.product.size , " +
-            "SUM(CASE WHEN p.packet.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 OR p.status = 2 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 0 ELSE 1 END)) " +//En rupture
+            "SUM(1)) " +
             "FROM ProductsPacket p " +
             "WHERE (p.status = 1 OR p.status = 2) " +
             "AND p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
@@ -85,11 +78,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "DATE(p.packetDate), p.product.id, " +
             "p.offer, p.product.model.id , p.product.model.name, " +
             "p.product.color , p.product.size, "+
-            "SUM(CASE WHEN p.packet.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "COUNT(p), " +
-            "COUNT(p)) " +//En rupture
+            "SUM(1)) " +
             "FROM ProductsPacket p " +
             "WHERE (p.status = 1 OR p.status = 2) " +
             "AND DATE(p.packetDate) >= DATE(:beginDate) " +
@@ -101,11 +90,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "DATE(p.packetDate), p.product.id, " +
             "p.offer, p.product.model.id , p.product.model.name, " +
             "p.product.color , p.product.size, "+
-            "SUM(CASE WHEN p.packet.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(1), " +
-            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END)) " +//En rupture
+            "SUM(1)) " +
             "FROM ProductsPacket p " +
             "WHERE (p.status = 1 OR p.status = 2) " +
             "AND p.product.model.id IN :modelIds " +
@@ -118,11 +103,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "DATE(p.packetDate), p.product.id, " +
             "p.offer, p.product.model.id , p.product.model.name, " +
             "p.product.color , p.product.size, "+
-            "SUM(CASE WHEN p.packet.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(1), " +
-            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END)) " +//En rupture
+            "SUM(1)) " +
             "FROM ProductsPacket p " +
             "WHERE (p.status = 1 OR p.status = 2) " +
             "AND DATE(p.packetDate) >= DATE(:beginDate) " +
@@ -130,15 +111,15 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "GROUP BY p.product.color.id, DATE(p.packetDate) ORDER BY DATE(p.packetDate) ASC")
     public List<ProductsDayCountDTO> statAllModelsByColor(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
-    //count: number,payed: number, return: number, exchange: number, out: number
+    //(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countOos, Long countAll)
     @Query(value = "SELECT NEW com.clothing.management.dto.PacketsStatCountDTO(" +
             "DATE(p.date), " +
             "SUM(CASE WHEN p.status = 'Livrée' OR p.status = 'Payée' THEN 1 ELSE 0 END), " +//payé
             "SUM(CASE WHEN p.valid = true THEN 1 ELSE 0 END), " +// out
             "SUM(CASE WHEN p.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +//echange
             "SUM(CASE WHEN p.status = 'Retour' OR p.status = 'Retour reçu' THEN 1 ELSE 0 END), " +//retour
-            "COUNT(p), " +//tout
-            "SUM(CASE WHEN p.status = 'En rupture' THEN 1 ELSE 0 END)) " +//En rupture
+            "SUM(CASE WHEN p.status = 'En rupture' THEN 1 ELSE 0 END), " +//En rupture
+            "SUM(1)) " +//tout
             "FROM Packet p " +
             "WHERE DATE(p.date) >= DATE(:beginDate) " +
             "AND DATE(p.date) <= DATE(:endDate) " +

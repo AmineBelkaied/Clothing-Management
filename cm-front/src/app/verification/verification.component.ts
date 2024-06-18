@@ -5,7 +5,7 @@ import { Packet } from 'src/shared/models/Packet';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { PacketService } from 'src/shared/services/packet.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { CONFIRMED, RETURN } from 'src/shared/utils/status-list';
+import { CONFIRMED, RETURN, VALIDATION } from 'src/shared/utils/status-list';
 
 @Component({
   selector: 'app-verification',
@@ -58,7 +58,7 @@ findAllConfirmedPackets(): void {
     this.sourceString = RETURN;
     this.targetString = "Retour Echange";
   }
-  this.params.status = this.type;
+  this.params.status = VALIDATION;
   this.packetService.findAllPackets(this.params)
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({

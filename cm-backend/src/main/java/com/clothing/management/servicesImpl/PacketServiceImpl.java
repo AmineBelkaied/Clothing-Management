@@ -26,6 +26,8 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.clothing.management.enums.DeliveryCompanyStatus.RETOUR_DEPOT;
+import static com.clothing.management.enums.DeliveryCompanyStatus.RETOUR_DEPOT_NAVEX;
 import static com.clothing.management.enums.SystemStatus.*;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -41,7 +43,7 @@ public class PacketServiceImpl implements PacketService {
 
     private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
-    private final static List<String> ignoredDateStatusList = List.of(new String[]{ RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), ENDED.getStatus()});
+    private final static List<String> ignoredDateStatusList = List.of(new String[]{ RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus()});
 
     @Autowired
     public PacketServiceImpl(
@@ -75,21 +77,31 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status, boolean mandatoryDate) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        if(status.equals("validation"))
+            return packetRepository.findAllNotValidatedPackets(pageable);
         if(mandatoryDate) {
             if (searchText != null)
                 return packetRepository.findAllPacketsByFieldAndDate(searchText,dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
 
             if (status != null)
+            {
+                if (status.equals("Tous"))return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
                 return packetRepository.findAllPacketsByDateAndStatus(dateFormat.parse(startDate), dateFormat.parse(endDate), convertStatusToList(status), pageable);
+            }
 
         } else {
             if (searchText != null)
                 return packetRepository.findAllPacketsByField(searchText, pageable);
             if (startDate != null && status != null)
+            {
+                if (status.equals("Tous"))return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
                 return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status),dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
-
+            }
             if (status != null)
+            {
+
                 return packetRepository.findAllPacketsByStatus(convertStatusToList(status), pageable);
+            }
         }
 
         return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
@@ -197,12 +209,12 @@ public class PacketServiceImpl implements PacketService {
             packet.setPrice(selectedProductsDTO.getTotalPrice());
             packet.setDeliveryPrice(selectedProductsDTO.getDeliveryPrice());
             packet.setDiscount(selectedProductsDTO.getDiscount());
-            if (noStockStatus!= null && noStockStatus.equals(ENDED.getStatus())
+            if (noStockStatus!= null && noStockStatus.equals(OOS.getStatus())
                     &&(packet.getStatus().equals(NOT_CONFIRMED.getStatus())
                     ||packet.getStatus().equals(NOTSERIOUS.getStatus())
                     ||packet.getStatus().equals(CANCELED.getStatus())
                     ||packet.getStatus().equals(UNREACHABLE.getStatus())))
-                packet.setStatus(ENDED.getStatus());
+                packet.setStatus(OOS.getStatus());
             if (noStockStatus!= null && (noStockStatus.equals(NOT_CONFIRMED.getStatus())||noStockStatus.equals(CANCELED.getStatus())))
                 {
                     packet.setStatus(noStockStatus);
@@ -402,7 +414,7 @@ public class PacketServiceImpl implements PacketService {
                 }else if (deliveryResponse.getStatus()>199 && deliveryResponse.getState() != null) {
                     //Convert input from first to System Status
                     savePacketStatusToHistory(packet,packet.getDeliveryCompany().getName()+":"+deliveryResponse.getState());
-                    systemNewStatus = mapFirstToSystemStatus(deliveryResponse.getState());
+                    systemNewStatus = mapDeliveryToSystemStatus(deliveryResponse.getState());
                     packet.setLastDeliveryStatus(deliveryResponse.getState());
                     systemNewStatus =
                             (systemNewStatus.equals(IN_PROGRESS_1.getStatus())//First always return "en cours"
@@ -439,7 +451,7 @@ public class PacketServiceImpl implements PacketService {
         return updatePacket(packet);
     }
 
-    private String mapFirstToSystemStatus(String status) {
+    private String mapDeliveryToSystemStatus(String status) {
         if (status == null || status.equals(""))
             return TO_VERIFY.getStatus();
         DeliveryCompanyStatus deliveryCompanyStatus = DeliveryCompanyStatus.fromString(status);
@@ -450,13 +462,15 @@ public class PacketServiceImpl implements PacketService {
                     RETOUR_RECU, RETOUR_RECU_NAVEX -> RETURN.getStatus();
             case EN_ATTENTE -> CONFIRMED.getStatus();
             case A_VERIFIER, A_VERIFIER_NAVEX -> TO_VERIFY.getStatus();
+            //case RETOUR_DEPOT,RETOUR_DEPOT_NAVEX -> status;
             default -> IN_PROGRESS_1.getStatus();
         };
     }
     private String upgradeInProgressStatus(Packet packet) {
         SystemStatus systemStatus = fromString(packet.getStatus());
-        if (checkSameDateStatus(packet)
-                && !packet.getStatus().equals(CANCELED.getStatus()))
+        DeliveryCompanyStatus deliveryCompanyStatus = DeliveryCompanyStatus.fromString(packet.getLastDeliveryStatus());
+        if ((checkSameDateStatus(packet)
+                && !packet.getStatus().equals(CANCELED.getStatus()))||deliveryCompanyStatus.equals(RETOUR_DEPOT)||deliveryCompanyStatus.equals(RETOUR_DEPOT_NAVEX))
             return packet.getStatus();
         switch (systemStatus) {
             case IN_PROGRESS_1:
@@ -466,7 +480,7 @@ public class PacketServiceImpl implements PacketService {
             case IN_PROGRESS_3:
                 return TO_VERIFY.getStatus();
             case TO_VERIFY:
-                return mapFirstToSystemStatus(packet.getLastDeliveryStatus());
+                return mapDeliveryToSystemStatus(packet.getLastDeliveryStatus());
             default:
                 return IN_PROGRESS_1.getStatus();
         }

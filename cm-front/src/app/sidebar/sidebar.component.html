@@ -17,10 +17,10 @@
       <li [routerLinkActive]="['active']">
         <a routerLink="/packets"><span class="fa fa-shopping-cart  mr-3"></span> Commandes</a>
       </li>
-      <li [routerLinkActive]="['active']">
+      <li [routerLinkActive]="['active']" *ngIf="isAdmin">
         <a routerLink="/models"><span class="fa fa-shopping-bag mr-3"></span> Modèles</a>
       </li>
-      <li [routerLinkActive]="['active']">
+      <li [routerLinkActive]="['active']" *ngIf="isAdmin">
         <a routerLink="/offers"><span class="fa fa-gift mr-3"></span> Offres</a>
       </li>
       <li [routerLinkActive]="['active']">

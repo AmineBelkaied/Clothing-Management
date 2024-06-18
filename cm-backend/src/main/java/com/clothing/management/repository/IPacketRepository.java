@@ -58,6 +58,9 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value ="SELECT p FROM Packet p WHERE CAST(p.id as String) LIKE %:searchField% OR  p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.barcode LIKE %:searchField% AND DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)")
     Page<Packet> findAllPacketsByFieldAndDate(@Param("searchField") String searchField, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 
+    @Query(value ="SELECT p FROM Packet p WHERE p.valid = false AND p.barcode <> '' AND p.status <> 'Annuler'")
+    Page<Packet> findAllNotValidatedPackets(Pageable pageable);
+
     @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList) AND (p.status IN (:ignoredDateStatusList) OR (DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)))")
     Page<Packet> findAllPacketsByStatus(@Param("ignoredDateStatusList") List<String> ignoredDateStatusList, @Param("selectedList") List<String> selectedList, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 

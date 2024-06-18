@@ -8,7 +8,7 @@ export interface ProductCountDTO {
     color: string;
     size: string;
     countExchange : number;
-    countRupture : number;
+    countOos : number;
     countProgress: number;
     count: number;
 }

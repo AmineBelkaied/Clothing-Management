@@ -320,7 +320,7 @@ export class StockComponent implements OnInit {
 
   getCountRupture(productId:number): number{
     let products = this.productsCount.find(item => item.productId === productId);
-    return (products != undefined) ? products.countRupture: 0;
+    return (products != undefined) ? products.countOos: 0;
   }
 
 

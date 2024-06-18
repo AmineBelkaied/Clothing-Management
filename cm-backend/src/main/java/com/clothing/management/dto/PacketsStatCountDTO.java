@@ -1,7 +1,5 @@
 package com.clothing.management.dto;
 
-import com.clothing.management.entities.Color;
-
 import java.util.Date;
 
 public class PacketsStatCountDTO {
@@ -10,20 +8,20 @@ public class PacketsStatCountDTO {
     private Long countOut;
     private Long countExchange;
     private Long countReturn;
-    private Long countEnded;
+    private Long countOos;
 
     private Long countAll;
 
     public PacketsStatCountDTO() {
     }
 
-    public PacketsStatCountDTO(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countEnded, Long countAll) {
+    public PacketsStatCountDTO(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countOos, Long countAll) {
         this.date = date;
         this.countPayed = countPayed;
         this.countOut = countOut;
         this.countExchange = countExchange;
         this.countReturn = countReturn;
-        this.countEnded = countEnded;
+        this.countOos = countOos;
         this.countAll = countAll;
     }
 
@@ -67,12 +65,12 @@ public class PacketsStatCountDTO {
         this.countReturn = countReturn;
     }
 
-    public Long getCountEnded() {
-        return countEnded;
+    public Long getCountOos() {
+        return countOos;
     }
 
-    public void setCountEnded(Long countEnded) {
-        this.countEnded = countEnded;
+    public void setCountOos(Long countOos) {
+        this.countOos = countOos;
     }
 
     public Long getCountAll() {
@@ -91,7 +89,7 @@ public class PacketsStatCountDTO {
                 ", countOut=" + countOut +
                 ", countExchange=" + countExchange +
                 ", countReturn=" + countReturn +
-                ", countEnded=" + countEnded +
+                ", countEnded=" + countOos +
                 ", countAll=" + countAll +
                 '}';
     }
