@@ -26,14 +26,14 @@ public class NavexApiService extends DeliveryCompanyService {
     }
 
     public DeliveryResponseNavex createBarCode(Packet packet) throws IOException {
-        String url = apiUrl+packet.getDeliveryCompany().getApiName()+"-"+packet.getDeliveryCompany().getToken()+endUrl;
+        String url = apiUrl + packet.getDeliveryCompany().getApiName() + "-" + packet.getDeliveryCompany().getToken() + endUrl;
         return executeHttpRequest(url, createRequestBody(packet));
     }
 
     public DeliveryResponseNavex getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException {
         StringBuilder body = new StringBuilder();
         body.append("code=").append(barCode);
-        String url = apiUrl+deliveryCompany.getApiName() + "-etat-" + deliveryCompany.getToken() + endUrl;
+        String url = apiUrl + deliveryCompany.getApiName() + "-etat-" + deliveryCompany.getToken() + endUrl;
         return executeHttpRequest(url, body.toString());
     }
 

@@ -7,11 +7,13 @@ import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.IGlobalConfRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
+@Service
 public abstract class DeliveryCompanyService {
 
     protected final IGlobalConfRepository globalConfRepository;
@@ -26,11 +28,11 @@ public abstract class DeliveryCompanyService {
         this.globalConfRepository = globalConfRepository;
     }
 
-    protected abstract DeliveryResponse createBarCode(Packet packet) throws IOException;
+    public abstract DeliveryResponse createBarCode(Packet packet) throws IOException;
 
-    protected abstract DeliveryResponse getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException;
+    public abstract DeliveryResponse getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException;
 
-    protected abstract Double getPacketPrice(Packet packet);
+    public abstract Double getPacketPrice(Packet packet);
 
     protected void setUpGlobalConfParams() {
         Optional<GlobalConf> optionalGlobalConf = globalConfRepository.findAll().stream().findFirst();
