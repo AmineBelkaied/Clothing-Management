@@ -13,12 +13,12 @@ export class AuthGuard  {
 
         if (this.storageService.isUserLoggedIn()) {
             if (route.data['role'] && !StringUtils.checkExistence(route.data['role'], this.storageService.getRoles())) {
-                this.router.navigateByUrl('/');
+                this.router.navigateByUrl('/auth/login');
                 return false;
             }
             return true;
         }
-        this.router.navigate(['/auth/login/'] + this.storageService.getTenantName())
+        this.router.navigateByUrl('/auth/login');
         return false;
     }
 }
