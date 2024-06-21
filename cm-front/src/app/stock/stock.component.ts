@@ -567,6 +567,20 @@ export class StockComponent implements OnInit {
     else this.rangeDates = [this.today];
     this.getStats();
   }
+  yesterdayDate(){
+    this.range = 1;
+    const yesterday = new Date();
+    yesterday.setDate(this.today.getDate() - 1);
+    //this.rangeDates= [yesterday,this.today];
+    if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
+      {
+        this.endDateString = this.dateUtils.formatDateToString(this.today)
+        this.rangeDates= [this.rangeDates[0],yesterday];
+        //this.setCalendar();
+      }
+    else this.rangeDates = [yesterday];
+    this.getStats();
+  }
 
   weekDate(){
     this.range = 7;

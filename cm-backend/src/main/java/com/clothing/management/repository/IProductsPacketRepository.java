@@ -1,6 +1,8 @@
 package com.clothing.management.repository;
 import com.clothing.management.dto.PacketsStatCountDTO;
 import com.clothing.management.dto.ProductsDayCountDTO;
+import com.clothing.management.entities.Color;
+import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.ProductsPacket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -43,6 +45,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "p.product.color , p.product.size , " +
             "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
             "FROM ProductsPacket p " +
             "WHERE p.product.color.name <> '?' AND p.product.size.reference <> '?' " +// (p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
@@ -51,6 +54,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "AND p.product.model.id = :modelId " +
             "GROUP BY p.product.color.name, p.product.size.reference ORDER BY DATE(p.packetDate) ASC ")
     public List<ProductsDayCountDTO> productsCountByDate(@Param("modelId") Long modelId,@Param("beginDate") String beginDate, @Param("endDate") String endDate);
+
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(" +
             "DATE(p.packetDate), p.offer, " +
             "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +

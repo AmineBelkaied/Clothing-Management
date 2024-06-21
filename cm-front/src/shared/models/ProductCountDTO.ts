@@ -1,5 +1,4 @@
 export interface ProductCountDTO {
-
     packetDate: Date;
     productId: number;
     offerId: number;

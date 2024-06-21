@@ -50,7 +50,8 @@
               <ng-template pTemplate="footer">
                 <div style="display: flex; align-items: center;">
                     <p-button label="All" styleClass="p-button-text" (click)="allDateFilter()"></p-button>
-                    <p-button label="Today" styleClass="p-button-text" (click)="todayDate()"></p-button>
+                    <p-button label="Aujourd'hui" styleClass="p-button-text" (click)="todayDate()"></p-button>
+                    <p-button label="Hier" styleClass="p-button-text" (click)="yesterdayDate()"></p-button>
                     <p-button label="Semaine" styleClass="p-button-text" (click)="weekDate()"></p-button>
                     <p-button label="15 jours" styleClass="p-button-text" (click)="twoWeekDate()"></p-button>
                     <p-button label="Mois" styleClass="p-button-text" (click)="monthDate()"></p-button>
@@ -145,7 +146,7 @@
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
     <p-selectButton [options]="chartOptions" [(ngModel)]="selectedChart" (onOptionClick)="selectChart($event)"></p-selectButton>
-      <p-card header="Pages Chart">
+      <p-card>
         <p-chart
               type="line"
               [data]="basicData"

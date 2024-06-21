@@ -11,8 +11,6 @@ public class ProductsDayCountDTO {
 
     private Date packetDate;
     private Long productId;
-
-    //private String productRef;
     private Offer offer;
     private Long modelId;
     private String modelName;
@@ -57,6 +55,25 @@ public class ProductsDayCountDTO {
         this.size = size;
         this.countPayed = countPayed;
         this.countProgress = countProgress;
+        this.countReturn = countReturn;
+    }
+
+    public ProductsDayCountDTO(
+            Date packetDate, Long productId,
+            Offer offer, Long modelId, String modelName,
+            Color color, Size size,
+            long countPayed, long countProgress, long countOos, long countReturn
+    ) {
+        this.packetDate = packetDate;
+        this.productId = productId;
+        this.offer = offer;
+        this.modelId = modelId;
+        this.modelName = modelName;
+        this.color = color;
+        this.size = size;
+        this.countPayed = countPayed;
+        this.countProgress = countProgress;
+        this.countOos = countOos;
         this.countReturn = countReturn;
     }
 
@@ -158,14 +175,6 @@ public class ProductsDayCountDTO {
         this.countPayed = countPayed;
     }
 
-    public long getCountInProgress() {
-        return countProgress;
-    }
-
-    public void setCountInProgress(long countInProgress) {
-        this.countProgress = countInProgress;
-    }
-
     public long getCountReturn() {
         return countReturn;
     }
@@ -181,6 +190,7 @@ public class ProductsDayCountDTO {
     public void setCountReturn(long countReturn) {
         this.countReturn = countReturn;
     }
+
 
     @Override
     public String toString() {
