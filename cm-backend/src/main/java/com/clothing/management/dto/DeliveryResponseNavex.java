@@ -1,10 +1,8 @@
 package com.clothing.management.dto;
 
-import com.clothing.management.repository.IGlobalConfRepository;
 import net.minidev.json.annotate.JsonIgnore;
-import org.springframework.beans.factory.annotation.Autowired;
 
-public class DeliveryResponseNavex extends DeliveryResponse{
+public class DeliveryResponseNavex extends DeliveryResponse {
 
     int status;
     String lien;

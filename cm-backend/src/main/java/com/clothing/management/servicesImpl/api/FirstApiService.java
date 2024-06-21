@@ -100,6 +100,12 @@ public class FirstApiService extends DeliveryCompanyService {
         }
         ObjectMapper mapper = new ObjectMapper();
         deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseFirst.class);
+        deliveryResponse.setStatus(deliveryResponse.getStatus());
+        deliveryResponse.setLink(deliveryResponse.getResult().getLink());
+        deliveryResponse.setState(deliveryResponse.getResult().getState());
+        deliveryResponse.setBarCode(deliveryResponse.getResult().getBarCode());
+        deliveryResponse.setIsError(deliveryResponse.isError());
+        deliveryResponse.setMessage(deliveryResponse.getMessage());
         deliveryResponse.setResponseCode(responseCode);
         deliveryResponse.setResponseMessage(responseMessage);
         return deliveryResponse;

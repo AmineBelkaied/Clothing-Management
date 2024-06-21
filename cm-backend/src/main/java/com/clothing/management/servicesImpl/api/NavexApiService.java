@@ -4,6 +4,7 @@ import com.clothing.management.dto.DeliveryResponseNavex;
 import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.IGlobalConfRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class NavexApiService extends DeliveryCompanyService {
         try (OutputStream out = connection.getOutputStream()) {
             out.write(body.getBytes());
         }
-        DeliveryResponseNavex deliveryResponse= new DeliveryResponseNavex();
+        DeliveryResponseNavex deliveryResponse;
         int responseCode = connection.getResponseCode();
         String responseMessage = connection.getResponseMessage();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
@@ -57,14 +58,26 @@ public class NavexApiService extends DeliveryCompanyService {
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
-            ObjectMapper mapper = new ObjectMapper();
-            deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseNavex.class);
-            deliveryResponse.setResponseCode(responseCode);
-            deliveryResponse.setResponseMessage(responseMessage);
+            deliveryResponse = getDeliveryResponseNavex(responseCode, responseMessage, response);
         }
         LOGGER.debug("deliveryResponse : {} ", deliveryResponse);
         // Disconnect the connection
         connection.disconnect();
+        return deliveryResponse;
+    }
+
+    private static DeliveryResponseNavex getDeliveryResponseNavex(int responseCode, String responseMessage, StringBuilder response) throws JsonProcessingException {
+        DeliveryResponseNavex deliveryResponse;
+        ObjectMapper mapper = new ObjectMapper();
+        deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseNavex.class);
+        deliveryResponse.setResponseCode(responseCode);
+        deliveryResponse.setResponseMessage(responseMessage);
+        deliveryResponse.setBarCode(deliveryResponse.getStatus_message());
+        deliveryResponse.setState(deliveryResponse.getEtat());
+        deliveryResponse.setLink(deliveryResponse.getLien());
+        deliveryResponse.setMessage(deliveryResponse.getStatus_message());
+        deliveryResponse.setStatus(responseCode);
+        deliveryResponse.setError(false);
         return deliveryResponse;
     }
 
