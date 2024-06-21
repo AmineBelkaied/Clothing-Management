@@ -33,7 +33,7 @@ public class DeliveryResponse {
         this.message = message;
     }
 
-    public DeliveryResponse (int status, Boolean isError, String message, DeliveryResponseFirst.Result result) {
+    public DeliveryResponse (int status, Boolean isError, String message) {
         this.status = status;
         this.link = result.getLink();
         this.state = result.getState();
@@ -41,29 +41,6 @@ public class DeliveryResponse {
         this.isError = isError;
         this.message = message;
     }
-
-    public DeliveryResponse(DeliveryResponseFirst deliveryResponseFirst) {
-        this.status = deliveryResponseFirst.getStatus();
-        this.link = deliveryResponseFirst.getResult().getLink();
-        this.state = deliveryResponseFirst.getResult().getState();
-        this.barCode = deliveryResponseFirst.getResult().getBarCode();
-        this.isError = deliveryResponseFirst.isError();
-        this.message = deliveryResponseFirst.getMessage();
-        this.responseCode = deliveryResponseFirst.getResponseCode();
-        this.responseMessage = deliveryResponseFirst.getResponseMessage();
-    }
-
-    public DeliveryResponse(DeliveryResponseNavex deliveryResponse) {
-        this.status = deliveryResponse.getResponseCode();
-        this.link = deliveryResponse.getLien();
-        this.state = deliveryResponse.getEtat();
-        this.barCode = deliveryResponse.getStatus_message();
-        this.isError = false;
-        this.message = deliveryResponse.getStatus_message();
-        this.responseCode = deliveryResponse.getResponseCode();
-        this.responseMessage = deliveryResponse.getResponseMessage();
-    }
-
     public String getBarCode() {
         return barCode;
     }
