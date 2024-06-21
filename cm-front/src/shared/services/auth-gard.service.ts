@@ -3,7 +3,7 @@ import { StorageService } from "./strorage.service";
 import { StringUtils } from "../utils/string-utils";
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 @Injectable()
-export class AuthGuard  {
+export class AuthGuard {
     constructor(
         private storageService: StorageService,
         private router: Router) { }
@@ -13,12 +13,14 @@ export class AuthGuard  {
 
         if (this.storageService.isUserLoggedIn()) {
             if (route.data['role'] && !StringUtils.checkExistence(route.data['role'], this.storageService.getRoles())) {
-                this.router.navigateByUrl('/auth/login');
+                this.storageService.getTenantName() ? this.router.navigate(['/auth/login', this.storageService.getTenantName()]) :
+                    this.router.navigateByUrl('/auth/login/');
                 return false;
             }
             return true;
         }
-        this.router.navigateByUrl('/auth/login');
+        this.storageService.getTenantName() ? this.router.navigate(['/auth/login', this.storageService.getTenantName()]) :
+            this.router.navigateByUrl('/auth/login/');
         return false;
     }
 }

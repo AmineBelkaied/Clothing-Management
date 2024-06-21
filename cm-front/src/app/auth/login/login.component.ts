@@ -36,12 +36,11 @@ export class LoginComponent {
       constructor(private authService: AuthService, private storageService: StorageService, private router: Router, private route: ActivatedRoute) { }
     
       ngOnInit(): void {
-        this.storageService.removeUser();
         this.route.paramMap.subscribe(params => this.form.tenantName = params.get('tenantName'));
-        //('tenantName');
         if (this.storageService.isUserLoggedIn()) {
           this.isLoggedIn = true;
           this.roles = this.storageService.getUser().roles;
+          this.router.navigate(["/"]);
         }
         
       }
