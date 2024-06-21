@@ -17,7 +17,7 @@ import { RouterModule, Routes } from '@angular/router';
 import 'tslib';
 
 const routes: Routes = [
-  { path: "", redirectTo: "/packets", pathMatch: "full", },
+  { path: "", redirectTo: "/packets", pathMatch: "full" },
   {
     path: "models", "component": ListModelsComponent, canActivate: [AuthGuard], data: {
       role: [Roles.ADMIN]
