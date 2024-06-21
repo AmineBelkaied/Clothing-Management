@@ -4,8 +4,9 @@ import { Subject, of, takeUntil } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { PacketService } from 'src/shared/services/packet.service';
+import { StorageService } from 'src/shared/services/strorage.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { CONFIRMED, RETURN, VALIDATION } from 'src/shared/utils/status-list';
+import { RETURN, VALIDATION } from 'src/shared/utils/status-list';
 
 @Component({
   selector: 'app-verification',
@@ -25,9 +26,10 @@ export class VerificationComponent implements OnInit {
   packets: Packet[];
   totalItems: number;
   packet: Packet;
-  type : string = CONFIRMED;
+  type : string = VALIDATION;
   sourceString : string = "Non Validé";
   targetString : string = "Validé";
+  isAdmin: boolean;
 
 
   params : any={
@@ -36,21 +38,22 @@ export class VerificationComponent implements OnInit {
     startDate: null,
     endDate: null,
     mandatoryDate: false,
-    status: CONFIRMED,
+    status: VALIDATION,
   };
 
 
-  constructor(private packetService : PacketService,private dateUtils: DateUtils,private messageService: MessageService,) {
+  constructor(private packetService : PacketService,private dateUtils: DateUtils,private messageService: MessageService,public storageService: StorageService) {
 
   }
 
   ngOnInit(): void {
+    this.isAdmin = this.storageService.hasRoleAdmin();
     this.findAllConfirmedPackets();
     this.targetPackets = [];
 }
 
 findAllConfirmedPackets(): void {
-  if(this.type == CONFIRMED){
+  if(this.type == VALIDATION){
     this.sourceString = "Non validé";
     this.targetString = "Validé";
   }
@@ -58,7 +61,7 @@ findAllConfirmedPackets(): void {
     this.sourceString = RETURN;
     this.targetString = "Retour Echange";
   }
-  this.params.status = VALIDATION;
+  this.params.status = this.type;
   this.packetService.findAllPackets(this.params)
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
@@ -66,7 +69,7 @@ findAllConfirmedPackets(): void {
         this.packets = response.result;
         //console.log('response',response);
         this.totalItems = response.totalItems;
-        if(this.type == CONFIRMED){
+        if(this.type == VALIDATION){
           this.sourcePackets = response.result.filter((packet: Packet) => packet.valid == false);
           this.targetPackets = response.result.filter((packet: Packet) => packet.valid);
         }
@@ -86,7 +89,7 @@ Validate(){
   if(this.barCode.length == 13)
   this.barCode = this.barCode.slice(0,12);
   //console.log('validé',this.barCode);
-  if (this.type == CONFIRMED){
+  if (this.type == VALIDATION){
     if (!(this.sourcePackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1)){
       if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
         alert('Error: BarreCode déja validé');
@@ -97,17 +100,9 @@ Validate(){
       alert('Error: Colie double et déja validé');
       return;
     }
-    //let listValidatedPhoneNumber = this.targetPackets.map((packet : Packet) => packet.customerPhoneNb);
     let packetSameBarCode : Packet[] = this.sourcePackets.filter((packet : Packet) => packet.barcode == this.barCode);
-    console.log('packetSameBarCode',packetSameBarCode);
-
     let phoneNumber = packetSameBarCode[0].customerPhoneNb;
-    console.log('phoneNumber',phoneNumber);
-    console.log('this.sourcePackets',this.sourcePackets);
-
     let packetSamePhoneNumber : Packet[] = this.sourcePackets.filter((packet : Packet) => packet.customerPhoneNb == phoneNumber);
-    console.log('packetSamePhoneNumber',packetSamePhoneNumber);
-
     if (packetSameBarCode.length>1){
       alert('Error: le code a barre '+this.barCode +' existe plusieur fois');
       return;
@@ -115,6 +110,7 @@ Validate(){
     else if (packetSamePhoneNumber.length>1)
     {
       alert('Error: le numero de telephone '+phoneNumber +' existe plusieur fois');
+      if(this.isAdmin)
       return;
     }
   }

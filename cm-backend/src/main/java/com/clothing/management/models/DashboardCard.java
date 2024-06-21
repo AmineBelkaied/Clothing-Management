@@ -2,10 +2,12 @@ package com.clothing.management.models;
 public class DashboardCard {
     private String status;
     private Long statusCount;
+    private Long statusByDateCount;
 
-    public DashboardCard(String status, Long statusCount) {
+    public DashboardCard(String status, Long statusCount, Long statusByDateCount) {
         this.status = status;
         this.statusCount = statusCount;
+        this.statusByDateCount = statusByDateCount;
     }
 
     public DashboardCard() {
@@ -27,11 +29,20 @@ public class DashboardCard {
         this.statusCount = statusCount;
     }
 
+    public Long getStatusByDateCount() {
+        return statusByDateCount;
+    }
+
+    public void setStatusByDateCount(Long statusByDateCount) {
+        this.statusByDateCount = statusByDateCount;
+    }
+
     @Override
     public String toString() {
-        return "dashboardCard{" +
+        return "DashboardCard{" +
                 "status='" + status + '\'' +
                 ", statusCount=" + statusCount +
+                ", statusByDateCount=" + statusByDateCount +
                 '}';
     }
 }

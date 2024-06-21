@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
@@ -76,14 +77,15 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status, boolean mandatoryDate) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        if(status.equals("validation"))
-            return packetRepository.findAllNotValidatedPackets(pageable);
+
         if(mandatoryDate) {
             if (searchText != null)
                 return packetRepository.findAllPacketsByFieldAndDate(searchText,dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
 
             if (status != null)
             {
+                if(status.equals("validation"))
+                    return packetRepository.findAllNotValidatedPackets(pageable);
                 if (status.equals("Tous"))return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
                 return packetRepository.findAllPacketsByDateAndStatus(dateFormat.parse(startDate), dateFormat.parse(endDate), convertStatusToList(status), pageable);
             }
@@ -98,7 +100,8 @@ public class PacketServiceImpl implements PacketService {
             }
             if (status != null)
             {
-
+                if(status.equals("validation"))
+                    return packetRepository.findAllNotValidatedPackets(pageable);
                 return packetRepository.findAllPacketsByStatus(convertStatusToList(status), pageable);
             }
         }
@@ -360,14 +363,14 @@ public class PacketServiceImpl implements PacketService {
         return packetRepository.findAllPacketsByPhone_number(phoneNumber);
     }
 
-    @Override
+    /*@Override
     public List<DashboardCard> createDashboard() {
         return packetRepository.createDashboard();
-    }
+    }*/
 
     @Override
-    public List<DashboardCard> syncNotification() {
-        return packetRepository.createNotification();
+    public List<DashboardCard> syncNotification(String startDate, String endDate) {
+        return packetRepository.createNotification(startDate,endDate);
     }
     @Override
     public List<PacketStatus> findPacketTimeLineById(Long idPacket) throws Exception {
@@ -453,8 +456,7 @@ public class PacketServiceImpl implements PacketService {
             case RETOUR_EXPEDITEUR, RETOUR_EXPEDITEUR_NAVEX ,
                     RETOUR_DEFINITIF,RETOUR_DEFINITIF_NAVEX, RETOUR_CLIENT_AGENCE,
                     RETOUR_RECU, RETOUR_RECU_NAVEX -> RETURN.getStatus();
-            case EN_ATTENTE -> CONFIRMED.getStatus();
-            case A_VERIFIER, A_VERIFIER_NAVEX -> TO_VERIFY.getStatus();
+            case EN_ATTENTE,A_VERIFIER, A_VERIFIER_NAVEX -> TO_VERIFY.getStatus();
             //case RETOUR_DEPOT,RETOUR_DEPOT_NAVEX -> status;
             default -> IN_PROGRESS_1.getStatus();
         };

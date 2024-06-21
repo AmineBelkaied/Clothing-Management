@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, tap, throwError } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
 import { baseUrl } from '../../assets/constants';
+import { CONFIRMED, VALIDATION } from '../utils/status-list';
 
 @Injectable({
   providedIn: 'root',
@@ -52,10 +53,10 @@ export class PacketService {
     return this.http.get(this.baseUrl+path);
   }
 
-  public syncNotification(): Observable<any> {
+  public syncNotification(startDate: String,endDate:String): Observable<any> {
     // only create a new request if you don't already have one stored
     // save your request
-    let path = '/syncNotification';
+    let path = '/syncNotification?startDate=' + startDate + "&endDate=" + endDate;
     return this.http.get(this.baseUrl+path);
   }
 
@@ -128,6 +129,8 @@ export class PacketService {
 
   validatePacket(barCode: any,state: string): Observable<any> {
     let path ='/valid/' + barCode;
+    if(state == VALIDATION)
+      state=CONFIRMED;
     return this.http.post(this.baseUrl + path, state, {
       headers: { 'content-type': 'application/json' },
     });

@@ -41,10 +41,11 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "DATE(p.packetDate), p.product.id, " +
             "p.offer, p.product.model.id ,  p.product.model.name, " +
             "p.product.color , p.product.size , " +
-            "SUM(1)) " +//En rupture
+            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
             "FROM ProductsPacket p " +
-            "WHERE (p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
-            "AND p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
+            "WHERE p.product.color.name <> '?' AND p.product.size.reference <> '?' " +// (p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
             "AND DATE(p.packetDate) >= DATE(:beginDate) " +
             "AND DATE(p.packetDate) <= DATE(:endDate) " +
             "AND p.product.model.id = :modelId " +
@@ -52,11 +53,11 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     public List<ProductsDayCountDTO> productsCountByDate(@Param("modelId") Long modelId,@Param("beginDate") String beginDate, @Param("endDate") String endDate);
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(" +
             "DATE(p.packetDate), p.offer, " +
-            "COUNT(DISTINCT(CASE WHEN p.status = 1 OR (p.status = 2) THEN p.packetOfferId END))" +
-            ") " +
+            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
             "FROM ProductsPacket p " +
-            "WHERE (p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
-            "AND DATE(p.packetDate) >= DATE(:beginDate) " +
+            "WHERE DATE(p.packetDate) >= DATE(:beginDate) " +//(p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
             "AND DATE(p.packetDate) <= DATE(:endDate) " +
             "GROUP BY DATE(p.packetDate), p.packet.id, p.packetOfferId  ORDER BY DATE(p.packetDate) ASC ")
     public List<ProductsDayCountDTO> offersCountByDate(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
@@ -65,10 +66,11 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "DATE(p.packetDate), p.product.id, " +
             "p.offer, p.product.model.id ,  p.product.model.name, " +
             "p.product.color , p.product.size , " +
-            "SUM(1)) " +
+            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
             "FROM ProductsPacket p " +
-            "WHERE (p.status = 1 OR p.status = 2) " +
-            "AND p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
+            "WHERE p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
             "AND DATE(p.packetDate) >= DATE(:beginDate) AND DATE(p.packetDate) <= DATE(:endDate) " +
             "AND p.product.model.id = :modelId " +
             "GROUP BY p.product.id, DATE(p.packetDate) ORDER BY DATE(p.packetDate) ASC")
@@ -78,10 +80,11 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "DATE(p.packetDate), p.product.id, " +
             "p.offer, p.product.model.id , p.product.model.name, " +
             "p.product.color , p.product.size, "+
-            "SUM(1)) " +
+            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN (p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu') THEN 1 ELSE 0 END)) "+
             "FROM ProductsPacket p " +
-            "WHERE (p.status = 1 OR p.status = 2) " +
-            "AND DATE(p.packetDate) >= DATE(:beginDate) " +
+            "WHERE DATE(p.packetDate) >= DATE(:beginDate) " +
             "AND DATE(p.packetDate) <= DATE(:endDate) " +
             "GROUP BY p.product.model.id, DATE(p.packetDate) ORDER BY DATE(p.packetDate) ASC")
     public List<ProductsDayCountDTO> statAllModels(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
@@ -90,10 +93,11 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "DATE(p.packetDate), p.product.id, " +
             "p.offer, p.product.model.id , p.product.model.name, " +
             "p.product.color , p.product.size, "+
-            "SUM(1)) " +
+            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
             "FROM ProductsPacket p " +
-            "WHERE (p.status = 1 OR p.status = 2) " +
-            "AND p.product.model.id IN :modelIds " +
+            "WHERE p.product.model.id IN :modelIds " +
             "AND DATE(p.packetDate) >= DATE(:beginDate) " +
             "AND DATE(p.packetDate) <= DATE(:endDate) " +
             "GROUP BY p.product.color.id, DATE(p.packetDate) ORDER BY DATE(p.packetDate) ASC")
@@ -103,10 +107,11 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "DATE(p.packetDate), p.product.id, " +
             "p.offer, p.product.model.id , p.product.model.name, " +
             "p.product.color , p.product.size, "+
-            "SUM(1)) " +
+            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
             "FROM ProductsPacket p " +
-            "WHERE (p.status = 1 OR p.status = 2) " +
-            "AND DATE(p.packetDate) >= DATE(:beginDate) " +
+            "WHERE DATE(p.packetDate) >= DATE(:beginDate) " +
             "AND DATE(p.packetDate) <= DATE(:endDate) " +
             "GROUP BY p.product.color.id, DATE(p.packetDate) ORDER BY DATE(p.packetDate) ASC")
     public List<ProductsDayCountDTO> statAllModelsByColor(@Param("beginDate") String beginDate, @Param("endDate") String endDate);

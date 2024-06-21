@@ -19,7 +19,7 @@ export const UNREACHABLE = 'Injoignable';
 export const PROBLEME = 'Problème';
 export const NOT_SERIOUS = 'Pas Serieux';
 export const CANCELED = 'Annuler';
-export const VALIDATION = 'Validation';
+export const VALIDATION = 'validation';
 
 
 export const statusList = [

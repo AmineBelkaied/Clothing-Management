@@ -119,6 +119,7 @@ onRowSelect($event: TableRowSelectEvent) {
       label: "Erreur Chargement",
       title: "Tous",
       badge:0,
+      badgeByDate:0,
       command: (event: any) => {
       },
       disabled:true
@@ -127,6 +128,7 @@ onRowSelect($event: TableRowSelectEvent) {
     label: ENDED,
     title: ENDED,
     badge:0,
+    badgeByDate:0,
     command: (event: any) => {
     }
   },
@@ -134,6 +136,7 @@ onRowSelect($event: TableRowSelectEvent) {
       label: NOT_CONFIRMED,
       title: NOT_CONFIRMED,
       badge:0,
+      badgeByDate:0,
       command: (event: any) => {
       }
   },
@@ -142,6 +145,7 @@ onRowSelect($event: TableRowSelectEvent) {
         title: UNREACHABLE,
         icon: 'pi-power-off',
         badge:0,
+        badgeByDate:0,
         command: (event: any) => {
         }
     },
@@ -149,6 +153,7 @@ onRowSelect($event: TableRowSelectEvent) {
         label: CONFIRMED,
         title: CONFIRMED,
         badge:0,
+        badgeByDate:0,
         command:
           (event: any) => {
         }
@@ -157,6 +162,7 @@ onRowSelect($event: TableRowSelectEvent) {
       label: IN_PROGRESS,
       title: IN_PROGRESS,
       badge:0,
+      badgeByDate:0,
       command: (event: any) => {
       },
     },
@@ -164,6 +170,7 @@ onRowSelect($event: TableRowSelectEvent) {
       label: RETURN,
       title: RETURN,
       badge:0,
+      badgeByDate:0,
       command: (event: any) => {
         }
     },
@@ -171,6 +178,7 @@ onRowSelect($event: TableRowSelectEvent) {
       label: CANCELED,
       title: CANCELED,
       badge:0,
+      badgeByDate:0,
       command: (event: any) => {
         }
     },
@@ -178,6 +186,7 @@ onRowSelect($event: TableRowSelectEvent) {
       label: 'Terminé',
       title: 'Terminé',
       badge:0,
+      badgeByDate:0,
       command: (event: any) => {}
     }
 ];
@@ -296,6 +305,7 @@ onRowSelect($event: TableRowSelectEvent) {
         icon: 'pi pi-align-justify',
         color: 'green',
         badge:this.statusItems[0].badge,
+        badgeByDate:this.statusItems[0].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:"All", detail: event.item.label});
           //this.onNotificationClick(event.item.title);
@@ -309,6 +319,7 @@ onRowSelect($event: TableRowSelectEvent) {
         icon: 'pi pi-times',
         color: 'red',
         badge:this.statusItems[1].badge,
+        badgeByDate:this.statusItems[1].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:ENDED, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
@@ -320,6 +331,7 @@ onRowSelect($event: TableRowSelectEvent) {
         icon: 'pi pi-phone',
         color: 'orange',
         badge:this.statusItems[2].badge,
+        badgeByDate:this.statusItems[2].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:NOT_CONFIRMED, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
@@ -331,6 +343,7 @@ onRowSelect($event: TableRowSelectEvent) {
         icon: 'pi pi-check',
         color: 'green',
         badge:this.statusItems[3].badge,
+        badgeByDate:this.statusItems[3].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:NOT_CONFIRMED, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
@@ -342,6 +355,7 @@ onRowSelect($event: TableRowSelectEvent) {
         icon: 'pi pi-truck',
         color: 'purple',
         badge:this.statusItems[4].badge,
+        badgeByDate:this.statusItems[4].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:IN_PROGRESS, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
@@ -353,6 +367,7 @@ onRowSelect($event: TableRowSelectEvent) {
         icon: 'pi pi-thumbs-down',
         color: 'red',
         badge:this.statusItems[5].badge,
+        badgeByDate:this.statusItems[5].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:RETURN, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
@@ -364,6 +379,7 @@ onRowSelect($event: TableRowSelectEvent) {
         icon: 'pi pi-thumbs-down',
         color: 'red',
         badge:this.statusItems[6].badge,
+        badgeByDate:this.statusItems[6].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:RETURN, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
@@ -375,6 +391,7 @@ onRowSelect($event: TableRowSelectEvent) {
         icon: 'pi pi-flag',
         color: 'red',
         badge:this.statusItems[7].badge,
+        badgeByDate:this.statusItems[7].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:'Last Step', detail: event.item.label})
         }
@@ -392,46 +409,64 @@ onRowSelect($event: TableRowSelectEvent) {
 
   createNotification(): void {
     console.log("createNotification");
-    let enCours = 0;
-    let canceled = 0;
-    let nonConfirmed = 0;
-    let closed = 0;
+    this.statusItems[1].badge = 0;
+    this.statusItems[1].badgeByDate = 0;
+    this.statusItems[2].badge = 0;
+    this.statusItems[2].badgeByDate = 0;
+    this.statusItems[3].badge = 0;
+    this.statusItems[3].badgeByDate = 0;
+    this.statusItems[4].badge = 0;
+    this.statusItems[4].badgeByDate = 0;
+    this.statusItems[5].badge = 0;
+    this.statusItems[5].badgeByDate = 0;
+    this.statusItems[6].badge = 0;
+    this.statusItems[6].badgeByDate = 0;
+    this.statusItems[7].badge = 0;
+    this.statusItems[7].badgeByDate = 0;
     let all = 0;
 
-    this.packetService.syncNotification()
+    this.packetService.syncNotification(this.params.startDate,this.params.endDate)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: DashboardCard[]) => {
           if (response != null && response.length > 0) {
             response.forEach((element: any) => {
+
               switch (element.status) {
                 case ENDED:
                   this.statusItems[1].badge = element.statusCount;
+                  this.statusItems[1].badgeByDate = element.statusByDateCount;
                   break;
                 case NOT_CONFIRMED:
                 case UNREACHABLE:
-                  nonConfirmed += element.statusCount;
+                  this.statusItems[2].badge += element.statusCount;
+                  this.statusItems[2].badgeByDate += element.statusByDateCount;
                   break;
                 case CONFIRMED:
                   this.statusItems[3].badge = element.statusCount;
+                  this.statusItems[3].badgeByDate += element.statusByDateCount;
                   break;
                 case IN_PROGRESS_1:
                 case IN_PROGRESS_2:
                 case IN_PROGRESS_3:
                 case TO_VERIFY:
-                  enCours += element.statusCount;
+                  this.statusItems[4].badge += element.statusCount;
+                  this.statusItems[4].badgeByDate += element.statusByDateCount;
                   break;
                 case RETURN:
                   this.statusItems[5].badge = element.statusCount;
+                  this.statusItems[5].badgeByDate = element.statusByDateCount;
                   break;
                 case CANCELED:
                 case DELETED:
-                  canceled += element.statusCount;
+                  this.statusItems[6].badge += element.statusCount;
+                  this.statusItems[6].badgeByDate += element.statusByDateCount;
                   break;
                 case DELIVERED:
                 case PAID:
                 case RETURN_RECEIVED:
-                  closed += element.statusCount;
+                  this.statusItems[7].badge += element.statusCount;
+                  this.statusItems[7].badgeByDate += element.statusByDateCount;
                   break;
 
               }
@@ -439,10 +474,7 @@ onRowSelect($event: TableRowSelectEvent) {
             });
           }
           this.statusItems[0].badge = all;
-          this.statusItems[2].badge = nonConfirmed;
-          this.statusItems[4].badge = enCours;
-          this.statusItems[6].badge = canceled;
-          this.statusItems[7].badge = closed;
+
 
           this.loadNotification();
         },

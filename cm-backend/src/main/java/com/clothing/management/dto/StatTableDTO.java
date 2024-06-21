@@ -14,7 +14,9 @@ public class StatTableDTO {
 
     private Long Sum;
 
-    private  double Per;
+    private double Per;
+
+    private Long Retour;
 
     public StatTableDTO(String name) {
         this.name = name;
@@ -22,13 +24,15 @@ public class StatTableDTO {
         this.Max = 0;
         this.Avg = 0L;
         this.Per = 0L;
+        this.Retour = 0L;
     }
-    public StatTableDTO(String name, Integer min, Integer max, Long avg, Long sum) {
+    public StatTableDTO(String name, Integer min, Integer max, Long avg, Long sum, Long retour) {
         this.name = name;
-        Min = min;
-        Max = max;
-        Avg = avg;
-        Sum = sum;
+        this.Min = min;
+        this.Max = max;
+        this.Avg = avg;
+        this.Sum = sum;
+        this.Retour = retour;
     }
 
     public String getName() {
@@ -87,6 +91,14 @@ public class StatTableDTO {
         Per = per;
     }
 
+    public Long getRetour() {
+        return Retour;
+    }
+
+    public void setRetour(Long retour) {
+        Retour = retour;
+    }
+
     @Override
     public String toString() {
         return "StatTableDTO{" +
@@ -96,6 +108,7 @@ public class StatTableDTO {
                 ", Avg=" + Avg +
                 ", Sum=" + Sum +
                 ", Per=" + Per +
+                ", Retour=" + Retour +
                 '}';
     }
 }
