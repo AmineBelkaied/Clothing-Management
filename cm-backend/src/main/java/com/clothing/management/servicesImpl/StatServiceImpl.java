@@ -45,11 +45,16 @@ public class StatServiceImpl implements StatService {
             modelRecap= new StatTableDTO(uniqueModel);
             for (Date uniqueDate : uniqueDates) {
                 int count = 0;
+                int countRetour = 0;
                 for (ProductsDayCountDTO product : existingProductsPacket) {
                     if (product.getPacketDate().equals(uniqueDate) && product.getModelName().equals(uniqueModel))
-                        count+=product.getCount();
+                        {
+                            count+=product.getCountPayed();
+                            countRetour+=product.getCountReturn();
+                        }
                 }
                 modelRecap.setSum(count+modelRecap.getSum());
+                modelRecap.setRetour(countRetour+modelRecap.getRetour());
                 countModelsList.add(count);
             }
             listModelsCount.add(countModelsList);
@@ -176,15 +181,17 @@ public class StatServiceImpl implements StatService {
 
             for (Date uniqueDate : uniqueDates) {
                 int count = 0;
+                int countRetour = 0;
                 for (ProductsDayCountDTO product : existingOffersPacket) {
                     if (product.getPacketDate().equals(uniqueDate) && product.getOffer().getId()==uniqueoffer.getId())
                     {
-                        count+=product.getCount();
+                        count+=product.getCountPayed();
+                        countRetour+=product.getCountReturn();
                     }
                 }
-
-                System.out.println(uniqueDate+"count:"+count);
+                //System.out.println(uniqueDate+"count:"+count);
                 offerRecap.setSum(count+offerRecap.getSum());
+                offerRecap.setSum(countRetour+offerRecap.getRetour());
                 countOffersList.add(count);
             }
             listOffersCount.add(countOffersList);
@@ -257,7 +264,7 @@ public class StatServiceImpl implements StatService {
                 int count = 0;
                 for (ProductsDayCountDTO product : existingProductsPacketColor) {
                     if (product.getPacketDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId()))
-                        count += product.getCount();
+                        count += product.getCountPayed();
                 }if(count==0)colorRecap.setMin(0L);
                 colorRecap.setSum(colorRecap.getSum()+count);
                 uniqueColorCountList.add(count);
@@ -512,7 +519,7 @@ public class StatServiceImpl implements StatService {
                 int count = 0;
                 for (ProductsDayCountDTO product : existingProductsPacket) {
                     if (product.getPacketDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId()))
-                        count+=product.getCount();
+                        count+=product.getCountPayed();
                 }
                 countColorsList.add(count);
             }
@@ -524,7 +531,7 @@ public class StatServiceImpl implements StatService {
                 int count = 0;
                 for (ProductsDayCountDTO product : existingProductsPacket) {
                     if (product.getPacketDate().equals(uniqueDate) && product.getSize().getId().equals(uniqueSize.getId()))
-                        count+=product.getCount();
+                        count+=product.getCountPayed();
                 }
                 countSizesList.add(count);
             }

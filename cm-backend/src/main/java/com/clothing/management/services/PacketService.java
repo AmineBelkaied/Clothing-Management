@@ -32,8 +32,8 @@ public interface PacketService {
     Packet getLastStatus(Packet packet) throws Exception;
     Packet addAttempt(Long packetId,String note) throws ParseException;
     int checkPhone(String phoneNumber);
-    List<DashboardCard> createDashboard();
-    List<DashboardCard> syncNotification();
+    //List<DashboardCard> createDashboard();
+    List<DashboardCard> syncNotification(String beginDate, String endDate);
     Packet duplicatePacket(Long idPacketidPacket);
     List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO);
     //Long getExchangeId(Packet packet);

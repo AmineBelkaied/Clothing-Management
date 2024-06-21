@@ -18,11 +18,12 @@ public class ProductsDayCountDTO {
     private String modelName;
     private Color color;
     private Size size;
-
+    private long count;
     private long countExchange;
     private long countOos;
     private long countProgress;
-    private long count;
+    private long countPayed;
+    private long countReturn;
 
     public ProductsDayCountDTO() {
     }
@@ -39,17 +40,33 @@ public class ProductsDayCountDTO {
         this.modelName = modelName;
         this.color = color;
         this.size = size;
-        this.count = count;
+        this.countPayed = count;
+    }
+    public ProductsDayCountDTO(
+            Date packetDate, Long productId,
+            Offer offer, Long modelId, String modelName,
+            Color color, Size size,
+            long countPayed, long countProgress, long countReturn
+    ) {
+        this.packetDate = packetDate;
+        this.productId = productId;
+        this.offer = offer;
+        this.modelId = modelId;
+        this.modelName = modelName;
+        this.color = color;
+        this.size = size;
+        this.countPayed = countPayed;
+        this.countProgress = countProgress;
+        this.countReturn = countReturn;
     }
 
     public ProductsDayCountDTO(
             Date packetDate,
             Offer offer,
-            long count
+            long countPayed, long countProgress, long countReturn
     ) {
         this.packetDate = packetDate;
         this.productId = null;
-        //this.productRef = productRef;
         this.offer = offer;
         this.modelId = null;
         this.modelName = null;
@@ -57,8 +74,9 @@ public class ProductsDayCountDTO {
         this.size = null;
         this.countExchange = 0;
         this.countOos = 0;
-        this.countProgress = 0;
-        this.count = count;
+        this.countPayed = countPayed;
+        this.countProgress = countProgress;
+        this.countReturn = countReturn;
     }
 
     public Date getPacketDate() {
@@ -96,10 +114,6 @@ public class ProductsDayCountDTO {
         this.size = size;
     }
 
-    public long getCount() {
-        return count;
-    }
-
     public long getCountExchange() {
         return countExchange;
     }
@@ -120,9 +134,6 @@ public class ProductsDayCountDTO {
     public void setCountProgress(long countProgress) {
         this.countProgress = countProgress;
     }
-    public void setCount(long count) {
-        this.count = count;
-    }
 
     public Offer getOffer() {
         return offer;
@@ -132,17 +143,43 @@ public class ProductsDayCountDTO {
         this.offer = offer;
     }
 
-    /*public String getProductRef() {
-            return productRef;
-        }
-        public void setProductRef(String productRef) {
-            this.productRef = productRef;
-        }*/
     public String getModelName() {
         return modelName;
     }
     public void setModelName(String modelName) {
         this.modelName = modelName;
+    }
+
+    public long getCountPayed() {
+        return countPayed;
+    }
+
+    public void setCountPayed(long countPayed) {
+        this.countPayed = countPayed;
+    }
+
+    public long getCountInProgress() {
+        return countProgress;
+    }
+
+    public void setCountInProgress(long countInProgress) {
+        this.countProgress = countInProgress;
+    }
+
+    public long getCountReturn() {
+        return countReturn;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
+    }
+
+    public void setCountReturn(long countReturn) {
+        this.countReturn = countReturn;
     }
 
     @Override
@@ -151,13 +188,16 @@ public class ProductsDayCountDTO {
                 "packetDate=" + packetDate +
                 ", productId=" + productId +
                 ", offer=" + offer +
+                ", modelId=" + modelId +
                 ", modelName='" + modelName + '\'' +
-                ", color='" + color + '\'' +
-                ", size='" + size + '\'' +
-                ", countExchange=" + countExchange +
-                ", countRupture=" + countOos +
-                ", countProgress=" + countProgress +
+                ", color=" + color +
+                ", size=" + size +
                 ", count=" + count +
+                ", countExchange=" + countExchange +
+                ", countOos=" + countOos +
+                ", countProgress=" + countProgress +
+                ", countPayed=" + countPayed +
+                ", countReturn=" + countReturn +
                 '}';
     }
 }

@@ -32,16 +32,6 @@ public class NavexApiService {
 
 
     public NavexApiService() {
-        /*GlobalConf globalConf = globalConfService.getGlobalConf();
-        System.out.println(globalConf);
-        if (globalConf != null) {
-            System.out.println("globalConf");
-            comment = globalConf.getComment();
-            bearerToken = globalConf.getDeliveryCompany().getToken();
-            exchangeProduct = globalConf.getExchangeComment();
-            apiName = globalConf.getDeliveryCompany().getApiName();
-            //System.out.println(comment);
-        }*/
     }
 
     public DeliveryResponseNavex createBarCode(Packet packet) throws IOException {

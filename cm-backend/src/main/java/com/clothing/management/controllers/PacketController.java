@@ -157,14 +157,15 @@ public class PacketController {
         return packetService.checkPacketProductsValidity(packetId);
     }
 
-    @GetMapping(path = "/createDashboard")
+    /*@GetMapping(path = "/createDashboard")
     public List<DashboardCard> createDashboard(){
         return packetService.createDashboard();
-    }
+    }*/
 
     @GetMapping(path = "/syncNotification")
-    public List<DashboardCard> syncNotification(){
-        return packetService.syncNotification();
+    public List<DashboardCard> syncNotification(@RequestParam(required = false) String startDate,
+                                                @RequestParam(required = false) String endDate){
+        return packetService.syncNotification(startDate, endDate);
     }
 
     @GetMapping(path = "/duplicatePacket/{idPacket}")

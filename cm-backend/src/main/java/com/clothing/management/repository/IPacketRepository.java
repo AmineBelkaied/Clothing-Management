@@ -43,12 +43,15 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value="DELETE FROM packet WHERE customer_name='' AND customer_phone_nb='';", nativeQuery = true)
     public int deleteEmptyPacket();
 
-    @Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p GROUP BY p.status")
-    List<DashboardCard> createDashboard();
+    /*@Query(value="SELECT NEW com.clothing.management.models.DashboardCard( p.status, COUNT(p.status)) FROM Packet p GROUP BY p.status")
+    List<DashboardCard> createDashboard();*/
 
     @Query(value="SELECT NEW com.clothing.management.models.DashboardCard(" +
-            " p.status, COUNT(p.status)) FROM Packet p WHERE (p.status <> 'Problème') GROUP BY p.status")
-    List<DashboardCard> createNotification();//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
+            " p.status, " +
+            "COUNT(p.status), " +
+            "SUM(CASE WHEN DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate) THEN 1 ELSE 0 END)) " +
+            "FROM Packet p WHERE (p.status <> 'Problème') GROUP BY p.status")
+    List<DashboardCard> createNotification(@Param("startDate") String startDate, @Param("endDate") String endDate);//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
 
    //@Query(value = getQuery(searchField, endDate, se), countQuery = COUNT_FIELD_QUERY, nativeQuery = true)
     //defaut Page<Packet> findAllPackets(@Param("searchField") String searchField, @Param("startDate") String startDate, @Param("endDate") String endDate, Pageable pageable);
@@ -58,7 +61,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value ="SELECT p FROM Packet p WHERE CAST(p.id as String) LIKE %:searchField% OR  p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.barcode LIKE %:searchField% AND DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)")
     Page<Packet> findAllPacketsByFieldAndDate(@Param("searchField") String searchField, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 
-    @Query(value ="SELECT p FROM Packet p WHERE p.valid = false AND p.barcode <> '' AND p.status <> 'Annuler'")
+    @Query(value ="SELECT p FROM Packet p WHERE p.status = 'Confirmée' OR (p.valid = false AND p.barcode <> '' AND p.status <> 'Annuler')")
     Page<Packet> findAllNotValidatedPackets(Pageable pageable);
 
     @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList) AND (p.status IN (:ignoredDateStatusList) OR (DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)))")
