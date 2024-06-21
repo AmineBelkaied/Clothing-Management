@@ -17,21 +17,21 @@ export class StorageService {
   }
 
   clean(): void {
-    window.sessionStorage.clear();
+    window.localStorage.clear();
   }
 
   public saveUser(user: any): void {
-    window.sessionStorage.removeItem(USER_KEY);
-    window.sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+    window.localStorage.removeItem(USER_KEY);
+    window.localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   public saveTenant(tenantName: any): void {
-    window.sessionStorage.removeItem(TENANT_NAME);
-    window.sessionStorage.setItem(TENANT_NAME, tenantName);
+    window.localStorage.removeItem(TENANT_NAME);
+    window.localStorage.setItem(TENANT_NAME, tenantName);
   }
 
   public getUser(): any {
-    const user = window.sessionStorage.getItem(USER_KEY);
+    const user = window.localStorage.getItem(USER_KEY);
    // console.log(user);
     
     if (user) {
@@ -42,7 +42,7 @@ export class StorageService {
   }
 
   public removeUser(): void {
-    window.sessionStorage.removeItem(USER_KEY);
+    window.localStorage.removeItem(USER_KEY);
   }
 
   public getToken(): any {
@@ -54,12 +54,12 @@ export class StorageService {
   }
 
   public getTenantName(): any {
-    const tenantName = window.sessionStorage.getItem(TENANT_NAME);
+    const tenantName = window.localStorage.getItem(TENANT_NAME);
     return tenantName;
   }
 
   public isUserLoggedIn(): boolean {
-    const user = window.sessionStorage.getItem(USER_KEY);
+    const user = window.localStorage.getItem(USER_KEY);
     if (user) {
       return true;
     }
