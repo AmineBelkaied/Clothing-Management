@@ -15,7 +15,6 @@ public class Governorate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private int delivery_id;
     @JsonIgnore
     @OneToMany(mappedBy = "governorate" , cascade = CascadeType.ALL)
     private List<City> cities;
@@ -45,14 +44,6 @@ public class Governorate {
 
     public void setCities(List<City> cities) {
         this.cities = cities;
-    }
-
-    public int getDelivery_id() {
-        return delivery_id;
-    }
-
-    public void setDelivery_id(int delivery_id) {
-        this.delivery_id = delivery_id;
     }
 
     @Override
