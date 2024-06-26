@@ -8,8 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -40,84 +42,98 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     public List<Long> getUnconfirmedPacketStock_By_ProductId(Long productId);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO( " +
-            "DATE(p.packetDate), p.product.id, " +
-            "p.offer, p.product.model.id ,  p.product.model.name, " +
-            "p.product.color , p.product.size , " +
-            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
-            "FROM ProductsPacket p " +
-            "WHERE p.product.color.name <> '?' AND p.product.size.reference <> '?' " +// (p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
-            "AND DATE(p.packetDate) >= DATE(:beginDate) " +
-            "AND DATE(p.packetDate) <= DATE(:endDate) " +
-            "AND p.product.model.id = :modelId " +
-            "GROUP BY p.product.color.name, p.product.size.reference ORDER BY DATE(p.packetDate) ASC ")
+            "DATE(pp.packetDate), pp.product.id, " +
+            "pp.offer, pp.product.model.id ,  pp.product.model.name, " +
+            "pp.product.color , pp.product.size , " +
+            "SUM(CASE WHEN pp.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END)) " +
+            "FROM ProductsPacket pp " +
+            "WHERE pp.product.color.name <> '?' AND pp.product.size.reference <> '?' " +// (p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
+            "AND DATE(pp.packetDate) >= DATE(:beginDate) " +
+            "AND DATE(pp.packetDate) <= DATE(:endDate) " +
+            "AND pp.product.model.id = :modelId " +
+            "GROUP BY pp.product.color.name, pp.product.size.reference ORDER BY DATE(pp.packetDate) ASC ")
     public List<ProductsDayCountDTO> productsCountByDate(@Param("modelId") Long modelId,@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(" +
-            "DATE(p.packetDate), p.offer, " +
-            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
-            "FROM ProductsPacket p " +
-            "WHERE DATE(p.packetDate) >= DATE(:beginDate) " +//(p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
-            "AND DATE(p.packetDate) <= DATE(:endDate) " +
-            "GROUP BY DATE(p.packetDate), p.packet.id, p.packetOfferId  ORDER BY DATE(p.packetDate) ASC ")
+            "DATE(pp.packetDate), pp.offer, " +
+            "SUM(CASE WHEN pp.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END)) " +
+            "FROM ProductsPacket pp " +
+            "WHERE DATE(pp.packetDate) >= DATE(:beginDate) " +//(p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
+            "AND DATE(pp.packetDate) <= DATE(:endDate) " +
+            "GROUP BY DATE(pp.packetDate), pp.packet.id, pp.packetOfferId  ORDER BY DATE(pp.packetDate) ASC ")
     public List<ProductsDayCountDTO> offersCountByDate(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(" +
-            "DATE(p.packetDate), p.product.id, " +
-            "p.offer, p.product.model.id ,  p.product.model.name, " +
-            "p.product.color , p.product.size , " +
-            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
-            "FROM ProductsPacket p " +
-            "WHERE p.product.color.name <> '?' AND p.product.size.reference <> '?' " +
-            "AND DATE(p.packetDate) >= DATE(:beginDate) AND DATE(p.packetDate) <= DATE(:endDate) " +
-            "AND p.product.model.id = :modelId " +
-            "GROUP BY p.product.id, DATE(p.packetDate) ORDER BY DATE(p.packetDate) ASC")
+            "DATE(pp.packetDate), pp.product.id, " +
+            "pp.offer, pp.product.model.id ,  pp.product.model.name, " +
+            "pp.product.color , pp.product.size , " +
+            "SUM(CASE WHEN pp.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END)) " +
+            "FROM ProductsPacket pp " +
+            "WHERE pp.product.color.name <> '?' AND pp.product.size.reference <> '?' " +
+            "AND DATE(pp.packetDate) >= DATE(:beginDate) AND DATE(pp.packetDate) <= DATE(:endDate) " +
+            "AND pp.product.model.id = :modelId " +
+            "GROUP BY pp.product.id, DATE(pp.packetDate) ORDER BY DATE(pp.packetDate) ASC")
     public List<ProductsDayCountDTO> statModelSoldProgress(@Param("modelId") Long modelId, @Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
-    @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(" +
-            "DATE(p.packetDate), p.product.id, " +
-            "p.offer, p.product.model.id , p.product.model.name, " +
-            "p.product.color , p.product.size, "+
-            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN (p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu') THEN 1 ELSE 0 END)) "+
-            "FROM ProductsPacket p " +
-            "WHERE DATE(p.packetDate) >= DATE(:beginDate) " +
-            "AND DATE(p.packetDate) <= DATE(:endDate) " +
-            "GROUP BY p.product.model.id, DATE(p.packetDate) ORDER BY DATE(p.packetDate) ASC")
+   /* @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(" +
+            "DATE(pp.packetDate), pp.product.id, " +
+            "pp.offer, pp.product.model.id , pp.product.model.name, " +
+            "pp.product.color , pp.product.size, "+
+            "SUM(CASE WHEN pp.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END)) " +
+            "FROM ProductsPacket pp " +
+            "WHERE DATE(pp.packetDate) >= DATE(:beginDate) " +
+            "AND DATE(pp.packetDate) <= DATE(:endDate) " +
+            "GROUP BY pp.product.model.id, DATE(pp.packetDate) ORDER BY DATE(pp.packetDate) ASC")*/
+   @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(" +
+           "DATE(pp.packetDate), pp.packet.id, " +
+           "pp.offer, pp.product.model.id, pp.product.model.name, " +
+           "pp.product.color, pp.product.size, " +
+           "SUM(CASE WHEN pp.status = 2 THEN 1 ELSE 0 END), " +
+           "SUM(CASE WHEN pp.packet.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
+           "SUM(CASE WHEN pp.packet.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END)) " +
+           "FROM ProductsPacket pp " +
+           "WHERE DATE(pp.packetDate) >= DATE(:beginDate) " +
+           "AND DATE(pp.packetDate) <= DATE(:endDate) " +
+           "GROUP BY DATE(pp.packetDate), pp.product.model.id, pp.product.id, pp.offer, pp.product.model.name, pp.product.color, pp.product.size " +
+           "ORDER BY DATE(pp.packetDate) ASC")
+
     public List<ProductsDayCountDTO> statAllModels(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(" +
-            "DATE(p.packetDate), p.product.id, " +
-            "p.offer, p.product.model.id , p.product.model.name, " +
-            "p.product.color , p.product.size, "+
-            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
-            "FROM ProductsPacket p " +
-            "WHERE p.product.model.id IN :modelIds " +
-            "AND DATE(p.packetDate) >= DATE(:beginDate) " +
-            "AND DATE(p.packetDate) <= DATE(:endDate) " +
-            "GROUP BY p.product.color.id, DATE(p.packetDate) ORDER BY DATE(p.packetDate) ASC")
+            "DATE(pp.packetDate), pp.product.id, " +
+            "pp.offer, pp.product.model.id , pp.product.model.name, " +
+            "pp.product.color , pp.product.size, "+
+            "SUM(CASE WHEN pp.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END)) " +
+            "FROM ProductsPacket pp " +
+            "WHERE pp.product.model.id IN :modelIds " +
+            "AND DATE(pp.packetDate) >= DATE(:beginDate) " +
+            "AND DATE(pp.packetDate) <= DATE(:endDate) " +
+            "GROUP BY pp.product.color.id, DATE(pp.packetDate) ORDER BY DATE(pp.packetDate) ASC")
     public List<ProductsDayCountDTO> statByColorAndModels(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("modelIds") List<Long> modelIds);
 
+
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductsDayCountDTO(" +
-            "DATE(p.packetDate), p.product.id, " +
-            "p.offer, p.product.model.id , p.product.model.name, " +
-            "p.product.color , p.product.size, "+
-            "SUM(CASE WHEN p.status = 2 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status = 1 THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.packet.status = 'Retour' OR p.packet.status = 'Retour reçu' THEN 1 ELSE 0 END)) "+
-            "FROM ProductsPacket p " +
-            "WHERE DATE(p.packetDate) >= DATE(:beginDate) " +
-            "AND DATE(p.packetDate) <= DATE(:endDate) " +
-            "GROUP BY p.product.color.id, DATE(p.packetDate) ORDER BY DATE(p.packetDate) ASC")
+            "DATE(pp.packetDate), pp.product.id, " +
+            "pp.offer, pp.product.model.id , pp.product.model.name, " +
+            "pp.product.color , pp.product.size, "+
+            "SUM(CASE WHEN pp.status = 2 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END)) " +
+            "FROM ProductsPacket pp " +
+            "WHERE DATE(pp.packetDate) >= DATE(:beginDate) " +
+            "AND DATE(pp.packetDate) <= DATE(:endDate) " +
+            "GROUP BY pp.product.color.id, DATE(pp.packetDate) ORDER BY DATE(pp.packetDate) ASC")
     public List<ProductsDayCountDTO> statAllModelsByColor(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
     //(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countOos, Long countAll)
@@ -128,6 +144,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN p.exchangeId IS NOT NULL THEN 1 ELSE 0 END), " +//echange
             "SUM(CASE WHEN p.status = 'Retour' OR p.status = 'Retour reçu' THEN 1 ELSE 0 END), " +//retour
             "SUM(CASE WHEN p.status = 'En rupture' THEN 1 ELSE 0 END), " +//En rupture
+            "SUM(CASE WHEN p.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
             "SUM(1)) " +//tout
             "FROM Packet p " +
             "WHERE DATE(p.date) >= DATE(:beginDate) " +

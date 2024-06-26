@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
@@ -29,9 +28,9 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.clothing.management.enums.DeliveryCompanyStatus.RETOUR_DEPOT;
-import static com.clothing.management.enums.DeliveryCompanyStatus.RETOUR_DEPOT_NAVEX;
+import static com.clothing.management.enums.DeliveryCompanyStatus.*;
 import static com.clothing.management.enums.SystemStatus.*;
+import static com.clothing.management.enums.SystemStatus.LIVREE;
 import static java.util.stream.Collectors.groupingBy;
 
 @Service
@@ -413,6 +412,15 @@ public class PacketServiceImpl implements PacketService {
                     savePacketStatusToHistory(packet,packet.getDeliveryCompany().getName()+":"+deliveryResponse.getState());
                     systemNewStatus = mapDeliveryToSystemStatus(deliveryResponse.getState());
                     packet.setLastDeliveryStatus(deliveryResponse.getState());
+                    System.out.println("deliveryResponse.getState():"+deliveryResponse.getState());
+
+                    if(deliveryResponse.getState().equals(WAITING.getStatus())
+                            ||deliveryResponse.getState().equals(RETOUR_DEPOT.getStatus())
+                            ||deliveryResponse.getState().equals(RETOUR_DEPOT_NAVEX.getStatus())
+                            ||(deliveryResponse.getState().equals(AU_MAGASIN.getStatus())&& packet.getStatus().equals(IN_PROGRESS_1.getStatus()))
+                        )
+                        return packet;
+
                     systemNewStatus =
                             (systemNewStatus.equals(IN_PROGRESS_1.getStatus())//First always return "en cours"
                                     || systemNewStatus.equals(IN_PROGRESS_2.getStatus())//not in First System
@@ -456,17 +464,17 @@ public class PacketServiceImpl implements PacketService {
             case RETOUR_EXPEDITEUR, RETOUR_EXPEDITEUR_NAVEX ,
                     RETOUR_DEFINITIF,RETOUR_DEFINITIF_NAVEX, RETOUR_CLIENT_AGENCE,
                     RETOUR_RECU, RETOUR_RECU_NAVEX -> RETURN.getStatus();
-            case EN_ATTENTE,A_VERIFIER, A_VERIFIER_NAVEX -> TO_VERIFY.getStatus();
+            case WAITING,A_VERIFIER, A_VERIFIER_NAVEX -> TO_VERIFY.getStatus();
             //case RETOUR_DEPOT,RETOUR_DEPOT_NAVEX -> status;
             default -> IN_PROGRESS_1.getStatus();
         };
     }
     private String upgradeInProgressStatus(Packet packet) {
-        SystemStatus systemStatus = fromString(packet.getStatus());
+        SystemStatus systemStatus = SystemStatus.fromString(packet.getStatus());
         DeliveryCompanyStatus deliveryCompanyStatus = DeliveryCompanyStatus.fromString(packet.getLastDeliveryStatus());
-        if ((checkSameDateStatus(packet)
-                && !packet.getStatus().equals(CANCELED.getStatus()))||deliveryCompanyStatus.equals(RETOUR_DEPOT)||deliveryCompanyStatus.equals(RETOUR_DEPOT_NAVEX))
+        if (checkSameDateStatus(packet)&& !packet.getStatus().equals(CANCELED.getStatus()))
             return packet.getStatus();
+
         switch (systemStatus) {
             case IN_PROGRESS_1:
                 return IN_PROGRESS_2.getStatus();

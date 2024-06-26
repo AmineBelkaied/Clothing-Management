@@ -22,8 +22,8 @@ export class StatsService {
     return this.http.get(this.baseUrl + "/offersCount?beginDate=" + startDate + "&endDate=" + endDate);
   }*/
 
-  public statAllModels(startDate: String,endDate:String) : Observable<any>{
-    return this.http.get(this.baseUrl + "/statAllModels?beginDate=" + startDate + "&endDate=" + endDate);
+  public statAllModels(startDate: String,endDate:String,countProgress:Boolean) : Observable<any>{
+    return this.http.get(this.baseUrl + "/statAllModels?beginDate=" + startDate + "&endDate=" + endDate +"&countProgress=" + countProgress);
   }
 
   public statStock(startDate: String,endDate:String) : Observable<any>{

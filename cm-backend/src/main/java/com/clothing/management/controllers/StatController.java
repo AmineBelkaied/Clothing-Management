@@ -26,8 +26,9 @@ public class StatController {
     @GetMapping(path = "/statAllModels")
     public Map <String , List<?>> statAllModels(
             @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate) {
-        return statService.statAllModelsChart(beginDate,endDate);
+            @RequestParam(required = true) String endDate,
+            @RequestParam(required = true) Boolean countProgress) {
+        return statService.statAllModelsChart(beginDate,endDate,countProgress);
     }
 
     @GetMapping(path = "/statStock")

@@ -7,7 +7,7 @@ import { StringUtils } from 'src/shared/utils/string-utils';
 import { Color } from 'src/shared/models/Color';
 import { Size } from 'src/shared/models/Size';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { ENDED, NOT_CONFIRMED } from 'src/shared/utils/status-list';
+import { OOS, NOT_CONFIRMED } from 'src/shared/utils/status-list';
 
 @Component({
   selector: 'app-add-packet',
@@ -173,7 +173,6 @@ export class AddPacketComponent implements OnInit {
     let sizes = modelValue.sizes.filter((size: Size) => size.reference != "?");
     this.setControlValue(modelControl, 'sizes', sizes);
     this.setControlValue(modelControl, 'name', modelValue.name);
-    this.setControlValue(modelControl, 'reference', modelValue.reference);
     this.setControlValue(modelControl, 'image', modelValue.bytes);
     //console.log("modelValue.products",modelValue.products);
 
@@ -298,7 +297,7 @@ export class AddPacketComponent implements OnInit {
     if(stock)
       selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': NOT_CONFIRMED};
     else
-      selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': ENDED };
+      selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': OOS };
 
     this.packetService.addProductsToPacket(selectedProducts,this.stockAvailable)
       .subscribe((packet: any) => {

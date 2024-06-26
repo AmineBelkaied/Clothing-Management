@@ -85,12 +85,12 @@
           <div class="card-body">
             <p-table [value]="products" styleClass="p-datatable-gridlines" #dt>
               <ng-template pTemplate="body" let-productSizes let-j="rowIndex">
-                <tr *ngIf="!(hide0==true && totalRow(j)<1)">
+                <tr *ngIf="!(hide0==true && totalRow(j)<1) && existingColor(products[j][0].color)">
                   <td style="background-color: #fafafa;" (click)="handleColorClick(j)">
                     <h6>{{products[j][0].color.name + ' : ' + totalRow(j) }}</h6>
                   </td>
                   <ng-container *ngFor="let productSize of productSizes; let index = index">
-                    <ng-container *ngIf="!(hide0==true && totalColumn(index)<1)">
+                    <ng-container *ngIf="!(hide0==true && totalColumn(index)<1) && index< sizes.length">
                       <td pEditableColumn (click)="onCellClick(productSize, $event, j)">
                         <ng-container class="d-flex flex-column align-items-center">
                           <div class="text-center">
@@ -109,7 +109,7 @@
                             <h4 *ngIf="delai === true">{{ getDaysStock(productSize.quantity,productSize.id) }}j</h4>
                           </div>
                           <div class="text-center" style="margin-top: 10px;" *ngIf="stock==true">
-                            <p-tag [value]="getSeverity(productSize,productSize.quantity, false)"></p-tag>
+                            <p-tag [value]="getSeverityMsg(productSize)" [severity]="getSeverity(productSize)"></p-tag>
                           </div>
                         </ng-container>
                         <ng-template #colors>{{ productSize.name }}</ng-template>

@@ -10,18 +10,21 @@ public class PacketsStatCountDTO {
     private Long countReturn;
     private Long countOos;
 
+    private Long countProgress;
+
     private Long countAll;
 
     public PacketsStatCountDTO() {
     }
 
-    public PacketsStatCountDTO(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countOos, Long countAll) {
+    public PacketsStatCountDTO(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countOos, Long countProgress, Long countAll) {
         this.date = date;
         this.countPayed = countPayed;
         this.countOut = countOut;
         this.countExchange = countExchange;
         this.countReturn = countReturn;
         this.countOos = countOos;
+        this.countProgress = countProgress;
         this.countAll = countAll;
     }
 
@@ -73,6 +76,14 @@ public class PacketsStatCountDTO {
         this.countOos = countOos;
     }
 
+    public Long getCountProgress() {
+        return countProgress;
+    }
+
+    public void setCountProgress(Long countProgress) {
+        this.countProgress = countProgress;
+    }
+
     public Long getCountAll() {
         return countAll;
     }
@@ -90,6 +101,7 @@ public class PacketsStatCountDTO {
                 ", countExchange=" + countExchange +
                 ", countReturn=" + countReturn +
                 ", countEnded=" + countOos +
+                ", countProgress=" + countProgress +
                 ", countAll=" + countAll +
                 '}';
     }

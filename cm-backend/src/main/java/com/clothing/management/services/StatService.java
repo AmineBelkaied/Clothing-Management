@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface StatService {
 
     Map <String , List<?>> statModelSoldChart(Long modelId,String beginDate, String endDate);
-    Map <String , List<?>> statAllModelsChart(String beginDate, String endDate);
+    Map <String , List<?>> statAllModelsChart(String beginDate, String endDate,Boolean countProgress);
     public Map<String , List<?>> statAllStockChart(String beginDate, String endDate);
     Map <String , List<?>> statAllOffersChart(String beginDate, String endDate);
     Map <String , List<?>> statAllColorsChart(String beginDate, String endDate,List<Long> lookForModelIds);

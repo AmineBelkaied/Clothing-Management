@@ -21,6 +21,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 export class StatistiqueComponent implements OnInit {
 
+
   offersCount: ProductCountDTO[] = [];
   selectedModels: FormControl = new FormControl();
   colorsChartEnabler : boolean = false;
@@ -28,6 +29,7 @@ export class StatistiqueComponent implements OnInit {
   pagesChartEnabler : boolean = false;
   statesChartEnabler : boolean = false;
   offersChartEnabler : boolean = false;
+  countProgressEnabler : boolean = false;
   //countProductsPerDay : Number[] = [];
   packets: Packet[] = [];
   daySales!: DaySales;
@@ -104,42 +106,21 @@ export class StatistiqueComponent implements OnInit {
   modelChartOptions: String[] = ['Chart', 'Table'];
   modelChartBoolean: boolean = true;
   modelTableData: any;
-  modelTable: {
-    [category: string]: {
-      min: number;
-      max: number;
-      sum: number;
-      average: number;
-    };
-  };
+
   offerChartOptions: String[] = ['Chart', 'Table'];
   offerChartBoolean: boolean = true;
   offerTableData: any;
-  offerTable: {
-    [category: string]: {
-      min: number;
-      max: number;
-      sum: number;
-      average: number;
-    };
-  };
+
   colorChartOptions: String[] = ['Chart', 'Table'];
   colorChartBoolean: boolean = true;
   colorsTableData: any;
-  colorTable: {
-    [category: string]: {
-      min: number;
-      max: number;
-      sum: number;
-      average: number;
-    };
-  };
 
   selectedModelChart: String = 'Chart';
   filtredCitysCount: any;
   packetsTableData: any;
   dates: any[];
   enablerOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
+  progressOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
 
   constructor(
     private packetService: PacketService,
@@ -440,7 +421,7 @@ export class StatistiqueComponent implements OnInit {
 
   getStatAllModelsChart() {
     this.statsService
-      .statAllModels(this.startDateString, this.endDateString)
+      .statAllModels(this.startDateString, this.endDateString,this.countProgressEnabler)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: any) => {
@@ -553,6 +534,7 @@ export class StatistiqueComponent implements OnInit {
         fill: false,
         borderColor: this.getRandomColor(item),
         tension: 0.4,
+        hidden: this.modelTableData[i].avg<4?true:false,
       });
       i++;
     });
@@ -773,61 +755,6 @@ export class StatistiqueComponent implements OnInit {
     };
   }
 
-  countMinMax(data: CountDates) {
-    interface CategoryData {
-      count: number;
-      payed: number;
-      return: number;
-      exchange: number;
-      out: number;
-      [key: string]: number; // Add an index signature
-    }
-
-    interface DateData {
-      [date: string]: CategoryData;
-    }
-
-    const dataCount: DateData = data;
-
-    // Initialize variables to store min, max, and sum for each category
-    const result: {
-      [category: string]: {
-        min: number;
-        max: number;
-        sum: number;
-        average: number;
-      };
-    } = {
-      count: { min: Infinity, max: -Infinity, sum: 0, average: 0 },
-      payed: { min: Infinity, max: -Infinity, sum: 0, average: 0 },
-      return: { min: Infinity, max: -Infinity, sum: 0, average: 0 },
-      exchange: { min: Infinity, max: -Infinity, sum: 0, average: 0 },
-      out: { min: Infinity, max: -Infinity, sum: 0, average: 0 },
-    };
-
-    // Iterate through the data
-    for (const date in dataCount) {
-      const counts = dataCount[date];
-
-      // Iterate through categories
-      for (const category in counts) {
-        const value = counts[category];
-
-        // Update min, max, and sum for each category
-        result[category].min = Math.min(result[category].min, value);
-        result[category].max = Math.max(result[category].max, value);
-        result[category].sum += value;
-      }
-    }
-
-    // Calculate averages
-    for (const category in result) {
-      result[category].average =
-        result[category].sum / Object.keys(dataCount).length;
-    }
-    this.modelTable = result;
-  }
-
   resetTable() {
     this.rangeDates = [];
     this.setCalendar();
@@ -964,9 +891,6 @@ export class StatistiqueComponent implements OnInit {
     else this.modelChartBoolean = false;
   }
 
-  dataSelect($event: any) {
-    console.log('event', $event);
-  }
 
   getAllModels() {
     this.modelService.findAllModels().subscribe((data: any) => {
@@ -985,6 +909,10 @@ export class StatistiqueComponent implements OnInit {
       this.getStatAllOffersChart();
     }
   }
+
+  modelChartEnablerChange() {
+    this.getStatAllModelsChart();
+  }
   pagesChartEnablerChange() {
     if(this.pagesChartEnabler){
       this.getStatAllPacketsChart();
@@ -1001,125 +929,13 @@ export class StatistiqueComponent implements OnInit {
     if(this.stockChartEnabler)this.getStatStockChart();
   }
 
-
-  selectModels(arg0: string) {
-    //console.log(arg0);
-    //console.log('this.selectedModels', this.selectedModels.value);
-  }
-  /*
-  filterBydatePackets(startDate: Date, endDate: Date): any {
-    let filterBydatePackets = this.listPacket.filter((packet) => {
-      const packetDate = this.dateUtils.getDate(packet.date);
-      return (
-        packetDate >= this.dateUtils.getDate(startDate) &&
-        packetDate <= this.dateUtils.getDate(endDate)
-      );
-    });
-    return filterBydatePackets;
-  }
-  getData() {
-      this.statsService.getSales().then((data) => {
-        this.sales = data;
-        console.log('this.sales', this.sales);
-        this.selectedModel = this.sales[0].model[0].modelName;
-        this.createStat();
-      });
-    }
-
-    createStat() {
-      console.log('createStat');
-      this.sales.forEach((sale) => {
-        //console.log(element);
-        sale.model.forEach((model) => {
-          if (this.models.indexOf(model.modelName) < 0) {
-            this.models.push(model.modelName);
-          }
-        });
-        let row = this.createRow(sale, this.selectedModel);
-        if (row) this.statTab.push(row);
-      });
-    }
-
-    createRow(daySales: DaySales, modelName: string) {
-      let model1 = daySales.model.filter((obj) => {
-        return obj.modelName == modelName;
-      });
-      if (model1.length > 0) {
-        //console.log('create row', daySales.day);
-        let totalPerDay = 0;
-        this.rowByDate = [];
-        //compteur pour les colonnes
-        let i = 0;
-        this.colors = [];
-        this.sizesRow = [];
-        this.rowByDate.push(daySales.day);
-        //parcourir les couleurs du model
-        for (let color of model1[0].modelColors) {
-          //ajouter la couleur a la liste des couleurs
-          this.colors.push(color.colorName);
-          //compteur des sizes, mise a zero chaque couleur
-          let j = 0;
-          //console.log('this.colors', this.colors,"j",j);
-          //variable qui calcule la somme des qte vendue par couleur
-          let totalPerDayColor = 0;
-          //parcourir les tailles d'un couleur
-          for (let size of color.sizes) {
-            //ajoute la taille a la liste des tailles a afficher
-            if (this.qtePerSizeColumn) this.sizesRow.push(size.sizeName);
-            //calcule le nombre de vente par jour
-            if (this.totalPerDayColumn) totalPerDay += size.qte;
-            //calcule le nombre de vente par jour par couleur
-            if (this.totalPerDayColorColumn) totalPerDayColor += size.qte;
-            //calcule la somme des colonnes
-            if (this.qtePerSizeColumn) {
-              this.rowByDate.push(size.qte);
-              if (this.totalPerSize[i] == undefined) this.totalPerSize[i] = 0;
-              this.totalPerSize[i] = this.totalPerSize[i] + size.qte;
-              i++;
-            }
-            if (this.totalPerSizeRow[j] == undefined) this.totalPerSizeRow[j] = 0;
-            this.totalPerSizeRow[j] += size.qte;
-            j++;
-            if (!this.sizesInisialized) {
-              this.sizes.push(size.sizeName);
-              //console.log('this.sizesRow', this.sizesRow, 'i', i, 'j', j);
-            }
-          }
-          this.sizesInisialized = true;
-          //calcule la somme des article vendues par couleur chaque jour
-          if (this.totalPerDayColorColumn) {
-            this.sizesRow.push('total/jour ' + color.colorName);
-            this.rowByDate.push(totalPerDayColor);
-            //console.log('i:',i,' totalpercolorTot:',totalPerDayColor)
-            if (this.totalPerSize[i] == undefined) this.totalPerSize[i] = 0;
-            this.totalPerSize[i] += totalPerDayColor;
-            i++;
-          }
-        }
-
-        //calcule la somme des article vendues par jour
-        if (this.totalPerDayColumn) {
-          this.rowByDate.push(totalPerDay);
-          if (this.totalPerSize[i] == undefined) this.totalPerSize[i] = 0;
-          this.totalPerSize[i] += totalPerDay;
-          i++;
-        }
-
-        //console.log('total', this.totalPerSize);
-        return this.rowByDate;
+  formatNumber(item: any) {
+    let value = (item.payed*100) / (item.retour+item.payed)
+      if (!isNaN(value)) {
+        return value.toFixed(2);
       }
-      return;
-    }
-
-    handleChange() {
-      if (this.totalPerDayColorColumn) this.columnPerColor = 8;
-      else this.columnPerColor = 7;
-      this.totalPerSize = [];
-      this.statTab = [];
-      this.totalPerSizeRow = [];
-      this.createStat();
-    }
-*/
+      return '0.00';
+  }
 }
 
 interface CountCitys {

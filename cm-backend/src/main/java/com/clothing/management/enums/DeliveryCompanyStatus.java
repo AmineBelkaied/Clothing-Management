@@ -3,7 +3,7 @@ package com.clothing.management.enums;
 
     public enum DeliveryCompanyStatus {
 
-        EN_ATTENTE("En attente"),
+        WAITING("En attente"),
 
         EN_COURS("En cours"),
         LIVREE("Livré"),

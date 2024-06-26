@@ -9,5 +9,6 @@ export interface ProductCountDTO {
     countExchange : number;
     countOos : number;
     countProgress: number;
+    countPayed: number;
     count: number;
 }

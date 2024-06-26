@@ -13,7 +13,7 @@ import { catchError, identity, Observable, of, Subject,takeUntil} from 'rxjs';
 import { Offer } from 'src/shared/models/Offer';
 import { StorageService } from 'src/shared/services/strorage.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { CANCELED, ENDED, NOT_SERIOUS, PROBLEME,
+import { CANCELED, OOS, NOT_SERIOUS, PROBLEME,
   DELETED, TERMINE, statesList, statusList,
   IN_PROGRESS_1,
   IN_PROGRESS_2,
@@ -125,8 +125,8 @@ onRowSelect($event: TableRowSelectEvent) {
       disabled:true
   },
   {
-    label: ENDED,
-    title: ENDED,
+    label: OOS,
+    title: OOS,
     badge:0,
     badgeByDate:0,
     command: (event: any) => {
@@ -314,14 +314,14 @@ onRowSelect($event: TableRowSelectEvent) {
         disabled:true
       },
       {
-        label: ENDED+"("+this.statusItems[1].badge+")",
-        title: ENDED,
+        label: OOS+"("+this.statusItems[1].badge+")",
+        title: OOS,
         icon: 'pi pi-times',
         color: 'red',
         badge:this.statusItems[1].badge,
         badgeByDate:this.statusItems[1].badgeByDate,
         command: (event: any) => {
-          this.messageService.add({severity:'info', summary:ENDED, detail: event.item.label});
+          this.messageService.add({severity:'info', summary:OOS, detail: event.item.label});
           //this.onActiveIndexChange(event.index);
         }
       },
@@ -433,7 +433,7 @@ onRowSelect($event: TableRowSelectEvent) {
             response.forEach((element: any) => {
 
               switch (element.status) {
-                case ENDED:
+                case OOS:
                   this.statusItems[1].badge = element.statusCount;
                   this.statusItems[1].badgeByDate = element.statusByDateCount;
                   break;
@@ -553,8 +553,8 @@ onRowSelect($event: TableRowSelectEvent) {
       if ($event.data.stock === -1) {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: "Please fill in all article fields" });
         this.packetStatusList = [UNREACHABLE];
-      } else if ([NOT_CONFIRMED, NOT_SERIOUS, UNREACHABLE, CANCELED, DELETED, ENDED].includes(this.oldFieldValue)) {
-        this.packetStatusList = [NOT_CONFIRMED, ENDED, CONFIRMED, NOT_SERIOUS, UNREACHABLE, CANCELED];
+      } else if ([NOT_CONFIRMED, NOT_SERIOUS, UNREACHABLE, CANCELED, DELETED, OOS].includes(this.oldFieldValue)) {
+        this.packetStatusList = [NOT_CONFIRMED, OOS, CONFIRMED, NOT_SERIOUS, UNREACHABLE, CANCELED];
       } else if ([CONFIRMED, TO_VERIFY].includes(this.oldFieldValue)) {
         this.packetStatusList = [IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, CANCELED, TO_VERIFY, DELIVERED, RETURN, PAID, RETURN_RECEIVED, PROBLEME];
       } else if ([IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3].includes(this.oldFieldValue)) {
@@ -627,7 +627,7 @@ onRowSelect($event: TableRowSelectEvent) {
         }else this.addAttempt(packet);
         break;
       case NOT_CONFIRMED:
-      case ENDED:
+      case OOS:
       case NOT_SERIOUS:
         if (this.oldFieldValue === IN_PROGRESS_1 || this.oldFieldValue === IN_PROGRESS_2 || this.oldFieldValue === IN_PROGRESS_3) {
           errorMessage = 'This packet is already in progress';
@@ -1429,7 +1429,7 @@ onRowSelect($event: TableRowSelectEvent) {
     }
 
     if (this.selectedStates.indexOf(BUREAU) > -1) {
-      this.selectedStatus.patchValue([ NOT_CONFIRMED, ENDED, A_VERIFIER, CONFIRMEE ]);
+      this.selectedStatus.patchValue([ NOT_CONFIRMED, OOS, A_VERIFIER, CONFIRMEE ]);
     }
     if (this.selectedStates.indexOf(IN_PROGRESS) > -1) {
       this.selectedStatus.patchValue([ A_VERIFIER, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3]);

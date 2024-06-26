@@ -12,24 +12,24 @@ export class ProductHistoryService {
 
   constructor(private http: HttpClient) { }
 
-  findAllProductsHistory(modelId: any, page: number, size: number, reference?: string, beginDate?: any, endDate?: any): Observable<any> {
+  findAllProductsHistory(modelId: any, page: number, size: number, colorSize?: string, beginDate?: any, endDate?: any): Observable<any> {
     if(beginDate == undefined)
       beginDate = "";
     if(endDate == undefined)
     endDate = beginDate;
-    if(reference == undefined)
-      reference = "";
-    return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId + "?page=" + page + "&size=" + size + "&reference=" + reference + "&beginDate=" + beginDate + "&endDate=" + endDate);
+    if(colorSize == undefined)
+      colorSize = "";
+    return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId + "?page=" + page + "&size=" + size + "&colorSize=" + colorSize + "&beginDate=" + beginDate + "&endDate=" + endDate);
   }
 
-  findAll(modelId: any, reference?: string, beginDate?: any, endDate?: any): Observable<any> {
+  findAll(modelId: any, colorSize?: string, beginDate?: any, endDate?: any): Observable<any> {
     if(beginDate == undefined)
       beginDate = "";
     if(endDate == undefined)
       endDate = beginDate;
-    if(reference == undefined)
-      reference = "";
-    return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId + "?beginDate=" + beginDate + "&endDate=" + endDate + "&reference=" + reference);
+    if(colorSize == undefined)
+      colorSize = "";
+    return this.http.get(this.baseUrl + "/findAllByModelId/" + modelId + "?beginDate=" + beginDate + "&endDate=" + endDate + "&colorSize=" + colorSize);
   }
 
   addProductsHistory(productHistory: any[]): Observable<any> {

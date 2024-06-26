@@ -1,7 +1,5 @@
 package com.clothing.management.dto;
 
-import com.clothing.management.entities.Model;
-
 public class StatTableDTO {
 
     private String name;
@@ -12,11 +10,13 @@ public class StatTableDTO {
 
     private Long Avg;
 
-    private Long Sum;
+    private Long Payed;
 
     private double Per;
 
     private Long Retour;
+
+    private Long Progress;
 
     public StatTableDTO(String name) {
         this.name = name;
@@ -25,14 +25,16 @@ public class StatTableDTO {
         this.Avg = 0L;
         this.Per = 0L;
         this.Retour = 0L;
+        this.Progress = 0L;
     }
-    public StatTableDTO(String name, Integer min, Integer max, Long avg, Long sum, Long retour) {
+    public StatTableDTO(String name, Integer min, Integer max, Long avg, Long payed, Long progress, Long retour) {
         this.name = name;
         this.Min = min;
         this.Max = max;
         this.Avg = avg;
-        this.Sum = sum;
+        this.Payed = payed;
         this.Retour = retour;
+        this.Progress = progress;
     }
 
     public String getName() {
@@ -74,13 +76,13 @@ public class StatTableDTO {
         Avg = avg;
     }
 
-    public Long getSum() {
-        if(Sum == null)return 0L;
-        return Sum;
+    public Long getPayed() {
+        if(Payed == null)return 0L;
+        return Payed;
     }
 
-    public void setSum(Long sum) {
-        Sum = sum;
+    public void setPayed(Long payed) {
+        Payed = payed;
     }
 
     public double getPer() {
@@ -99,6 +101,14 @@ public class StatTableDTO {
         Retour = retour;
     }
 
+    public Long getProgress() {
+        return Progress;
+    }
+
+    public void setProgress(Long progress) {
+        Progress = progress;
+    }
+
     @Override
     public String toString() {
         return "StatTableDTO{" +
@@ -106,8 +116,9 @@ public class StatTableDTO {
                 ", Min=" + Min +
                 ", Max=" + Max +
                 ", Avg=" + Avg +
-                ", Sum=" + Sum +
+                ", Sum=" + Payed +
                 ", Per=" + Per +
+                ", Progress=" + Progress +
                 ", Retour=" + Retour +
                 '}';
     }

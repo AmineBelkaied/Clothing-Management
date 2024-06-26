@@ -99,7 +99,7 @@
                 <td>{{ item.name }}</td>
                 <td>{{ item.min }}-{{ item.max }}</td>
                 <td>{{ item.avg }}</td>
-                <td>{{ item.sum }}</td>
+                <td>{{ item.payed }}</td>
                 <td>{{ item.per }}%</td>
               </tr>
             </tbody>
@@ -113,10 +113,20 @@
 <!-----------------------------------Models Chart---------------------------------------->
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-      <p-card header="Models Chart" [style]="{ width: '100%'}">
+      <p-card [style]="{ width: '100%'}">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <H3>Models Chart</H3>
+          </div>
+          <div>
+            inclure les packets en cours dans la somme des packets payées
+            <p-selectButton [options]="progressOptions"  [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value" (click)="modelChartEnablerChange()"></p-selectButton>
+          </div>
+        </div>
+
         <p-tabView>
           <p-tabPanel header="Chart">
-            <p-chart type="line" [data]="modelsData" [options]="modelsOptions" (onDataSelect) = "dataSelect($event)"></p-chart>
+            <p-chart type="line" [data]="modelsData" [options]="modelsOptions"></p-chart>
           </p-tabPanel>
           <p-tabPanel header="Table">
             <table class="table">
@@ -127,6 +137,7 @@
                   <th>Average</th>
                   <th>Payée</th>
                   <th>Retour</th>
+                  <th>Payée/Retour</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,8 +145,9 @@
                   <td>{{ item.name }}</td>
                   <td>{{ item.min }}-{{ item.max }}</td>
                   <td>{{ item.avg }}</td>
-                  <td>{{ item.sum }}</td>
+                  <td>{{ item.payed }}</td>
                   <td>{{ item.retour }}</td>
+                  <td>{{ formatNumber(item) }}%</td>
                 </tr>
               </tbody>
             </table>
@@ -152,10 +164,10 @@
         <div>
           <H3>Offers Chart</H3>
         </div>
+
         <div>
           <p-selectButton [options]="enablerOptions" [(ngModel)]="offersChartEnabler" optionLabel="label" optionValue="value" (click)="offersChartEnablerChange()"></p-selectButton>
         </div>
-        <div></div>
       </div>
       <p-tabView *ngIf="offersChartEnabler">
         <p-tabPanel header="Chart">
@@ -170,6 +182,7 @@
                 <th>Average</th>
                 <th>Payée</th>
                 <th>Retour</th>
+                <th>Payée/Retour</th>
               </tr>
             </thead>
             <tbody>
@@ -177,8 +190,9 @@
                 <td>{{ item.name }}</td>
                 <td>{{ item.min }}-{{ item.max }}</td>
                 <td>{{ item.avg }}</td>
-                <td>{{ item.sum }}</td>
+                <td>{{ item.payed }}</td>
                 <td>{{ item.retour }}</td>
+                <td>{{ formatNumber(item) }}%</td>
               </tr>
             </tbody>
           </table>
@@ -203,25 +217,22 @@
           optionValue="value"
           (click)="colorsChartEnablerChange()"></p-selectButton>
         </div>
-        <div class="d-flex align-items-center">
+        <!--<div class="d-flex align-items-center">
 
           <p-multiSelect
             [options]="allModelsList"
             [(ngModel)]="selectedModels"
             name="name"
-            (onChange)="selectModels('global')"
-            (onClear)="selectModels('clear')"
             defaultLabel="models"
             [showClear]="true"
             [showHeader]="false"
             selectedItemsLabel="{0} model sélectionnés"
-
             class="model-menu"
             optionLabel="name"
             placeholder="Select Models"
           ></p-multiSelect>
           <p-button label="Filter" class="ml-2" icon="pi pi-check" iconPos="right" (click)="getStatAllColorsChart()"></p-button>
-        </div>
+        </div>-->
       </div>
       <p-tabView *ngIf="colorsChartEnabler">
         <p-tabPanel header="Chart">
@@ -234,7 +245,9 @@
                 <th>Model</th>
                 <th>Min-Max</th>
                 <th>Average</th>
-                <th>Sum</th>
+                <th>Payée</th>
+                <th>Retour</th>
+                <th>Payée/Retour</th>
               </tr>
             </thead>
             <tbody>
@@ -242,7 +255,9 @@
                 <td>{{ item.name }}</td>
                 <td>{{ item.min }}-{{ item.max }}</td>
                 <td>{{ item.avg }}</td>
-                <td>{{ item.sum }}</td>
+                <td>{{ item.payed }}</td>
+                <td>{{ item.retour }}</td>
+                <td>{{ formatNumber(item) }}%</td>
               </tr>
             </tbody>
           </table>

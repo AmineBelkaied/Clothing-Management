@@ -16,7 +16,6 @@ public class ProductsDayCountDTO {
     private String modelName;
     private Color color;
     private Size size;
-    private long count;
     private long countExchange;
     private long countOos;
     private long countProgress;
@@ -26,7 +25,7 @@ public class ProductsDayCountDTO {
     public ProductsDayCountDTO() {
     }
 
-    public ProductsDayCountDTO(
+    /*public ProductsDayCountDTO(
             Date packetDate, Long productId,
             Offer offer, Long modelId, String modelName,
             Color color, Size size, long count
@@ -39,7 +38,7 @@ public class ProductsDayCountDTO {
         this.color = color;
         this.size = size;
         this.countPayed = count;
-    }
+    }*/
     public ProductsDayCountDTO(
             Date packetDate, Long productId,
             Offer offer, Long modelId, String modelName,
@@ -83,12 +82,7 @@ public class ProductsDayCountDTO {
             long countPayed, long countProgress, long countReturn
     ) {
         this.packetDate = packetDate;
-        this.productId = null;
         this.offer = offer;
-        this.modelId = null;
-        this.modelName = null;
-        this.color = null;
-        this.size = null;
         this.countExchange = 0;
         this.countOos = 0;
         this.countPayed = countPayed;
@@ -179,14 +173,6 @@ public class ProductsDayCountDTO {
         return countReturn;
     }
 
-    public long getCount() {
-        return count;
-    }
-
-    public void setCount(long count) {
-        this.count = count;
-    }
-
     public void setCountReturn(long countReturn) {
         this.countReturn = countReturn;
     }
@@ -202,11 +188,10 @@ public class ProductsDayCountDTO {
                 ", modelName='" + modelName + '\'' +
                 ", color=" + color +
                 ", size=" + size +
-                ", count=" + count +
                 ", countExchange=" + countExchange +
                 ", countOos=" + countOos +
-                ", countProgress=" + countProgress +
                 ", countPayed=" + countPayed +
+                ", countProgress=" + countProgress +
                 ", countReturn=" + countReturn +
                 '}';
     }

@@ -10,8 +10,6 @@ public enum SystemStatus {
     IN_PROGRESS_1("En cours (1)"),
     IN_PROGRESS_2("En cours (2)"),
     IN_PROGRESS_3("En cours (3)"),
-
-    AU_MAGASIN("Au magasin"),
     TO_VERIFY("A verifier"),
     RETURN("Retour"),
     PROBLEM("Problème"),

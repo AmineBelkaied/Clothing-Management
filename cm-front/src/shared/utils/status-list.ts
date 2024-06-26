@@ -1,6 +1,6 @@
 export const NOT_CONFIRMED = 'Non confirmée';
 export const CONFIRMED = 'Confirmée';
-export const ENDED = 'En rupture';
+export const OOS = 'En rupture';
 export const IN_PROGRESS_1 = 'En cours (1)';
 export const IN_PROGRESS_2 = 'En cours (2)';
 export const IN_PROGRESS_3 = 'En cours (3)';
@@ -23,7 +23,7 @@ export const VALIDATION = 'validation';
 
 
 export const statusList = [
-  NOT_CONFIRMED, UNREACHABLE, CONFIRMED, ENDED, DELIVERED, PAID,
+  NOT_CONFIRMED, UNREACHABLE, CONFIRMED, OOS, DELIVERED, PAID,
   TO_VERIFY, RETURN, RETURN_RECEIVED, DELETED, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, PROBLEME, NOT_SERIOUS, CANCELED
 ]
 

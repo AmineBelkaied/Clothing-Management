@@ -10,6 +10,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { StatsService } from 'src/shared/services/stats.service';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { DateUtils } from 'src/shared/utils/date-utils';
+import { Product } from 'src/shared/models/Product';
+import { Color } from 'src/shared/models/Color';
 
 @Component({
   selector: 'app-stock',
@@ -17,7 +19,6 @@ import { DateUtils } from 'src/shared/utils/date-utils';
   styleUrls: ['./stock.component.scss'],
 })
 export class StockComponent implements OnInit {
-
   products: any[] = [];
   models: Model[] = [];
 
@@ -42,9 +43,10 @@ export class StockComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
   @ViewChild('el') el!: ElementRef;
   sizes: any[] = [];
+  colors: any[] = [];
   selectAll: boolean = false;
   modelId: number;
-  hide0 : boolean = true;
+  hide0 : boolean = false;
   delai : boolean = false;
   stock:boolean = true;
   today: Date = new Date();
@@ -78,6 +80,7 @@ export class StockComponent implements OnInit {
   addEnabled: boolean = true;
   datesList: any = [];
   stockFabricationDelait: number=30;
+
 
   constructor(
     private productService: ProductService,
@@ -211,6 +214,7 @@ export class StockComponent implements OnInit {
     .subscribe({
       next: (response: any) => {
         console.log("getStatModelSold",response);
+        this.colors=response.colors;
         this.createChart(response,option);
       },
       error: (error: any) => {
@@ -235,7 +239,6 @@ export class StockComponent implements OnInit {
       chartCounts =data.sizesCount;
     } else if (option == "Id"){
       console.log('data',data);
-
       chartList = data.productRefs;
       chartCounts =data.productsCount;
     } else {
@@ -297,7 +300,8 @@ export class StockComponent implements OnInit {
     this.productService.getStock(modelId).subscribe((result: any) => {
       this.products = result.productsByColor;
       if(this.products != undefined)
-      this.modelName=this.products[0][0].model.name;
+        this.modelName=this.products[0][0].model.name;
+        this.colors=this.products[0][0].model.colors;
       //console.log('this.products[0]',this.products[0]);
       this.sizes = result.sizes;
     });
@@ -305,12 +309,13 @@ export class StockComponent implements OnInit {
 
   getCount(productId:number): number{
     let products = this.productsCount.find(item => item.productId === productId);
-    return (products != undefined) ? products.count: 0;
+    return (products != undefined) ? products.countPayed: 0;
   }
 
   getCountProgress(productId:number): number{
-    let products = this.productsCount.find(item => item.productId === productId);
-    return (products != undefined) ? products.countProgress: 0;
+    let product = this.productsCount.find(item => item.productId === productId);
+    console.log("product",product);
+    return (product != undefined) ? product.countProgress: 0;
   }
 
   getCountExchange(productId:number): number{
@@ -435,11 +440,22 @@ export class StockComponent implements OnInit {
     let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
     if(this.addEnabled){
       this.addEnabled=false;
-      this.productService
+      if(this.qte == 0)
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Warning Message',
+          detail: 'Quantité 0',
+        });
+      else if(this.selectedProducts.length < 1)
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Warning Message',
+          detail: 'Aucun élément sélectionné',
+        });
+      else this.productService
       .addStock(this.selectedProducts, this.qte, +this.modelId, this.comment)
       .subscribe((result: any) => {
         console.log('result', result);
-
         for (var j = 0; j < this.products.length; j++)
           for (var i = 0; i < this.products[j].length; i++)
             if (this.selectedProducts.includes(this.products[j][i].id)) {
@@ -457,10 +473,11 @@ export class StockComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: 'Le stock a été modifié avec succés',
+          detail: 'Le stock a été ajusté avec succès',
         });
       });
     }
+
 
   }
 
@@ -524,9 +541,16 @@ export class StockComponent implements OnInit {
     });
   }
 
-  getSeverity(product: any,qte:any,button:boolean) {
-    let delait = this.getDaysStock(qte,product.id);
-    if (button)
+  existingColor(color: Color): boolean {
+    if (this.colors.some(c => c.id === color.id)) {
+      return true;
+    }
+    return false
+  }
+
+  getSeverity(product: any) {
+    let delait = this.getDaysStock(product.quantity,product.id);
+
     switch (true) {
       case product.quantity <1:
         return 'danger';
@@ -540,7 +564,10 @@ export class StockComponent implements OnInit {
         default:
             return 'success';
     }
-    else switch (true) {
+  }
+  getSeverityMsg(product: any) {
+    let delait = this.getDaysStock(product.quantity,product.id);
+    switch (true) {
       case product.quantity <1:
         return 'RUPTURE';
         case delait < this.stockFabricationDelait:

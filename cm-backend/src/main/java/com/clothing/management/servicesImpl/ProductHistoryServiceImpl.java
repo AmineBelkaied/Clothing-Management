@@ -29,13 +29,13 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
     IProductRepository productRepository;
 
     @Override
-    public Page<ProductHistoryDTO> findAllProductsHistory(Long modelId , int page, int size, String reference, String beginDate, String endDate) throws ParseException {
+    public Page<ProductHistoryDTO> findAllProductsHistory(Long modelId , int page, int size, String colorSize, String beginDate, String endDate) throws ParseException {
         Pageable paging = PageRequest.of(page, size, Sort.by("lastModificationDate").descending());
         if(beginDate.isEmpty() && endDate.isEmpty()) {
-            if(reference.isEmpty())
+            if(colorSize.isEmpty())
                 return productHistoryRepository.findAll(modelId, paging);
             else
-                return productHistoryRepository.findAllByReference(modelId, reference, paging);
+                return productHistoryRepository.findAllByReference(modelId, colorSize, paging);
         } else {
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

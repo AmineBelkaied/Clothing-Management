@@ -30,12 +30,12 @@ public class ProductHistoryController {
         @PathVariable Long modelId,
         @RequestParam(required = false) String beginDate,
         @RequestParam(required = false) String endDate,
-        @RequestParam(required = false) String reference,
+        @RequestParam(required = false) String colorSize,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
       ) {
             try {
-                Page<ProductHistoryDTO> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size, reference, beginDate, endDate);
+                Page<ProductHistoryDTO> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size, colorSize, beginDate, endDate);
                 return new ResponseEntity<>(new ResponsePage.Builder()
                         .result(pageProductHistory.getContent())
                         .currentPage(pageProductHistory.getNumber())
