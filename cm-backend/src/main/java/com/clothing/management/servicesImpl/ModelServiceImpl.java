@@ -134,10 +134,9 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public List<ModelDTO> getModels(){
-        List<ModelDTO> ModelsListMap = modelRepository.findAll()
+        return modelRepository.findAll()
                 .stream()
                 .map(ModelDTO::new)
                 .collect(Collectors.toList());
-        return ModelsListMap;
     }
 }

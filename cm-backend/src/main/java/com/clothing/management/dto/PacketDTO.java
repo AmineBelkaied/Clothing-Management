@@ -29,13 +29,14 @@ public class PacketDTO {
     private String printLink;
     private boolean valid;
     private Integer stock;
-    private Integer attempt;
     private String note;
     private Integer productCount;
     private Long exchangeId;
     private boolean haveExchange;
+
     public PacketDTO() {
-        }
+    }
+
     public PacketDTO(Packet packet) {
             this.id = packet.getId();
             this.customerName= packet.getCustomerName();
@@ -57,8 +58,6 @@ public class PacketDTO {
             this.stock= packet.getProductsPackets().size()>0?getStock(packet.getProductsPackets(), packet.getBarcode()):0;
             this.printLink = packet.getPrintLink();
             this.deliveryCompany=packet.getDeliveryCompany();
-            this.attempt = packet.getAttempt();
-            this.note = packet.getNote();
             this.haveExchange=packet.isHaveExchange();
             this.productCount=packet.getProductCount();
     }
@@ -251,14 +250,6 @@ public class PacketDTO {
 
     public void setStock(Integer stock) {
         this.stock = stock;
-    }
-
-    public Integer getAttempt() {
-        return attempt;
-    }
-
-    public void setAttempt(Integer attempt) {
-        this.attempt = attempt;
     }
 
     public String getNote() {

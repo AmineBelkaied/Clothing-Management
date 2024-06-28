@@ -18,63 +18,69 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("product")
+@RequestMapping("${api.prefix}/products")
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ProductController {
 
     @Autowired
-    ProductService productService;
+    private ProductService productService;
 
-    @GetMapping(path = "/findAll")
-    public List<ProductDTO> findAllProducts() {
-        return productService.findAllProducts();
+    @GetMapping
+    public ResponseEntity<List<ProductDTO>> getAllProducts() {
+        List<ProductDTO> products = productService.findAllProducts();
+        return ResponseEntity.ok(products);
     }
 
-    @GetMapping(path = "/findById/{id}")
-    public Optional<Product> findByIdProduct(@PathVariable Long idProduct) {
-        return productService.findProductById(idProduct);
+    @GetMapping("/{productId}")
+    public ResponseEntity<Product> getProductById(@PathVariable("productId") Long productId) {
+        Optional<Product> product = productService.findProductById(productId);
+        return product.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public Product addProduct(@RequestBody  Product product) {
-        return productService.addProduct(product);
+    @PostMapping
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        Product createdProduct = productService.addProduct(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
-    @PutMapping(value = "/update" , produces = "application/json")
-    public Product updateProduct(@RequestBody Product product) {
-        return productService.updateProduct(product);
+    @PutMapping
+    public ResponseEntity<Product> updateProduct(@RequestBody Product product) {
+        Product updatedProduct = productService.updateProduct(product);
+        return ResponseEntity.ok(updatedProduct);
     }
 
-    @DeleteMapping(value = "/delete" , produces = "application/json")
+    @DeleteMapping
     public void deleteProduct(@RequestBody Product product) {
         productService.deleteProduct(product);
     }
 
-    @DeleteMapping(value = "/deleteSelectedProducts/{productsId}" , produces = "application/json")
-    public void deleteSelectedPackets(@PathVariable List<Long> productsId) {
-        productService.deleteSelectedProducts(productsId);
+    @DeleteMapping("/batch-delete")
+    public ResponseEntity<Void> deleteSelectedProducts(@RequestBody List<Long> productIds) {
+        productService.deleteSelectedProducts(productIds);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping(path = "/getStock/{modelId}")
-    public StockDTO getStock(@PathVariable Long modelId) {
-        return productService.getStock(modelId);
+    @GetMapping("/stock/{modelId}")
+    public ResponseEntity<StockDTO> getStock(@PathVariable("modelId") Long modelId) {
+        StockDTO stock = productService.getStock(modelId);
+        return ResponseEntity.ok(stock);
     }
 
-    @PostMapping(path = "/addStock" , produces = "application/json")
-    public ResponseEntity<ResponsePage>  getStock(@RequestBody StockUpdateDto updateIdSockList) {
+    @PostMapping("/stock")
+    public ResponseEntity<ResponsePage> addStock(@RequestBody StockUpdateDto stockUpdateDto) {
         try {
-            Page<ProductHistoryDTO> pageProductHistory = productService.addStock(updateIdSockList);
-            return new ResponseEntity<>(new ResponsePage.Builder()
+            Page<ProductHistoryDTO> pageProductHistory = productService.addStock(stockUpdateDto);
+            ResponsePage responsePage = new ResponsePage.Builder()
                     .result(pageProductHistory.getContent())
                     .currentPage(pageProductHistory.getNumber())
                     .totalItems(pageProductHistory.getTotalElements())
                     .totalPages(pageProductHistory.getTotalPages())
-                    .build(), HttpStatus.OK);
+                    .build();
+            return ResponseEntity.ok(responsePage);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-
 }

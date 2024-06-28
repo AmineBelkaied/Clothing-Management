@@ -3,14 +3,15 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Size } from 'src/shared/models/Size';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
+import { SIZE_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SizeService {
 
-  private baseUrl: string = baseUrl + "/size";
+  private baseUrl: string = environment.baseUrl + `${SIZE_ENDPOINTS.BASE}`;
   public sizesSubscriber: BehaviorSubject<Size[]> = new BehaviorSubject<Size[]>([]);
   public size: BehaviorSubject<any> = new BehaviorSubject([]);
   public sizes: Size[] = [];
@@ -43,26 +44,26 @@ export class SizeService {
 
 
   findAllSizes(): Observable<Size[]> {
-    return this.http.get<Size[]>(this.baseUrl + "/findAll").pipe(
+    return this.http.get<Size[]>(`${this.baseUrl}`).pipe(
       catchError(this.handleError<Size[]>('findAllSizes', []))
     );
   }
 
   findSizeById(id: number): Observable<Size> {
-    return this.http.get<Size>(this.baseUrl + "/findById/" + id).pipe(
+    return this.http.get<Size>(`${this.baseUrl}/${id}`).pipe(
       catchError(this.handleError<Size>('findSizeById'))
     );
   }
 
   addSize(size: Size): Observable<Size> {
-    return this.http.post<Size>(this.baseUrl + "/add", size, { observe: 'body' }).pipe(
+    return this.http.post<Size>(`${this.baseUrl}`, size, { observe: 'body' }).pipe(
       catchError(this.handleError<Size>('addSize'))
     );
   }
 
   updateSize(size: Size): Observable<void> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.put<void>(this.baseUrl + "/update", size, { headers }).pipe(
+    return this.http.put<void>(`${this.baseUrl}`, size , {headers }).pipe(
       catchError(this.handleError<void>('updateSize'))
     );
   }

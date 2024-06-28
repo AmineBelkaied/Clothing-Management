@@ -1,6 +1,7 @@
 import { City } from "./City";
 import { DeliveryCompany } from "./DeliveryCompany";
 import { FbPage } from "./FbPage";
+import { Note } from "./Note";
 import {Offer} from "./Offer";
 
 export interface Packet {
@@ -26,6 +27,8 @@ export interface Packet {
     valid?: boolean;
     stock?: number;
     attempt?: number;
+    notes?: Note[];
+    lastNote?: Note;
     note?: string;
     productCount: number;
     exchangeId?: number;

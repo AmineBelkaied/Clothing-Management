@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 import static com.clothing.management.enums.SystemStatus.*;
 import static com.clothing.management.enums.SystemStatus.LIVREE;
-import static java.util.stream.Collectors.groupingBy;
+
 @Transactional("tenantTransactionManager")
 @Service
 public class PacketServiceImpl implements PacketService {
@@ -44,6 +44,7 @@ public class PacketServiceImpl implements PacketService {
     private final DeliveryCompanyServiceFactory deliveryCompanyServiceFactory;
     private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
+    private final INoteRepository noteRepository;
     private final static List<String> ignoredDateStatusList = List.of(new String[]{ RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus()});
 
     @Override
@@ -67,7 +68,8 @@ public class PacketServiceImpl implements PacketService {
             DeliveryCompanyServiceFactory deliveryCompanyServiceFactory,
             SessionUtils sessionUtils,
             IGlobalConfRepository globalConfRepository,
-            IFbPageRepository fbPageRepository
+            IFbPageRepository fbPageRepository,
+            INoteRepository noteRepository
     ) {
         this.packetRepository = packetRepository;
         this.productRepository = productRepository;
@@ -76,6 +78,7 @@ public class PacketServiceImpl implements PacketService {
         this.deliveryCompanyServiceFactory = deliveryCompanyServiceFactory;
         this.globalConfRepository = globalConfRepository;
         this.sessionUtils = sessionUtils;
+        this.noteRepository = noteRepository;
     }
 
     @Override
@@ -431,6 +434,19 @@ public class PacketServiceImpl implements PacketService {
         }
         return null;
     }
+    @Override
+    public Packet addAttempt(Note note, Long packetId) throws Exception {
+        Packet packet = packetRepository.findById(packetId)
+                .orElseThrow(() -> new Exception("Packet with ID " + packetId + " does not exist."));
+
+        note.setUser(sessionUtils.getCurrentUser());
+        note.setPacket(packet);
+        noteRepository.save(note);
+        packet.getNotes().add(note);
+
+        savePacketStatusToHistory(packet, "tentative: " + packet.getNotes().size() + " " + note.getExplanation());
+        return updatePacket(packet);
+    }
 
     private String mapDeliveryToSystemStatus(DeliveryCompanyStatus status) {
         if (status == null || status.equals(""))
@@ -698,19 +714,6 @@ public class PacketServiceImpl implements PacketService {
         );
     }
 
-    @Override
-    public Packet addAttempt(Long packetId, String note) {
-        Packet packet = packetRepository.findById(packetId).get();
-        packet.setAttempt(packet.getAttempt() + 1);
-        Date noteDate = new Date();
-        // Formatting the note date to "dd hh:mm" format
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-HH:mm");
-        String noteWithDate = "-Le "+sdf.format(noteDate) + " " + note;
-        if(packet.getNote().equals("")){packet.setNote(noteWithDate);}
-        else packet.setNote(String.format("%s\n%s", packet.getNote(), noteWithDate));
-        savePacketStatusToHistory(packet, "tentative: " + packet.getAttempt() + " " + note);
-        return packetRepository.save(packet);
-    }
     @Override
     public void deletePacketById(Long idPacket) throws Exception {
         Packet packet = getPacketById(idPacket);

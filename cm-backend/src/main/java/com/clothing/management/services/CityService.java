@@ -15,4 +15,5 @@ public interface CityService {
     public City updateCity(City city);
     public void deleteCity(City city);
     public void deleteSelectedCities(List<Long> citiesId);
+    public void deleteCityById(Long id);
 }

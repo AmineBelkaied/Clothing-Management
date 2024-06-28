@@ -2,25 +2,22 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable } from 'rxjs';
 import { FbPage } from 'src/shared/models/FbPage';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
 import { MessageService } from 'primeng/api';
+import { FB_PAGE_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FbPageService {
 
-
-
-  private baseUrl: string = baseUrl+"/fbPage";
+  private baseUrl: string = environment.baseUrl + `${FB_PAGE_ENDPOINTS.BASE}`;
   public fbPagesSubscriber: BehaviorSubject<FbPage[]> = new BehaviorSubject<FbPage[]>([]);
-
   public fbPage: BehaviorSubject<any> = new BehaviorSubject([]);
   public fbPages: FbPage[] = [];
   public editMode = false;
 
   constructor(private http: HttpClient, private messageService: MessageService) {
-
   }
 
   loadFbPages() : void{
@@ -40,8 +37,9 @@ export class FbPageService {
     }
     return this.fbPagesSubscriber.asObservable();
   }
+  
   findAllFbPages() : Observable<FbPage[]> {
-    return this.http.get<FbPage[]>(this.baseUrl + "/findAll");
+    return this.http.get<FbPage[]>(`${this.baseUrl}`);
   }
 
   setFbPagesConfSubscriber(fbPage:FbPage){
@@ -61,22 +59,20 @@ export class FbPageService {
       });
   }
 
-
-
   findFbPageById(id: number) {
-    return this.http.get(this.baseUrl + "/findById/" + id);
+    return this.http.get(`${this.baseUrl}/${id}`);
   }
 
   addFbPage(fbPage: FbPage) {
-    return this.http.post(this.baseUrl + "/add" , fbPage , {observe: 'body'})
+    return this.http.post(`${this.baseUrl}`, fbPage , {observe: 'body'});;
   }
 
   updateFbPage(fbPage: FbPage) {
-    return this.http.put(this.baseUrl + "/update" , fbPage , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(`${this.baseUrl}`, fbPage , {headers : { 'content-type': 'application/json'}});
   }
 
-  deleteFbPageById(idFbPage: any) {
-    return this.http.delete(this.baseUrl + "/deleteById/" + idFbPage)
+  deleteFbPageById(id: any) {
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
   pushFbPage(fbPage: FbPage){
@@ -92,6 +88,5 @@ export class FbPageService {
 
   editFbPage(fbPage: FbPage) {
     this.fbPage.next(fbPage);
-
   }
 }

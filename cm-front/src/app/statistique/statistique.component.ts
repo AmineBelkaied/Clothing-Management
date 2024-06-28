@@ -11,7 +11,7 @@ import { ModelService } from 'src/shared/services/model.service';
 import { ActivatedRoute } from '@angular/router';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
+import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { Offer } from 'src/shared/models/Offer';
 
@@ -41,11 +41,11 @@ export class StatistiqueComponent implements OnInit {
   totalPerSize: number[] = [];
   sizesInisialized: boolean = false;
 
-  colors: String[] = [];
+  colors: string[] = [];
   //ligne afficher des tailles(titre)
-  sizesRow: String[] = [];
+  sizesRow: string[] = [];
   //sizes of first color
-  sizes: String[] = [];
+  sizes: string[] = [];
   rowByDate: number[] = [];
 
   title: string = 'Stat-Tab';
@@ -73,8 +73,8 @@ export class StatistiqueComponent implements OnInit {
   packetsByDate: Packet[] = [];
   //end packet by date
 
-  startDateString: String;
-  endDateString: String;
+  startDateString: string;
+  endDateString: string;
 
   cityCounts: CountCitys = {};
   pagesCounts: CountPages = {};
@@ -107,19 +107,19 @@ export class StatistiqueComponent implements OnInit {
   basicData: any;
   basicOptions: any;
 
-  modelChartOptions: String[] = ['Chart', 'Table'];
+  modelChartOptions: string[] = ['Chart', 'Table'];
   modelChartBoolean: boolean = true;
   modelTableData: any;
 
-  offerChartOptions: String[] = ['Chart', 'Table'];
+  offerChartOptions: string[] = ['Chart', 'Table'];
   offerChartBoolean: boolean = true;
   offerTableData: any;
 
-  colorChartOptions: String[] = ['Chart', 'Table'];
+  colorChartOptions: string[] = ['Chart', 'Table'];
   colorChartBoolean: boolean = true;
   colorsTableData: any;
 
-  selectedModelChart: String = 'Chart';
+  selectedModelChart: string = 'Chart';
   filtredCitysCount: any;
   packetsTableData: any;
   dates: any[];
@@ -135,7 +135,7 @@ export class StatistiqueComponent implements OnInit {
     private dateUtils: DateUtils,
     private modelService: ModelService,
     private activateRoute: ActivatedRoute,
-    private steLivraisonService: SteLivraisonService,
+    private deliveryCompanyService: DeliveryCompanyService,
   ) {}
 
   StatesData: any;
@@ -145,7 +145,7 @@ export class StatistiqueComponent implements OnInit {
 
   ngOnInit() {
 
-    this.steLivraisonService.getDCSubscriber()
+    this.deliveryCompanyService.getDCSubscriber()
     .subscribe((stesList: DeliveryCompany[]) => {
       this.deliveryCompanyList = stesList;
       //console.log("this.stes",this.deliveryCompanyList);

@@ -545,6 +545,8 @@ export class AddPacketComponent implements OnInit {
 
   // edit mode after get offer (1)
   addSelectedOffer(offer: Offer): void {
+    console.log(offer);
+    
     this.offers().push(
       this.fb.group({
         id: offer.id,

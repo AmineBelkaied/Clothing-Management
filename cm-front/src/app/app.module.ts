@@ -79,7 +79,7 @@ import { PickListModule } from 'primeng/picklist';
 import { GlobalConfComponent } from './config/global-conf/global-conf.component';
 import { StepsModule } from 'primeng/steps';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
-
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 import { AuthInterceptor } from 'src/shared/helpers/interceptor';
 import { UserComponent } from './config/user/user.component';
@@ -176,7 +176,8 @@ import { GlobalConf } from 'src/shared/models/GlobalConf';
     StepsModule,
     BreadcrumbModule,
     ReactiveFormsModule,
-    RippleModule
+    RippleModule,
+    OverlayPanelModule
   ],
   providers: [
     MessageService,

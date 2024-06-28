@@ -1,5 +1,6 @@
 package com.clothing.management.tenant;
 
+import com.clothing.management.auth.constant.UserStatus;
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
 import org.apache.ibatis.jdbc.ScriptRunner;

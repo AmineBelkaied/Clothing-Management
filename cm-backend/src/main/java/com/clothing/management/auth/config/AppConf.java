@@ -9,8 +9,9 @@ public class AppConf implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
+        registry.addMapping("/cm/**")
                 .allowedOrigins("http://localhost:4200")
-                .allowedMethods("GET" , "POST" , "PUT" , "PATCH", "DELETE") ;
+                .allowedMethods("POST", "GET", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*");
     }
 }

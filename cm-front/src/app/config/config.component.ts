@@ -1,11 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Color } from 'src/shared/models/Color';
+import { Component, OnInit } from '@angular/core';
 import { Governorate } from 'src/shared/models/Governorate';
 import { GovernorateService } from '../../shared/services/governorate.service';
-import { SizeService } from 'src/shared/services/size.service';
-import { ColorService } from 'src/shared/services/color.service';
-import { FbPageService } from 'src/shared/services/fb-page.service';
-import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
 
 @Component({
   selector: 'app-config',
@@ -18,29 +13,17 @@ export class ConfigComponent implements OnInit {
 
   constructor(
     private governorateService: GovernorateService,
-    private steLivraisonService :SteLivraisonService
   ) {
-    //this.steLivraisonService.loadDeliveryCompanies();
     this.governorateService.findAllGovernorates()
-    .subscribe((governorates: any) => {
-      this.governorates = governorates;
-      console.log(this.governorates)
-    })
-
+      .subscribe((governorates: any) => {
+        this.governorates = governorates;
+      })
   }
 
   ngOnInit(): void {
-
   }
 
   setSelection(items: any) {
     this.selectedCities = items;
   }
-
-  change($event:any) {
-    console.log($event);
-
-  }
-
-
- }
+}

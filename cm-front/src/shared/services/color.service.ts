@@ -2,18 +2,20 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Color } from '../models/Color';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
+import { COLOR_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ColorService {
 
-  private baseUrl: string = baseUrl+"/color";
+  private baseUrl: string = environment.baseUrl + `${COLOR_ENDPOINTS.BASE}`;
   public colorsSubscriber: BehaviorSubject<Color[]> = new BehaviorSubject<Color[]>([]);
   public color: BehaviorSubject<any> = new BehaviorSubject([]);
   public colors: Color[] = [];
   public editMode = false;
+
   constructor(private http: HttpClient) {
 
   }
@@ -41,23 +43,23 @@ export class ColorService {
   }
 
   findAllColors() : Observable<Color[]> {
-    return this.http.get<Color[]>(this.baseUrl + "/findAll");
+    return this.http.get<Color[]>(`${this.baseUrl}`);
   }
 
   findColorById(id: number) {
-    return this.http.get(this.baseUrl + "/findById/" + id);
+    return this.http.get(`${this.baseUrl}/${id}`);
   }
 
   addColor(color: Color) {
-    return this.http.post(this.baseUrl + "/add" , color , {observe: 'body'})
+    return this.http.post(`${this.baseUrl}`, color , {observe: 'body'});
   }
 
   updateColor(color: Color) {
-    return this.http.put(this.baseUrl + "/update" , color , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(`${this.baseUrl}`, color , {headers : { 'content-type': 'application/json'}});
   }
 
-  deleteColorById(idColor: any) {
-    return this.http.delete(this.baseUrl + "/deleteById/" + idColor)
+  deleteColorById(id: number) {
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
   pushColor(color: Color){

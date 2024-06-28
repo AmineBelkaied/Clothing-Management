@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
+import { PRODUCT_ENDPOINTS } from '../constants/api-endpoints';
 import { Product } from '../models/Product';
 import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 
@@ -10,7 +11,7 @@ import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 export class ProductService {
   public productsSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public productSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
-  private baseUrl: string = baseUrl + "/product";
+  private baseUrl: string = environment.baseUrl + `${PRODUCT_ENDPOINTS.BASE}`;
   products: Product[];
 
   constructor(private http: HttpClient) { }
@@ -26,28 +27,28 @@ export class ProductService {
     );
   }
 
-
   getProductsSubscriber(): Observable<Product[]> {
     return this.productsSubscriber.asObservable();
   }
+
   findAllProducts() {
-    return this.http.get(this.baseUrl + "/findAll");
+    return this.http.get(`${this.baseUrl}`);
   }
 
-  deleteSelectedProducts(productsId: any[]) {
-    return this.http.delete(this.baseUrl + "/deleteSelectedProducts/" + productsId);
+  addStock(productsId: number[], qte: number, modelId: number, comment: string) {
+    let updateStock = {'productsId': productsId, 'qte': qte, 'modelId': modelId, 'comment': comment}
+    return this.http.post(`${this.baseUrl}${PRODUCT_ENDPOINTS.STOCK}`, updateStock);
   }
 
   updatProduct(product: any) {
-    return this.http.put(this.baseUrl + "/update", product, { headers: { 'content-type': 'application/json' } })
+    return this.http.put(`${this.baseUrl}`, product , {headers : {'content-type': 'application/json'}});
   }
 
   getStock(modelId: number) {
-    return this.http.get(this.baseUrl + "/getStock/" + modelId);
+    return this.http.get(`${this.baseUrl}${PRODUCT_ENDPOINTS.STOCK}/${modelId}`);
   }
 
-  addStock(productsId: number[],qte:number,modelId:number,comment:String) {
-    let updateStock = {'productsId': productsId,'qte':qte,'modelId':modelId,'comment':comment}
-    return this.http.post(this.baseUrl + "/addStock", updateStock);
+  deleteSelectedProducts(productsId: number[]) {
+    return this.http.delete(`${this.baseUrl}/${PRODUCT_ENDPOINTS.BATCH_DELETE}/${productsId}`);
   }
 }

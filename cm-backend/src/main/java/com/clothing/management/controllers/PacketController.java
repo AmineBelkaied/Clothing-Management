@@ -5,6 +5,7 @@ import com.clothing.management.auth.mastertenant.service.MasterTenantService;
 import com.clothing.management.auth.util.JwtTokenUtil;
 import com.clothing.management.dto.*;
 import com.clothing.management.dto.DeliveryCompanyDTOs.BarCodeStatusDTO;
+import com.clothing.management.entities.Note;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
 import com.clothing.management.models.DashboardCard;
@@ -25,7 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("packet")
+@RequestMapping("${api.prefix}/packets")
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class PacketController {
@@ -35,18 +36,19 @@ public class PacketController {
 
     @Autowired
     UpdateStatusScheduler updateStatusScheduler;
+
     @Autowired
     MasterTenantService masterTenantService;
 
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
-    @GetMapping(path = "/findAll")
+    @GetMapping
     public List<Packet> findAllPackets() {
         return packetService.findAllPackets();
     }
 
-    @GetMapping(path = "/findAllPaginatedPackets")
+    @GetMapping("/paginated")
     public ResponseEntity<ResponsePage> findAllPaginatedPackets(@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "100") int size,
                                                                 @RequestParam(required = false) String searchText,
@@ -79,116 +81,107 @@ public class PacketController {
     }
 
 
-    @GetMapping(path = "/findAllPacketsByDate")
-    public List<PacketDTO> findAllPacketsByDate(
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) throws ParseException {
+    @GetMapping("/by-date-range")
+    public List<PacketDTO> findAllPacketsByDateRange(@RequestParam(required = false) String startDate,
+                                                  @RequestParam(required = false) String endDate) throws ParseException {
         return packetService.findAllPacketsByDate(startDate, endDate);
     }
 
-    @GetMapping(path = "/findAllByDate/{date}")
-    public List<Packet> findAllPacketsByDate(Date date) {
+    @GetMapping("/by-date/{date}")
+    public List<Packet> findAllPacketsByDate(@PathVariable Date date) {
         return packetService.findAllPacketsByDate(date);
     }
 
-    /*@GetMapping(path = "/findById/{id}")
-    public Optional<Packet> findByIdPacket(@PathVariable Long id) {
+    /*@GetMapping("/{id}")
+    public Optional<Packet> findPacketById(@PathVariable Long id) {
         return packetService.findPacketById(id);
     }*/
 
-    @GetMapping(path = "/findPacketRelatedProducts/{idPacket}")
-    public List<ProductsPacketDTO> findPacketRelatedProducts(@PathVariable Long idPacket) throws Exception {
-        return packetService.findPacketRelatedProducts(idPacket);
+    @GetMapping("/{id}/related-products")
+    public List<ProductsPacketDTO> findPacketRelatedProducts(@PathVariable Long id) throws Exception {
+        return packetService.findPacketRelatedProducts(id);
     }
 
-    @GetMapping(value = "/add")
+    @PostMapping
     public PacketDTO addPacket() throws Exception {
         return new PacketDTO(packetService.addPacket());
     }
 
-    @PutMapping(value = "/update" , produces = "application/json")
-    public PacketDTO updatePacket(@RequestBody Packet packet) {
-        return new PacketDTO(packetService.updatePacket(packet));
+    @PutMapping
+    public PacketDTO updatePacket(@RequestBody Packet packet) {return new PacketDTO(packetService.updatePacket(packet));}
+
+    @PutMapping("/{id}")
+    public PacketDTO patchPacket(@PathVariable Long id, @RequestBody Map<String, Object> fields) throws Exception {
+        return new PacketDTO(packetService.patchPacket(id, fields));
     }
 
-    @PutMapping(value = "/patch/{idPacket}")
-    public PacketDTO patchPacket(@PathVariable Long idPacket , @RequestBody Map<String , Object> field) throws Exception {
-        return new PacketDTO(packetService.patchPacket(idPacket , field));
-    }
-
-    @PostMapping(value = "/valid/{barCode}",produces = "application/json")
-    public ResponseEntity<PacketValidationDTO> updatePacketValid(@PathVariable String barCode,@RequestBody String type) throws Exception {
+    @PostMapping("/validate/{barcode}")
+    public ResponseEntity<PacketValidationDTO> updatePacketValid(@PathVariable String barcode, @RequestBody String type) throws Exception {
         try {
-            return new ResponseEntity<>(packetService.updatePacketValid(barCode,type), HttpStatus.OK);
+            return new ResponseEntity<>(packetService.updatePacketValid(barcode,type), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(packetService.updatePacketValid(barCode,type), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(packetService.updatePacketValid(barcode, type), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping(value = "/deleteById/{idPacket}" , produces = "application/json")
-    public void deletePacketById(@PathVariable Long idPacket) throws Exception {
-        packetService.deletePacketById(idPacket);
+    @DeleteMapping("/{id}")
+    public void deletePacketById(@PathVariable Long id) throws Exception {
+        packetService.deletePacketById(id);
     }
 
-    @DeleteMapping(value = "/deleteSelectedPackets/{packetsId}" , produces = "application/json")
-    public void deleteSelectedPackets(@PathVariable List<Long> packetsId) throws Exception {
-        packetService.deleteSelectedPackets(packetsId);
+    @DeleteMapping("/batch-delete")
+    public void deleteSelectedPackets(@RequestBody List<Long> packetIds) throws Exception {
+        packetService.deleteSelectedPackets(packetIds);
     }
 
-    @GetMapping(path = "/getPacketTimeLine/{idPacket}")
-    public List<PacketStatus> findAllPacketStatus(@PathVariable Long idPacket) throws Exception {
-        return packetService.findPacketTimeLineById(idPacket);
+    @GetMapping("/{id}/timeline")
+    public List<PacketStatus> findPacketTimeline(@PathVariable Long id) throws Exception {
+        return packetService.findPacketTimeLineById(id);
     }
 
-    @PostMapping(value = "/getLastStatus")
-    @CrossOrigin("*")
+    @PostMapping("/status")
     public PacketDTO getLastStatus(@RequestBody long packetId) throws Exception {
         return packetService.getLastStatus(packetId);
     }
 
-    @PostMapping(value = "/addAttempt/{packetId}", produces = "application/json")
-    public ResponseEntity<PacketDTO> addAttempt(@PathVariable Long packetId,@RequestBody String note){
-        return new ResponseEntity<>(
-                new PacketDTO(packetService.addAttempt(packetId,note)),
-                HttpStatus.OK);
+    @PostMapping("/{id}/attempt")
+    public ResponseEntity<PacketDTO> addAttempt(@RequestBody Note note, @PathVariable Long id) throws Exception {
+        return new ResponseEntity<>(new PacketDTO(packetService.addAttempt(note, id)), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/addProducts" , produces = "application/json")
+    @PostMapping("/add-products")
     public PacketDTO addProductsToPacket(@RequestBody SelectedProductsDTO selectedProductsDTO) throws Exception {
         return packetService.addProductsToPacket(selectedProductsDTO);
     }
 
-    /*@GetMapping(value = "/checkPacketProductsValidity/{packetId}")
-    public List<Packet> checkPacketProductsValidity(@PathVariable Long packetId) throws Exception {
-        return packetService.checkPacketProductsValidity(packetId);
+    /*@GetMapping("/{id}/check-validity")
+    public List<Packet> checkPacketProductsValidity(@PathVariable Long id) throws Exception {
+        return packetService.checkPacketProductsValidity(id);
     }*/
 
-    @GetMapping(path = "/syncNotification")
-    public List<DashboardCard> syncNotification(@RequestParam(required = false) String startDate,
-                                                @RequestParam(required = false) String endDate){
+    @GetMapping("/notifications/sync")
+    public List<DashboardCard> syncNotifications(@RequestParam(required = false) String startDate,
+                                                 @RequestParam(required = false) String endDate) {
         return packetService.syncNotification(startDate, endDate);
     }
 
-    @GetMapping(path = "/duplicatePacket/{idPacket}")
-    public PacketDTO duplicatePacket(@PathVariable Long idPacket) throws Exception {
-        return packetService.duplicatePacket(idPacket);
+    @GetMapping("/duplicate/{id}")
+    public PacketDTO duplicatePacket(@PathVariable Long id) throws Exception {
+        return packetService.duplicatePacket(id);
     }
 
-    @GetMapping(path = "/syncAllPacketsStatus")
-    public int synchronizeAllPacketsStatus(@PathParam("tenantName") String tenantName) {
+    @GetMapping("/status/sync")
+    public int synchronizeAllPacketsStatus(@RequestParam("tenantName") String tenantName) {
         MasterTenant masterTenant = masterTenantService.findByTenantName(tenantName);
-        System.out.println("masterTenant >>  " + masterTenant.getTenantName());
         return updateStatusScheduler.startUpdateStatusCronTask(masterTenant);
     }
 
-    @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")
+    @PostMapping("/barcode/status")
     public ResponseEntity<List<String>> updatePacketsByBarCode(@RequestBody BarCodeStatusDTO barCodeStatusDTO) {
         try {
             return new ResponseEntity<>(packetService.updatePacketsByBarCodes(barCodeStatusDTO), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(packetService.updatePacketsByBarCodes(barCodeStatusDTO), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 }

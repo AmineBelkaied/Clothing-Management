@@ -9,7 +9,7 @@ import { Table, TableRowSelectEvent } from 'primeng/table';
 import { CityService } from '../../../shared/services/city.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../../../shared/services/fb-page.service';
-import { catchError, identity, Observable, of, Subject,takeUntil} from 'rxjs';
+import { catchError, Observable, of, Subject,takeUntil} from 'rxjs';
 import { Offer } from 'src/shared/models/Offer';
 import { StorageService } from 'src/shared/services/strorage.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
@@ -31,11 +31,13 @@ import { City } from 'src/shared/models/City';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { DashboardCard } from 'src/shared/models/DashboardCard';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
-import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ContextMenu } from 'primeng/contextmenu';
 import { ProductService } from 'src/shared/services/product.service';
-
+import { ClientReason, ClientReasonDetails } from 'src/shared/enums/client-reason';
+import { Note } from 'src/shared/models/Note';
+import { StringUtils } from 'src/shared/utils/string-utils';
 
 @Component({
   selector: 'app-list-packets',
@@ -44,10 +46,10 @@ import { ProductService } from 'src/shared/services/product.service';
   providers: [DatePipe]
 })
 export class ListPacketsComponent implements OnInit, OnDestroy {
-onRowSelect($event: TableRowSelectEvent) {
-  console.log($event);
+  onRowSelect($event: TableRowSelectEvent) {
+    console.log($event);
 
-}
+  }
 
   x: number;
 
@@ -94,8 +96,8 @@ onRowSelect($event: TableRowSelectEvent) {
   selectedStatus: FormControl = new FormControl();
   selectedStates: string[] = [];
   $unsubscribe: Subject<void> = new Subject();
-  pageSize : number = 100;
-  params : any={
+  pageSize: number = 100;
+  params: any = {
     page: 0,
     size: this.pageSize,
     startDate: this.dateUtils.formatDateToString(this.today),
@@ -103,92 +105,92 @@ onRowSelect($event: TableRowSelectEvent) {
     mandatoryDate: false
   };
   loading: boolean = false;
-  mandatoryDateCheckBox : boolean = false;
-  oldDateFilterCheckBox : boolean = false;
-  dateOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
-  value : boolean = this.mandatoryDateCheckBox;
-  nbrConfirmed : number= 0;
-  countUNREACHABLE :string = "0";
+  mandatoryDateCheckBox: boolean = false;
+  oldDateFilterCheckBox: boolean = false;
+  dateOptions: any[] = [{ label: 'Off', value: false }, { label: 'On', value: true }];
+  value: boolean = this.mandatoryDateCheckBox;
+  nbrConfirmed: number = 0;
+  countUNREACHABLE: string = "0";
 
   statusItems: any[] = [
     {
       label: "Erreur Chargement",
       title: "Tous",
-      badge:0,
-      badgeByDate:0,
+      badge: 0,
+      badgeByDate: 0,
       command: (event: any) => {
       },
-      disabled:true
-  },
-  {
-    label: OOS,
-    title: OOS,
-    badge:0,
-    badgeByDate:0,
-    command: (event: any) => {
-    }
-  },
+      disabled: true
+    },
+    {
+      label: OOS,
+      title: OOS,
+      badge: 0,
+      badgeByDate: 0,
+      command: (event: any) => {
+      }
+    },
     {
       label: NOT_CONFIRMED,
       title: NOT_CONFIRMED,
-      badge:0,
-      badgeByDate:0,
+      badge: 0,
+      badgeByDate: 0,
       command: (event: any) => {
       }
-  },
-    {
-        label: UNREACHABLE,
-        title: UNREACHABLE,
-        icon: 'pi-power-off',
-        badge:0,
-        badgeByDate:0,
-        command: (event: any) => {
-        }
     },
     {
-        label: CONFIRMED,
-        title: CONFIRMED,
-        badge:0,
-        badgeByDate:0,
-        command:
-          (event: any) => {
+      label: UNREACHABLE,
+      title: UNREACHABLE,
+      icon: 'pi-power-off',
+      badge: 0,
+      badgeByDate: 0,
+      command: (event: any) => {
+      }
+    },
+    {
+      label: CONFIRMED,
+      title: CONFIRMED,
+      badge: 0,
+      badgeByDate: 0,
+      command:
+        (event: any) => {
         }
     },
     {
       label: IN_PROGRESS,
       title: IN_PROGRESS,
-      badge:0,
-      badgeByDate:0,
+      badge: 0,
+      badgeByDate: 0,
       command: (event: any) => {
       },
     },
     {
       label: RETURN,
       title: RETURN,
-      badge:0,
-      badgeByDate:0,
+      badge: 0,
+      badgeByDate: 0,
       command: (event: any) => {
-        }
+      }
     },
     {
       label: CANCELED,
       title: CANCELED,
-      badge:0,
-      badgeByDate:0,
+      badge: 0,
+      badgeByDate: 0,
       command: (event: any) => {
-        }
+      }
     },
     {
       label: 'Terminé',
       title: 'Terminé',
-      badge:0,
-      badgeByDate:0,
-      command: (event: any) => {}
+      badge: 0,
+      badgeByDate: 0,
+      command: (event: any) => { }
     }
-];
+  ];
   showStatus: boolean = false;
   activeIndex: number = 2;
-  oldActiveIndex:number = 2;
+  oldActiveIndex: number = 2;
 
   @ViewChild('dt') dt: Table;
   private readonly reg: RegExp = /,/gi;
@@ -200,9 +202,6 @@ onRowSelect($event: TableRowSelectEvent) {
   //deliveryCompanyName?: DeliveryCompany;
   @Output() confirmEvent: EventEmitter<string> = new EventEmitter<string>();
   visibleNote: boolean = false;
-  note: string = '';
-
-
   activeClass: boolean;
   userName: string;
   isLoggedIn: boolean;
@@ -212,6 +211,18 @@ onRowSelect($event: TableRowSelectEvent) {
     { label: 'Space used', value: 15, color: '#34d399' }
   ];
   selectedField: keyof Packet;
+  reasonOptions: { label: string, value: string }[] = [];
+  selectedReason: string;
+  explanation: string;
+  readonly explanationSuffix: string = ' : ';
+  clientReasons: any[];
+  note: Note = {
+    date: new Date()
+  };
+  selectedPacketNotes: Note[] = [];
+  @ViewChild("expRef") explanationElement: ElementRef;
+  explanationTitle: string;
+  noteActionStatus: string;
 
   constructor(
     private packetService: PacketService,
@@ -234,6 +245,7 @@ onRowSelect($event: TableRowSelectEvent) {
   ngAfterViewChecked(){
     this.cdRef.detectChanges();
   }
+
   ngOnInit(): void {
     this.storageService.isLoggedIn.subscribe(isLoggedIn => {
       this.isLoggedIn = isLoggedIn;
@@ -352,7 +364,7 @@ onRowSelect($event: TableRowSelectEvent) {
         updatedField = { [this.selectedField]: packet[this.selectedField] };
 
       let status = packet.status;
-      this.packetService.patchPacket(packet.id, updatedField)
+      this.packetService.patchPacket(packet.id!, updatedField)
         .pipe(
           catchError((err: any, caught: Observable<any>): Observable<any> => {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating packet ' + err.error.message });
@@ -457,59 +469,88 @@ onRowSelect($event: TableRowSelectEvent) {
         });
   }
 
-  updatePacketFields(packet: Packet) {
+  updatePacketFields(packet: Packet, action?: string) {
     console.log('packet',packet);
     let listId = this.packets.map((packetX: Packet) => packetX.id);
     let X = listId.indexOf(packet.id);
-    if(X>-1){
-      this.packets[X].status=packet.status;
-      this.packets[X].lastDeliveryStatus=packet.lastDeliveryStatus;
-      this.packets[X].lastUpdateDate=packet.lastUpdateDate;
-      this.packets[X].note=packet.note;
-      this.packets[X].barcode=packet.barcode;
-      this.packets[X].packetDescription=packet.packetDescription;
-      this.packets[X].oldClient=packet.oldClient;
-      this.packets[X].stock=packet.stock;
-      this.packets[X].price=packet.price;
-      this.packets[X].deliveryPrice=packet.deliveryPrice;
-      this.packets[X].discount=packet.discount;
+    if (X > -1) {
+      this.packets[X].status = packet.status;
+      this.packets[X].lastDeliveryStatus = packet.lastDeliveryStatus;
+      this.packets[X].lastUpdateDate = packet.lastUpdateDate;
+      if (action === 'ADD_NOTE_ACTION') {
+        this.packets[X].notes!.length++;
+        this.packets[X].notes = packet.notes?.slice();
+      }
+      this.packets[X].barcode = packet.barcode;
+      this.packets[X].packetDescription = packet.packetDescription;
+      this.packets[X].oldClient = packet.oldClient;
+      this.packets[X].stock = packet.stock;
+      this.packets[X].price = packet.price;
+      this.packets[X].deliveryPrice = packet.deliveryPrice;
+      this.packets[X].discount = packet.discount;
       this.packets[X].attempt=packet.attempt;
     }
-    console.log("update finished");
-
   }
 
-  addAttempt(packet: Packet): void {
-    console.log("packet:",packet);
-    this.visibleNote = true;
+  addAttempt(packet: Packet, status: string): void {
+    this.noteActionStatus = status;
     this.selectedPacket = packet;
-    this.note="";
+    this.clientReasons = this.getReasonOptionsByStatus(status);
+    this.visibleNote = true;
+    this.explanationTitle = '';
+    this.explanation = '';
+    this.note = {
+      date: new Date(),
+      packet: packet,
+      clientReason: '',
+      status: ''
+    };
+    this.clientReasons.forEach(clientReason => {
+      clientReason.text = true
+      clientReason.outlined = false
+    });
   }
 
   confirmNote() {
-    console.log("Confirm button clicked!");
-    let note = "Client injoignable";
-
-    if (this.note.trim() !== '')  // Check if value is not empty
-      {
-        this.confirmEvent.emit(this.note);
-        note = this.note;
+    this.note.date = new Date();
+    this.note.explanation = StringUtils.isStringValid(this.explanation) ? this.explanationTitle + ' : ' + this.explanation : this.explanationTitle;
+    /* if (this.note.trim() !== '')  // Check if value is not empty
+       {
+         this.confirmEvent.emit(this.note);
+         note = this.note;
+       }*/
+    switch (this.noteActionStatus) {
+      case 'DELETED': {
+        let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id!);
+        this.packetService
+          .deleteSelectedPackets(selectedPacketsByIds)
+          .subscribe(() => {
+            this.packets = this.packets.filter((packet: Packet) => selectedPacketsByIds.indexOf(packet.id!) == -1);
+            this.selectedPackets = [];
+            this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000 });
+          });
+        break;
       }
-      console.log("this.selectedPacket",this.selectedPacket);
-
-      this.packetService.addAttempt(this.selectedPacket.id!,note)
-      .subscribe({
-          next: (response: any) => {//correction Packet
-            console.log("response",response);
-
-            this.updatePacketFields(response);
-          },
-          error : (error: Error) => {
-            console.log(error);
-          }
-        });
+      case 'UNREACHABLE': {
+        this.packetService.addAttempt(this.note, this.selectedPacket.id!)
+          .subscribe({
+            next: (response: any) => {
+              this.updatePacketFields(response, 'ADD_NOTE_ACTION');
+              this.messageService.add({ severity: 'info', summary: 'Success', detail: 'La note a été ajoutée avec succés', life: 1200 });
+            },
+            error: (error: Error) => {
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: "Une erreur est survenue lors de l'ajout de la note", life: 1200 });
+            }
+          });
+          break;
+      }
+      default: {
+        console.log("Note Action Status did not match any cases.");
+      }
+    }
     this.visibleNote = false;
-  }
+}
+
   getLastStock(packetId: number): void {
     console.log("getLasStock-packetId", packetId);
     //if (packet.status != PAID && packet.status != RETURN_RECEIVED && packet.status != DELIVERED)
@@ -527,9 +568,9 @@ onRowSelect($event: TableRowSelectEvent) {
         });
   }
 
-  openLinkGetter(code: any,deliveryCompany: DeliveryCompany): void {
+  openLinkGetter(code: any, deliveryCompany: DeliveryCompany): void {
     let link = deliveryCompany.barreCodeUrl + code;
-    console.log("link",link+"/code:"+code);
+    console.log("link", link + "/code:" + code);
     window.open(link, '_blank');
   }
 
@@ -539,17 +580,17 @@ onRowSelect($event: TableRowSelectEvent) {
 
   showTimeLineDialog(packet: Packet): void {
     try {
-      this.packetService.getPacketTimeLine(packet.id).subscribe((response: any) => {
-          this.statusEvents = [];
-          this.suiviHeader = "Suivi Historique - Commande N° " + packet.id;
-          if (response != null && response.length > 0) {
-            response.forEach((element: any) => {
-              this.statusEvents.push({status: element.status, date: element.date, user: element.user?.fullName, icon: PrimeIcons.ENVELOPE, color: '#9C27B0'});
-            });
-          }
-          //this.cdRef.detectChanges();
-          this.displayStatus = true;
+      this.packetService.getPacketTimeLine(packet.id!).subscribe((response: any) => {
+        this.statusEvents = [];
+        this.suiviHeader = "Suivi Historique - Commande N° " + packet.id;
+        if (response != null && response.length > 0) {
+          response.forEach((element: any) => {
+            this.statusEvents.push({ status: element.status, date: element.date, user: element.user?.fullName, icon: PrimeIcons.ENVELOPE, color: '#9C27B0' });
+          });
         }
+        //this.cdRef.detectChanges();
+        this.displayStatus = true;
+      }
       );
     } catch (error) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur dans le status'});
@@ -557,26 +598,26 @@ onRowSelect($event: TableRowSelectEvent) {
   }
 
   addNewRow(): void {
-    if(this.activeIndex!=2)
-    this.onActiveIndexChange(2);
-    if(this.loading == false){
+    if (this.activeIndex != 2)
+      this.onActiveIndexChange(2);
+    if (this.loading == false) {
       //this.activeIndex=2;
-      this.loading=true;
+      this.loading = true;
       this.packetService
-      .addPacket()
-      .subscribe((response: Packet) => {
-        console.log("new pack", response);
+        .addPacket()
+        .subscribe((response: Packet) => {
+          console.log("new pack", response);
 
-        this.loading=false;
-        this.packets.unshift(response);
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
-      });
+          this.loading = false;
+          this.packets.unshift(response);
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
+        });
     }
   }
 
   duplicatePacket(packet: Packet): void {
     this.packetService
-      .duplicatePacket(packet.id)
+      .duplicatePacket(packet.id!)
       .subscribe((response: any) => {// correction------------------------
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est dupliqué avec succés', life: 1000});
         this.packets.unshift(response);
@@ -584,34 +625,18 @@ onRowSelect($event: TableRowSelectEvent) {
   }
 
   deleteSelectedPackets(): void {
-    console.log("this.selectedPackets",this.selectedPackets);
-
-    let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id);
-    this.confirmationService.confirm({
-      message:'Êtes-vous sûr de vouloir supprimer les commandes séléctionnées ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.packetService
-          .deleteSelectedPackets(selectedPacketsByIds)
-          .subscribe(() => {
-            this.addAttempt(this.selectedPackets[0]);
-            this.packets = this.packets.filter((packet: Packet) => selectedPacketsByIds.indexOf(packet.id) == -1);
-            this.selectedPackets = [];
-            this.messageService.add({severity: 'success',summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000});
-          });
-      }
-    });
+    this.addAttempt(this.selectedPackets[0], 'DELETED');
   }
 
   loadOfferListAndOpenOffersDialog(packet: Packet,editMode:boolean): void {
-    if(packet.fbPage){
+    if (packet.fbPage) {
       this.productService.loadProducts().subscribe(() => {
         this.packet = Object.assign({}, packet);
         this.modelDialog = true;
         this.editMode = editMode;
       });
-    }else{ this.messageService.add({ severity: 'info', summary: 'Info', detail: 'Pas de page Facebook selectionné', life: 1000 });
+    } else {
+      this.messageService.add({ severity: 'info', summary: 'Info', detail: 'Pas de page Facebook selectionné', life: 1000 });
     }
   }
 
@@ -620,7 +645,6 @@ onRowSelect($event: TableRowSelectEvent) {
   }
 
   OnSubmit($event: any): void {
-
     console.log("onsubmit list packet",$event);
     this.modelDialog = $event.modelDialog;
     console.log("$event.modelDialog"+this.modelDialog);
@@ -655,7 +679,7 @@ onRowSelect($event: TableRowSelectEvent) {
     if ($event == 'clear') {
       this.selectedStates = [];
       this.selectedStatus.setValue([]);
-    }else if($event == 'page')
+    } else if ($event == 'page')
       page = this.currentPage;
     if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
 
@@ -689,7 +713,6 @@ onRowSelect($event: TableRowSelectEvent) {
     }
   }
 
-
   onPageChange($event: any): void {
     this.currentPage = $event.page;
     this.pageSize = $event.rows;
@@ -698,7 +721,7 @@ onRowSelect($event: TableRowSelectEvent) {
     this.filterPackets('page');
   }
 
-  resetTable(): void{
+  resetTable(): void {
     this.selectedStates = [];
     this.selectedPackets = [];
     this.selectedStatus.setValue([]);
@@ -742,7 +765,7 @@ onRowSelect($event: TableRowSelectEvent) {
   }
 
   clearStatus(): void {
-  this.selectedStates = [];
+    this.selectedStates = [];
     this.packetStatusList = this.statusList;
     this.selectedStatus.setValue([]);
     if (this.filter != '' && this.filter != null) {
@@ -778,17 +801,13 @@ onRowSelect($event: TableRowSelectEvent) {
         this.rangeDates[0]=this.startDate;
         this.endDate = this.today;
         this.rangeDates= [this.startDate,this.today];
-        //this.createRangeDate();
       }
     else this.rangeDates = [this.today];
-    //this.createRangeDate();
     this.filterPackets('global');
   }
 
   clearDate(){
     this.rangeDates = [];
-    //this.createRangeDate();
-    console.log("filterPackets-clearDate");
     this.filterPackets('global');
   }
 
@@ -840,7 +859,6 @@ onRowSelect($event: TableRowSelectEvent) {
         if(this.endedOptionsValue != undefined && this.endedOptionsValue.length > 0)
           this.selectedStatus.patchValue(this.endedOptionsValue);
       else{
-        console.log("bbbbbbbbbb");
         this.selectedStatus.patchValue([DELIVERED,PAID,RETURN_RECEIVED]);
         }
       }
@@ -856,12 +874,58 @@ onRowSelect($event: TableRowSelectEvent) {
   showStatusButton() {
     this.showStatus= !this.showStatus;
   }
+
+  getReasonOptionsByStatus(status: string) {
+    return (Object.keys(ClientReason) as (keyof typeof ClientReason)[])
+      .filter(key => isNaN(Number(key)) && ClientReasonDetails[ClientReason[key]].status === status)  // Filter out any non-number keys
+      .map(key => {
+        const reasonKey = ClientReason[key];
+        const clientReasonDetails = ClientReasonDetails[reasonKey];
+        return {
+          value: key,
+          label: clientReasonDetails.label,
+          description: clientReasonDetails.description,
+          status: clientReasonDetails.status,
+          text: clientReasonDetails.text,
+          outlined: clientReasonDetails.outlined,
+          severity: clientReasonDetails.severity,
+        }
+      })
+  }
+
+  onSelectReason(clientReason: ClientReason, index: number) {
+    this.explanationTitle = this.clientReasons[index]?.description;
+    if (this.explanationElement && this.explanationElement.nativeElement) {
+      setTimeout(() => {
+        this.explanationElement.nativeElement.focus();
+      }, 0);
+    }
+    this.clientReasons.forEach(clientReason => {
+      clientReason.text = true
+      clientReason.outlined = false
+    });
+    this.clientReasons[index].text = false;
+    this.clientReasons[index].outlined = true;
+
+    this.note.clientReason = clientReason;
+    this.note.status = this.clientReasons[index].status;
+  }
+
+  onNoteClick(event: MouseEvent, op: any, notes: Note[]): void {
+    event.stopPropagation(); // Prevent the click event from propagating
+    if (notes.length > 1) {
+      op.toggle(event);
+      this.selectedPacketNotes = notes;
+    }
+  }
+
   clearAllSelectedStatus(){
     this.nonConfirmedOptionsValue=[];
     this.endedOptionsValue=[];
     this.canceledOptionsValue = [];
     this.enCoursOptionsValue = [];
   }
+
   onEditInit($event: any): void {
     //console.log("onEditInit", $event);
 
@@ -889,6 +953,7 @@ onRowSelect($event: TableRowSelectEvent) {
       }
     }
   }
+
   private handleStatusField(packet: any): void {
     const status = packet[this.selectedField];
     const barcode = packet.barcode;
@@ -903,7 +968,7 @@ onRowSelect($event: TableRowSelectEvent) {
       case CANCELED:
         if (this.oldFieldValue !== CONFIRMED && this.oldFieldValue !== TO_VERIFY && this.oldFieldValue !== DELETED) {
           errorMessage = 'Please do not cancel outgoing packets';
-        }else this.addAttempt(packet);
+        }else this.addAttempt(packet, 'DELETED');
         break;
       case NOT_CONFIRMED:
       case OOS:
@@ -952,6 +1017,7 @@ onRowSelect($event: TableRowSelectEvent) {
     this.patchPacketService(packet);
 
   }
+
   loadNotification(){
     this.statusItems= [
       {
@@ -1053,6 +1119,7 @@ onRowSelect($event: TableRowSelectEvent) {
       }
   ];
   }
+
   createNotification(): void {
     this.statusItems[1].badge = 0;
     this.statusItems[1].badgeByDate = 0;
@@ -1156,7 +1223,7 @@ onRowSelect($event: TableRowSelectEvent) {
           icon: 'pi pi-refresh',
           disabled:packet.status!=UNREACHABLE,
           command: () => {
-            this.addAttempt(packet)
+            this.addAttempt(packet, 'UNREACHABLE')
           }
         },
         {
@@ -1282,4 +1349,279 @@ onRowSelect($event: TableRowSelectEvent) {
     element.click();
 
     document.body.removeChild(element);
+  }
+
+  selectCity(packet: Packet) {
+    this.selectedCity = packet.city;
+  }
+  selectPhoneNumber(packet: any) {
+    this.selectedPhoneNumber = packet.customerPhoneNb;
+  }
+
+  onActiveIndexChange(event: any) {
+
+    console.log(event, this.canceledOptionsValue);
+    this.activeIndex = event;
+
+    if (this.statusItems[event].title == IN_PROGRESS) {
+      if (this.enCoursOptionsValue != undefined && this.enCoursOptionsValue.length > 0)
+        this.selectedStatus.patchValue(this.enCoursOptionsValue);
+      else
+        this.selectedStatus.patchValue([TO_VERIFY, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3]);
+    }
+    else if (this.statusItems[event].title == NOT_CONFIRMED) {
+      if (this.nonConfirmedOptionsValue != undefined && this.nonConfirmedOptionsValue.length > 0)
+        this.selectedStatus.patchValue(this.nonConfirmedOptionsValue);
+      else
+        this.selectedStatus.patchValue([NOT_CONFIRMED, UNREACHABLE]);
+    }
+    else if (this.statusItems[event].title == CANCELED) {
+      if (this.canceledOptionsValue != undefined && this.canceledOptionsValue.length > 0)
+        this.selectedStatus.patchValue(this.canceledOptionsValue);
+      else
+        this.selectedStatus.patchValue([CANCELED, DELETED]);
+    }
+
+    else if (this.statusItems[event].title == "Terminé") {
+      if (this.endedOptionsValue != undefined && this.endedOptionsValue.length > 0)
+        this.selectedStatus.patchValue(this.endedOptionsValue);
+      else
+        this.selectedStatus.patchValue([DELIVERED, PAID, RETURN_RECEIVED]);
+    }
+    else {
+      this.selectedStatus.setValue([]);
+      this.selectedStatus.patchValue([this.statusItems[event].title]);
+    }
+    //console.log("filterPackets-onActiveIndexChange",this.params);
+    this.filterPackets('status');
+  }
+
+  showStatusButton() {
+    this.showStatus = !this.showStatus;
+  }
+
+  getReasonOptionsByStatus(status: string) {
+    return (Object.keys(ClientReason) as (keyof typeof ClientReason)[])
+      .filter(key => isNaN(Number(key)) && ClientReasonDetails[ClientReason[key]].status === status)  // Filter out any non-number keys
+      .map(key => {
+        const reasonKey = ClientReason[key];
+        const clientReasonDetails = ClientReasonDetails[reasonKey];
+        return {
+          value: key,
+          label: clientReasonDetails.label,
+          description: clientReasonDetails.description,
+          status: clientReasonDetails.status,
+          text: clientReasonDetails.text,
+          outlined: clientReasonDetails.outlined,
+          severity: clientReasonDetails.severity,
+        }
+      })
+  }
+
+  onSelectReason(clientReason: ClientReason, index: number) {
+    this.explanationTitle = this.clientReasons[index]?.description;
+    if (this.explanationElement && this.explanationElement.nativeElement) {
+      setTimeout(() => {
+        this.explanationElement.nativeElement.focus();
+      }, 0);
+    }
+    this.clientReasons.forEach(clientReason => {
+      clientReason.text = true
+      clientReason.outlined = false
+    });
+    this.clientReasons[index].text = false;
+    this.clientReasons[index].outlined = true;
+
+    this.note.clientReason = clientReason;
+    this.note.status = this.clientReasons[index].status;
+  }
+
+  onNoteClick(event: MouseEvent, op: any, notes: Note[]): void {
+    event.stopPropagation(); // Prevent the click event from propagating
+    if (notes.length > 1) {
+      op.toggle(event);
+      this.selectedPacketNotes = notes;
+    }
+  }
+}
+/*notificationList : any [] = [
+  {
+    class:'pi-check-circle',
+    severity:'info',
+    status: CONFIRMEE,
+    count: this.nbrConfirmed
+  },
+  {
+    class:'pi-question-circle',
+    severity:'info',
+    status: A_VERIFIER,
+    count: '0'
+  },
+  {
+    class:'pi-power-off',
+    severity:'warning',
+    status: UNREACHABLE,
+    count: '0'
+  },
+  {
+    class:'pi-phone',
+    severity:'danger',
+    status: NOT_CONFIRMED,
+    count: '0'
+  }
+];*/
+
+/*exportCSV() {
+    let packets: any[] = [];
+    let selectedPackets = this.selectedPackets.map((p) => p.id);
+    packets = this.packets.slice();
+    if (this.filter != '' && this.filter != null)
+      packets = this.dt!.filteredValue;
+    if (this.selectedPackets.length > 0) {
+      let filteredPackets = packets.filter(
+        (packet) => selectedPackets.indexOf(packet.id) > -1
+      );
+      if (filteredPackets.length > 0) packets = filteredPackets.slice();
+    }
+
+    // map the packets to a customer packetList
+    packets = packets?.map(
+      (packet: any) =>
+      (packet = {
+        destinataire_nom: this.getValue(packet.customerName),
+        adresse: this.getValue(packet.address).replace(this.regBS, ' '),
+        ville: this.getValue(packet.city?.name),
+        gouvernorat: this.getValue(packet.city?.governorate.name),
+        telephone: this.getPhoneNumber1(packet.customerPhoneNb),
+        telephone2: this.getPhoneNumber2(packet.customerPhoneNb),
+        nombre_de_colis: 1,
+        prix: this.getValue(packet.price-packet.discount+packet.deliveryPrice),
+        designation:
+          this.getValue(packet.id) +
+          ' ' +
+          this.getValue(packet.fbPage?.name) +
+          ' | ' +
+          this.getValue(packet.packetDescription?.replace(this.regBS, ', ')),
+        commentaire:
+          'Le colis peut etre ouvert lors de la commande du client',
+        barcode: this.getValue(packet.barcode),
+      })
+    );
+
+    // prepare the columns to be exported
+    let cols: any[] = [
+      { field: 'destinataire_nom', header: 'destinataire_nom' },
+      { field: 'adresse', header: 'adresse' },
+      { field: 'ville', header: 'ville' },
+      { field: 'gouvernorat', header: 'gouvernorat' },
+      { field: 'telephone', header: 'telephone' },
+      { field: 'telephone2', header: 'telephone2' },
+      { field: 'nombre_de_colis', header: 'nombre_de_colis' },
+      { field: 'prix', header: 'prix' },
+      { field: 'designation', header: 'designation' },
+      { field: 'commentaire', header: 'commentaire' },
+      { field: 'barcode', header: 'Barcode' },
+    ];
+    let csv = '';
+    let csvSeparator = ';';
+    //headers
+    for (let i = 0; i < cols.length; i++) {
+      if (cols[i].field) {
+        csv += cols[i].field;
+
+        if (i < cols.length - 1) {
+          csv += csvSeparator;
+        }
+      }
+    }
+    //body
+    packets?.forEach((record: any, j) => {
+      csv += '\n';
+      for (let i = 0; i < cols.length; i++) {
+        if (cols[i].field) {
+          //console.log(record[cols[i].field]);
+          // resolveFieldData seems to check if field is nested e.g. data.something --> probably not needed
+          csv += record[cols[i].field]; //this.resolveFieldData(record, this.columns[i].field);
+          if (i < cols.length - 1) {
+            csv += csvSeparator;
+          }
+        }
+      }
+    });
+    this.download(csv, 'first - ' + this.dateUtils.formatDateToString(this.today));
   }*/
+
+/*onNotificationClick($event?: string): void{
+  console.log("aaaa",$event);
+  //this.createNotification();
+  this.selectedStatus.setValue([]);
+  this.selectedStatus.patchValue([$event]);
+  console.log("filterPackets-onNotificationClick");
+  this.filterPackets('status');
+}*/
+
+/*onStateChange(): void {
+  this.selectedStatus.setValue([]);
+  //this.packetStatusList = [];
+  if (this.selectedStates.indexOf(CORBEIL) > -1) {
+    this.selectedStatus.patchValue([DELETED]);
+  }
+
+  if (this.selectedStates.indexOf(BUREAU) > -1) {
+    this.selectedStatus.patchValue([ NOT_CONFIRMED, OOS, A_VERIFIER, CONFIRMEE ]);
+  }
+  if (this.selectedStates.indexOf(IN_PROGRESS) > -1) {
+    this.selectedStatus.patchValue([ A_VERIFIER, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3]);
+    //this.packetStatusList = this.statusList;
+  }
+  if (this.selectedStates.indexOf(TERMINE) > -1) {
+    this.selectedStatus.patchValue([PAID, RETURN_RECEIVED]);
+  }
+}*/
+/*exportExcel() {
+console.log(this.dt?._totalRecords);
+console.log(this.dt?.totalRecords);
+let packets: any[] = [];
+let selectedPackets = this.selectedPackets.map((p) => p.id);
+packets = this.packets.slice();
+if (this.filter != '' && this.filter != null)
+  packets = this.dt!.filteredValue;
+if (this.selectedPackets.length > 0) {
+  let filteredPackets = packets.filter(
+    (packet) => selectedPackets.indexOf(packet.id) > -1
+  );
+  if (filteredPackets.length > 0) packets = filteredPackets.slice();
+}
+
+packets = packets?.map(
+  (packet: any) =>
+  (packet = {
+    Id: packet.id,
+    Prix: packet.price + packet.deliveryPrice - packet.discount,
+    Références: packet.packetDescription,
+    PageFB: packet.fbPage?.name,
+  })
+);
+import('xlsx').then((xlsx) => {
+  const worksheet = xlsx.utils.json_to_sheet(packets);
+  const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
+  const excelBuffer: any = xlsx.write(workbook, {
+    bookType: 'xlsx',
+    type: 'array',
+  });
+  this.saveAsExcelFile(excelBuffer, 'products');
+});
+}
+
+/*   saveAsExcelFile(buffer: any, fileName: string): void {
+let EXCEL_TYPE =
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+let EXCEL_EXTENSION = '.xlsx';
+const data: Blob = new Blob([buffer], {
+  type: EXCEL_TYPE,
+});
+FileSaver.saveAs(
+  data,
+  fileName + ' - ' + this.dateUtils.formatDateToString(new Date()) + EXCEL_EXTENSION
+);
+} */

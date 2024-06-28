@@ -19,7 +19,7 @@ export class VerificationComponent implements OnInit {
 
   targetPackets: Packet[] = [];
 
-  barCode : String;
+  barCode : string;
 
   $unsubscribe: Subject<void> = new Subject();
 
@@ -42,7 +42,7 @@ export class VerificationComponent implements OnInit {
   };
 
 
-  constructor(private packetService : PacketService,private dateUtils: DateUtils,private messageService: MessageService,public storageService: StorageService) {
+  constructor(private packetService : PacketService, private messageService: MessageService,public storageService: StorageService) {
 
   }
 

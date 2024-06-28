@@ -3,46 +3,55 @@ package com.clothing.management.controllers;
 import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.services.DeliveryCompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("deliveryCompany")
+@RequestMapping("${api.prefix}/delivery-companies")
 @CrossOrigin
 public class DeliveryCompanyController {
 
     @Autowired
     DeliveryCompanyService deliveryCompanyService;
 
-    @GetMapping(path = "/findAll")
-    public List<DeliveryCompany> findAllDC() {
-        return deliveryCompanyService.findAllStesLivraison();
+    @GetMapping
+    public ResponseEntity<List<DeliveryCompany>> getAllDeliveryCompanies() {
+        List<DeliveryCompany> deliveryCompanies = deliveryCompanyService.findAllDeliveryCompanies();
+        return new ResponseEntity<>(deliveryCompanies, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/findById/{id}")
-    public Optional<DeliveryCompany> findByIdDC(@PathVariable Long idCompany) {
-        return deliveryCompanyService.findSteById(idCompany);
+    @GetMapping("/{id}")
+    public ResponseEntity<DeliveryCompany> getDeliveryCompanyById(@PathVariable Long id) {
+        Optional<DeliveryCompany> deliveryCompany = deliveryCompanyService.findDeliveryCompanyById(id);
+        return deliveryCompany.map(company -> new ResponseEntity<>(company, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public DeliveryCompany addDC(@RequestBody  DeliveryCompany ste) {
-        return deliveryCompanyService.addSte(ste);
+    @PostMapping
+    public ResponseEntity<DeliveryCompany> createDeliveryCompany(@RequestBody DeliveryCompany deliveryCompany) {
+        DeliveryCompany createdCompany = deliveryCompanyService.addDeliveryCompany(deliveryCompany);
+        return new ResponseEntity<>(createdCompany, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/update" , produces = "application/json")
-    public DeliveryCompany updateDC(@RequestBody DeliveryCompany ste) {
-        return deliveryCompanyService.updateSte(ste);
+    @PutMapping
+    public ResponseEntity<DeliveryCompany> updateDeliveryCompany(@RequestBody DeliveryCompany deliveryCompany) {
+        DeliveryCompany updatedCompany = deliveryCompanyService.updateDeliveryCompany(deliveryCompany);
+        return new ResponseEntity<>(updatedCompany, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/delete" , produces = "application/json")
-    public void deleteDC(@RequestBody DeliveryCompany ste) {
-        deliveryCompanyService.deleteSte(ste);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDeliveryCompanyById(@PathVariable Long id) {
+        deliveryCompanyService.deleteDeliveryCompanyById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping(value = "/deleteById/{idSte}")
-    public void deleteDCById(@PathVariable Long idSte) {
-        deliveryCompanyService.deleteSteById(idSte);
+    @DeleteMapping
+    public ResponseEntity<Void> deleteDeliveryCompany(@RequestBody DeliveryCompany deliveryCompany) {
+        deliveryCompanyService.deleteDeliveryCompany(deliveryCompany);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

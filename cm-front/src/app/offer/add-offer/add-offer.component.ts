@@ -114,7 +114,7 @@ export class AddOfferComponent implements OnInit {
       if(block == "Offer"){
         console.log("offer",offer);
         offer.id=this.offer.id;
-        this.offerService.updateOffer(offer).pipe(takeUntil(this.$unsubscribe))
+        this.offerService.updateData(offer).pipe(takeUntil(this.$unsubscribe))
         .subscribe(offerResponse => {
           console.log(offerResponse);
           //this.offerService.setOffer(offerResponse)

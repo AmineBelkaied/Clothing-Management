@@ -13,14 +13,14 @@ export class AuthGuard {
 
         if (this.storageService.isUserLoggedIn()) {
             if (route.data['role'] && !StringUtils.checkExistence(route.data['role'], this.storageService.getRoles())) {
-                this.storageService.getTenantName() ? this.router.navigate(['/auth/login', this.storageService.getTenantName()]) :
-                    this.router.navigateByUrl('/auth/login/');
+                this.storageService.getTenantName() ? this.router.navigate(['/login', this.storageService.getTenantName()]) :
+                    this.router.navigateByUrl('/login/');
                 return false;
             }
             return true;
         }
-        this.storageService.getTenantName() ? this.router.navigate(['/auth/login', this.storageService.getTenantName()]) :
-            this.router.navigateByUrl('/auth/login/');
+        this.storageService.getTenantName() ? this.router.navigate(['/login', this.storageService.getTenantName()]) :
+            this.router.navigateByUrl('/login/');
         return false;
     }
 }

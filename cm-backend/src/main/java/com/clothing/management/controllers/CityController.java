@@ -2,18 +2,18 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.dto.GroupedCitiesDTO;
 import com.clothing.management.entities.City;
-import com.clothing.management.entities.Governorate;
 import com.clothing.management.services.CityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("city")
+@RequestMapping("${api.prefix}/cities")
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class CityController {
@@ -21,38 +21,46 @@ public class CityController {
     @Autowired
     CityService cityService;
 
-    @GetMapping(path = "/findAll")
-    public List<City> findAllCitys() {
-        return cityService.findAllCities();
+    @GetMapping
+    public ResponseEntity<List<City>> getAllCities() {
+        List<City> cities = cityService.findAllCities();
+        return new ResponseEntity<>(cities, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/findGroupedCities")
-    public List<GroupedCitiesDTO> findGroupedCities() {
-        return cityService.findGroupedCities();
+    @GetMapping("/grouped-by-governorate")
+    public ResponseEntity<List<GroupedCitiesDTO>> getGroupedCities() {
+        List<GroupedCitiesDTO> groupedCities = cityService.findGroupedCities();
+        return new ResponseEntity<>(groupedCities, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/findById/{id}")
-    public Optional<City> findByIdCity(@PathVariable Long idCity) {
-        return cityService.findCityById(idCity);
+    @GetMapping("/{id}")
+    public ResponseEntity<City> getCityById(@PathVariable Long id) {
+        Optional<City> city = cityService.findCityById(id);
+        return city.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public City addCity(@RequestBody  City city) {
-        return cityService.addCity(city);
+    @PostMapping
+    public ResponseEntity<City> createCity(@RequestBody City city) {
+        City createdCity = cityService.addCity(city);
+        return new ResponseEntity<>(createdCity, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/update" , produces = "application/json")
-    public City updateCity(@RequestBody City city) {
-        return cityService.updateCity(city);
+    @PutMapping
+    public ResponseEntity<City> updateCity(@RequestBody City city) {
+        City updatedCity = cityService.updateCity(city);
+        return new ResponseEntity<>(updatedCity, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/delete" , produces = "application/json")
-    public void deleteCity(@RequestBody City city) {
-        cityService.deleteCity(city);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCityById(@PathVariable Long id) {
+        cityService.deleteCityById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping(value = "/deleteSelectedCities/{citiesId}" , produces = "application/json")
-    public void deleteSelectedCities(@PathVariable List<Long> citiesId) {
-        cityService.deleteSelectedCities(citiesId);
+    @DeleteMapping("/batch-delete")
+    public ResponseEntity<Void> deleteSelectedCities(@RequestBody List<Long> cityIds) {
+        cityService.deleteSelectedCities(cityIds);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

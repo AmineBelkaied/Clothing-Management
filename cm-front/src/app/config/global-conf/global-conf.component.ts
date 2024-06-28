@@ -1,11 +1,11 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { Observable, Subject, Subscription, catchError, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
-import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
+import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
 
 @Component({
   selector: 'app-global-conf',
@@ -22,15 +22,15 @@ export class GlobalConfComponent implements OnInit, OnDestroy {
 
   constructor(
     public globalConfService: GlobalConfService,
-    private steLivraisonService: SteLivraisonService,
+    private deliveryCompanyService: DeliveryCompanyService,
     private messageService: MessageService) {
 
     }
 
   ngOnInit(): void {
-    this.steLivraisonService.getDCSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
-      (dc: DeliveryCompany[]) => {
-        this.deliveryCompanies = dc;
+    this.deliveryCompanyService.getDCSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (deliveryCompany: DeliveryCompany[]) => {
+        this.deliveryCompanies = deliveryCompany;
       }
     );
 
@@ -47,7 +47,7 @@ export class GlobalConfComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.$unsubscribe.next();
-this.$unsubscribe.complete();
+    this.$unsubscribe.complete();
   }
 
 }

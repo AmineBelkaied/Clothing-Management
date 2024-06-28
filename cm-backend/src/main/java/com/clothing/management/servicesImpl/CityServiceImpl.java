@@ -60,6 +60,11 @@ public class CityServiceImpl implements CityService {
     public void deleteSelectedCities(List<Long> citiesId) { cityRepository.deleteAllById(citiesId); }
 
     @Override
+    public void deleteCityById(Long id) {
+        cityRepository.deleteById(id);
+    }
+
+    @Override
     public List<GroupedCitiesDTO> findGroupedCities() {
         Map<Governorate, List<City>> groupedCitiesDTO = cityRepository.findAll()
                 .stream()

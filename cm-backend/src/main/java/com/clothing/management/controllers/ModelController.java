@@ -1,52 +1,67 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.dto.ModelDTO;
-import com.clothing.management.dto.OfferDTO;
 import com.clothing.management.entities.Model;
 import com.clothing.management.services.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("model")
+@RequestMapping("${api.prefix}/models")
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ModelController {
 
+    private final ModelService modelService;
+
     @Autowired
-    ModelService modelService;
-
-    @GetMapping(path = "/findAll")
-    public List<Model> findAllModels() {
-        return modelService.findAllModels();
+    public ModelController(ModelService modelService) {
+        this.modelService = modelService;
     }
 
-    @GetMapping(path = "/findById/{id}")
-    public Optional<Model> findByIdModel(@PathVariable Long idModel) {
-        return modelService.findModelById(idModel);
+    @GetMapping("/find-all")
+    public ResponseEntity<List<Model>> getAllModels() {
+        List<Model> models = modelService.findAllModels();
+        return new ResponseEntity<>(models, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/save" , produces = "application/json")
-    public Model updateModel(@RequestBody Model model) {
-        return modelService.saveModel(model);
+    @GetMapping("/{id}")
+    public ResponseEntity<Model> getModelById(@PathVariable Long id) {
+        return modelService.findModelById(id)
+                .map(model -> new ResponseEntity<>(model, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping(value = "/deleteById/{idModel}")
-    public void deleteModelById(@PathVariable Long idModel) {
-        modelService.deleteModelById(idModel);
+    @PostMapping
+    public ResponseEntity<Model> createModel(@RequestBody Model model) {
+        Model createdModel = modelService.saveModel(model);
+        return new ResponseEntity<>(createdModel, HttpStatus.CREATED);
     }
 
-    @DeleteMapping(value = "/deleteSelectedModels/{modelsId}" , produces = "application/json")
-    public void deleteSelectedModels(@PathVariable List<Long> modelsId) { modelService.deleteSelectedModels(modelsId);
+    @PutMapping
+    public ResponseEntity<Model> updateModel(@RequestBody Model model) {
+        Model updatedModel = modelService.saveModel(model);
+        return new ResponseEntity<>(updatedModel, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/modelsDTO")
-    public List<ModelDTO> getModels() throws IOException {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteModelById(@PathVariable Long id) {
+        modelService.deleteModelById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/batch-delete")
+    public ResponseEntity<Void> deleteSelectedModels(@RequestBody List<Long> modelIds) {
+        modelService.deleteSelectedModels(modelIds);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping
+    public List<ModelDTO> getModels() {
         return modelService.getModels();
     }
 }

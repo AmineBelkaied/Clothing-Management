@@ -11,17 +11,17 @@
             <th>Actions</th>
         </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-ste>
+    <ng-template pTemplate="body" let-deliveryCompany>
         <tr>
-            <td>{{ste.id}}</td>
-            <td>{{ste.name}}</td>
-            <td>{{ste.additionalName}}</td>
-            <td style="font-weight: bold;">{{ste.token.substring(0, 40)}}</td>
+            <td>{{deliveryCompany.id}}</td>
+            <td>{{deliveryCompany.name}}</td>
+            <td>{{deliveryCompany.additionalName}}</td>
+            <td style="font-weight: bold;">{{deliveryCompany.token.substring(0, 40)}}</td>
              <td>
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-4 buttonSize"
-                    (click)="editSte(ste)"></button>
+                    (click)="editDeliveryCompany(deliveryCompany)"></button>
                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger buttonSize"
-                    (click)="deleteSte(ste)"></button>
+                    (click)="deleteDeliveryCompany(deliveryCompany)"></button>
                 <!--<p-inputSwitch class="ml-4" [(ngModel)]="ste.enabled" (onChange)="enableSte(ste)"></p-inputSwitch>-->
             </td>
         </tr>

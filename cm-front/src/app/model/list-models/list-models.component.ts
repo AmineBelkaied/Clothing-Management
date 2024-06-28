@@ -1,5 +1,5 @@
 import { HttpEventType, HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { catchError, Subject, switchMap, take, takeUntil, tap, throwError } from 'rxjs';
 import { Color } from 'src/shared/models/Color';
@@ -14,7 +14,7 @@ import { SizeService } from 'src/shared/services/size.service';
   templateUrl: './list-models.component.html',
   styleUrls: ['./list-models.component.css'],
 })
-export class ListModelsComponent implements OnInit {
+export class ListModelsComponent implements OnInit, OnDestroy{
   modelDialog!: boolean;
   msg :String = 'Erreur de connexion';
 
@@ -48,7 +48,7 @@ export class ListModelsComponent implements OnInit {
     private sizeService: SizeService,
     private colorService: ColorService
   ) {}
-
+ 
   ngOnInit() {
     this.modelService
       .findAllModelsDTO()
@@ -74,7 +74,7 @@ export class ListModelsComponent implements OnInit {
         console.log('this.model', this.model);
 
         // Save the model
-        return this.modelService.saveModel(this.model).pipe(
+        return this.modelService.addModel(this.model).pipe(
           tap((response: Model) => {
             //console.log(response);
             this.modelService.updateModelsSubscriber(response);
@@ -167,7 +167,7 @@ export class ListModelsComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.modelService
-          .deleteModelById(model.id)
+          .deleteModelById(model.id!)
           .pipe(takeUntil(this.$unsubscribe))
           .subscribe((response: any) => {
             this.models = this.models.filter((val) => val.id !== model.id);
@@ -220,4 +220,10 @@ export class ListModelsComponent implements OnInit {
     });
     return sizeDisplay;
   }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
+  }
+
 }

@@ -14,6 +14,5 @@ public interface ModelService {
     public Model generateModelProducts(Model model);
     public void deleteModelById(Long idModel);
     void deleteSelectedModels(List<Long> modelsId);
-
     List<ModelDTO> getModels();
 }

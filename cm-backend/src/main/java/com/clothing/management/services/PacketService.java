@@ -3,6 +3,7 @@ package com.clothing.management.services;
 import com.clothing.management.dto.*;
 import com.clothing.management.dto.DeliveryCompanyDTOs.BarCodeStatusDTO;
 import com.clothing.management.dto.DeliveryCompanyDTOs.DeliveryResponse;
+import com.clothing.management.entities.Note;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
 import com.clothing.management.models.DashboardCard;
@@ -37,7 +38,7 @@ public interface PacketService {
     DeliveryResponse createBarCode(Packet packet) throws IOException, InterruptedException;
     PacketDTO getLastStatus(long packetId) throws Exception;
     Packet getLastStatus(Packet packet) throws Exception;
-    Packet addAttempt(Long packetId,String note);
+    Packet addAttempt(Note node, Long packetId) throws Exception;
     int checkPhone(String phoneNumber);
     //List<DashboardCard> createDashboard();
     List<DashboardCard> syncNotification(String beginDate, String endDate);

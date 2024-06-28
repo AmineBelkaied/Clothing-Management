@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { baseUrl } from '../../assets/constants';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Offer } from '../models/Offer';
 import { OfferModelsDTO } from '../models/OfferModelsDTO';
 import { FbPage } from '../models/FbPage';
+import { environment } from '../../environments/environment';
+import { OFFER_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class OfferService {
   public offerSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public offers: Offer[] = [];
   public offer: Offer;
-  private baseUrl: string = baseUrl+"/offer";
+  private baseUrl: string = environment.baseUrl + `${OFFER_ENDPOINTS.BASE}`;
   //public offersDTO: Offer[] = [];
 
   constructor(private http: HttpClient) { }
@@ -42,7 +43,8 @@ export class OfferService {
     }
     return this.offersSubscriber.asObservable();
   }
-  cleanOffre() {
+
+cleanOffre() {
    // this.offer = this.defaultModel;
     this.offerSubscriber=  new BehaviorSubject([]);
   }
@@ -52,48 +54,52 @@ export class OfferService {
   }
 
   findAllOffers() {
-    return this.http.get(this.baseUrl + "/findAll");
+    return this.http.get(`${this.baseUrl}`);
   }
 
 
   findOffersByFbPageId(id: number) : Observable<Offer[]>{
-    return this.http.get<Offer[]>(this.baseUrl + "/findByFBPage/"+id);
+    return this.http.get<Offer[]>(`${this.baseUrl}${OFFER_ENDPOINTS.BY_FB_PAGE}/${id}`);
   }
 
   findAllOffersModelQuantities() {
-    return this.http.get(this.baseUrl + "/findAllOffersModelQuantities");
+    return this.http.get(`${this.baseUrl}${OFFER_ENDPOINTS.MODEL_QUANTITIES}`);
   }
+
   findOffersModelQuantitiesById(id : number) {
     return this.http.get(this.baseUrl + "/findOffersModelQuantitiesById/"+id);
   }
 
   findOfferById(id: number) {
-    return this.http.get(this.baseUrl + "/findById/" + id);
+    return this.http.get(`${this.baseUrl}/${id}`);
   }
 
   addOffer(offer: Offer) {
-    return this.http.post(this.baseUrl + "/add" , offer , {observe: 'body'})
+    return this.http.post(`${this.baseUrl}` , offer , {observe: 'body'})
   }
 
   updateOffer(offer: Offer) {
-    return this.http.put(this.baseUrl + "/updateData?id="+offer.id+"&name="+offer.name+"&price="+offer.price+"&enabled="+offer.enabled , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(`${this.baseUrl}`, offer , {headers : {'content-type': 'application/json'}});
+  }
+
+  updateData(offer: Offer) {
+    return this.http.put(this.baseUrl + "/update-data?id="+offer.id+"&name="+offer.name+"&price="+offer.price+"&enabled="+offer.enabled , {headers : { 'content-type': 'application/json'}})
   }
 
   updateOfferFbPages(offerId: number, fbPages: FbPage[]) {
-    return this.http.put(this.baseUrl + "/updateOfferFbPages?offerId="+offerId , fbPages , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(this.baseUrl + "/update-offer-fb-pages?offerId="+offerId , fbPages , {headers : { 'content-type': 'application/json'}})
   }
 
-  updateOfferModels(offerId: number,OfferModelsDTO: OfferModelsDTO[]) : Observable<any> {
-    return this.http.put(this.baseUrl + "/updateOfferModels?offerId="+offerId , OfferModelsDTO , {headers : { 'content-type': 'application/json'}})
+  updateOfferModels(offerId: number, offerModelsDTO: OfferModelsDTO[]) : Observable<any> {
+    return this.http.put(this.baseUrl + "/update-offer-models?offerId=" + offerId , offerModelsDTO , {headers : { 'content-type': 'application/json'}})
   }
 
-  deleteOfferById(idOffer: any) {
-    console.log(this.baseUrl + "/deleteById/" + idOffer)
-    return this.http.delete(this.baseUrl + "/deleteById/" + idOffer)
+  deleteOfferById(id: number) {
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
-  deleteSelectedOffers(offersId: any[]) {
-    return this.http.delete(this.baseUrl + "/deleteSelectedOffers/" + offersId);
+  deleteSelectedOffers(offersId: number[]) {
+    return this.http.delete(`${this.baseUrl}/${OFFER_ENDPOINTS.BATCH_DELETE}/${offersId}`);
   }
 
   spliceOffer(){

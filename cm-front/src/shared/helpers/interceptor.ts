@@ -33,7 +33,7 @@ export class AuthInterceptor implements HttpInterceptor {
             if(error.status === 401 || error.status === 403) {
               this.storageService.isLoggedIn.next(false);
               this.storageService.removeUser();
-              this.router.navigate(["/auth/login/" + this.storageService.getTenantName()]);
+              this.router.navigate(["/login/" + this.storageService.getTenantName()]);
         }
         return throwError(error)
         })

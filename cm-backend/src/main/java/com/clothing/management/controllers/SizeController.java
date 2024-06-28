@@ -3,6 +3,8 @@ package com.clothing.management.controllers;
 import com.clothing.management.entities.Size;
 import com.clothing.management.services.SizeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,36 +12,61 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("size")
+@RequestMapping("${api.prefix}/sizes")
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class SizeController {
 
     @Autowired
-    SizeService sizeService;
+    private SizeService sizeService;
 
-    @GetMapping(path = "/findAll")
-    public List<Size> findAllSizes() {
-        return sizeService.findAllSizes();
+    @GetMapping
+    public ResponseEntity<List<Size>> getAllSizes() {
+        try {
+            List<Size> sizes = sizeService.findAllSizes();
+            return ResponseEntity.ok(sizes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @GetMapping(path = "/findById/{id}")
-    public Optional<Size> findByIdSize(@PathVariable Long idSize) {
-        return sizeService.findSizeById(idSize);
+    @GetMapping("/{id}")
+    public ResponseEntity<Size> getSizeById(@PathVariable Long id) {
+        try {
+            Optional<Size> size = sizeService.findSizeById(id);
+            return size.isPresent() ? (ResponseEntity<Size>) ResponseEntity.ok() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public Size addSize(@RequestBody  Size size) throws Exception {
-        return sizeService.addSize(size);
+    @PostMapping
+    public ResponseEntity<Size> createSize(@RequestBody Size size) {
+        try {
+            Size createdSize = sizeService.addSize(size);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdSize);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @PutMapping(value = "/update" , produces = "application/json")
-    public Size updateSize(@RequestBody Size size) throws Exception {
-        return sizeService.updateSize(size);
+    @PutMapping
+    public ResponseEntity<Size> updateSize(@RequestBody Size size) {
+        try {
+            Size updatedSize = sizeService.updateSize(size);
+            return updatedSize != null ? ResponseEntity.ok(updatedSize) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @DeleteMapping(value = "/deleteById/{idSize}")
-    public void deleteSizeById(@PathVariable Long idSize) {
-        sizeService.deleteSizeById(idSize);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSizeById(@PathVariable Long id) {
+        try {
+            sizeService.deleteSizeById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

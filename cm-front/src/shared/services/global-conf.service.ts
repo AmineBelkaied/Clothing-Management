@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
 import { BehaviorSubject, catchError, Observable, shareReplay,tap,map, throwError, switchMap } from 'rxjs';
-import { baseUrl } from 'src/assets/constants';
 import { GlobalConf } from '../models/GlobalConf';
 import { MessageService } from 'primeng/api';
+import { GLOBAL_CONFIG_ENDPOINTS } from '../constants/api-endpoints';
 import { OfferService } from './offer.service';
 
 @Injectable({
@@ -11,8 +12,7 @@ import { OfferService } from './offer.service';
 })
 export class GlobalConfService {
 
-
-  private baseUrl: string = baseUrl + "/globalConf";
+  private baseUrl: string = environment.baseUrl + `${GLOBAL_CONFIG_ENDPOINTS.BASE}`;
   public editMode = false;
   public globalConfSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public globalConf: GlobalConf;
@@ -40,12 +40,13 @@ export class GlobalConfService {
   }
 
   getGlobalConf():Observable<any> {
-    return this.http.get<any>(this.baseUrl + "/get");
+    return this.http.get(`${this.baseUrl}`);
   }
 
   updateGlobalConf(globalConf: GlobalConf): Observable<any> {
-    return this.http.put<any>(this.baseUrl + "/update", globalConf);
+    return this.http.put(`${this.baseUrl}`, globalConf , {headers : {'content-type': 'application/json'}});
   }
+
   getGlobalConfSubscriber(): Observable<GlobalConf> {
     return this.globalConfSubscriber.asObservable();
   }

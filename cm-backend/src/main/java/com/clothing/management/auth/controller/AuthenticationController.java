@@ -23,10 +23,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.io.Serializable;
@@ -51,6 +48,12 @@ public class AuthenticationController implements Serializable {
     MasterTenantService masterTenantService;
     @Autowired
     MasterUserService masterUserService;
+
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello World";
+    }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<?> userLogin(@RequestBody UserLoginDTO userLoginDTO) throws AuthenticationException {

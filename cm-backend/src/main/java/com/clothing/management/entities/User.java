@@ -11,6 +11,8 @@ import java.util.Set;
 @Table(name = "user")
 public class User implements Serializable {
 
+    private static final long serialVersionUID = 8925284124120199772L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -42,6 +44,10 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<ProductHistory> productHistoryList;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Note> notes;
 
     public User() {
     }
@@ -119,6 +125,13 @@ public class User implements Serializable {
 
     public void setProductHistoryList(List<ProductHistory> productHistoryList) {
         this.productHistoryList = productHistoryList;
+    }
+
+    public List<Note> getNotes() {
+        return notes;
+    };
+    public void setNotes(List<Note> notes) {
+        this.notes = notes;
     }
 
     @Override

@@ -7,32 +7,41 @@ import com.clothing.management.entities.OfferModel;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.services.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("offer")
+@RequestMapping("${api.prefix}/offers")
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class OfferController {
 
-    @Autowired
-    OfferService offerService;
+    private final OfferService offerService;
 
-    /*@GetMapping(path = "/findAll")
-    public List<OfferModelsDTO> findAllOffers() throws IOException {
-        return offerService.findAllOffers();
+    @Autowired
+    public OfferController(OfferService offerService) {
+        this.offerService = offerService;
     }
 
-    /*@GetMapping(path = "/findAllOffersModelQuantities")
-    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() throws IOException {
-        return offerService.findAllOffersModelQuantities();
+    /*@GetMapping
+    public ResponseEntity<List<OfferModelsDTO>> getAllOffers() throws IOException {
+        List<OfferModelsDTO> offers = offerService.findAllOffers();
+        return ResponseEntity.ok(offers);
+    }
+
+    /*@GetMapping("/model-quantities")
+    public ResponseEntity<List<OfferModelQuantitiesDTO>> getAllOffersModelQuantities() throws IOException {
+        List<OfferModelQuantitiesDTO> offerQuantities = offerService.findAllOffersModelQuantities();
+        return ResponseEntity.ok(offerQuantities);
     }
 
     @GetMapping(path = "/findOffersModelQuantitiesById/{idOffer}")
@@ -45,36 +54,49 @@ public class OfferController {
     }
 
 
-    @GetMapping(path = "/findById/{idOffer}")
-    public Optional<Offer> findOfferById(@PathVariable Long idOffer) {
-        return offerService.findOfferById(idOffer);
+    @GetMapping("/{idOffer}")
+    public ResponseEntity<Offer> getOfferById(@PathVariable Long id) {
+        return offerService.findOfferById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @GetMapping(path = "/findByFBPage/{fbPageId}")
-    public List<OfferModel> findByFbPageId(@PathVariable Long fbPageId) throws IOException {
-        return offerService.findOfferByFbPageId(fbPageId);
+    @GetMapping("/fb-page/{fbPageId}")
+    public ResponseEntity<List<OfferModel>> getOffersByFbPageId(@PathVariable("fbPageId") Long fbPageId) throws IOException {
+        List<OfferModel> offers = offerService.findOfferByFbPageId(fbPageId);
+        return ResponseEntity.ok(offers);
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public OfferDTO addOffer(@RequestBody  OfferDTO offerDTO) {
-        return offerService.addOffer(offerDTO);
+    @PostMapping
+    public ResponseEntity<OfferDTO> addOffer(@RequestBody OfferDTO offerDTO) {
+        OfferDTO createdOffer = offerService.addOffer(offerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdOffer);
     }
-    @PostMapping(value = "/update" , produces = "application/json")
-    public OfferDTO updateOffer(@RequestBody Offer offer) throws Exception {
-        return offerService.updateOffer(offer);
+
+    @PutMapping
+    public ResponseEntity<OfferDTO> updateOffer(@RequestBody Offer offer) throws Exception {
+        OfferDTO updatedOffer = offerService.updateOffer(offer);
+        return ResponseEntity.ok(updatedOffer);
     }
-    @PutMapping(value = "/updateData" , produces = "application/json")
+
+    @PutMapping(value = "/update-offer-models" , produces = "application/json")
+    public OfferDTO updateOfferModels(@RequestParam("offerId") long offerId, @RequestBody Set<OfferModelsDTO> offerModelsDTO) throws Exception {
+        return offerService.updateOfferModels(offerId,offerModelsDTO);
+    }
+
+    @PutMapping(value = "/update-data" , produces = "application/json")
     public OfferDTO updateOffer(@RequestParam long id,@RequestParam String name,@RequestParam double price2,@RequestParam boolean enabled) throws Exception {
         return offerService.updateOfferData(id, name, price2, enabled);
     }
-    @PutMapping(value = "/updateOfferFbPages" , produces = "application/json")
+    @PutMapping(value = "/update-offer-fb-pages" , produces = "application/json")
     public OfferDTO updateOfferFbPages(@RequestParam("offerId") long offerId,@RequestBody Set<FbPage> fbPages) throws Exception {
         return offerService.updateOfferFbPages(offerId,fbPages);
     }
 
-    @PutMapping(value = "/updateOfferModels" , produces = "application/json")
-    public OfferDTO updateOfferModels(@RequestParam("offerId") long offerId,@RequestBody Set<OfferModelsDTO> offerModelsDTO) throws Exception {
-        return offerService.updateOfferModels(offerId,offerModelsDTO);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOffer(@PathVariable Long id) {
+        offerService.deleteOffer(new Offer(id));
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping(value = "/delete" , produces = "application/json")
@@ -82,8 +104,9 @@ public class OfferController {
         offerService.deleteOffer(offer);
     }
 
-    @DeleteMapping(value = "/deleteSelectedOffers/{offersId}" , produces = "application/json")
-    public void deleteSelectedOffers(@PathVariable List<Long> offersId) {
-        offerService.deleteSelectedOffers(offersId);
+    @DeleteMapping("/batch-delete/{offerIds}")
+    public ResponseEntity<Void> deleteSelectedOffers(@PathVariable List<Long> offerIds) {
+        offerService.deleteSelectedOffers(offerIds);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -11,7 +11,7 @@ import { StatsService } from 'src/shared/services/stats.service';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { Color } from 'src/shared/models/Color';
-import { Product } from 'src/shared/models/Product';
+import { Product } from '../../shared/models/Product';
 
 @Component({
   selector: 'app-stock',
@@ -22,8 +22,8 @@ export class StockComponent implements OnInit {
   products: Product[][] = [];
   models: Model[] = [];
 
-  chartOptions : String[] = ["Color","Size","Id"];
-  selectedChart : String = "Color";
+  chartOptions : string[] = ["Color","Size","Id"];
+  selectedChart : string = "Color";
 
   selectedModel: Model= {
     id: 0,
@@ -55,14 +55,14 @@ export class StockComponent implements OnInit {
 
   rangeDates: Date[] = [];
   range: number = 30;
-  startDateString : String;
-  endDateString : String;
+  startDatestring : string;
+  endDatestring : string;
 
   searchField: string = '';
   $unsubscribe: Subject<void> = new Subject();
   productsCount: ProductCountDTO[] = [];
 
-  modelName:String;
+  modelName:string;
 
   chart: any;
   chartData:any;
@@ -187,8 +187,8 @@ export class StockComponent implements OnInit {
 
     this.statsService.productsCount(
       modelId,
-      this.startDateString,
-      this.endDateString
+      this.startDatestring,
+      this.endDatestring
       )
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
@@ -206,11 +206,11 @@ export class StockComponent implements OnInit {
     });
   }
 
-  getStatModelSoldChart(modelId: number,option : String){
+  getStatModelSoldChart(modelId: number,option : string){
     this.statsService.statModelSold(
       this.modelId,
-      this.startDateString,
-      this.endDateString
+      this.startDatestring,
+      this.endDatestring
       )
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
@@ -232,7 +232,7 @@ export class StockComponent implements OnInit {
     this.getStatModelSoldChart(this.modelId,$event.option)
   }
 
-  createChart(data: any , option : String){
+  createChart(data: any , option : string){
     let chartList = [];
     let chartCounts : any[]= [];
     this.datesList = data.dates;
@@ -494,8 +494,8 @@ export class StockComponent implements OnInit {
     .findAll(
       this.modelId,
       this.searchField,
-      this.startDateString,
-      this.endDateString
+      this.startDatestring,
+      this.endDatestring
     )
     .subscribe((result: any) => {
       this.productsHistory = result;
@@ -510,8 +510,8 @@ export class StockComponent implements OnInit {
       this.rangeDates = [oneMonthAgo, today];
     }
 
-    this.startDateString = this.dateUtils.formatDateToString(this.rangeDates[0])
-    this.endDateString = this.rangeDates[1] != null? this.dateUtils.formatDateToString(this.rangeDates[1]): this.startDateString;
+    this.startDatestring = this.dateUtils.formatDateToString(this.rangeDates[0])
+    this.endDatestring = this.rangeDates[1] != null? this.dateUtils.formatDateToString(this.rangeDates[1]): this.startDatestring;
   }
 
   haveSelectedItems(index: number, row: boolean):boolean {
@@ -590,7 +590,7 @@ export class StockComponent implements OnInit {
     this.range = 1;
     if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
       {
-        this.endDateString = this.dateUtils.formatDateToString(this.today)
+        this.endDatestring = this.dateUtils.formatDateToString(this.today)
         this.rangeDates= [this.rangeDates[0],this.today];
         //this.setCalendar();
       }
@@ -604,7 +604,7 @@ export class StockComponent implements OnInit {
     //this.rangeDates= [yesterday,this.today];
     if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
       {
-        this.endDateString = this.dateUtils.formatDateToString(this.today)
+        this.endDatestring = this.dateUtils.formatDateToString(this.today)
         this.rangeDates= [this.rangeDates[0],yesterday];
         //this.setCalendar();
       }

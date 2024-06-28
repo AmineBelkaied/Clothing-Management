@@ -1,26 +1,27 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
+import { ROLE_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RoleService {
-
-  private endPoint: string = "/role";
   
-  constructor(private _http: HttpClient) { }
+  private baseUrl: string = environment.baseUrl + `${ROLE_ENDPOINTS.BASE}`;
+  
+  constructor(private http: HttpClient) { }
 
   findAllRoles() {
-    return this._http.get(baseUrl + this.endPoint + '/findAll');
+    return this.http.get(`${this.baseUrl}`);
   }
 
   addRole(role: any) {
-    return this._http.post(baseUrl + this.endPoint + '/add' , role);
+    return this.http.post(`${this.baseUrl}`, role , {observe: 'body'});
   }
 
   updateRole(role: any) {
-    return this._http.put(baseUrl + this.endPoint + '/update' , role);
+    return this.http.put(`${this.baseUrl}`, role , {headers : { 'content-type': 'application/json'}});
   }
 
 }

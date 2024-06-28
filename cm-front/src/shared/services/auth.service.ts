@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { baseUrl } from '../../assets/constants';
-
+import { environment } from '../../environments/environment';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -14,11 +13,13 @@ const httpOptions = {
 export class AuthService {
   constructor(private http: HttpClient) {}
 
+  baseUrl: string = environment.baseUrl;
 
-  private authUrl: string = '/api/auth';
+  private authUrl: string = '/auth';
   login(form: any): Observable<any> {
+    
     return this.http.post(
-      baseUrl + this.authUrl +'/login',
+      this.baseUrl + this.authUrl +'/login',
       form,
       httpOptions
     );
@@ -26,7 +27,7 @@ export class AuthService {
 
   register(username: string, email: string, password: string): Observable<any> {
     return this.http.post(
-      baseUrl + this.authUrl +'/signup',
+      this.baseUrl + this.authUrl +'/signup',
       {
         username,
         email,
@@ -37,12 +38,12 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
-    return this.http.post(baseUrl + this.authUrl+'/signout', { }, httpOptions);
+    return this.http.post(this.baseUrl + this.authUrl + '/signout', { }, httpOptions);
   }
 
   secondLogin(form: any): Observable<any> {
     return this.http.post(
-      baseUrl + this.authUrl +'/secondLogin',
+      this.baseUrl + this.authUrl +'/secondLogin',
       form,
       httpOptions
     );
@@ -50,14 +51,14 @@ export class AuthService {
 
   getTenantsByUser(userName: any): Observable<any> {
     return this.http.get(
-      baseUrl + this.authUrl +'/getTenantsByUser/'+ userName,
+      this.baseUrl + this.authUrl +'/getTenantsByUser/'+ userName,
       httpOptions
     );
   }
 
   loginMaster(form: any): Observable<any> {
     return this.http.post(
-      baseUrl + this.authUrl +'/login-master',
+      this.baseUrl + this.authUrl +'/login-master',
       form,
       httpOptions
     );

@@ -1,6 +1,5 @@
 package com.clothing.management.servicesImpl;
 
-import com.clothing.management.entities.Color;
 import com.clothing.management.entities.Size;
 import com.clothing.management.repository.ISizeRepository;
 import com.clothing.management.services.SizeService;

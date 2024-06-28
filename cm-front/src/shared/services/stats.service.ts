@@ -1,83 +1,114 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Packet } from '../models/Packet';
 import { Observable } from 'rxjs';
-import { baseUrl } from '../../assets/constants';
-import { DateUtils } from '../utils/date-utils';
+import { environment } from '../../environments/environment';
 import { TO_VERIFY, CONFIRMED, IN_PROGRESS, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, PAID, RETURN_RECEIVED, RETURN, DELIVERED } from '../utils/status-list';
+import { STAT_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StatsService {
-  constructor(private http: HttpClient,private dateUtils: DateUtils) {
-  }
-  //cityTree? : {name:string,occ:number}[];
-  private baseUrl: string = baseUrl+"/stat";
 
-  public productsCount(modelId : number,startDate: String,endDate:String) : Observable<any>{
-    return this.http.get(this.baseUrl + "/productsCount/"+modelId+"?beginDate=" + startDate + "&endDate=" + endDate);
-  }
-  /*public offersCount(startDate: String,endDate:String) : Observable<any>{
-    return this.http.get(this.baseUrl + "/offersCount?beginDate=" + startDate + "&endDate=" + endDate);
-  }*/
-
-  public statAllModels(startDate: String,endDate:String,countProgress:Boolean) : Observable<any>{
-    return this.http.get(this.baseUrl + "/statAllModels?beginDate=" + startDate + "&endDate=" + endDate +"&countProgress=" + countProgress);
+  constructor(private http: HttpClient) {
   }
 
-  public statStock(startDate: String,endDate:String) : Observable<any>{
-    return this.http.get(this.baseUrl + "/statStock?beginDate=" + startDate + "&endDate=" + endDate);
+  private baseUrl: string = environment.baseUrl + `${STAT_ENDPOINTS.BASE}`;
+
+  public productsCount(modelId: number, beginDate: string, endDate: string): Observable<any> {
+    let params = new HttpParams()
+      .set('beginDate', beginDate)
+      .set('endDate', endDate);
+
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.PRODUCTS_COUNT}/${modelId}`, { params });
   }
 
-  public statAllPackets(startDate: String,endDate:String,deliveryCompanyName: String) : Observable<any>{
-    return this.http.get(this.baseUrl + "/statAllPackets?beginDate=" + startDate + "&endDate=" + endDate+ "&deliveryCompanyName=" + deliveryCompanyName);
-  }
-  public statAllColors(startDate: String,endDate:String,modelsListIdsArray:number[]) : Observable<any>{
-    return this.http.get(this.baseUrl + "/statAllColors?beginDate=" + startDate + "&endDate=" + endDate + "&modelIds="+ modelsListIdsArray);
-  }
-  public statAllOffers(startDate: String,endDate:String) : Observable<any>{
-    return this.http.get(this.baseUrl + "/statAllOffers?beginDate=" + startDate + "&endDate=" + endDate);
+  public statAllModels(beginDate: string, endDate: string, countProgress: boolean): Observable<any> {
+    let params = new HttpParams()
+      .set('beginDate', beginDate)
+      .set('endDate', endDate)
+      .set('countProgress', countProgress);
+
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.ALL_MODELS}`, { params });
   }
 
-  public statModelSold(modelId : number, startDate: String,endDate:String) : Observable<any>{
-    return this.http.get(this.baseUrl + "/statModelSold/"+modelId+"?beginDate=" + startDate + "&endDate=" + endDate);
+  public statStock(beginDate: string, endDate: string): Observable<any> {
+    let params = new HttpParams()
+      .set('beginDate', beginDate)
+      .set('endDate', endDate);
+
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.STOCK}`, { params });
+  }
+
+  public statAllPackets(beginDate: string, endDate: string, deliveryCompanyName: string): Observable<any> {
+    let params = new HttpParams()
+      .set('beginDate', beginDate)
+      .set('endDate', endDate)
+      .set('deliveryCompanyName', deliveryCompanyName);
+
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.PACKETS}`, { params });
+  }
+
+  public statAllColors(beginDate: string, endDate: string, modelIds: number[]): Observable<any> {
+    let params = new HttpParams()
+      .set('beginDate', beginDate)
+      .set('endDate', endDate)
+      .set('modelIds', modelIds.join(','));
+
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.COLORS}`, { params });
+  }
+
+  public statAllOffers(beginDate: string, endDate: string): Observable<any> {
+    let params = new HttpParams()
+    .set('beginDate', beginDate)
+    .set('endDate', endDate);
+
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.OFFERS}`, { params });
+  }
+
+  public statModelSold(modelId: number, beginDate: string, endDate: string): Observable<any> {
+    let params = new HttpParams()
+      .set('beginDate', beginDate)
+      .set('endDate', endDate);
+
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.MODEL_SOLD}/${modelId}`, { params });
   }
 
   getStatsTreeNodesData(data: Packet[]) {
 
-    interface CountCity { [cityName: string]: { count: number,confirm: number,citys: { [name: string]: { count: number,confirm: number} } }}
-    interface CountPage { [pageName: string]: { count: number,confirm: number }}
-    interface CountDate { [date: string]: { count: number,payed: number, return: number, exchange: number, out: number }}
-    interface Count {cityCounts: CountCity,pageCounts:CountPage,dateCounts:CountDate}
+    interface CountCity { [cityName: string]: { count: number, confirm: number, citys: { [name: string]: { count: number, confirm: number } } } }
+    interface CountPage { [pageName: string]: { count: number, confirm: number } }
+    interface CountDate { [date: string]: { count: number, payed: number, return: number, exchange: number, out: number } }
+    interface Count { cityCounts: CountCity, pageCounts: CountPage, dateCounts: CountDate }
 
     let cityCounts: CountCity = {};
     let pageCounts: CountPage = {};
     let dateCounts: CountDate = {};
-        data.forEach((packet) => {
+    data.forEach((packet) => {
       //console.log('packet',packet);
 
       //count pages
       if (
         packet.fbPage != undefined
-      ){
+      ) {
         if (pageCounts[packet.fbPage?.name]) {
           pageCounts[packet.fbPage?.name].count++;
         }
         else {
-          pageCounts[packet.fbPage?.name] ={ count: 1, confirm: 0 };
+          pageCounts[packet.fbPage?.name] = { count: 1, confirm: 0 };
         }
       }
 
       if (
         packet.date != undefined
-      ){
-        let date = packet.date.substring(0,10)
+      ) {
+        let date = packet.date.substring(0, 10)
         if (dateCounts[date]) {
           dateCounts[date].count++;
         }
         else {
-          dateCounts[date] ={ count: 1, payed: 0, return: 0, exchange: 0, out:0 };
+          dateCounts[date] = { count: 1, payed: 0, return: 0, exchange: 0, out: 0 };
         }
         if (packet.status == PAID || packet.status == DELIVERED) {
           dateCounts[date].payed++;
@@ -89,7 +120,7 @@ export class StatsService {
         if (packet.status == CONFIRMED || packet.status == PAID || packet.status == DELIVERED
           || packet.status == RETURN || packet.status == RETURN_RECEIVED || packet.status == TO_VERIFY
           || packet.status == IN_PROGRESS_1 || packet.status == IN_PROGRESS_2 || packet.status == IN_PROGRESS_3 || packet.status == IN_PROGRESS
-          ) {
+        ) {
           //|| packet.status.substring(0,7) == 'En Cours'
           if (packet.exchangeId) {
             dateCounts[date].exchange++;
@@ -108,10 +139,10 @@ export class StatsService {
           cityCounts[packet.city?.governorate.name].count++;
           if (cityCounts[packet.city?.governorate.name].citys[packet.city.name]) cityCounts[packet.city?.governorate.name].citys[packet.city.name].count++;
           else {
-            cityCounts[packet.city?.governorate.name].citys[packet.city.name] ={ count: 1, confirm: 0 };
+            cityCounts[packet.city?.governorate.name].citys[packet.city.name] = { count: 1, confirm: 0 };
           }
         } else {
-          cityCounts[packet.city?.governorate.name] = { count: 1, confirm: 0 ,citys:{}};
+          cityCounts[packet.city?.governorate.name] = { count: 1, confirm: 0, citys: {} };
           cityCounts[packet.city?.governorate.name].citys[packet.city.name] = { count: 1, confirm: 0 };
         }
         if (packet.status == PAID || packet.status == DELIVERED) {
@@ -120,7 +151,7 @@ export class StatsService {
         }
       }
     });
-    let count : Count= { cityCounts, pageCounts, dateCounts}
+    let count: Count = { cityCounts, pageCounts, dateCounts }
     console.log(count);
 
     return count;

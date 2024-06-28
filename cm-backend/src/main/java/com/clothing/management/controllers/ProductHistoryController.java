@@ -6,84 +6,94 @@ import com.clothing.management.models.ResponsePage;
 import com.clothing.management.services.ProductHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("productHistory")
+@RequestMapping("${api.prefix}/product-histories")
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ProductHistoryController {
 
     @Autowired
-    ProductHistoryService productHistoryService;
+    private ProductHistoryService productHistoryService;
 
-    @GetMapping(path = "/findAllByModelId/{modelId}")
-    public ResponseEntity<ResponsePage> findAllProductsHistory(
-        @PathVariable Long modelId,
-        @RequestParam(required = false) String beginDate,
-        @RequestParam(required = false) String endDate,
-        @RequestParam(required = false) String colorSize,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-      ) {
-            try {
-                Page<ProductHistoryDTO> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size, colorSize, beginDate, endDate);
-                return new ResponseEntity<>(new ResponsePage.Builder()
-                        .result(pageProductHistory.getContent())
-                        .currentPage(pageProductHistory.getNumber())
-                        .totalItems(pageProductHistory.getTotalElements())
-                        .totalPages(pageProductHistory.getTotalPages())
-                        .build(), HttpStatus.OK);
-            } catch (Exception e) {
-                return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-    }
-
-    @GetMapping(path = "/findById/{id}")
-    public Optional<ProductHistory> findByIdProductHistory(@PathVariable Long idProductHistory) {
-        return productHistoryService.findProductHistoryById(idProductHistory);
-    }
-
-    @PostMapping(value = "/add" , produces = "application/json")
-    public ProductHistory addProductHistory(@RequestBody ProductHistory productHistory) {
-        return productHistoryService.addProductHistory(productHistory);
-    }
-
-    @PostMapping(value = "/addProductsHistory" , produces = "application/json")
-    public List<ProductHistory> addManyProductsHistory(@RequestBody List<ProductHistory> productsHistory) {
-        return productHistoryService.addManyProductHistory(productsHistory);
-    }
-
-    @PutMapping(value = "/update" , produces = "application/json")
-    public ProductHistory updateProductHistory(@RequestBody ProductHistory productHistory) {
-        return productHistoryService.updateProductHistory(productHistory);
-    }
-
-    @DeleteMapping(value = "/delete" , produces = "application/json")
-    public void deleteProductHistory(@RequestBody ProductHistory productHistory) {
-        productHistoryService.deleteProductHistory(productHistory);
-    }
-
-    @PostMapping(value = "/deleteProductsHistory/{modelId}" , produces = "application/json")
-    public ResponseEntity<ResponsePage> deleteProductHistory(@RequestBody List<ProductHistory> productsHistory,@PathVariable("modelId")Long modelId, @RequestParam int page) {
+    @GetMapping("/model/{modelId}")
+    public ResponseEntity<ResponsePage> getProductHistoryByModelId(
+            @PathVariable("modelId") Long modelId,
+            @RequestParam(required = false) String beginDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) String colorSize,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         try {
-            Page<ProductHistoryDTO> pageProductHistory = productHistoryService.deleteProductsHistory(productsHistory, modelId, page);
-            return new ResponseEntity<>(new ResponsePage.Builder()
+            Page<ProductHistoryDTO> pageProductHistory = productHistoryService.findAllProductsHistory(modelId, page, size, colorSize, beginDate, endDate);
+            ResponsePage responsePage = new ResponsePage.Builder()
                     .result(pageProductHistory.getContent())
                     .currentPage(pageProductHistory.getNumber())
                     .totalItems(pageProductHistory.getTotalElements())
                     .totalPages(pageProductHistory.getTotalPages())
-                    .build(), HttpStatus.OK);
+                    .build();
+            return ResponseEntity.ok(responsePage);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/{historyId}")
+    public ResponseEntity<ProductHistory> getProductHistoryById(@PathVariable("historyId") Long historyId) {
+        Optional<ProductHistory> productHistory = productHistoryService.findProductHistoryById(historyId);
+        return productHistory.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @PostMapping
+    public ResponseEntity<ProductHistory> createProductHistory(@RequestBody ProductHistory productHistory) {
+        ProductHistory createdProductHistory = productHistoryService.addProductHistory(productHistory);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProductHistory);
+    }
+
+    @PostMapping("/batch-add")
+    public ResponseEntity<List<ProductHistory>> createProductHistories(@RequestBody List<ProductHistory> productHistories) {
+        List<ProductHistory> createdProductHistories = productHistoryService.addManyProductHistory(productHistories);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProductHistories);
+    }
+
+    @PutMapping
+    public ResponseEntity<ProductHistory> updateProductHistory(@RequestBody ProductHistory productHistory) {
+        ProductHistory updatedProductHistory = productHistoryService.updateProductHistory(productHistory);
+        return ResponseEntity.ok(updatedProductHistory);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Object> deleteProductHistory(@RequestBody ProductHistory productHistory) {
+        productHistoryService.deleteProductHistory(productHistory);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/batch-delete/{modelId}")
+    public ResponseEntity<ResponsePage> deleteProductHistories(
+            @RequestBody List<ProductHistory> productHistories,
+            @PathVariable("modelId") Long modelId,
+            @RequestParam(defaultValue = "0") int page
+    ) {
+        try {
+            Page<ProductHistoryDTO> pageProductHistory = productHistoryService.deleteProductsHistory(productHistories, modelId, page);
+            ResponsePage responsePage = new ResponsePage.Builder()
+                    .result(pageProductHistory.getContent())
+                    .currentPage(pageProductHistory.getNumber())
+                    .totalItems(pageProductHistory.getTotalElements())
+                    .totalPages(pageProductHistory.getTotalPages())
+                    .build();
+            return ResponseEntity.ok(responsePage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

@@ -1,72 +1,109 @@
 package com.clothing.management.controllers;
+
 import com.clothing.management.dto.ProductsDayCountDTO;
 import com.clothing.management.services.StatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("stat")
+@RequestMapping("${api.prefix}/stats")
 @CrossOrigin
 public class StatController {
+
     @Autowired
-    StatService statService;
+    private StatService statService;
 
-    @GetMapping(path = "/statModelSold/{modelId}")
-    public Map<String , List<?>> statModelSold(
-            @PathVariable Long modelId ,
-            @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate) {
-        return statService.statModelSoldChart(modelId,beginDate,endDate);
-
+    @GetMapping("/model-sold/{modelId}")
+    public ResponseEntity<Map<String, List<?>>> getModelSoldStats(
+            @PathVariable Long modelId,
+            @RequestParam String beginDate,
+            @RequestParam String endDate) {
+        try {
+            Map<String, List<?>> stats = statService.statModelSoldChart(modelId, beginDate, endDate);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @GetMapping(path = "/statAllModels")
-    public Map <String , List<?>> statAllModels(
-            @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate,
-            @RequestParam(required = true) Boolean countProgress) {
-        return statService.statAllModelsChart(beginDate,endDate,countProgress);
+    @GetMapping("/all-models")
+    public ResponseEntity<Map<String, List<?>>> getAllModelsStats(
+            @RequestParam String beginDate,
+            @RequestParam String endDate,
+            @RequestParam Boolean countProgress) {
+        try {
+            Map<String, List<?>> stats = statService.statAllModelsChart(beginDate, endDate, countProgress);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @GetMapping(path = "/statStock")
-    public Map <String , List<?>> statAStock(
-            @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate) {
-        return statService.statAllStockChart(beginDate,endDate);
+    @GetMapping("/stock")
+    public ResponseEntity<Map<String, List<?>>> getStockStats(
+            @RequestParam String beginDate,
+            @RequestParam String endDate) {
+        try {
+            Map<String, List<?>> stats = statService.statAllStockChart(beginDate, endDate);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @GetMapping(path = "/statAllColors")
-    public Map <String , List<?>> statAllColors(
-            @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate,
-            @RequestParam(required = true) List<Long> modelIds) {
-        return statService.statAllColorsChart(beginDate,endDate,modelIds);
+    @GetMapping("/colors")
+    public ResponseEntity<Map<String, List<?>>> getColorsStats(
+            @RequestParam String beginDate,
+            @RequestParam String endDate,
+            @RequestParam List<Long> modelIds) {
+        try {
+            Map<String, List<?>> stats = statService.statAllColorsChart(beginDate, endDate, modelIds);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @GetMapping(path = "/statAllPackets")
-    public Map <String , List<?>> statAllPackets(
-            @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate,
+    @GetMapping("/packets")
+    public ResponseEntity<Map<String, List<?>>> getPacketsStats(
+            @RequestParam String beginDate,
+            @RequestParam String endDate,
             @RequestParam(required = false) String deliveryCompanyName) {
-        return statService.statAllPacketsChart(beginDate,endDate,deliveryCompanyName);
-    }
-    @GetMapping(path = "/statAllOffers")
-    public Map <String , List<?>> statAllOffers(
-            @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate) {
-        return statService.statAllOffersChart(beginDate,endDate);
-    }
-
-    @GetMapping(path = "/productsCount/{modelId}")
-    public List<ProductsDayCountDTO> productsCount(
-            @PathVariable Long modelId ,
-            @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate) {
-        return statService.productsCountByDate(modelId,beginDate,endDate);
+        try {
+            Map<String, List<?>> stats = statService.statAllPacketsChart(beginDate, endDate, deliveryCompanyName);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
+    @GetMapping("/offers")
+    public ResponseEntity<Map<String, List<?>>> getOffersStats(
+            @RequestParam String beginDate,
+            @RequestParam String endDate) {
+        try {
+            Map<String, List<?>> stats = statService.statAllOffersChart(beginDate, endDate);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
+    @GetMapping("/products-count/{modelId}")
+    public ResponseEntity<List<ProductsDayCountDTO>> getProductsCount(
+            @PathVariable Long modelId,
+            @RequestParam String beginDate,
+            @RequestParam String endDate) {
+        try {
+            List<ProductsDayCountDTO> counts = statService.productsCountByDate(modelId, beginDate, endDate);
+            return ResponseEntity.ok(counts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
