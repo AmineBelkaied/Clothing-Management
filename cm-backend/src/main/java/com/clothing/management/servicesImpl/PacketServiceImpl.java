@@ -439,8 +439,8 @@ public class PacketServiceImpl implements PacketService {
         // Formatting the note date to "dd hh:mm" format
         SimpleDateFormat sdf = new SimpleDateFormat("dd-HH:mm");
         String noteWithDate = "-Le "+sdf.format(noteDate) + " " + note;
-        if(packet.getNote().equals("")){packet.setNote(noteWithDate);}
-        else packet.setNote(String.format("%s\n%s", packet.getNote(), noteWithDate));
+        /*if(packet.getNote().equals("")){packet.setNote(noteWithDate);}
+        else packet.setNote(String.format("%s\n%s", packet.getNote(), noteWithDate));*/
         //if(!packet.getStatus().equals(INJOIGNABLE) || packet.getStatus().equals(CANCELED))
 
         savePacketStatusToHistory(packet, "tentative: " + packet.getAttempt() + " " + note);
