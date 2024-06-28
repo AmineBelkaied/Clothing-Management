@@ -13,6 +13,7 @@ import java.util.List;
 })
 public class Packet {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -67,7 +68,10 @@ public class Packet {
     private Integer stock;
 
     private Integer attempt;
-    private String note;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Note> notes;
 
     @Column(name = "product_count")
     private Integer productCount;
@@ -102,11 +106,9 @@ public class Packet {
         this.deliveryCompany=deliveryCompany;
         this.attempt = 0;
         this.note = "";
-        this.haveExchange=false;
-        this.productCount=0;
     }
 
-    /*public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note, Long exchangeId) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note, Long exchangeId) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -131,7 +133,7 @@ public class Packet {
         this.deliveryCompany = deliveryCompany;
         this.attempt = attempt;
         this.exchangeId = exchangeId;
-    }*/
+    }
 
     public Long getId() {
         return id;
@@ -317,14 +319,6 @@ public class Packet {
         this.deliveryCompany = deliveryCompany;
     }
 
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
     public Long getExchangeId() {
         return exchangeId;
     }
@@ -333,20 +327,12 @@ public class Packet {
         this.exchangeId = exchangeId;
     }
 
-    public boolean isHaveExchange() {
-        return haveExchange;
+    public List<Note> getNotes() {
+        return notes;
     }
 
-    public void setHaveExchange(boolean haveExchange) {
-        this.haveExchange = haveExchange;
-    }
-
-    public Integer getProductCount() {
-        return productCount;
-    }
-
-    public void setProductCount(Integer productCount) {
-        this.productCount = productCount;
+    public void setNotes(List<Note> notes) {
+        this.notes = notes;
     }
 
     @Override
@@ -369,7 +355,6 @@ public class Packet {
                 ", stock=" + stock +
                 ", printLink='" + printLink + '\'' +
                 ", attempt='" + attempt + '\'' +
-                ", note='" + note + '\'' +
                 ", exchangeId='" + exchangeId + '\'' +
                 ", haveExchange='" + haveExchange + '\'' +
                 ", productCount='" + productCount + '\'' +
