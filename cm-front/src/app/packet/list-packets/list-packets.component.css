@@ -12,24 +12,61 @@ td {
   width: 34px;
   height: 34px !important;
  }
- 
+
 .buttonSizeMini{
   width: 28px;
   height: 28px !important;
  }
-
- .scrollable-div {
-  max-height: 300px; /* ou toute autre valeur appropriée */
-  overflow-y: auto; /* Pour rendre la div scrollable uniquement verticalement */
-  /* overflow: auto; si vous souhaitez également un défilement horizontal lorsque nécessaire */
-}
 
 :host ::ng-deep .small-select-button .p-button {
   padding: 0.25rem 0.5rem !important;
   font-size: 0.8rem !important;
 }
 
+.scroll-wrapper {
+  overflow: hidden;
+}
 
+.scrollable-dashboard-container {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 1rem; /* Add padding as needed */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.scrollable-dashboard-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.scroll-wrapper:hover .scrollable-container {
+  overflow-x: auto;
+  scrollbar-width: auto; /* Firefox */
+  -ms-overflow-style: auto; /* IE/Edge */
+}
+
+.status-item {
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+/*
+.scrollable-dashboard-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 0.3rem;
+  padding-bottom: 0.1rem;
+}
+
+.status-item {
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.scrollable-container > div {
+  flex: 0 0 auto;
+}*/
 
 .grid {
   display: flex;

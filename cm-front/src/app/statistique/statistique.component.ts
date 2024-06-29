@@ -696,6 +696,7 @@ export class StatistiqueComponent implements OnInit {
         fill: false,
         borderColor: this.getRandomColor(item.name),
         tension: 0.4,
+        hidden: this.offerTableData[k].avg<3?true:false
       });
       k++;
     });

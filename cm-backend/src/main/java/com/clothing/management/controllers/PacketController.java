@@ -15,6 +15,7 @@ import com.clothing.management.services.PacketService;
 
 import com.clothing.management.services.StatService;
 import jakarta.websocket.server.PathParam;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -157,11 +158,6 @@ public class PacketController {
         return packetService.checkPacketProductsValidity(packetId);
     }
 
-    /*@GetMapping(path = "/createDashboard")
-    public List<DashboardCard> createDashboard(){
-        return packetService.createDashboard();
-    }*/
-
     @GetMapping(path = "/syncNotification")
     public List<DashboardCard> syncNotification(@RequestParam(required = false) String startDate,
                                                 @RequestParam(required = false) String endDate){
@@ -180,6 +176,12 @@ public class PacketController {
         return updateStatusScheduler.startUpdateStatusCronTask(masterTenant);
     }
 
+    @GetMapping(path = "/syncRupture")
+    public Void synchronizeAllPacketsStatus() {
+        updateStatusScheduler.updatePacketStockForRuptureStatus();
+        return null;
+    }
+
     @PostMapping(value = "/updatePacketsByBarCode", produces = "application/json")
     public ResponseEntity<List<String>> updatePacketsByBarCode(@RequestBody BarCodeStatusDTO barCodeStatusDTO) {
         try {
@@ -188,4 +190,6 @@ public class PacketController {
             return new ResponseEntity<>(packetService.updatePacketsByBarCodes(barCodeStatusDTO), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 }

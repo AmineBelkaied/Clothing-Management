@@ -20,34 +20,29 @@ public class ProductsPacket {
     @JoinColumn(name = "packet_id")
     Packet packet;
 
-    @Column(name = "packet_date")
-    Date packetDate;
-
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "offer_id")
     Offer offer;
 
     @Column(name = "packet_offer_id")
-    Integer packetOfferId;
+    Long packetOfferId;
 
     Integer status;
 
     public ProductsPacket() {
     }
 
-    public ProductsPacket(Product product, Packet packet, Date packetDate, Offer offer, Integer packetOfferId) {
+    public ProductsPacket(Product product, Packet packet, Offer offer, Long packetOfferId) {
         this.product = product;
         this.packet = packet;
-        this.packetDate = packetDate;
         this.offer = offer;
         this.packetOfferId = packetOfferId;
     }
 
 
-    public ProductsPacket(Product product, Packet packet, Date packetDate, Offer offer, Integer packetOfferId, Integer status) {
+    public ProductsPacket(Product product, Packet packet, Offer offer, Long packetOfferId, Integer status) {
         this.product = product;
         this.packet = packet;
-        this.packetDate = packetDate;
         this.offer = offer;
         this.packetOfferId = packetOfferId;
         this.status = status;
@@ -77,14 +72,6 @@ public class ProductsPacket {
         this.packet = packet;
     }
 
-    public Date getPacketDate() {
-        return packetDate;
-    }
-
-    public void setPacketDate(Date packetDate) {
-        this.packetDate = packetDate;
-    }
-
     public Offer getOffer() {
         return offer;
     }
@@ -93,11 +80,11 @@ public class ProductsPacket {
         this.offer = offer;
     }
 
-    public Integer getPacketOfferId() {
+    public Long getPacketOfferId() {
         return packetOfferId;
     }
 
-    public void setPacketOfferId(Integer packetOfferId) {
+    public void setPacketOfferId(Long packetOfferId) {
         this.packetOfferId = packetOfferId;
     }
 
@@ -115,7 +102,6 @@ public class ProductsPacket {
                 "id=" + id +
                 ", product=" + product +
                 ", packet=" + packet +
-                ", packetDate=" + packetDate +
                 ", offer=" + offer +
                 ", packetOfferId=" + packetOfferId +
                 ", status=" + status +
@@ -125,13 +111,13 @@ public class ProductsPacket {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ProductsPacket)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         ProductsPacket that = (ProductsPacket) o;
-        return getId().equals(that.getId()) && getProduct().equals(that.getProduct()) && getPacket().equals(that.getPacket()) && getPacketDate().equals(that.getPacketDate()) && getOffer().equals(that.getOffer());
+        return Objects.equals(id, that.id) && Objects.equals(product, that.product) && Objects.equals(packet, that.packet) && Objects.equals(offer, that.offer) && Objects.equals(packetOfferId, that.packetOfferId) && Objects.equals(status, that.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getProduct(), getPacket(), getPacketDate(), getOffer());
+        return Objects.hash(id, product, packet, offer, packetOfferId, status);
     }
 }

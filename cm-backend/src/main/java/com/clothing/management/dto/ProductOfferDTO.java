@@ -4,9 +4,9 @@ public class ProductOfferDTO {
 
     private Long productId;
     private Long offerId;
-    private Integer packetOfferIndex;
+    private Long packetOfferIndex;
 
-    public ProductOfferDTO(Long productId, Long offerId,Integer packetOfferIndex) {
+    public ProductOfferDTO(Long productId, Long offerId,Long packetOfferIndex) {
         this.productId = productId;
         this.offerId = offerId;
         this.packetOfferIndex = packetOfferIndex;
@@ -28,11 +28,11 @@ public class ProductOfferDTO {
         this.offerId = offerId;
     }
 
-    public Integer getPacketOfferIndex() {
+    public Long getPacketOfferIndex() {
         return packetOfferIndex;
     }
 
-    public void setPacketOfferIndex(Integer packetOfferIndex) {
+    public void setPacketOfferIndex(Long packetOfferIndex) {
         this.packetOfferIndex = packetOfferIndex;
     }
 }

@@ -25,20 +25,6 @@ public class ProductsDayCountDTO {
     public ProductsDayCountDTO() {
     }
 
-    /*public ProductsDayCountDTO(
-            Date packetDate, Long productId,
-            Offer offer, Long modelId, String modelName,
-            Color color, Size size, long count
-    ) {
-        this.packetDate = packetDate;
-        this.productId = productId;
-        this.offer = offer;
-        this.modelId = modelId;
-        this.modelName = modelName;
-        this.color = color;
-        this.size = size;
-        this.countPayed = count;
-    }*/
     public ProductsDayCountDTO(
             Date packetDate, Long productId,
             Offer offer, Long modelId, String modelName,
@@ -52,6 +38,22 @@ public class ProductsDayCountDTO {
         this.modelName = modelName;
         this.color = color;
         this.size = size;
+        this.countPayed = countPayed;
+        this.countProgress = countProgress;
+        this.countReturn = countReturn;
+    }
+
+    public ProductsDayCountDTO(//used in offer
+            Date packetDate,
+            Long packetId,
+            Offer offer,
+            Long packetOfferId,
+            long countPayed, long countProgress, long countReturn
+    ) {
+        this.packetDate = packetDate;
+        this.modelId = packetId;
+        this.offer = offer;
+        this.productId = packetOfferId;
         this.countPayed = countPayed;
         this.countProgress = countProgress;
         this.countReturn = countReturn;

@@ -38,5 +38,7 @@ public interface PacketService {
     List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO);
     //Long getExchangeId(Packet packet);
     int deleteEmptyPacket();
+
+    void updatePacketStockForRupture();
     Packet updatePacketValid(String barCode,String type) throws Exception;
 }

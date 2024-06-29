@@ -51,10 +51,10 @@ export class SidebarComponent implements OnInit {
     this.activeClass = !this.activeClass;
   }
 
-  syncFirst() {
+  sync() {
     console.log("syncronising");
     this.packetService
-        .syncAllPacketsFirst(this.storageService.getTenantName())
+        .syncAllPackets(this.storageService.getTenantName())
         .pipe(takeUntil(this.$unsubscribe))
         .subscribe({
           next: (response: number) => {

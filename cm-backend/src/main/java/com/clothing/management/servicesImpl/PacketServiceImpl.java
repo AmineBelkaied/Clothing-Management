@@ -124,7 +124,17 @@ public class PacketServiceImpl implements PacketService {
 
     @Override
     public List<Packet> findAllDiggiePackets() {
-        return packetRepository.findAllDiggiePackets();
+        List<String> status = Arrays.asList(
+                SystemStatus.PAID.getStatus(),
+                SystemStatus.CANCELED.getStatus(),
+                SystemStatus.LIVREE.getStatus(),
+                SystemStatus.DELETED.getStatus(),
+                SystemStatus.RETURN.getStatus(),
+                SystemStatus.NOTSERIOUS.getStatus(),
+                SystemStatus.RETURN_RECEIVED.getStatus(),
+                SystemStatus.PROBLEM.getStatus()
+        );
+        return packetRepository.findAllDiggiePackets(status);
     }
 
     @Override
@@ -141,6 +151,11 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public int deleteEmptyPacket() {
         return packetRepository.deleteEmptyPacket();
+    }
+    @Transactional("tenantTransactionManager")
+    @Override
+    public void updatePacketStockForRupture(){
+        packetRepository.updatePacketStockForRuptureStatus();
     }
 
 
@@ -226,7 +241,7 @@ public class PacketServiceImpl implements PacketService {
                 productsPacketRepository.deleteAll(existingProductsPacket);
             List<ProductsPacket> newProductsPacket = new ArrayList<>();
             productsOffers.forEach(productOfferDTO -> {
-                newProductsPacket.add(new ProductsPacket(new Product(productOfferDTO.getProductId()), packet, new Date(), new Offer(productOfferDTO.getOfferId()), productOfferDTO.getPacketOfferIndex(),0));
+                newProductsPacket.add(new ProductsPacket(new Product(productOfferDTO.getProductId()), packet, new Offer(productOfferDTO.getOfferId()), productOfferDTO.getPacketOfferIndex(),0));
             });
             productsPacketRepository.saveAll(newProductsPacket);
             packet.setPacketDescription(selectedProductsDTO.getPacketDescription());
@@ -285,7 +300,7 @@ public class PacketServiceImpl implements PacketService {
             packetDTO.setDiscount(optionalPacket.get().getDiscount());
             List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(optionalPacket.get().getId());
             if(productsPackets.size() > 0) {
-                Map<Integer, List<ProductsPacket>> offerListMap = productsPackets.stream()
+                Map<Long, List<ProductsPacket>> offerListMap = productsPackets.stream()
                         .collect(groupingBy(ProductsPacket::getPacketOfferId));
                 offerListMap.forEach((offer, productsPacket) -> {
                     Offer firstOffer = productsPacket.get(0).getOffer();
@@ -471,7 +486,6 @@ public class PacketServiceImpl implements PacketService {
     }
     private String upgradeInProgressStatus(Packet packet) {
         SystemStatus systemStatus = SystemStatus.fromString(packet.getStatus());
-        DeliveryCompanyStatus deliveryCompanyStatus = DeliveryCompanyStatus.fromString(packet.getLastDeliveryStatus());
         if (checkSameDateStatus(packet)&& !packet.getStatus().equals(CANCELED.getStatus()))
             return packet.getStatus();
 
@@ -524,7 +538,7 @@ public class PacketServiceImpl implements PacketService {
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
         if(productsPackets.size()>0) {
             productsPackets.stream().forEach(productsPacket -> {
-                ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response,productsPacket.getPacketDate(), productsPacket.getOffer(), productsPacket.getPacketOfferId());
+                ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response, productsPacket.getOffer(), productsPacket.getPacketOfferId());
                 productsPacketRepository.save(newProductsPacket);
             });
         }

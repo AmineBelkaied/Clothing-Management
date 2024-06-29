@@ -6,6 +6,7 @@
                     <!-- <img src="assets/demo/images/login/dimeh.png" alt="Image" height="100" class="mb-2"> -->
                     <div class="text-900 text-2xl font-medium mb-3">Connexion</div>
                     <span>Clothing Management</span>
+                    <p *ngIf="!form.tenantName" style="color: red;font-weight: bold;">Veuillez ajouter le nom la sociéité au niveau de l'url (exp: /auth/login/nom-société)</p>
                 </div>
 
                 <div>
