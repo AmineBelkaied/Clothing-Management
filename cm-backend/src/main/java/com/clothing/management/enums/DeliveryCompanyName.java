@@ -3,7 +3,9 @@ package com.clothing.management.enums;
 public enum DeliveryCompanyName {
     FIRST("First"),
     EXPRESS("Express"),
+    JAX("Jax"),
     NAVEX("Navex");
+
 
     private String name;
 

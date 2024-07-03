@@ -4,4 +4,5 @@ export interface Governorate {
     id? : any;
     name: any;
     cities?: any;
+    jaxCode?: any;
 }

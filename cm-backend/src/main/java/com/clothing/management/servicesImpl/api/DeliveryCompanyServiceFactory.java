@@ -9,10 +9,14 @@ public class DeliveryCompanyServiceFactory {
     private final NavexApiService navexApiService;
     private final FirstApiService firstApiService;
 
+    private final JaxApiService jaxApiService;
+
     public DeliveryCompanyServiceFactory(NavexApiService navexApiService,
-                                         FirstApiService firstApiService) {
+                                         FirstApiService firstApiService,
+                                         JaxApiService jaxApiService) {
         this.navexApiService = navexApiService;
         this.firstApiService = firstApiService;
+        this.jaxApiService = jaxApiService;
     }
 
     public DeliveryCompanyService getDeliveryCompanyService(String deliveryCompanyName) {
@@ -21,6 +25,7 @@ public class DeliveryCompanyServiceFactory {
         return switch (company) {
             case FIRST -> firstApiService;
             case NAVEX -> navexApiService;
+            case JAX -> jaxApiService;
             default -> throw new IllegalArgumentException("Invalid deliveryCompany name");
         };
 

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
+
 import java.util.List;
 
 @Entity
@@ -16,6 +18,10 @@ public class Governorate {
     private Long id;
     private String name;
     private int delivery_id;
+
+    @Column(name = "jax_code")
+    private int jaxCode;
+
     @JsonIgnore
     @OneToMany(mappedBy = "governorate" , cascade = CascadeType.ALL)
     private List<City> cities;
@@ -55,8 +61,21 @@ public class Governorate {
         this.delivery_id = delivery_id;
     }
 
+    public int getJaxCode() {
+        return jaxCode;
+    }
+
+    public void setJaxCode(int jaxCode) {
+        this.jaxCode = jaxCode;
+    }
+
     @Override
     public String toString() {
-        return name;
+        return "Governorate{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", delivery_id=" + delivery_id +
+                ", jaxCode='" + jaxCode + '\'' +
+                '}';
     }
 }

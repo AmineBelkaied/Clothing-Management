@@ -19,14 +19,14 @@ public class DeliveryResponseFirst extends DeliveryResponse {
         super();
     }
 
-    public DeliveryResponseFirst(int status, boolean isError, String message, Result result) {
+    /*public DeliveryResponseFirst(int status, boolean isError, String message, Result result) {
         this.status = status;
         this.isError = isError;
         this.message = message;
         this.result = result;
     }
 
-    /*public DeliveryResponseFirst(int status, String isError, String message, Result result) {
+    public DeliveryResponseFirst(int status, String isError, String message, Result result) {
         super(status, isError, message, result.getLink(), result.getState(), result.getBarCode());
     }*/
     public int getStatus() {

@@ -543,7 +543,9 @@
                 ? 'green'
                 : packet.deliveryCompany?.name === 'NAVEX'
                 ? 'gold'
-                : ''
+                : packet.deliveryCompany?.name === 'JAX'
+                ? 'purple'
+                : 'red'
           }"
         >
           <p-cellEditor>
@@ -629,6 +631,11 @@
               {{ packet.barcode }}
               <i
                 *ngIf="packet.valid"
+                class="pi pi-check-circle"
+                style="color: green"
+              ></i>
+              <i
+                *ngIf="packet.haveExchange"
                 class="pi pi-check-circle"
                 style="color: green"
               ></i>

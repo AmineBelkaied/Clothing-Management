@@ -24,7 +24,7 @@ public class DeliveryResponse {
     public DeliveryResponse() {
     }
 
-    public DeliveryResponse (int status, Boolean isError, String message, String link, String state, String barCode) {
+    /*public DeliveryResponse (int status, Boolean isError, String message, String link, String state, String barCode) {
         this.status = status;
         this.link = link;
         this.state = state;
@@ -40,7 +40,7 @@ public class DeliveryResponse {
         this.barCode = result.getBarCode();
         this.isError = isError;
         this.message = message;
-    }
+    }*/
     public String getBarCode() {
         return barCode;
     }

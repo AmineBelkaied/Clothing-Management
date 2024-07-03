@@ -28,7 +28,8 @@ export interface Packet {
     stock?: number;
     deliveryCompany?: DeliveryCompany;
     attempt?: number;
-    note?: string
+    note?: string;
+    haveExchange?:boolean;
     [key: string]: any;
 
 }

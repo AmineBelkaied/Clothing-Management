@@ -517,6 +517,7 @@ public class PacketServiceImpl implements PacketService {
     public Packet duplicatePacket(Long idPacket) {
         GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
         Packet packet = packetRepository.findById(idPacket).get();
+
         Packet newPacket = new Packet();
 
             newPacket.setCustomerName(packet.getCustomerName() + "   echange id: " + packet.getId());
@@ -533,6 +534,7 @@ public class PacketServiceImpl implements PacketService {
             newPacket.setStock(packet.getStock());
             newPacket.setDeliveryCompany(globalConf.getDeliveryCompany());
             newPacket.setExchangeId(packet.getId());
+            newPacket.setHaveExchange(false);
 
         Packet response = packetRepository.save(newPacket);
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
@@ -543,6 +545,8 @@ public class PacketServiceImpl implements PacketService {
             });
         }
         savePacketStatusToHistory(newPacket,CREATION.getStatus());
+        packet.setHaveExchange(true);
+        packetRepository.save(packet);
         return response;
     }
     public List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO) {

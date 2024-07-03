@@ -116,7 +116,7 @@ public class StatTableDTO {
                 ", Min=" + Min +
                 ", Max=" + Max +
                 ", Avg=" + Avg +
-                ", Sum=" + Payed +
+                ", Payed=" + Payed +
                 ", Per=" + Per +
                 ", Progress=" + Progress +
                 ", Retour=" + Retour +

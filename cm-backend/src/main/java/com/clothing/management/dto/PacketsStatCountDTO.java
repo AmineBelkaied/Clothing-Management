@@ -9,9 +9,7 @@ public class PacketsStatCountDTO {
     private Long countExchange;
     private Long countReturn;
     private Long countOos;
-
     private Long countProgress;
-
     private Long countAll;
 
     public PacketsStatCountDTO() {
