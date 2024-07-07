@@ -1,5 +1,7 @@
 package com.clothing.management.dto;
 
+import com.clothing.management.entities.Offer;
+
 public class StatTableDTO {
 
     private String name;

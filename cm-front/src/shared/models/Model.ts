@@ -8,4 +8,5 @@ export interface Model {
     products?: any[];
     image?: any;
     bytes?: any[];
+    purchasePrice?: number;
 }

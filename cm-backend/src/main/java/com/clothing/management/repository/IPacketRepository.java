@@ -23,7 +23,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             "AND p.barcode NOT LIKE 'b%' AND p.valid")
     public List<Packet> findAllDiggiePackets(@Param("statuses") List<String> statuses);
 
-    @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
+    @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode OR p.id = :barCode", nativeQuery = true)
     Optional<Packet> findByBarCode(@Param("barCode") String barCode);
 
     @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% " +

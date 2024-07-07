@@ -4,4 +4,5 @@ export interface DeliveryCompany {
     token?: string;
     apiName?: string;
     barreCodeUrl?: string;
+    additionalName?: string;
 }

@@ -20,6 +20,9 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 })
 
 export class StatistiqueComponent implements OnInit {
+  caluculatePurshasePrice(arg0: any) {
+
+  }
 
 
   offersCount: ProductCountDTO[] = [];

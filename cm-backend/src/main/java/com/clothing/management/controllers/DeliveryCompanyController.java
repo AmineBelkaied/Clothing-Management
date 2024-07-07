@@ -17,32 +17,32 @@ public class DeliveryCompanyController {
     DeliveryCompanyService deliveryCompanyService;
 
     @GetMapping(path = "/findAll")
-    public List<DeliveryCompany> findAllFbPages() {
+    public List<DeliveryCompany> findAllDC() {
         return deliveryCompanyService.findAllStesLivraison();
     }
 
     @GetMapping(path = "/findById/{id}")
-    public Optional<DeliveryCompany> findByIdFbPage(@PathVariable Long idCompany) {
+    public Optional<DeliveryCompany> findByIdDC(@PathVariable Long idCompany) {
         return deliveryCompanyService.findSteById(idCompany);
     }
 
     @PostMapping(value = "/add" , produces = "application/json")
-    public DeliveryCompany addFbPage(@RequestBody  DeliveryCompany ste) {
+    public DeliveryCompany addDC(@RequestBody  DeliveryCompany ste) {
         return deliveryCompanyService.addSte(ste);
     }
 
     @PutMapping(value = "/update" , produces = "application/json")
-    public DeliveryCompany updateFbPage(@RequestBody DeliveryCompany ste) {
+    public DeliveryCompany updateDC(@RequestBody DeliveryCompany ste) {
         return deliveryCompanyService.updateSte(ste);
     }
 
     @DeleteMapping(value = "/delete" , produces = "application/json")
-    public void deleteSte(@RequestBody DeliveryCompany ste) {
+    public void deleteDC(@RequestBody DeliveryCompany ste) {
         deliveryCompanyService.deleteSte(ste);
     }
 
     @DeleteMapping(value = "/deleteById/{idSte}")
-    public void deleteSizeById(@PathVariable Long idSte) {
+    public void deleteDCById(@PathVariable Long idSte) {
         deliveryCompanyService.deleteSteById(idSte);
     }
 }

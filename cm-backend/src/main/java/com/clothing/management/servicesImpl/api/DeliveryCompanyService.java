@@ -21,6 +21,8 @@ public abstract class DeliveryCompanyService {
     protected static final String REG = "/,/gi";
     protected static final String REG_BS = "/\\n/gi";
 
+    protected static final String REGEX_NEWLINE = "\\r?\\n";
+
     protected String exchangeProduct = "Diggie pants";
     protected String comment = "يسمح بفتح الطرد عند طلب الحريف";
 

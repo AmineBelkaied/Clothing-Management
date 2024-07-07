@@ -726,7 +726,6 @@ onRowSelect($event: TableRowSelectEvent) {
         this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
         return false;
       }
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est Valid'});
       return true;
   }
 

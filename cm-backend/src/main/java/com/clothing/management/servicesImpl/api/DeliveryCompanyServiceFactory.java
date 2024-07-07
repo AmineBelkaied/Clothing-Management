@@ -19,10 +19,8 @@ public class DeliveryCompanyServiceFactory {
         this.jaxApiService = jaxApiService;
     }
 
-    public DeliveryCompanyService getDeliveryCompanyService(String deliveryCompanyName) {
-        DeliveryCompanyName company = DeliveryCompanyName.fromString(deliveryCompanyName);
-
-        return switch (company) {
+    public DeliveryCompanyService getDeliveryCompanyService(DeliveryCompanyName deliveryCompanyName) {
+        return switch (deliveryCompanyName) {
             case FIRST -> firstApiService;
             case NAVEX -> navexApiService;
             case JAX -> jaxApiService;

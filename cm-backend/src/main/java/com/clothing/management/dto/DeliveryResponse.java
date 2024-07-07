@@ -24,23 +24,6 @@ public class DeliveryResponse {
     public DeliveryResponse() {
     }
 
-    /*public DeliveryResponse (int status, Boolean isError, String message, String link, String state, String barCode) {
-        this.status = status;
-        this.link = link;
-        this.state = state;
-        this.barCode = barCode;
-        this.isError = isError;
-        this.message = message;
-    }
-
-    public DeliveryResponse (int status, Boolean isError, String message) {
-        this.status = status;
-        this.link = result.getLink();
-        this.state = result.getState();
-        this.barCode = result.getBarCode();
-        this.isError = isError;
-        this.message = message;
-    }*/
     public String getBarCode() {
         return barCode;
     }

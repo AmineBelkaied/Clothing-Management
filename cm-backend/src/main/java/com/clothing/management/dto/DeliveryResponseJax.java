@@ -11,6 +11,7 @@ public class DeliveryResponseJax extends DeliveryResponse {
 
     @JsonProperty("statut")
     private String state;
+
     @JsonProperty("updated_at")
     private String updatedAt;
 
@@ -31,7 +32,7 @@ public class DeliveryResponseJax extends DeliveryResponse {
     @JsonProperty("governorat")
     private int governorat;
     @JsonProperty("statut_id")
-    private int statutId;
+    private int stateId;
     @JsonProperty("description")
     private String description;
     @JsonProperty("cod")
@@ -154,8 +155,8 @@ public class DeliveryResponseJax extends DeliveryResponse {
         this.governorat = governorat;
     }
 
-    public int getStatutId() {
-        return statutId;
+    public int getStateId() {
+        return stateId;
     }
 
     @Override
@@ -171,7 +172,7 @@ public class DeliveryResponseJax extends DeliveryResponse {
                 ", tel2='" + tel2 + '\'' +
                 ", adresseLivraison='" + adresseLivraison + '\'' +
                 ", governorat=" + governorat +
-                ", statutId=" + statutId +
+                ", stateId=" + stateId +
                 ", description='" + description + '\'' +
                 ", cod=" + cod +
                 ", clientId=" + clientId +
@@ -191,8 +192,8 @@ public class DeliveryResponseJax extends DeliveryResponse {
                 '}';
     }
 
-    public void setStatutId(int statutId) {
-        this.statutId = statutId;
+    public void setStateId(int stateId) {
+        this.stateId = stateId;
     }
 
     public String getDescription() {

@@ -82,6 +82,8 @@ public class NavexApiService extends DeliveryCompanyService {
     }
 
     private String createRequestBody(Packet packet) {
+
+        String adresse = this.getValue(packet.getAddress().replaceAll(REGEX_NEWLINE," "));
         StringBuilder body = new StringBuilder();
         body.append("nom=")
                 .append(this.getValue(packet.getCustomerName()))
@@ -90,7 +92,7 @@ public class NavexApiService extends DeliveryCompanyService {
                 .append("&ville=")
                 .append(packet.getCity().getName())
                 .append("&adresse=")
-                .append(this.getValue(packet.getAddress()).replace(REG_BS, " "))
+                .append(adresse)
                 .append("&tel=")
                 .append(this.getPhoneNumber1(packet.getCustomerPhoneNb()))
                 .append("&tel2=")

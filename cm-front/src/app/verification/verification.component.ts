@@ -30,7 +30,7 @@ export class VerificationComponent implements OnInit {
   sourceString : string = "Non Validé";
   targetString : string = "Validé";
   isAdmin: boolean;
-
+  packetSameBarCode : Packet[];
 
   params : any={
     page: 0,
@@ -90,20 +90,41 @@ Validate(){
   this.barCode = this.barCode.slice(0,12);
   //console.log('validé',this.barCode);
   if (this.type == VALIDATION){
-    if (!(this.sourcePackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1)){
-      if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
-        alert('Error: BarreCode déja validé');
-      } else alert("Error: BarreCode n'existe pas");
-      return;
+    if(this.barCode.length > 10){
+      if (!(this.sourcePackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1)){
+        if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
+          alert('Error: BarreCode déja validé');
+        } else alert("Error: BarreCode n'existe pas");
+        return;
+      }
+      else if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
+        alert('Error: Colie double et déja validé');
+        return;
+      }
     }
-    else if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
-      alert('Error: Colie double et déja validé');
-      return;
+    if(this.barCode.length < 10){
+      let num: number = Number(this.barCode);
+      if (!(this.sourcePackets.map((packet : Packet) => packet.id).indexOf(num) > -1)){
+        if (this.targetPackets.map((packet : Packet) => packet.id).indexOf(num) > -1){
+          alert('Error: BarreCode déja validé');
+        } else alert("Error: BarreCode n'existe pas");
+        return;
+      }
+      else if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
+        alert('Error: Colie double et déja validé');
+        return;
+      }
     }
-    let packetSameBarCode : Packet[] = this.sourcePackets.filter((packet : Packet) => packet.barcode == this.barCode);
-    let phoneNumber = packetSameBarCode[0].customerPhoneNb;
+    if(this.barCode.length > 10)
+    this.packetSameBarCode = this.sourcePackets.filter((packet : Packet) => packet.barcode == this.barCode);
+    else {
+      let num: number = Number(this.barCode);
+      this.packetSameBarCode = this.sourcePackets.filter((packet : Packet) => packet.id == num);
+    }
+
+    let phoneNumber = this.packetSameBarCode[0].customerPhoneNb;
     let packetSamePhoneNumber : Packet[] = this.sourcePackets.filter((packet : Packet) => packet.customerPhoneNb == phoneNumber);
-    if (packetSameBarCode.length>1){
+    if (this.packetSameBarCode.length>1){
       alert('Error: le code a barre '+this.barCode +' existe plusieur fois');
       return;
     }

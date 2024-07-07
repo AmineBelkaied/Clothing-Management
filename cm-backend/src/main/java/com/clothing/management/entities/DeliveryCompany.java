@@ -19,6 +19,9 @@ public class DeliveryCompany {
     private String apiName;
     @Column(name = "barre_code_url")
     private String barreCodeUrl;
+
+    @Column(name = "additional_name")
+    private String additionalName;
     @JsonIgnore
     @OneToMany(mappedBy = "deliveryCompany")
     List<Packet> packets;
@@ -89,13 +92,23 @@ public class DeliveryCompany {
         this.barreCodeUrl = barreCodeUrl;
     }
 
+    public String getAdditionalName() {
+        return additionalName;
+    }
+
+    public void setAdditionalName(String additionalName) {
+        this.additionalName = additionalName;
+    }
+
     @Override
     public String toString() {
         return "DeliveryCompany{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", token='" + token + '\'' +
                 ", apiName='" + apiName + '\'' +
-                ", token='" + token + '\''+
+                ", barreCodeUrl='" + barreCodeUrl + '\'' +
+                ", additionalName='" + additionalName + '\'' +
                 '}';
     }
 }

@@ -21,6 +21,8 @@ public class Model {
     List<Product> products;
     private String reference;
     private String description;
+    @Column(name="purchase_price")
+    private float purchasePrice;
     @ManyToMany(cascade = { CascadeType.MERGE } , fetch = FetchType.EAGER)
     @JoinTable(
             name = "model_colors",
@@ -54,7 +56,7 @@ public class Model {
         this.id = id;
     }
 
-    public Model(String name, List<Product> products, String reference, String description, List<Color> colors, List<Size> sizes, Set<OfferModel> modelOffers, List<ProductHistory> productHistories, ModelImage image) {
+    public Model(String name, List<Product> products, String reference, String description, List<Color> colors, List<Size> sizes, Set<OfferModel> modelOffers, List<ProductHistory> productHistories, ModelImage image, float purchasePrice) {
         this.name = name;
         this.products = products;
         this.reference = reference;
@@ -64,6 +66,7 @@ public class Model {
         this.modelOffers = modelOffers;
         this.productHistories = productHistories;
         this.image = image;
+        this.purchasePrice = purchasePrice;
     }
 
     public Long getId() {
@@ -142,6 +145,14 @@ public class Model {
         this.bytes = bytes;
     }
 
+    public float getPurchasePrice() {
+        return purchasePrice;
+    }
+
+    public void setPurchasePrice(float purchasePrice) {
+        this.purchasePrice = purchasePrice;
+    }
+
     @Override
     public String toString() {
         return "Model{" +
@@ -151,6 +162,7 @@ public class Model {
                 ", description='" + description + '\'' +
                 ", colors=" + colors +
                 ", sizes=" + sizes +
+                ", purchasePrice=" + purchasePrice +
                 '}';
     }
 }

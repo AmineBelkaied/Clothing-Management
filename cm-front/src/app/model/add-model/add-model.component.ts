@@ -27,7 +27,8 @@ export class AddModelComponent implements OnInit{
     "reference" : "",
     "description" : "",
     "colors" : [],
-    "sizes": []
+    "sizes": [],
+    "purchasePrice":10
   }
   @Input() colors: Color[] = [];
   @Input() sizes: Size[] = [];
@@ -44,10 +45,10 @@ export class AddModelComponent implements OnInit{
   selectedSize: any;
   @Output()
   selectedFileEvent: EventEmitter<any> = new EventEmitter();
-  
+
   constructor(private uploadFileService: UploadFileService, private sanitizer: DomSanitizer) {
   }
-  
+
   ngOnInit(): void {
     if(this.editMode) {
       this.uploadFileService.getImage(this.model.id)
@@ -58,7 +59,7 @@ export class AddModelComponent implements OnInit{
         this.convertByteArrayToImageUrl(byteArray, mimeType);
         console.log(data) */
         console.log(data);
-        
+
         const blobUrl = URL.createObjectURL(data.body);
         this.image = this.sanitizer.bypassSecurityTrustUrl(blobUrl);
       });
@@ -77,7 +78,7 @@ export class AddModelComponent implements OnInit{
       const base64String = btoa(binary.join(''));
       this.image = `data:${mimeType};base64,${base64String}`;
     }
-  
+
 
 
 }

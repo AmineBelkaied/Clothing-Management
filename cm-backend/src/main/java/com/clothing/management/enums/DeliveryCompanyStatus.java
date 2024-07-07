@@ -1,58 +1,98 @@
-
 package com.clothing.management.enums;
 
-    public enum DeliveryCompanyStatus {
+import com.clothing.management.models.JaxStatusModel;
 
-        WAITING("En attente"),
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
 
-        EN_COURS("En cours"),
-        LIVREE("Livré"),
-        LIVRER("Livrer"),
+public enum DeliveryCompanyStatus {
 
-        EXCHANGE("Echange"),
-        RETOUR_EXPEDITEUR("Retour Expéditeur"),
-        RETOUR_EXPEDITEUR_NAVEX("Retour Expediteur"),
-        RETOUR_CLIENT_AGENCE("Rtn client/agence"),
-        AU_MAGASIN("Au magasin"),
+    WAITING("En attente", "En attente", Arrays.asList("En attente", "à enlever")),
+    EN_COURS("En cours", "En cours", List.of("En cours de livraison")),
+    LIVREE("Livré", "Livrer", List.of("Livré")),
+    EXCHANGE("Echange", "Echange", List.of("Echange")),
+    RETOUR_EXPEDITEUR("Retour Expéditeur", "Retour Expediteur", Arrays.asList("En cours de préparation au retour vers l'expéditeur", "Colis à retourner", "Retour expéditeur")),
+    RETOUR_CLIENT_AGENCE("Rtn client/agence", "Rtn client/agence", List.of("Rtn client/agence")),
+    AU_MAGASIN("Au magasin", "Au magasin", Arrays.asList("En cours de prépartion à l'expédition", "En cours de préparation au transfert vers une autre agence","Transfert a une autre agence en cours", "Reçu à l'entrepôt", "Enlevé")),
+    RETOUR_DEPOT("Rtn dépôt", "Rtn dépôt", List.of("Retour entrepôt")),
+    A_VERIFIER("A vérifier", "A verifier", List.of("A verifier")),
+    RETOUR_RECU("Retour reçu", "Retour recu", List.of("Reçu par l'expediteur")),
+    RETOUR_DEFINITIF("Rtn définitif", "Rtn definitif", List.of("Rtn definitif")),
 
-        RETOUR_DEPOT("Rtn dépôt"),
-        RETOUR_DEPOT_NAVEX("Rtn dépôt"),
+    ANNULER("Annulée", "Annulée", List.of("Annulé")),
+    OTHER_STATUS("Other Status", "Other Status", List.of("Other Status"));
 
-        A_VERIFIER("A vérifier"),
-        A_VERIFIER_NAVEX("A verifier"),
+    private String first;
+    private String navex;
+    private List<String> jax;
 
-        RETOUR_RECU("Retour reçu"),
-        RETOUR_RECU_NAVEX("Retour recu"),
-        RETOUR_DEFINITIF("Rtn définitif"),
-        RETOUR_DEFINITIF_NAVEX("Rtn definitif"),
-        OTHER_STATUS();
+    DeliveryCompanyStatus(String first, String navex, List<String> jax) {
+        this.first = first;
+        this.navex = navex;
+        this.jax = jax;
+    }
 
-        private String status;
+    public String getFirst() {
+        return first;
+    }
 
-        DeliveryCompanyStatus(String status) {
-            this.status = status;
-        }
+    public void setFirst(String first) {
+        this.first = first;
+    }
 
-        DeliveryCompanyStatus() {
-        }
+    public String getNavex() {
+        return navex;
+    }
 
-        public String getStatus() {
-            return status;
-        }
+    public List<String> getJax() {
+        return jax;
+    }
 
-        public void setStatus(String status) {
-            this.status = status;
-        }
+    public void setNavex(String navex) {
+        this.navex = navex;
+    }
 
-        // From the String method, it will return you the Enum for the provided input string
-        public static DeliveryCompanyStatus fromString(String status) {
-            if (status != null) {
-                for (DeliveryCompanyStatus deliveryCompanyStatus : DeliveryCompanyStatus.values()) {
-                    if (status.equalsIgnoreCase(deliveryCompanyStatus.status)) {
-                        return deliveryCompanyStatus;
-                    }
+    public void setJax(List<String> jax) {
+        this.jax = jax;
+    }
+
+    public static DeliveryCompanyStatus fromString(String status, DeliveryCompanyName deliveryCompanyName) {
+        if (status != null) {
+            for (DeliveryCompanyStatus deliveryCompanyStatus : DeliveryCompanyStatus.values()) {
+                switch (deliveryCompanyName) {
+                    case NAVEX:
+                        if (status.equalsIgnoreCase(deliveryCompanyStatus.getNavex())) {
+                            return deliveryCompanyStatus;
+                        }
+                        break;
+                    case FIRST:
+                        if (status.equalsIgnoreCase(deliveryCompanyStatus.getFirst())) {
+                            return deliveryCompanyStatus;
+                        }
+                        break;
+                    case JAX:
+                        if (deliveryCompanyStatus.getJax().contains(status)) {
+                            return deliveryCompanyStatus;
+                        }
+                        break;
+                    // Add more cases here for other delivery companies if needed
                 }
             }
-            return OTHER_STATUS;
         }
+        return A_VERIFIER;
     }
+
+    public static Object getStatus(DeliveryCompanyName deliveryCompanyName, DeliveryCompanyStatus status) {
+        switch (deliveryCompanyName) {
+            case NAVEX:
+                return status.getNavex();
+            case FIRST:
+                return status.getFirst();
+            case JAX:
+                return status.getJax();
+            // Add more cases here for other delivery companies if needed
+        }
+        return "Unknown delivery company";
+    }
+}

@@ -1,6 +1,7 @@
 package com.clothing.management.servicesImpl;
 import com.clothing.management.auth.util.SessionUtils;
 import com.clothing.management.dto.*;
+import com.clothing.management.enums.DeliveryCompanyName;
 import com.clothing.management.enums.DeliveryCompanyStatus;
 import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.models.DashboardCard;
@@ -394,7 +395,8 @@ public class PacketServiceImpl implements PacketService {
     }
     @Override
     public DeliveryResponse createBarCode(Packet packet) throws IOException {
-        DeliveryCompanyService deliveryCompanyService = deliveryCompanyServiceFactory.getDeliveryCompanyService(packet.getDeliveryCompany().getName());
+        DeliveryCompanyName deliveryCompanyName = DeliveryCompanyName.fromString(packet.getDeliveryCompany().getName());
+        DeliveryCompanyService deliveryCompanyService = deliveryCompanyServiceFactory.getDeliveryCompanyService(deliveryCompanyName);
         DeliveryResponse deliveryResponse = deliveryCompanyService.createBarCode(packet);
 
         LOGGER.debug("deliveryResponse : " + deliveryResponse);
@@ -414,40 +416,41 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public Packet getLastStatus(Packet packet) {
         try {
-            DeliveryCompanyService deliveryCompanyService = deliveryCompanyServiceFactory.getDeliveryCompanyService(packet.getDeliveryCompany().getName());
+            DeliveryCompanyName deliveryCompanyName = DeliveryCompanyName.fromString(packet.getDeliveryCompany().getName());
+            DeliveryCompanyService deliveryCompanyService = deliveryCompanyServiceFactory.getDeliveryCompanyService(deliveryCompanyName);
             DeliveryResponse deliveryResponse = deliveryCompanyService.getLastStatus(packet.getBarcode(), packet.getDeliveryCompany());
-
+            String deliveryState = deliveryResponse.getState();
+            String packetStatus = packet.getStatus();
             LOGGER.debug("deliveryResponse : " + deliveryResponse);
             if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {
                 String systemNewStatus = TO_VERIFY.getStatus();
-                if (deliveryResponse.getStatus()==404  || deliveryResponse.getState().equals("")) {
-                    throw new Exception("Problem API");
-                }else if (deliveryResponse.getStatus()>199 && deliveryResponse.getState() != null) {
-                    //Convert input from first to System Status
-                    savePacketStatusToHistory(packet,packet.getDeliveryCompany().getName()+":"+deliveryResponse.getState());
-                    systemNewStatus = mapDeliveryToSystemStatus(deliveryResponse.getState());
-                    packet.setLastDeliveryStatus(deliveryResponse.getState());
-                    System.out.println("deliveryResponse.getState():"+deliveryResponse.getState());
 
-                    if(deliveryResponse.getState().equals(WAITING.getStatus())
-                            ||deliveryResponse.getState().equals(RETOUR_DEPOT.getStatus())
-                            ||deliveryResponse.getState().equals(RETOUR_DEPOT_NAVEX.getStatus())
-                            ||(deliveryResponse.getState().equals(AU_MAGASIN.getStatus())&& packet.getStatus().equals(IN_PROGRESS_1.getStatus()))
-                        )
+                if (deliveryResponse.getStatus()==404  || deliveryState.equals("")) {
+                    throw new Exception("Problem API");
+                }else if (deliveryResponse.getStatus()>199 && deliveryState != null) {
+                    //Convert input from first to System Status
+                    savePacketStatusToHistory(packet,deliveryCompanyName+":"+deliveryState);
+                    systemNewStatus = mapDeliveryToSystemStatus(deliveryState,deliveryCompanyName);
+                    packet.setLastDeliveryStatus(deliveryState);
+                    //System.out.println("deliveryResponse.getState():"+deliveryState);
+
+                    if (DeliveryCompanyStatus.fromString(deliveryState, deliveryCompanyName) == DeliveryCompanyStatus.WAITING
+                            || DeliveryCompanyStatus.fromString(deliveryState, deliveryCompanyName) == DeliveryCompanyStatus.RETOUR_DEPOT
+                            || (DeliveryCompanyStatus.fromString(deliveryState, deliveryCompanyName) == DeliveryCompanyStatus.AU_MAGASIN
+                            && packetStatus.equals(IN_PROGRESS_1.getStatus()))) {
                         return packet;
+                    }
 
                     systemNewStatus =
                             (systemNewStatus.equals(IN_PROGRESS_1.getStatus())//First always return "en cours"
                                     || systemNewStatus.equals(IN_PROGRESS_2.getStatus())//not in First System
                                     || systemNewStatus.equals(IN_PROGRESS_3.getStatus()))
-                                    && !packet.getStatus().equals(PROBLEM.getStatus())//not in First System
+                                    && !packetStatus.equals(PROBLEM.getStatus())//not in First System
                                     ? upgradeInProgressStatus(packet) : systemNewStatus;
                 }
                 return updatePacketStatus(packet, systemNewStatus);
             }
         } catch (Exception e ){
-            //packet.setLastDeliveryStatus(INCORRECT_BARCODE.getStatus());
-            //return updatePacketStatusAndSaveToHistory(packet, A_VERIFIER.getStatus());
             LOGGER.error("Error " + e);
         }
         return null;
@@ -470,21 +473,21 @@ public class PacketServiceImpl implements PacketService {
         return updatePacket(packet);
     }
 
-    private String mapDeliveryToSystemStatus(String status) {
+    private String mapDeliveryToSystemStatus(String status,DeliveryCompanyName deliveryCompanyName) {
         if (status == null || status.equals(""))
             return TO_VERIFY.getStatus();
-        DeliveryCompanyStatus deliveryCompanyStatus = DeliveryCompanyStatus.fromString(status);
+        DeliveryCompanyStatus deliveryCompanyStatus = DeliveryCompanyStatus.fromString(status,deliveryCompanyName);
         return switch (deliveryCompanyStatus) {
-            case LIVREE, LIVRER, EXCHANGE -> LIVREE.getStatus();
-            case RETOUR_EXPEDITEUR, RETOUR_EXPEDITEUR_NAVEX ,
-                    RETOUR_DEFINITIF,RETOUR_DEFINITIF_NAVEX, RETOUR_CLIENT_AGENCE,
-                    RETOUR_RECU, RETOUR_RECU_NAVEX -> RETURN.getStatus();
-            case WAITING,A_VERIFIER, A_VERIFIER_NAVEX -> TO_VERIFY.getStatus();
-            //case RETOUR_DEPOT,RETOUR_DEPOT_NAVEX -> status;
+            case LIVREE, EXCHANGE -> LIVREE.getStatus();
+            case RETOUR_EXPEDITEUR ,
+                    RETOUR_DEFINITIF, RETOUR_CLIENT_AGENCE,
+                    RETOUR_RECU -> RETURN.getStatus();
+            case ANNULER, WAITING, A_VERIFIER -> TO_VERIFY.getStatus();
             default -> IN_PROGRESS_1.getStatus();
         };
     }
     private String upgradeInProgressStatus(Packet packet) {
+        DeliveryCompanyName deliveryCompanyName = DeliveryCompanyName.fromString(packet.getDeliveryCompany().getName());
         SystemStatus systemStatus = SystemStatus.fromString(packet.getStatus());
         if (checkSameDateStatus(packet)&& !packet.getStatus().equals(CANCELED.getStatus()))
             return packet.getStatus();
@@ -497,7 +500,7 @@ public class PacketServiceImpl implements PacketService {
             case IN_PROGRESS_3:
                 return TO_VERIFY.getStatus();
             case TO_VERIFY:
-                return mapDeliveryToSystemStatus(packet.getLastDeliveryStatus());
+                return mapDeliveryToSystemStatus(packet.getLastDeliveryStatus(),deliveryCompanyName);
             default:
                 return IN_PROGRESS_1.getStatus();
         }

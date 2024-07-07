@@ -7,20 +7,35 @@
           <div class="row">
             <div class="col-md-6">
               <label for="name">Nom</label>
-              <input pInputText id="name" placeholder="Nom de la société de livraison" name="name"
+              <p>
+                <input pInputText id="name" placeholder="Nom de la société de livraison" name="name"
                 [(ngModel)]="deliveryCompany.name" />
+              </p>
             </div>
             <div class="col-md-6">
               <label for="link">Token</label>
-              <input pInputText id="token" placeholder="Token" name="token"
+              <p>
+                <input pInputText id="token" placeholder="Token" name="token"
                 [(ngModel)]="deliveryCompany.token" />
+              </p>
+
             </div>
           </div>
           <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-6">
               <label for="apiName">Api Name</label>
-              <input pInputText id="apiName" placeholder="Nom api donnée par la société" name="apiName"
+              <p>
+                <input pInputText id="apiName" placeholder="Nom api donnée par la société" name="apiName"
                 [(ngModel)]="deliveryCompany.apiName" />
+              </p>
+            </div>
+            <div class="col-md-6">
+              <label for="apiName">Nom supplimentaire:</label>
+              <p>
+                <input pInputText id="additionalName" placeholder="Nom supplimentaire descriptif" name="additionalName"
+                [(ngModel)]="deliveryCompany.additionalName" />
+              </p>
+
             </div>
           </div>
           <div class="row">

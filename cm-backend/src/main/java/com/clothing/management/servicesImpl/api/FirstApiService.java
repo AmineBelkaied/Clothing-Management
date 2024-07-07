@@ -139,11 +139,13 @@ public class FirstApiService extends DeliveryCompanyService {
     }
 
     private JSONObject createClientJson(Packet packet) {
+
+        String adresse = this.getValue(packet.getAddress().replaceAll(REGEX_NEWLINE," "));
         JSONObject client = new JSONObject();
         client.put("nom", getValue(packet.getCustomerName()));
         client.put("gouvernerat", packet.getCity().getGovernorate().getName());
         client.put("ville", packet.getCity().getName());
-        client.put("adresse", getValue(packet.getAddress()).replace(REG_BS, " "));
+        client.put("adresse", adresse);
         client.put("telephone", getPhoneNumber1(packet.getCustomerPhoneNb()));
         client.put("telephone2", getPhoneNumber2(packet.getCustomerPhoneNb()));
         return client;

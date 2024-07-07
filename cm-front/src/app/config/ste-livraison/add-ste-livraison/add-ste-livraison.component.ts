@@ -28,18 +28,19 @@ export class AddSteLivraisonComponent implements OnInit {
       this.deliveryCompany.token = form.value.token;
       this.deliveryCompany.barreCodeUrl = form.value.barreCodeUrl;
       this.deliveryCompany.apiName = form.value.apiName;
+      this.deliveryCompany.additionalName = form.value.additionalName;
       this.steLivraisonService.updateSte(this.deliveryCompany)
-      .subscribe((updatedFbPage: any) => {
-        console.log(updatedFbPage)
-        this.steLivraisonService.spliceSte(updatedFbPage);
+      .subscribe((updatedDC: any) => {
+        console.log(updatedDC)
+        this.steLivraisonService.spliceSte(updatedDC);
         this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été modifiée avec succés", life: 1000 });
         form.reset();
         this.steLivraisonService.editMode = false;
       });
     } else {
       this.steLivraisonService.addSte(form.value)
-      .subscribe((addedFbPage: any) => {
-        this.steLivraisonService.deliveryCompanyList.push(addedFbPage);
+      .subscribe((addedDC: any) => {
+        this.steLivraisonService.deliveryCompanyList.push(addedDC);
         this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été crée avec succés", life: 1000 });
         form.reset();
       });

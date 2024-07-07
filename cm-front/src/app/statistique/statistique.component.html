@@ -183,6 +183,9 @@
                 <th>Payée</th>
                 <th>Retour</th>
                 <th>Payée/Retour</th>
+                <th>Prix Achat</th>
+                <th>Prix Vente</th>
+                <th>Gain</th>
               </tr>
             </thead>
             <tbody>
@@ -193,8 +196,23 @@
                 <td>{{ item.payed }}</td>
                 <td>{{ item.retour }}</td>
                 <td>{{ formatNumber(item) }}%</td>
+
+                <!-- Condition for non-total rows -->
+                <ng-container *ngIf="item.name !== 'Total'; else totalRow">
+                  <td>{{ item.purchasePrice * item.payed }} ({{ item.purchasePrice }})</td>
+                  <td>{{ item.sellingPrice * item.payed }} ({{ item.sellingPrice }})</td>
+                  <td>{{ item.sellingPrice * item.payed - item.purchasePrice * item.payed }} ({{ item.sellingPrice - item.purchasePrice }})</td>
+                </ng-container>
+
+                <!-- Condition for total row -->
+                <ng-template #totalRow>
+                  <td>{{ item.purchasePrice }}</td>
+                  <td>{{ item.sellingPrice }}</td>
+                  <td>{{ item.sellingPrice - item.purchasePrice }}</td>
+                </ng-template>
               </tr>
             </tbody>
+
           </table>
         </p-tabPanel>
       </p-tabView>

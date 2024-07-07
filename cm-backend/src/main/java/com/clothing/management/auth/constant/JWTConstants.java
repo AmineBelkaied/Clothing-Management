@@ -5,7 +5,7 @@ package com.clothing.management.auth.constant;
  */
 public class JWTConstants {
 
-    public static final long ACCESS_TOKEN_VALIDITY_SECONDS = 60*60*60;
+    public static final long ACCESS_TOKEN_VALIDITY_SECONDS = 60*60*14;
     public static final String SIGNING_KEY = "helloworld";
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";

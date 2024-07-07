@@ -2,15 +2,16 @@ package com.clothing.management.servicesImpl;
 
 import com.clothing.management.dto.PacketsStatCountDTO;
 import com.clothing.management.dto.ProductsDayCountDTO;
+import com.clothing.management.dto.StatOfferTableDTO;
 import com.clothing.management.dto.StatTableDTO;
-import com.clothing.management.entities.Color;
-import com.clothing.management.entities.ModelStockHistory;
-import com.clothing.management.entities.Offer;
-import com.clothing.management.entities.Size;
+import com.clothing.management.entities.*;
 import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
+import com.clothing.management.services.PacketService;
 import com.clothing.management.services.StatService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.sound.midi.Soundbank;
@@ -19,6 +20,8 @@ import java.util.*;
 
 @Service
 public class StatServiceImpl implements StatService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PacketService.class);
     private final IProductsPacketRepository productsPacketRepository;
     private final IModelStockHistoryRepository modelStockHistoryRepository;
 
@@ -52,7 +55,7 @@ public class StatServiceImpl implements StatService {
                 for (ProductsDayCountDTO row : existingProductsPacket) {
                     if (row.getPacketDate().equals(uniqueDate) && row.getModelName().equals(uniqueModel))
                         {
-                            System.out.println("model-"+row.getModelName()+"/payed:"+row.getCountPayed());
+                            //System.out.println("model-"+row.getModelName()+"/payed:"+row.getCountPayed());
 
                             if(countProgressEnabler)
                                 count+=row.getCountPayed()+row.getCountProgress();
@@ -184,11 +187,11 @@ public class StatServiceImpl implements StatService {
 
         //stat models chart
         List<List<Integer>> listOffersCount= new ArrayList<>() ;
-        List<StatTableDTO> offersRecapCount= new ArrayList<>() ;
-        StatTableDTO offerRecap =null;
+        List<StatOfferTableDTO> offersRecapCount= new ArrayList<>() ;
+        StatOfferTableDTO offerRecap =null;
         for (Offer uniqueoffer : uniqueOffers) {
             countOffersList = new ArrayList<>();
-            offerRecap= new StatTableDTO(uniqueoffer.getName());
+            offerRecap= new StatOfferTableDTO(uniqueoffer);
 
             for (Date uniqueDate : uniqueDates) {
                 int countPayed = 0;
@@ -196,13 +199,8 @@ public class StatServiceImpl implements StatService {
                 int countRetour = 0;
 
                 for (ProductsDayCountDTO row : existingOffersPacket) {
-                    //row.getProductId() ---> productsPacket.packetOfferId
-                    //row.getModelId() ---> productsPacket.packet.id
-
                     if (row.getPacketDate().equals(uniqueDate) && row.getOffer().getId()==uniqueoffer.getId())
                     {
-                        //System.out.println("packet"+row.getModelId()+">offer-"+row.getOffer().getName()+"//offerID>>"+row.getProductId()+"payed:"+row.getCountPayed());
-                        //if((packetIds.contains(row.getModelId()) && lastPacketOfferId == row.getProductId()))System.out.println("------lastPacketOfferId"+lastPacketOfferId+"row.getProductId()"+row.getProductId());
                         if (row.getCountPayed()>0)countPayed+=1;
                         if (row.getCountReturn()>0)countRetour+=1;
                         if (row.getCountProgress()>0)countProgress+=1;
@@ -218,8 +216,20 @@ public class StatServiceImpl implements StatService {
             offerRecap.setMin(Collections.min(countOffersList));
             offerRecap.setMax(Collections.max(countOffersList));
             offerRecap.setAvg(offerRecap.getPayed()/uniqueDates.size());
+            offerRecap.setSellingPrice(offerRecap.getOffer().getPrice());
+
+            //calculate purshase Price
+            Double purshasePrice = 0.0;
+            Set<OfferModel> offerModels= uniqueoffer.getOfferModels();
+            for (OfferModel uniqueOfferModel : offerModels) {
+                purshasePrice +=uniqueOfferModel.getQuantity()*uniqueOfferModel.getModel().getPurchasePrice();
+            }
+            offerRecap.setPurchasePrice(purshasePrice);
+
+
             offersRecapCount.add(offerRecap);
         }
+
 
 
         //total models Count
@@ -236,7 +246,7 @@ public class StatServiceImpl implements StatService {
         listOffersCount.add(countTotalList);
 
         //create table
-        StatTableDTO offerTotalRecap = createTableRecap(offersRecapCount);
+        StatOfferTableDTO offerTotalRecap = createOfferTableRecap(offersRecapCount);
         offersRecapCount.add(offerTotalRecap);
         uniqueOffers.add(new Offer("Total"));
 
@@ -258,8 +268,29 @@ public class StatServiceImpl implements StatService {
             totalRecap.setPayed(totalRecap.getPayed()+uniqueRecapCount.getPayed());
             totalRecap.setRetour(totalRecap.getRetour()+uniqueRecapCount.getRetour());
             totalRecap.setProgress(totalRecap.getProgress()+uniqueRecapCount.getProgress());
+
         }
         return totalRecap;
+    }
+    public StatOfferTableDTO createOfferTableRecap(List<StatOfferTableDTO> recapCount){
+        StatOfferTableDTO totalRecap= new StatOfferTableDTO(new Offer("Total"));
+        totalRecap.setMin(0L);
+        for (StatOfferTableDTO uniqueRecapCount : recapCount) {
+            totalRecap.setAvg(totalRecap.getAvg()+uniqueRecapCount.getAvg());
+            totalRecap.setMax(totalRecap.getMax()+uniqueRecapCount.getMax());
+            totalRecap.setMin(totalRecap.getMin()+uniqueRecapCount.getMin());
+            totalRecap.setPayed(totalRecap.getPayed()+uniqueRecapCount.getPayed());
+            totalRecap.setRetour(totalRecap.getRetour()+uniqueRecapCount.getRetour());
+            double offerPurshasePrice = uniqueRecapCount.getPurchasePrice()*totalRecap.getPayed();
+            LOGGER.info(offerPurshasePrice+"");
+            totalRecap.setPurchasePrice(totalRecap.getPurchasePrice()+offerPurshasePrice);
+            totalRecap.setSellingPrice(totalRecap.getSellingPrice()+uniqueRecapCount.getSellingPrice()*totalRecap.getPayed());
+        }
+        return totalRecap;
+    }
+
+    private Double calculateOfferPurshasePrice(Offer offer) {
+        return 6.0;
     }
 
     @Override

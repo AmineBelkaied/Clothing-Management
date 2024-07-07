@@ -5,6 +5,8 @@
             </th>
             <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
             </th>
+            <th pSortableColumn="name">Nom supplementaire<p-sortIcon field="additionalName"></p-sortIcon>
+            </th>
             <th pSortableColumn="link">Token <p-sortIcon field="token"></p-sortIcon>
             <th>Actions</th>
         </tr>
@@ -13,13 +15,14 @@
         <tr>
             <td>{{ste.id}}</td>
             <td>{{ste.name}}</td>
+            <td>{{ste.additionalName}}</td>
             <td style="font-weight: bold;">{{ste.token.substring(0, 40)}}</td>
              <td>
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-4 buttonSize"
                     (click)="editSte(ste)"></button>
                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger buttonSize"
                     (click)="deleteSte(ste)"></button>
-                <p-inputSwitch class="ml-4" [(ngModel)]="ste.enabled" (onChange)="enableSte(ste)"></p-inputSwitch>
+                <!--<p-inputSwitch class="ml-4" [(ngModel)]="ste.enabled" (onChange)="enableSte(ste)"></p-inputSwitch>-->
             </td>
         </tr>
     </ng-template>

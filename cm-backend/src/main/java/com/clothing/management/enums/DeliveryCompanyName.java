@@ -30,4 +30,5 @@ public enum DeliveryCompanyName {
         }
         throw new IllegalArgumentException("No enum constant " + DeliveryCompanyName.class.getCanonicalName() + "." + name);
     }
+
 }

@@ -1,8 +1,6 @@
 package com.clothing.management.servicesImpl.api;
 
-import com.clothing.management.dto.DeliveryResponseFirst;
 import com.clothing.management.dto.DeliveryResponseJax;
-import com.clothing.management.dto.DeliveryResponseNavex;
 import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.IGlobalConfRepository;
@@ -10,7 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -71,7 +68,8 @@ public class JaxApiService extends DeliveryCompanyService {
     private DeliveryResponseJax executeHttpRequest(String url, String jsonBody, DeliveryCompany deliveryCompany, HttpMethod method) throws IOException {
         HttpsURLConnection connection = getHttpsURLConnection(url, deliveryCompany, method);
         DeliveryResponseJax deliveryResponse = new DeliveryResponseJax();
-
+        StringBuilder response = new StringBuilder();
+        LOGGER.info(jsonBody);
         if (method == HttpMethod.POST) {
             connection.setDoOutput(true);
             try (OutputStream outputStream = connection.getOutputStream()) {
@@ -82,21 +80,56 @@ public class JaxApiService extends DeliveryCompanyService {
             }
         }
 
+//first
         int responseCode = connection.getResponseCode();
         String responseMessage = connection.getResponseMessage();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            deliveryResponse = getDeliveryResponseJax(responseCode, responseMessage, response);
+        if (responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
+            deliveryResponse = getDeliveryResponseJaxSuccess(connection, response, responseCode, responseMessage);
+        } else {
+            getDeliveryResponseJaxError(connection, response, deliveryResponse, responseCode);
         }
+        //first end
+
         LOGGER.debug("deliveryResponse : {} ", deliveryResponse);
         // Disconnect the connection
         connection.disconnect();
         return deliveryResponse;
     }
+
+    private static void getDeliveryResponseJaxError(HttpsURLConnection connection, StringBuilder response, DeliveryResponseJax deliveryResponse, int responseCode) {
+        InputStream errorStream = connection.getErrorStream();
+        if (errorStream != null) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error in reading ErrorStream : ",  e);
+            }
+        } else {
+            LOGGER.error("Error stream is null.");
+        }
+        deliveryResponse.setResponseMessage("not found");
+        deliveryResponse.setStatus(responseCode);
+        deliveryResponse.setResponseCode(responseCode);
+    }
+
+    private static DeliveryResponseJax getDeliveryResponseJaxSuccess(HttpsURLConnection connection, StringBuilder response, int responseCode, String responseMessage) throws JsonProcessingException {
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                LOGGER.info("line: {}", line);
+                response.append(line);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error in reading InputStream : ", e);
+        }
+
+        return getDeliveryResponseJax(responseCode, responseMessage, response);
+    }
+
 
     private static DeliveryResponseJax getDeliveryResponseJax(int responseCode, String responseMessage, StringBuilder response) throws JsonProcessingException {
         DeliveryResponseJax deliveryResponse;
@@ -124,13 +157,15 @@ public class JaxApiService extends DeliveryCompanyService {
     }
 
     private String createRequestBody(Packet packet) {
+        String adresse = this.getValue(packet.getAddress().replaceAll(REGEX_NEWLINE," "));
+        LOGGER.info(adresse);
         return new StringBuilder()
                 .append("{")
-                .append("\"referenceExterne\": \"").append(this.getValue(packet.getId() + "")).append("\",")
+                .append("\"referenceExterne\": \"").append("\",")
                 .append("\"nomContact\": \"").append(this.getValue(packet.getCustomerName())).append("\",")
                 .append("\"tel\": \"").append(this.getPhoneNumber1(packet.getCustomerPhoneNb())).append("\",")
                 .append("\"tel2\": \"").append(this.getPhoneNumber2(packet.getCustomerPhoneNb())).append("\",")
-                .append("\"adresseLivraison\": \"").append(this.getValue(packet.getAddress()).replace(REG_BS, " ")).append("\",")
+                .append("\"adresseLivraison\": \"").append(adresse).append("\",")
                 .append("\"governorat\": ").append(packet.getCity().getGovernorate().getJaxCode()).append(",")
                 .append("\"delegation\": \"").append(packet.getCity().getName()).append("\",")
                 .append("\"description\": \"").append(this.getPacketDesignation(packet)).append("\",")
