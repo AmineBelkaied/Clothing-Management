@@ -20,9 +20,9 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 })
 
 export class StatistiqueComponent implements OnInit {
-  caluculatePurshasePrice(arg0: any) {
-
-  }
+fixValue(earning: any) {
+  return earning.toFixed(1)
+}
 
 
   offersCount: ProductCountDTO[] = [];
@@ -691,7 +691,7 @@ export class StatistiqueComponent implements OnInit {
 
     let k = 0;
     offersList.forEach((item: any) => {
-      console.log("offersList-item:",item);
+      //console.log("offersList-item:",item);
 
       this.offersDataSetArray.push({
         label: item.name + '/av:' + this.offerTableData[k].avg,

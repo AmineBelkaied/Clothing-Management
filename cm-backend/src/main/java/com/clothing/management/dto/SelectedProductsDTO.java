@@ -1,6 +1,7 @@
 package com.clothing.management.dto;
 
 import com.clothing.management.entities.Product;
+import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,8 @@ public class SelectedProductsDTO {
     private List<ProductOfferDTO> productsOffers;
 
     private String status;
+
+    private Integer productCount;
 
     public SelectedProductsDTO() {
     }
@@ -88,6 +91,14 @@ public class SelectedProductsDTO {
         this.packetDescription = packetDescription;
     }
 
+    public Integer getProductCount() {
+        return productCount;
+    }
+
+    public void setProductCount(Integer productCount) {
+        this.productCount = productCount;
+    }
+
     @Override
     public String toString() {
         return "SelectedProductsDTO{" +
@@ -98,6 +109,7 @@ public class SelectedProductsDTO {
                 ", packetDescription='" + packetDescription + '\'' +
                 ", productsOffers=" + productsOffers +
                 ", status='" + status + '\'' +
+                ", productCount=" + productCount +
                 '}';
     }
 }

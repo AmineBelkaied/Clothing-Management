@@ -8,14 +8,13 @@ import com.clothing.management.entities.*;
 import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
+import com.clothing.management.services.OfferService;
 import com.clothing.management.services.PacketService;
 import com.clothing.management.services.StatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.sound.midi.Soundbank;
-import java.sql.SQLOutput;
 import java.util.*;
 
 @Service
@@ -25,9 +24,12 @@ public class StatServiceImpl implements StatService {
     private final IProductsPacketRepository productsPacketRepository;
     private final IModelStockHistoryRepository modelStockHistoryRepository;
 
-    public StatServiceImpl(IProductsPacketRepository productsPacketRepository, IModelStockHistoryRepository modelStockHistoryRepository) {
+    private final OfferService offerService;
+
+    public StatServiceImpl(IProductsPacketRepository productsPacketRepository, IModelStockHistoryRepository modelStockHistoryRepository,OfferService offerService) {
         this.productsPacketRepository = productsPacketRepository;
         this.modelStockHistoryRepository = modelStockHistoryRepository;
+        this.offerService = offerService;
     }
 
     @Override
@@ -47,20 +49,25 @@ public class StatServiceImpl implements StatService {
         StatTableDTO modelRecap =null;
         for (String uniqueModel : uniqueModels) {
             countModelsList = new ArrayList<>();
+            double countProfits = 0;
             modelRecap= new StatTableDTO(uniqueModel);
             for (Date uniqueDate : uniqueDates) {
                 int count = 0;
                 int countRetour = 0;
                 int countProgress = 0;
+
                 for (ProductsDayCountDTO row : existingProductsPacket) {
                     if (row.getPacketDate().equals(uniqueDate) && row.getModelName().equals(uniqueModel))
                         {
                             //System.out.println("model-"+row.getModelName()+"/payed:"+row.getCountPayed());
-
-                            if(countProgressEnabler)
-                                count+=row.getCountPayed()+row.getCountProgress();
-
-                            else count+=row.getCountPayed();
+                            if(countProgressEnabler) {
+                                count += row.getCountPayed() + row.getCountProgress();
+                                countProfits+=row.getProfits();
+                            }
+                            else {
+                                count+=row.getCountPayed();
+                                countProfits+=row.getProfits();
+                            }
 
                             countProgress+=row.getCountProgress();
                             countRetour+=row.getCountReturn();
@@ -75,6 +82,7 @@ public class StatServiceImpl implements StatService {
             modelRecap.setMin(Collections.min(countModelsList));
             modelRecap.setMax(Collections.max(countModelsList));
             modelRecap.setAvg(modelRecap.getPayed()/uniqueDates.size());
+            modelRecap.setProfits(countProfits+modelRecap.getProfits());
             modelsRecapCount.add(modelRecap);
         }
 
@@ -100,6 +108,21 @@ public class StatServiceImpl implements StatService {
         data.put("modelsCount",listModelsCount);
         data.put("modelsRecapCount",modelsRecapCount);
         return data;
+    }
+
+    public StatTableDTO createTableRecap(List<StatTableDTO> recapCount){
+        StatTableDTO totalRecap= new StatTableDTO("Total");
+        totalRecap.setMin(0L);
+        for (StatTableDTO uniqueRecapCount : recapCount) {
+            totalRecap.setAvg(totalRecap.getAvg()+uniqueRecapCount.getAvg());
+            totalRecap.setMax(totalRecap.getMax()+uniqueRecapCount.getMax());
+            totalRecap.setMin(totalRecap.getMin()+uniqueRecapCount.getMin());
+            totalRecap.setPayed(totalRecap.getPayed()+uniqueRecapCount.getPayed());
+            totalRecap.setRetour(totalRecap.getRetour()+uniqueRecapCount.getRetour());
+            totalRecap.setProgress(totalRecap.getProgress()+uniqueRecapCount.getProgress());
+            totalRecap.setProfits(totalRecap.getProfits()+uniqueRecapCount.getProfits());
+        }
+        return totalRecap;
     }
 
     @Override
@@ -197,11 +220,15 @@ public class StatServiceImpl implements StatService {
                 int countPayed = 0;
                 int countProgress = 0;
                 int countRetour = 0;
-
+                double countProfits = 0;
                 for (ProductsDayCountDTO row : existingOffersPacket) {
                     if (row.getPacketDate().equals(uniqueDate) && row.getOffer().getId()==uniqueoffer.getId())
                     {
-                        if (row.getCountPayed()>0)countPayed+=1;
+
+                        if (row.getCountPayed()>0){
+                            countPayed+=1;
+                            countProfits+=row.getProfits();
+                        }
                         if (row.getCountReturn()>0)countRetour+=1;
                         if (row.getCountProgress()>0)countProgress+=1;
                     }
@@ -210,27 +237,22 @@ public class StatServiceImpl implements StatService {
                 offerRecap.setPayed(countPayed+offerRecap.getPayed());
                 offerRecap.setRetour(countRetour+offerRecap.getRetour());
                 offerRecap.setProgress(countProgress+offerRecap.getProgress());
+                offerRecap.setProfits(countProfits+offerRecap.getProfits());
+                //offerRecap.setSellingPrice(offerRecap.getSellingPrice()+purshasePrice+offerRecap.getProfits());
                 countOffersList.add(countPayed);
             }
             listOffersCount.add(countOffersList);
             offerRecap.setMin(Collections.min(countOffersList));
             offerRecap.setMax(Collections.max(countOffersList));
             offerRecap.setAvg(offerRecap.getPayed()/uniqueDates.size());
-            offerRecap.setSellingPrice(offerRecap.getOffer().getPrice());
 
             //calculate purshase Price
-            Double purshasePrice = 0.0;
-            Set<OfferModel> offerModels= uniqueoffer.getOfferModels();
-            for (OfferModel uniqueOfferModel : offerModels) {
-                purshasePrice +=uniqueOfferModel.getQuantity()*uniqueOfferModel.getModel().getPurchasePrice();
-            }
-            offerRecap.setPurchasePrice(purshasePrice);
-
+            Double purshasePrice =calculateOfferPurshasePrice(uniqueoffer);
+            offerRecap.setPurchasePrice(purshasePrice*offerRecap.getPayed());
+            offerRecap.setSellingPrice(offerRecap.getPurchasePrice()+offerRecap.getProfits());
 
             offersRecapCount.add(offerRecap);
         }
-
-
 
         //total models Count
         //ajout la courbe total des objets calculé precedament
@@ -246,7 +268,7 @@ public class StatServiceImpl implements StatService {
         listOffersCount.add(countTotalList);
 
         //create table
-        StatOfferTableDTO offerTotalRecap = createOfferTableRecap(offersRecapCount);
+        StatOfferTableDTO offerTotalRecap = createOfferTableTotalRecap(offersRecapCount);
         offersRecapCount.add(offerTotalRecap);
         uniqueOffers.add(new Offer("Total"));
 
@@ -257,22 +279,7 @@ public class StatServiceImpl implements StatService {
         data.put("offersRecapCount",offersRecapCount);
         return data;
     }
-
-    public StatTableDTO createTableRecap(List<StatTableDTO> recapCount){
-        StatTableDTO totalRecap= new StatTableDTO("Total");
-        totalRecap.setMin(0L);
-        for (StatTableDTO uniqueRecapCount : recapCount) {
-            totalRecap.setAvg(totalRecap.getAvg()+uniqueRecapCount.getAvg());
-            totalRecap.setMax(totalRecap.getMax()+uniqueRecapCount.getMax());
-            totalRecap.setMin(totalRecap.getMin()+uniqueRecapCount.getMin());
-            totalRecap.setPayed(totalRecap.getPayed()+uniqueRecapCount.getPayed());
-            totalRecap.setRetour(totalRecap.getRetour()+uniqueRecapCount.getRetour());
-            totalRecap.setProgress(totalRecap.getProgress()+uniqueRecapCount.getProgress());
-
-        }
-        return totalRecap;
-    }
-    public StatOfferTableDTO createOfferTableRecap(List<StatOfferTableDTO> recapCount){
+    public StatOfferTableDTO createOfferTableTotalRecap(List<StatOfferTableDTO> recapCount){
         StatOfferTableDTO totalRecap= new StatOfferTableDTO(new Offer("Total"));
         totalRecap.setMin(0L);
         for (StatOfferTableDTO uniqueRecapCount : recapCount) {
@@ -281,16 +288,20 @@ public class StatServiceImpl implements StatService {
             totalRecap.setMin(totalRecap.getMin()+uniqueRecapCount.getMin());
             totalRecap.setPayed(totalRecap.getPayed()+uniqueRecapCount.getPayed());
             totalRecap.setRetour(totalRecap.getRetour()+uniqueRecapCount.getRetour());
-            double offerPurshasePrice = uniqueRecapCount.getPurchasePrice()*totalRecap.getPayed();
-            LOGGER.info(offerPurshasePrice+"");
-            totalRecap.setPurchasePrice(totalRecap.getPurchasePrice()+offerPurshasePrice);
-            totalRecap.setSellingPrice(totalRecap.getSellingPrice()+uniqueRecapCount.getSellingPrice()*totalRecap.getPayed());
+            totalRecap.setPurchasePrice(totalRecap.getPurchasePrice()+uniqueRecapCount.getPurchasePrice());
+            totalRecap.setSellingPrice(totalRecap.getSellingPrice()+ uniqueRecapCount.getSellingPrice());
+            totalRecap.setProfits(totalRecap.getProfits()+uniqueRecapCount.getProfits());
         }
         return totalRecap;
     }
 
     private Double calculateOfferPurshasePrice(Offer offer) {
-        return 6.0;
+        double purshasePrice = 0;
+        Set<OfferModel> offerModels= offer.getOfferModels();
+        for (OfferModel uniqueOfferModel : offerModels) {
+            purshasePrice +=uniqueOfferModel.getQuantity()*uniqueOfferModel.getModel().getPurchasePrice();
+        }
+        return purshasePrice;
     }
 
     @Override

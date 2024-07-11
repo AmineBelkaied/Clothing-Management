@@ -18,4 +18,5 @@ public interface OfferService {
     public OfferModelQuantitiesDTO updateOffer(OfferModelQuantitiesDTO offerModelDTO);
     public void deleteOffer(Offer offer);
     void deleteSelectedOffers(List<Long> offersId);
+    List<OfferModelsDTO> findOfferByFbPageId(Long fbPageId) throws IOException;
 }

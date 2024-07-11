@@ -130,7 +130,6 @@ public class FirstApiService extends DeliveryCompanyService {
 
     private JSONObject createJsonPacketForFirst(Packet packet) {
         setUpGlobalConfParams();
-
         JSONObject json = new JSONObject();
         json.put("Client", createClientJson(packet));
         json.put("Produit", createProductJson(packet));

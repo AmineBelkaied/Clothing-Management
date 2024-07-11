@@ -29,7 +29,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.clothing.management.enums.DeliveryCompanyStatus.*;
 import static com.clothing.management.enums.SystemStatus.*;
 import static com.clothing.management.enums.SystemStatus.LIVREE;
 import static java.util.stream.Collectors.groupingBy;
@@ -218,6 +217,7 @@ public class PacketServiceImpl implements PacketService {
     }
     @Override
     public Packet addProductsToPacket(SelectedProductsDTO selectedProductsDTO,Integer stock) {
+        final double[] count = {0};
         String noStockStatus = selectedProductsDTO.getStatus();
         List<ProductOfferDTO> productsOffers = selectedProductsDTO.getProductsOffers();
         Optional<Packet> optionalPacket = packetRepository.findById(selectedProductsDTO.getIdPacket());
@@ -226,6 +226,7 @@ public class PacketServiceImpl implements PacketService {
             packet.setPrice(selectedProductsDTO.getTotalPrice());
             packet.setDeliveryPrice(selectedProductsDTO.getDeliveryPrice());
             packet.setDiscount(selectedProductsDTO.getDiscount());
+            packet.setProductCount(selectedProductsDTO.getProductCount());
             if (noStockStatus!= null && noStockStatus.equals(OOS.getStatus())
                     &&(packet.getStatus().equals(NOT_CONFIRMED.getStatus())
                     ||packet.getStatus().equals(NOTSERIOUS.getStatus())
@@ -241,8 +242,9 @@ public class PacketServiceImpl implements PacketService {
             if(existingProductsPacket.size() > 0)
                 productsPacketRepository.deleteAll(existingProductsPacket);
             List<ProductsPacket> newProductsPacket = new ArrayList<>();
+
             productsOffers.forEach(productOfferDTO -> {
-                newProductsPacket.add(new ProductsPacket(new Product(productOfferDTO.getProductId()), packet, new Offer(productOfferDTO.getOfferId()), productOfferDTO.getPacketOfferIndex(),0));
+                newProductsPacket.add(new ProductsPacket(new Product(productOfferDTO.getProductId()), packet, new Offer(productOfferDTO.getOfferId()), productOfferDTO.getPacketOfferIndex(), productOfferDTO.getProfits()));
             });
             productsPacketRepository.saveAll(newProductsPacket);
             packet.setPacketDescription(selectedProductsDTO.getPacketDescription());
@@ -339,6 +341,8 @@ public class PacketServiceImpl implements PacketService {
         newModel.setDescription(model.getDescription());
         newModel.setName(model.getName());
         newModel.setReference(model.getReference());
+        newModel.setPurchasePrice(model.getPurchasePrice());
+        newModel.setEarningCoefficient(model.getEarningCoefficient());
         if(model.getImage() != null)
             newModel.setBytes(Files.readAllBytes(new File(model.getImage().getImagePath()).toPath()));
         return newModel;
@@ -543,7 +547,7 @@ public class PacketServiceImpl implements PacketService {
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
         if(productsPackets.size()>0) {
             productsPackets.stream().forEach(productsPacket -> {
-                ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response, productsPacket.getOffer(), productsPacket.getPacketOfferId());
+                ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response, productsPacket.getOffer(), productsPacket.getPacketOfferId(),productsPacket.getProfits());
                 productsPacketRepository.save(newProductsPacket);
             });
         }

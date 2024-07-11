@@ -30,6 +30,7 @@ export class ListOffersComponent implements OnInit {
     "fbPages" : [],
     "price": 0,
     "enabled": false,
+    "earnCoefficient": 1,
   }
   editMode = false;
 
@@ -51,8 +52,7 @@ export class ListOffersComponent implements OnInit {
     this.modelService.findAllModels().subscribe((modelList: any) => {
       this.models = modelList;
     });
-    this.fbPageService.fbPageSubscriber
-    .subscribe((fbPageList: any) => {
+    this.fbPageService.findAllFbPages().subscribe((fbPageList: any) => {
       this.fbPages = fbPageList;
     });
   }
@@ -124,13 +124,26 @@ export class ListOffersComponent implements OnInit {
   }
 
   displayOfferModels(modelQuantities: ModelQuantity[]) {
+
     let offerModels = "";
     modelQuantities.forEach((modelQuantity, index) => {
-      offerModels += modelQuantity.quantity + " " + modelQuantity.model.name;
-      if (index < modelQuantities.length - 1)
+      if (index < modelQuantities.length - 1 && index>0)
         offerModels += " , ";
+      offerModels += modelQuantity.quantity + " " + modelQuantity.model.name;
     });
     return offerModels;
+  }
+
+  displayPages(fbPages: FbPage[]) {
+
+    if(fbPages.length<1)return "null";
+    let fbPgaesList = "";
+    fbPages.forEach((fbPage, index) => {
+      if (index < fbPgaesList.length - 1 && index>0)
+        fbPgaesList += " , ";
+      fbPgaesList += fbPage.name + " ";
+    });
+    return fbPgaesList;
   }
 
   hideDialog() {

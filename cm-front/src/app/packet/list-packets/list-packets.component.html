@@ -368,10 +368,10 @@
         <td
           [pEditableColumn]="packet"
           pEditableColumnField="customerName"
-          style="cursor: pointer; padding: 0.1rem 0.1rem !important"
+          style="cursor: pointer; padding: 0.1rem 0.1rem !important;min-width: 14rem;"
           class="breakWord"
         >
-          <div style="min-width: 15rem; min-height: 2rem">
+          <div style="min-height: 2rem">
             <p-cellEditor>
               <ng-template pTemplate="input">
                 <input
@@ -629,7 +629,8 @@
             </ng-template>
             <ng-template pTemplate="output">
               {{ packet.barcode }}
-              <i
+              <p class="mb-0">
+                <i
                 *ngIf="packet.valid"
                 class="pi pi-check-circle"
                 style="color: green"
@@ -637,11 +638,13 @@
               <i
                 *ngIf="packet.haveExchange"
                 class="pi pi-check-circle"
-                style="color: green"
+                style="color: rgb(255, 166, 0)"
               ></i>
+              </p>
+              <p class="mb-0">{{ packet.lastDeliveryStatus }}</p>
             </ng-template>
           </p-cellEditor>
-          <div class="p-2">{{ packet.lastDeliveryStatus }}</div>
+
         </td>
       </tr>
     </ng-template>

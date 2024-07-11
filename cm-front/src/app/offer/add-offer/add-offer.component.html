@@ -56,7 +56,7 @@
                       style="background-color: #fcfcfc"
                       formArrayName="modelQuantities"
                     >
-                      <thead align="center">
+                      <thead>
                         <th>Modèle</th>
                         <th>Quantité</th>
                         <th></th>
@@ -69,7 +69,7 @@
                         [formGroupName]="i"
                         class="mt-4"
                       >
-                        <td align="center">
+                        <td>
                           <p-dropdown
                             [options]="modelList"
                             optionLabel="name"
@@ -82,15 +82,10 @@
                             appendTo="body"
                           >
                           </p-dropdown>
-
-
-
                         </td>
-                        <td align="center">
-                          <input
-                            type="number"
-                            class="form-control mt-4"
-                            style="width: 50%; border-width: thin"
+                        <td>
+                          <p-inputNumber
+                            class="form-control"
                             min="1"
                             id="quantity"
                             placeholder="Quantité"
@@ -98,7 +93,7 @@
                             formControlName="quantity"
                           />
                         </td>
-                        <td align="center">
+                        <td>
                           <button
                             pButton
                             pRipple

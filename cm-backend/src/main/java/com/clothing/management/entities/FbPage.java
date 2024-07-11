@@ -1,9 +1,13 @@
 package com.clothing.management.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "fb_page")
@@ -17,6 +21,11 @@ public class FbPage {
     @JsonIgnore
     @OneToMany(mappedBy = "fbPage")
     List<Packet> packets;
+
+    @ManyToMany(mappedBy = "fbPages")
+    @JsonBackReference
+    private Set<Offer> offers = new HashSet<>();
+
 
     private boolean enabled;
 
@@ -73,4 +82,21 @@ public class FbPage {
         this.enabled = enabled;
     }
 
+    public Set<Offer> getOffers() {
+        return offers;
+    }
+
+    public void setOffers(Set<Offer> offers) {
+        this.offers = offers;
+    }
+
+    @Override
+    public String toString() {
+        return "FbPage{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", link='" + link + '\'' +
+                ", enabled=" + enabled +
+                '}';
+    }
 }

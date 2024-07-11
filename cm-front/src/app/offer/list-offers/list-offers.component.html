@@ -25,15 +25,6 @@
 
     <p-table #dt [value]="offers" [rows]="10" responsiveLayout="scroll" [(selection)]="selectedOffers" [rowHover]="true"
         dataKey="offerId">
-        <!--         <ng-template pTemplate="caption">
-            <div class="flex align-items-center justify-content-between">
-                <h5 class="m-0">Manage Models</h5>
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
-                </span>
-            </div>
-        </ng-template> -->
         <ng-template pTemplate="header">
             <tr>
                 <th style="width: 3rem">
@@ -42,6 +33,8 @@
                 <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
                 </th>
                 <th pSortableColumn="models">Modèles <p-sortIcon field="models"></p-sortIcon>
+                </th>
+                <th pSortableColumn="models">Pages <p-sortIcon field="models"></p-sortIcon>
                 </th>
                 <th pSortableColumn="price">Prix <p-sortIcon field="price"></p-sortIcon>
                 </th>
@@ -57,6 +50,7 @@
                 </td>
                 <td>{{offer.name}}</td>
                 <td>{{displayOfferModels(offer.modelQuantities)}}</td>
+                <td>{{displayPages(offer.fbPages)}}</td>
                 <td>{{offer.price}} DT</td>
                 <td>
                     <ng-container *ngIf="offer.enabled;else disabled">

@@ -14,9 +14,12 @@ public interface IOfferModelRepository extends JpaRepository<OfferModel , Long> 
 
     @Transactional
     @Modifying
-    @Query(value = "INSERT into offer_model (offer_id, model_id, quantity) values (:offerId, :modelId , :quantity)" , nativeQuery = true)
+    @Query(value = "INSERT into offer_model (offer_id, model_id, quantity) values (:offerId, :modelId, :quantity)" , nativeQuery = true)
      void addOfferModel(@Param("offerId") Long offerId, @Param("modelId") Long modelId, @Param("quantity") float quantity);
 
     @Query("SELECT offerModel FROM OfferModel offerModel where offerModel.offer.id= :offerId")
     List<OfferModel> findByOfferId(@Param("offerId") Long offerId);
+
+    @Query("SELECT offerModel FROM Offer where offerModel.offer.id= :offerId")
+    List<OfferModel> findOfferByFbPageId(@Param("fbPageId") Long fbPageId);
 }

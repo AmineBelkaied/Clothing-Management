@@ -9,25 +9,24 @@ import com.clothing.management.entities.OfferModel;
 import com.clothing.management.entities.Product;
 import com.clothing.management.repository.IOfferModelRepository;
 import com.clothing.management.repository.IOfferRepository;
-import com.clothing.management.repository.IFbPageRepository;
 import com.clothing.management.services.OfferService;
+import com.clothing.management.services.PacketService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
 @Service
 public class OfferServiceImpl implements OfferService {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(PacketService.class);
     @Autowired
     IOfferRepository offerRepository;
 
@@ -95,6 +94,8 @@ public class OfferServiceImpl implements OfferService {
         newModel.setDescription(model.getDescription());
         newModel.setName(model.getName());
         newModel.setReference(model.getReference());
+        newModel.setPurchasePrice(model.getPurchasePrice());
+        newModel.setEarningCoefficient(model.getEarningCoefficient());
         newModel.setProducts(model.getProducts().stream().map(this::mapToProduct).collect(Collectors.toList()));
         if(model.getImage() != null)
             newModel.setBytes(Files.readAllBytes(new File(model.getImage().getImagePath()).toPath()));
@@ -124,10 +125,11 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferModelQuantitiesDTO addOffer(OfferModelQuantitiesDTO offerModelDTO) {
+
         Offer offer = new Offer(offerModelDTO.getName() ,offerModelDTO.getFbPages(), offerModelDTO.getPrice(), offerModelDTO.isEnabled());
         Offer offerResult = offerRepository.save(offer);
+
         for(ModelQuantity modelQuantity: offerModelDTO.getModelQuantities()){
-            //OfferModel offerModel = new OfferModel(offer, modelQuantity.getModel(), modelQuantity.getQuantity());
             offerModelRepository.addOfferModel(offerResult.getId() , modelQuantity.getModel().getId() , modelQuantity.getQuantity());
         }
         offerModelDTO.setOfferId(offerResult.getId());
@@ -151,9 +153,11 @@ public class OfferServiceImpl implements OfferService {
         List<OfferModel> offerModels = offerModelRepository.findByOfferId(offerModelDTO.getOfferId());
         if(offerModels.size() > 0 )
             offerModelRepository.deleteAll(offerModels);
+
         for(ModelQuantity modelQuantity: offerModelDTO.getModelQuantities()){
             offerModelRepository.addOfferModel(offerResult.getId() , modelQuantity.getModel().getId() , modelQuantity.getQuantity());
         }
+
         offerModelDTO.setOfferId(offerResult.getId());
         return offerModelDTO;
     }
@@ -170,5 +174,31 @@ public class OfferServiceImpl implements OfferService {
     @Override
     public void deleteSelectedOffers(List<Long> offersId) {
         offerRepository.deleteAllById(offersId);
+    }
+
+    @Override
+    public List<OfferModelsDTO> findOfferByFbPageId(Long fbPageId) throws IOException {
+        Map<Offer, List<OfferModel>> offerListMap = offerModelRepository.findByOfferId(fbPageId)
+                .stream()
+                .collect(groupingBy(OfferModel::getOffer));
+
+        List<OfferModelsDTO> offerModelsListDTO = new ArrayList<>();
+        OfferModelsDTO offerModelsDTO = null;
+
+        for (Offer offer : offerListMap.keySet()) {
+            offerModelsDTO = new OfferModelsDTO(offer.getId(), offer.getName() , offer.getPrice() , offer.isEnabled());
+            List<OfferModel> offerModels= offerListMap.get(offer);
+            List<Model> models = new ArrayList<>();
+            for(OfferModel offerModel : offerModels) {
+                if(offerModel.getQuantity() >= 1) {
+                    for (int i = 0; i < offerModel.getQuantity(); i++) {
+                        models.add(mapToModel(offerModel.getModel()));
+                    }
+                }
+            }
+            offerModelsDTO.setModels(models);
+            offerModelsListDTO.add(offerModelsDTO);
+        }
+        return offerModelsListDTO;
     }
 }

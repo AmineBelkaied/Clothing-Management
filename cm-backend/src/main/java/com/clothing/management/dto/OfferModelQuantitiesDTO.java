@@ -15,6 +15,8 @@ public class OfferModelQuantitiesDTO {
     private boolean enabled;
     private List<ModelQuantity> modelQuantities;
 
+    private Double earnCoefficient;
+
     public OfferModelQuantitiesDTO() {
     }
 
@@ -95,6 +97,14 @@ public class OfferModelQuantitiesDTO {
         this.fbPages = fbPages;
     }
 
+    public Double getEarnCoefficient() {
+        return earnCoefficient;
+    }
+
+    public void setEarnCoefficient(Double earnCoefficient) {
+        this.earnCoefficient = earnCoefficient;
+    }
+
     @Override
     public String toString() {
         return "OfferModelQuantitiesDTO{" +
@@ -104,6 +114,7 @@ public class OfferModelQuantitiesDTO {
                 ", fbPages=" + fbPages +
                 ", enabled=" + enabled +
                 ", modelQuantities=" + modelQuantities +
+                ", earnCoefficient=" + earnCoefficient +
                 '}';
     }
 }

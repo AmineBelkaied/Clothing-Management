@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 public class JaxApiService extends DeliveryCompanyService {
 
     private final static String apiUrl = "https://core.jax-delivery.com/api/user/colis/";
-
+    protected String comment = " يسمح بفتح الطرد عند طلب الحريف ";
     protected JaxApiService(IGlobalConfRepository globalConfRepository) {
         super(globalConfRepository);
     }
@@ -99,7 +99,7 @@ public class JaxApiService extends DeliveryCompanyService {
     private static void getDeliveryResponseJaxError(HttpsURLConnection connection, StringBuilder response, DeliveryResponseJax deliveryResponse, int responseCode) {
         InputStream errorStream = connection.getErrorStream();
         if (errorStream != null) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     response.append(line);
@@ -159,6 +159,7 @@ public class JaxApiService extends DeliveryCompanyService {
     private String createRequestBody(Packet packet) {
         String adresse = this.getValue(packet.getAddress().replaceAll(REGEX_NEWLINE," "));
         LOGGER.info(adresse);
+
         return new StringBuilder()
                 .append("{")
                 .append("\"referenceExterne\": \"").append("\",")
@@ -168,7 +169,7 @@ public class JaxApiService extends DeliveryCompanyService {
                 .append("\"adresseLivraison\": \"").append(adresse).append("\",")
                 .append("\"governorat\": ").append(packet.getCity().getGovernorate().getJaxCode()).append(",")
                 .append("\"delegation\": \"").append(packet.getCity().getName()).append("\",")
-                .append("\"description\": \"").append(this.getPacketDesignation(packet)).append("\",")
+                .append("\"description\": \"").append(this.getPacketDesignation(packet)).append(comment).append("\",")
                 .append("\"cod\": ").append(this.getPacketPrice(packet)).append(",")
                 .append("\"echange\": ").append(packet.getExchangeId() != null ? "1" : "0")
                 .append("}")

@@ -6,10 +6,13 @@ public class ProductOfferDTO {
     private Long offerId;
     private Long packetOfferIndex;
 
-    public ProductOfferDTO(Long productId, Long offerId,Long packetOfferIndex) {
+    private  double profits;
+
+    public ProductOfferDTO(Long productId, Long offerId,Long packetOfferIndex,double profits) {
         this.productId = productId;
         this.offerId = offerId;
         this.packetOfferIndex = packetOfferIndex;
+        this.profits = profits;
     }
 
     public Long getProductId() {
@@ -34,5 +37,13 @@ public class ProductOfferDTO {
 
     public void setPacketOfferIndex(Long packetOfferIndex) {
         this.packetOfferIndex = packetOfferIndex;
+    }
+
+    public double getProfits() {
+        return profits;
+    }
+
+    public void setProfits(double profits) {
+        this.profits = profits;
     }
 }

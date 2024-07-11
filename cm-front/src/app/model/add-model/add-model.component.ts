@@ -18,8 +18,27 @@ import { UploadFileService } from 'src/shared/services/upload.service';
   }
 `]
 })
-export class AddModelComponent implements OnInit{
 
+
+
+export class AddModelComponent implements OnInit{
+  salePrice : number = 1;
+  calculateSalePrice(model: Model): any {
+      if(model.purchasePrice && model.earningCoefficient)
+        return Math.round(model.earningCoefficient * model.purchasePrice);
+  }
+
+  calculateGainCoefficient(model: Model, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.salePrice= parseFloat(input.value);
+
+    if (model.purchasePrice && this.salePrice) {
+      let gc = this.salePrice / model.purchasePrice;
+      model.earningCoefficient = parseFloat(gc.toFixed(2))
+    } else {
+      model.earningCoefficient = 0;
+    }
+  }
 
   @Input() model: Model = {
     "id" : "",
@@ -28,8 +47,10 @@ export class AddModelComponent implements OnInit{
     "description" : "",
     "colors" : [],
     "sizes": [],
-    "purchasePrice":10
+    "purchasePrice":10,
+    "earningCoefficient":2
   }
+
   @Input() colors: Color[] = [];
   @Input() sizes: Size[] = [];
   @Input() editMode!: boolean;
@@ -43,30 +64,29 @@ export class AddModelComponent implements OnInit{
   fileInfos: Observable<any> = new Observable();
 
   selectedSize: any;
-  @Output()
-  selectedFileEvent: EventEmitter<any> = new EventEmitter();
+  //@Output()
+  //selectedFileEvent: EventEmitter<any> = new EventEmitter();
 
   constructor(private uploadFileService: UploadFileService, private sanitizer: DomSanitizer) {
   }
 
   ngOnInit(): void {
     if(this.editMode) {
-      this.uploadFileService.getImage(this.model.id)
+      /*this.uploadFileService.getImage(this.model.id)
       .subscribe((data: any) => {
               // Replace this with your actual byte array and MIME type
         /* const byteArray = new Uint8Array(data);
         const mimeType = 'image/png'; // Replace with the appropriate MIME type
         this.convertByteArrayToImageUrl(byteArray, mimeType);
-        console.log(data) */
         console.log(data);
 
         const blobUrl = URL.createObjectURL(data.body);
         this.image = this.sanitizer.bypassSecurityTrustUrl(blobUrl);
-      });
+      });*/
     }
   }
 
-  selectFile($event: any) {
+  /*selectFile($event: any) {
     this.selectedFile = $event.files[0];
     this.selectedFileEvent.emit(this.selectedFile);
   }
@@ -77,7 +97,7 @@ export class AddModelComponent implements OnInit{
       byteArray.forEach(byte => binary.push(String.fromCharCode(byte)));
       const base64String = btoa(binary.join(''));
       this.image = `data:${mimeType};base64,${base64String}`;
-    }
+    }*/
 
 
 

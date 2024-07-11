@@ -20,6 +20,8 @@ public class StatTableDTO {
 
     private Long Progress;
 
+    private Double profits;
+
     public StatTableDTO(String name) {
         this.name = name;
         this.Min = 1000;
@@ -28,8 +30,9 @@ public class StatTableDTO {
         this.Per = 0L;
         this.Retour = 0L;
         this.Progress = 0L;
+        this.profits = 0.0;
     }
-    public StatTableDTO(String name, Integer min, Integer max, Long avg, Long payed, Long progress, Long retour) {
+    public StatTableDTO(String name, Integer min, Integer max, Long avg, Long payed, Long progress, Long retour, double profits) {
         this.name = name;
         this.Min = min;
         this.Max = max;
@@ -37,6 +40,7 @@ public class StatTableDTO {
         this.Payed = payed;
         this.Retour = retour;
         this.Progress = progress;
+        this.profits = profits;
     }
 
     public String getName() {
@@ -109,6 +113,14 @@ public class StatTableDTO {
 
     public void setProgress(Long progress) {
         Progress = progress;
+    }
+
+    public Double getProfits() {
+        return profits;
+    }
+
+    public void setProfits(Double profits) {
+        this.profits = profits;
     }
 
     @Override

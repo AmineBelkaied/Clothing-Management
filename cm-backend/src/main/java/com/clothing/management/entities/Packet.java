@@ -70,6 +70,10 @@ public class Packet {
     private Integer attempt;
     private String note;
 
+    @Column(name = "product_count")
+    private Integer productCount;
+
+
     @Column(name = "have_exchange")
     private boolean haveExchange;
 
@@ -100,6 +104,7 @@ public class Packet {
         this.attempt = 0;
         this.note = "";
         this.haveExchange=false;
+        this.productCount=0;
     }
 
     /*public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note, Long exchangeId) {
@@ -337,6 +342,14 @@ public class Packet {
         this.haveExchange = haveExchange;
     }
 
+    public Integer getProductCount() {
+        return productCount;
+    }
+
+    public void setProductCount(Integer productCount) {
+        this.productCount = productCount;
+    }
+
     @Override
     public String toString() {
         return "Packet{" +
@@ -360,6 +373,7 @@ public class Packet {
                 ", note='" + note + '\'' +
                 ", exchangeId='" + exchangeId + '\'' +
                 ", haveExchange='" + haveExchange + '\'' +
+                ", productCount='" + productCount + '\'' +
                 '}';
 
     }

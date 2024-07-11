@@ -30,6 +30,7 @@ export interface Packet {
     attempt?: number;
     note?: string;
     haveExchange?:boolean;
+    productCount?:number;
     [key: string]: any;
 
 }

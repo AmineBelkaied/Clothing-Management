@@ -28,15 +28,17 @@ public class ProductsPacket {
     Long packetOfferId;
 
     Integer status;
+    double profits;
 
     public ProductsPacket() {
     }
 
-    public ProductsPacket(Product product, Packet packet, Offer offer, Long packetOfferId) {
+    public ProductsPacket(Product product, Packet packet, Offer offer, Long packetOfferId, double profits) {
         this.product = product;
         this.packet = packet;
         this.offer = offer;
         this.packetOfferId = packetOfferId;
+        this.profits = profits;
     }
 
 
@@ -96,6 +98,14 @@ public class ProductsPacket {
         this.status = status;
     }
 
+    public double getProfits() {
+        return profits;
+    }
+
+    public void setProfits(double profits) {
+        this.profits = profits;
+    }
+
     @Override
     public String toString() {
         return "ProductsPacket{" +
@@ -105,6 +115,7 @@ public class ProductsPacket {
                 ", offer=" + offer +
                 ", packetOfferId=" + packetOfferId +
                 ", status=" + status +
+                ", profits=" + profits +
                 '}';
     }
 
@@ -118,6 +129,6 @@ public class ProductsPacket {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, product, packet, offer, packetOfferId, status);
+        return Objects.hash(id, product, packet, offer, packetOfferId, status,profits);
     }
 }

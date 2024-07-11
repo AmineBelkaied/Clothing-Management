@@ -7,8 +7,7 @@
           <div class="row">
             <div class="col-md-4">
               <label for="name" class="form-label">Nom</label>
-              <input pInputText id="name" placeholder="Nom du modèle" name="name"
-                [(ngModel)]="model.name" />
+              <input pInputText id="name" placeholder="Nom du modèle" name="name" [(ngModel)]="model.name" />
             </div>
             <div class="col-md-4">
               <label for="reference" class="form-label">Référence</label>
@@ -16,16 +15,23 @@
                 [(ngModel)]="model.reference" minlength="2" maxlength="10" [disabled]="editMode" />
             </div>
             <div class="col-md-4">
-              <label  for="description" class="form-label">Description</label>
-              <input pInputText id="description" placeholder="Description du modèle"
-                name="description" [(ngModel)]="model.description" />
+              <label for="description" class="form-label">Description</label>
+              <input pInputText id="description" placeholder="Description du modèle" name="description"
+                [(ngModel)]="model.description" />
             </div>
             <div class="col-md-4">
-              <label  for="prix d'achat" class="form-label">Prix d'achat</label>
-              <input pInputText type="number" id="purchasePrice" placeholder="Description du modèle"
-                name="description" [(ngModel)]="model.purchasePrice" />
+              <label for="purchasePrice" class="form-label">Prix d'achat</label>
+              <input pInputText type="number" id="purchasePrice" placeholder="Prix d'achat" name="purchasePrice"
+                [(ngModel)]="model.purchasePrice" (ngModelChange)="calculateGainCoefficient(model,$event)" />
+            </div>
+            <p>{{ model.earningCoefficient | number:'1.2-2'}} X </p>
+            <div class="col-md-4">
+              <label for="salePrice" class="form-label">Vente</label>
+              <input pInputText type="number" id="salePrice" placeholder="Prix de vente" name="salePrice"
+                [value]="calculateSalePrice(model)" (input)="calculateGainCoefficient(model,$event)" />
             </div>
           </div>
+
 
           <!--  -->
           <div class="row mt-4">
@@ -47,7 +53,7 @@
                 optionLabel="reference" appendTo="body"></p-multiSelect>
             </div>
           </div>
-          <div class="row mt-4">
+          <!--div class="row mt-4">
             <div class="col-md-12">
               <p-fileUpload [customUpload]="true"  chooseLabel="Choisir une image" accept="image/*" [maxFileSize]="1000000" [multiple]="false" [auto]="true"
                 (uploadHandler)="selectFile($event)" [previewWidth]="150">
@@ -56,7 +62,7 @@
               </ng-template>
               </p-fileUpload>
             </div>
-          </div>
+          </div-->
           <br>
 
         </div>

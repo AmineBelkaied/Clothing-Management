@@ -19,7 +19,7 @@ public class Color {
     private String reference;
     @ManyToMany(mappedBy = "colors")
     @JsonBackReference
-    private Set<Model> models = new HashSet<>();;
+    private Set<Model> models = new HashSet<>();
 
     public Color() {
     }

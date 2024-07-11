@@ -3,7 +3,6 @@ package com.clothing.management.dto;
 import com.clothing.management.entities.Color;
 import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.Size;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.Date;
 
@@ -21,6 +20,7 @@ public class ProductsDayCountDTO {
     private long countProgress;
     private long countPayed;
     private long countReturn;
+    private double profits;
 
     public ProductsDayCountDTO() {
     }
@@ -29,7 +29,7 @@ public class ProductsDayCountDTO {
             Date packetDate, Long productId,
             Offer offer, Long modelId, String modelName,
             Color color, Size size,
-            long countPayed, long countProgress, long countReturn
+            long countPayed, long countProgress, long countReturn, double profits
     ) {
         this.packetDate = packetDate;
         this.productId = productId;
@@ -41,6 +41,7 @@ public class ProductsDayCountDTO {
         this.countPayed = countPayed;
         this.countProgress = countProgress;
         this.countReturn = countReturn;
+        this.profits = profits;
     }
 
     public ProductsDayCountDTO(//used in offer
@@ -48,7 +49,7 @@ public class ProductsDayCountDTO {
             Long packetId,
             Offer offer,
             Long packetOfferId,
-            long countPayed, long countProgress, long countReturn
+            long countPayed, long countProgress, long countReturn, double profits
     ) {
         this.packetDate = packetDate;
         this.modelId = packetId;
@@ -57,13 +58,14 @@ public class ProductsDayCountDTO {
         this.countPayed = countPayed;
         this.countProgress = countProgress;
         this.countReturn = countReturn;
+        this.profits = profits;
     }
 
     public ProductsDayCountDTO(
             Date packetDate, Long productId,
             Offer offer, Long modelId, String modelName,
             Color color, Size size,
-            long countPayed, long countProgress, long countOos, long countReturn
+            long countPayed, long countProgress, long countOos, long countReturn, double profits
     ) {
         this.packetDate = packetDate;
         this.productId = productId;
@@ -76,6 +78,7 @@ public class ProductsDayCountDTO {
         this.countProgress = countProgress;
         this.countOos = countOos;
         this.countReturn = countReturn;
+        this.profits = profits;
     }
 
     public ProductsDayCountDTO(
@@ -179,6 +182,13 @@ public class ProductsDayCountDTO {
         this.countReturn = countReturn;
     }
 
+    public double getProfits() {
+        return profits;
+    }
+
+    public void setProfits(double profits) {
+        this.profits = profits;
+    }
 
     @Override
     public String toString() {
@@ -195,6 +205,7 @@ public class ProductsDayCountDTO {
                 ", countPayed=" + countPayed +
                 ", countProgress=" + countProgress +
                 ", countReturn=" + countReturn +
+                ", profits=" + profits +
                 '}';
     }
 }

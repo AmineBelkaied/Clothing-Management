@@ -9,4 +9,5 @@ export interface Model {
     image?: any;
     bytes?: any[];
     purchasePrice?: number;
+    earningCoefficient?:number;
 }

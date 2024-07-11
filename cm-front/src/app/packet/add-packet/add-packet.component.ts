@@ -38,6 +38,7 @@ export class AddPacketComponent implements OnInit {
   noChoiceSize!: Size;
   stockAvailable: number;
   colorSizeChoosen: boolean = true;
+  productCount: number;
 
 
   constructor(private fb: FormBuilder, private cdRef: ChangeDetectorRef, private packetService: PacketService,private confirmationService: ConfirmationService, private messageService: MessageService) {
@@ -295,9 +296,9 @@ export class AddPacketComponent implements OnInit {
     //console.log("submitProductsOffers");
     let selectedProducts ={};
     if(stock)
-      selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': NOT_CONFIRMED};
+      selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': NOT_CONFIRMED, 'productCount':this.productCount};
     else
-      selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': OOS };
+      selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': OOS, 'productCount':this.productCount };
 
     this.packetService.addProductsToPacket(selectedProducts,this.stockAvailable)
       .subscribe((packet: any) => {
@@ -311,18 +312,38 @@ export class AddPacketComponent implements OnInit {
     this.packetDescription = '';
     this.stockAvailable= 200;
     this.colorSizeChoosen =true;
+    this.productCount = 0;
+    let packetGainCoefficient =0;
+    let packetPurshasePrice = 0;
     for (var i = 0; i < packet.offers.length; i++) {
       let offer = packet.offers[i];
       if (offer.offerId != null && offer.offerId != undefined) {
         if (offer.models.length > 0) {
           for (var j = 0; j < offer.models.length; j++) {
+            packetGainCoefficient += offer.models[j].earnCoefficient;
+            packetPurshasePrice += offer.models[j].purshasePrice;
+          }
+        }
+      }
+    }
+    for (var i = 0; i < packet.offers.length; i++) {
+      let offer = packet.offers[i];
+      if (offer.offerId != null && offer.offerId != undefined) {
+        if (offer.models.length > 0) {
+          let packetGainCoefficient =0;
+          let packetPurshasePrice = 0;
+          for (var j = 0; j < offer.models.length; j++) {
+            packetGainCoefficient += offer.models[j].earnCoefficient;
+            packetPurshasePrice += offer.models[j].purshasePrice;
+          }
+          for (var j = 0; j < offer.models.length; j++) {
             let qte =offer.models[j].selectedProduct.quantity;
-
             let colorSizeFalse = offer.models[j].selectedProduct.size.reference == "?" || offer.models[j].selectedProduct.color.name == "?";
             let x =colorSizeFalse? -1 : qte < 1 ? 0 : qte;
             this.stockAvailable = x < this.stockAvailable ? x:this.stockAvailable;
-
-            productsOffers.push({ productId: offer.models[j].selectedProduct.id, offerId: offer.offerId, packetOfferIndex: i });
+            this.productCount+=1;
+            productsOffers.push({ productId: offer.models[j].selectedProduct.id, offerId: offer.offerId, packetOfferIndex: i,
+              profits: ((packet.price-packet.discount-packetPurshasePrice)/packetGainCoefficient)*offer.models[j].earnCoefficient});
             this.setPacketDescription(offer.models[j]?.name,
               this.getElement(offer.models[j], 'selectedColor', 'name'),
               this.getElement(offer.models[j], 'selectedSize', 'reference'),

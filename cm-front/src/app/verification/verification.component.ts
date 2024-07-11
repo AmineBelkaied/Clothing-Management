@@ -86,54 +86,65 @@ findAllConfirmedPackets(): void {
 }
 
 Validate(){
-  if(this.barCode.length == 13)
-  this.barCode = this.barCode.slice(0,12);
+  //if(this.barCode.length == 13)
+  //this.barCode = this.barCode.slice(0,12);
+
+
+  //console.log(lastNineCharacters);  // Output: "789012345"
+
   //console.log('validé',this.barCode);
+  let lastNineCharacters = this.barCode.slice(-9);
+  let num: number = Number(this.barCode);
   if (this.type == VALIDATION){
-    if(this.barCode.length > 10){
-      if (!(this.sourcePackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1)){
-        if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
+    if(this.barCode.length > 8){
+
+      if (!(this.sourcePackets.map((packet : Packet) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1)){
+        if (this.targetPackets.map((packet : Packet) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1){
           alert('Error: BarreCode déja validé');
         } else alert("Error: BarreCode n'existe pas");
         return;
       }
-      else if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
+      else if (this.targetPackets.map((packet : Packet) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1){
         alert('Error: Colie double et déja validé');
         return;
       }
     }
-    if(this.barCode.length < 10){
-      let num: number = Number(this.barCode);
+    if(this.barCode.length < 9){
+
       if (!(this.sourcePackets.map((packet : Packet) => packet.id).indexOf(num) > -1)){
         if (this.targetPackets.map((packet : Packet) => packet.id).indexOf(num) > -1){
           alert('Error: BarreCode déja validé');
         } else alert("Error: BarreCode n'existe pas");
         return;
       }
-      else if (this.targetPackets.map((packet : Packet) => packet.barcode).indexOf(this.barCode) > -1){
+      else if (this.targetPackets.map((packet : Packet) => packet.id).indexOf(num) > -1){
         alert('Error: Colie double et déja validé');
         return;
       }
     }
-    if(this.barCode.length > 10)
-    this.packetSameBarCode = this.sourcePackets.filter((packet : Packet) => packet.barcode == this.barCode);
+    if(this.barCode.length > 8){
+      this.packetSameBarCode = this.sourcePackets.filter((packet : Packet) => packet.barcode.slice(-9) == lastNineCharacters);
+      this.barCode = this.packetSameBarCode[0].barcode;
+    }
     else {
-      let num: number = Number(this.barCode);
       this.packetSameBarCode = this.sourcePackets.filter((packet : Packet) => packet.id == num);
+      this.barCode = this.packetSameBarCode[0].barcode;
     }
 
-    let phoneNumber = this.packetSameBarCode[0].customerPhoneNb;
-    let packetSamePhoneNumber : Packet[] = this.sourcePackets.filter((packet : Packet) => packet.customerPhoneNb == phoneNumber);
+
     if (this.packetSameBarCode.length>1){
       alert('Error: le code a barre '+this.barCode +' existe plusieur fois');
       return;
     }
-    else if (packetSamePhoneNumber.length>1)
+    else {
+      let phoneNumber = this.packetSameBarCode[0].customerPhoneNb;
+      let packetSamePhoneNumber : Packet[] = this.sourcePackets.filter((packet : Packet) => packet.customerPhoneNb == phoneNumber);
+      if (packetSamePhoneNumber.length>1)
     {
       alert('Error: le numero de telephone '+phoneNumber +' existe plusieur fois');
       if(this.isAdmin)
       return;
-    }
+    }}
   }
      this.packetService.validatePacket(this.barCode,this.type).subscribe(response => {
       // Handle the response here

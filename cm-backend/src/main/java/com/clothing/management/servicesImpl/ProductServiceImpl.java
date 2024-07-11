@@ -65,6 +65,8 @@ public class ProductServiceImpl implements ProductService {
         newModel.setDescription(model.getDescription());
         newModel.setName(model.getName());
         newModel.setReference(model.getReference());
+        newModel.setPurchasePrice(model.getPurchasePrice());
+        newModel.setEarningCoefficient(model.getEarningCoefficient());
         return newModel;
     }
     @Override

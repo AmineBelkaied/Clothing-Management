@@ -2,8 +2,6 @@ package com.clothing.management.entities;
 
 import jakarta.persistence.*;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -24,13 +22,10 @@ public class Offer {
             inverseJoinColumns = { @JoinColumn(name = "fb_page_id") }
     )
     private Set<FbPage> fbPages = new HashSet<>();
-
     private Double price;
     private boolean enabled;
 
-    public Offer() {
-    }
-
+    public Offer(){}
     public Offer(Long id) {
         this.id = id;
     }
@@ -100,4 +95,14 @@ public class Offer {
         this.fbPages = fbPages;
     }
 
+    @Override
+    public String toString() {
+        return "Offer{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", fbPages=" + fbPages +
+                ", price=" + price +
+                ", enabled=" + enabled +
+                '}';
+    }
 }

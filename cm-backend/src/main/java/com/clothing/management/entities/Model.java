@@ -1,8 +1,6 @@
 package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import jakarta.persistence.*;
 import java.util.*;
@@ -23,6 +21,10 @@ public class Model {
     private String description;
     @Column(name="purchase_price")
     private float purchasePrice;
+
+    @Column(name="earning_coefficient")
+    private double earningCoefficient;
+
     @ManyToMany(cascade = { CascadeType.MERGE } , fetch = FetchType.EAGER)
     @JoinTable(
             name = "model_colors",
@@ -56,7 +58,7 @@ public class Model {
         this.id = id;
     }
 
-    public Model(String name, List<Product> products, String reference, String description, List<Color> colors, List<Size> sizes, Set<OfferModel> modelOffers, List<ProductHistory> productHistories, ModelImage image, float purchasePrice) {
+    public Model(String name, List<Product> products, String reference, String description, List<Color> colors, List<Size> sizes, Set<OfferModel> modelOffers, List<ProductHistory> productHistories, ModelImage image, float purchasePrice,double earningCoefficient) {
         this.name = name;
         this.products = products;
         this.reference = reference;
@@ -67,6 +69,7 @@ public class Model {
         this.productHistories = productHistories;
         this.image = image;
         this.purchasePrice = purchasePrice;
+        this.earningCoefficient = earningCoefficient;
     }
 
     public Long getId() {
@@ -153,6 +156,16 @@ public class Model {
         this.purchasePrice = purchasePrice;
     }
 
+    public double getEarningCoefficient() {
+        return earningCoefficient;
+    }
+
+    public void setEarningCoefficient(double gainCoefficient) {
+        this.earningCoefficient = gainCoefficient;
+    }
+
+
+
     @Override
     public String toString() {
         return "Model{" +
@@ -163,6 +176,7 @@ public class Model {
                 ", colors=" + colors +
                 ", sizes=" + sizes +
                 ", purchasePrice=" + purchasePrice +
+                ", gainCoefficient=" + earningCoefficient +
                 '}';
     }
 }

@@ -33,9 +33,10 @@
                     <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                 </th>
                 <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon></th>
-                <th>Image</th>
+                <!--th>Image</th-->
                 <th pSortableColumn="reference">Référence <p-sortIcon field="reference"></p-sortIcon></th>
-                <th pSortableColumn="purchasePrice">Prix d'achat <p-sortIcon field="reference"></p-sortIcon></th>
+                <th pSortableColumn="purchasePrice">Prix d'achat<p-sortIcon field="reference"></p-sortIcon></th>
+                <th pSortableColumn="purchasePrice">Prix de vente<p-sortIcon field="reference"></p-sortIcon></th>
                 <th pSortableColumn="colors">Couleurs <p-sortIcon field="colors"></p-sortIcon></th>
                 <th pSortableColumn="size">Taille (Max) <p-sortIcon field="size"></p-sortIcon></th>
                 <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
@@ -48,9 +49,10 @@
                     <p-tableCheckbox [value]="model"></p-tableCheckbox>
                 </td>
                 <td>{{model.name}}</td>
-                <td><img  *ngIf="model.bytes != null" [src]="model.image" [alt]="model.name" width="100" height="100" class="shadow-4" /></td>
+                <!--td><img  *ngIf="model.bytes != null" [src]="model.image" [alt]="model.name" width="100" height="100" class="shadow-4" /></td-->
                 <td>{{model.reference}}</td>
                 <td>{{model.purchasePrice}}</td>
+                <td>{{model.purchasePrice * model.earningCoefficient | number:'1.0-0'}}</td>
                 <td>{{modelColorsDisplay(model.colors)}}</td>
                 <td>{{modelSizesDisplay(model.sizes)}}</td>
                 <td>
@@ -67,11 +69,6 @@
                 </td>
             </tr>
         </ng-template>
-<!--         <ng-template p -->Template="summary">
-<!--             <div class -->="flex align-items-center justify-content-between" style="font-size: small !important">
-<!--                 En tot -->al il y a {{models ? models.length : 0 }} modèles
-<!--             </div> -->
-<!--         </ng-template> -->
     </p-table>
 </div>
 

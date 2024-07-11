@@ -32,8 +32,13 @@ public class OfferController {
     }
 
     @GetMapping(path = "/findById/{id}")
-    public Optional<Offer> findByIdOffer(@PathVariable Long idOffer) {
+    public Optional<Offer> findOfferById(@PathVariable Long idOffer) {
         return offerService.findOfferById(idOffer);
+    }
+
+    @GetMapping(path = "/findByFBPage/{id}")
+    public List<OfferModelsDTO> findByFbPageId(@PathVariable Long fbPageId) throws IOException {
+        return offerService.findOfferByFbPageId(fbPageId);
     }
 
     @PostMapping(value = "/add" , produces = "application/json")

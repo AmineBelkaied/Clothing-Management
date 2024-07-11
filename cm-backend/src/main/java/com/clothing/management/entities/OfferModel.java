@@ -28,19 +28,6 @@ public class OfferModel {
     public OfferModel() {
     }
 
-    public OfferModel(OfferModelKey id, Offer offer, Model model, Integer quantity) {
-        this.id = id;
-        this.offer = offer;
-        this.model = model;
-        this.quantity = quantity;
-    }
-
-    public OfferModel(Offer offer, Model model, Integer quantity) {
-        this.offer = offer;
-        this.model = model;
-        this.quantity = quantity;
-    }
-
     public OfferModelKey getId() {
         return id;
     }
