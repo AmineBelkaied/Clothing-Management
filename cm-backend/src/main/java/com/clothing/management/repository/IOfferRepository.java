@@ -11,5 +11,4 @@ import java.util.Optional;
 @Repository
 public interface IOfferRepository extends JpaRepository<Offer, Long> {
     Offer findByName(String name);
-    List<OfferModelsDTO> findByFbPageId(long fbPageId);
 }

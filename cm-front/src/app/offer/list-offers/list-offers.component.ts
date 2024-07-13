@@ -30,7 +30,6 @@ export class ListOffersComponent implements OnInit {
     "fbPages" : [],
     "price": 0,
     "enabled": false,
-    "earnCoefficient": 1,
   }
   editMode = false;
 

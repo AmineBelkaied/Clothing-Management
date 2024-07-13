@@ -8,5 +8,4 @@ export interface OfferModelDTO {
     enabled?: boolean;
     modelQuantities: ModelQuantity[];
     fbPages: FbPage[];
-    earnCoefficient?:number;
 }

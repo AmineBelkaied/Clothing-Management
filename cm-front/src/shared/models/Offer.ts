@@ -7,5 +7,4 @@ export interface Offer {
     models?: Model[];
     quantity?: number;
     enabled?: boolean;
-    earnCoefficien?: number;
 }

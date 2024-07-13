@@ -20,6 +20,11 @@ public interface IOfferModelRepository extends JpaRepository<OfferModel , Long> 
     @Query("SELECT offerModel FROM OfferModel offerModel where offerModel.offer.id= :offerId")
     List<OfferModel> findByOfferId(@Param("offerId") Long offerId);
 
-    @Query("SELECT offerModel FROM Offer where offerModel.offer.id= :offerId")
-    List<OfferModel> findOfferByFbPageId(@Param("fbPageId") Long fbPageId);
+    @Query("SELECT om FROM OfferModel om JOIN om.offer o JOIN o.fbPages fb WHERE fb.id = :fbPageId")
+    List<OfferModel> findByFbPageId(@Param("fbPageId") Long fbPageId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM OfferModel om WHERE om.offer.id = :offerId")
+    void deleteByOfferId(@Param("offerId") Long offerId);
 }

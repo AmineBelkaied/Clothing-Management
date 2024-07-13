@@ -13,10 +13,6 @@ import { FbPage } from 'src/shared/models/FbPage';
   styleUrls: ['./add-offer.component.css']
 })
 export class AddOfferComponent implements OnInit {
-earnPercentage(_t55: number) {
-throw new Error('Method not implemented.');
-}
-
 
   @Input() offerModelDTO: OfferModelDTO = {
     "offerId": "",
@@ -41,7 +37,6 @@ throw new Error('Method not implemented.');
       enabled: false,
       fbPages: [],
       modelQuantities: this.fb.array([]),
-      earnCoefficient: 0
     })
    }
 
@@ -61,7 +56,6 @@ throw new Error('Method not implemented.');
             this.addModelQuantity();
             this.modelQuantities().at(i).get('model')?.setValue(this.offerModelDTO.modelQuantities[i].model);
             this.modelQuantities().at(i).get('quantity')?.setValue(this.offerModelDTO.modelQuantities[i].quantity);
-            this.modelQuantities().at(i).get('modelEarnCoefficient')?.setValue(this.offerModelDTO.modelQuantities[i].modelEarnCoefficient);
         }
     }
   }

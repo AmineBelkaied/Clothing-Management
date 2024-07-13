@@ -36,7 +36,7 @@ public class OfferController {
         return offerService.findOfferById(idOffer);
     }
 
-    @GetMapping(path = "/findByFBPage/{id}")
+    @GetMapping(path = "/findByFBPage/{fbPageId}")
     public List<OfferModelsDTO> findByFbPageId(@PathVariable Long fbPageId) throws IOException {
         return offerService.findOfferByFbPageId(fbPageId);
     }

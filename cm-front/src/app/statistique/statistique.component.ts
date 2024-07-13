@@ -20,10 +20,6 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 })
 
 export class StatistiqueComponent implements OnInit {
-fixValue(earning: any) {
-  return earning.toFixed(1)
-}
-
 
   offersCount: ProductCountDTO[] = [];
   selectedModels: FormControl = new FormControl();

@@ -129,20 +129,20 @@
             <p-chart type="line" [data]="modelsData" [options]="modelsOptions"></p-chart>
           </p-tabPanel>
           <p-tabPanel header="Table">
-            <table class="table">
-              <thead>
+            <p-table class="table" [value]="modelTableData" >
+              <ng-template pTemplate="header">
                 <tr>
                   <th>Model</th>
                   <th>Min-Max</th>
-                  <th>Average</th>
-                  <th>Payée</th>
+                  <th pSortableColumn="avg">Average<p-sortIcon field="avg" /></th>
+                  <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
                   <th>Retour</th>
                   <th>Payée/Retour</th>
-                  <th>Gain</th>
+                  <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
                 </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of modelTableData">
+              </ng-template>
+              <ng-template pTemplate="body" let-item>
+                <tr>
                   <td>{{ item.name }}</td>
                   <td>{{ item.min }}-{{ item.max }}</td>
                   <td>{{ item.avg }}</td>
@@ -151,8 +151,8 @@
                   <td>{{ formatNumber(item) }}%</td>
                   <td>{{ item.profits | number:'1.0-0' }}</td>
                 </tr>
-              </tbody>
-            </table>
+              </ng-template>
+            </p-table>
 
           </p-tabPanel>
         </p-tabView>
@@ -177,22 +177,22 @@
           <p-chart type="line" [data]="offersData" [options]="offersOptions"></p-chart>
         </p-tabPanel>
         <p-tabPanel header="Table">
-          <table class="table">
-            <thead>
+          <p-table class="table" [value]="offerTableData">
+            <ng-template pTemplate="header">
               <tr>
                 <th>Model</th>
                 <th>Min-Max</th>
-                <th>Average</th>
-                <th>Payée</th>
+                <th pSortableColumn="avg">Average<p-sortIcon field="avg" /></th>
+                <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
                 <th>Retour</th>
                 <th>Payée/Retour</th>
-                <th>Prix Achat</th>
-                <th>Prix Vente</th>
-                <th>Gain</th>
+                <th pSortableColumn="purchasePrice">Prix Achat<p-sortIcon field="purchasePrice" /></th>
+                <th pSortableColumn="sellingPrice">Prix Vente<p-sortIcon field="sellingPrice" /></th>
+                <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
               </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of offerTableData">
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+              <tr>
                 <td>{{ item.name }}</td>
                 <td>{{ item.min }}-{{ item.max }}</td>
                 <td>{{ item.avg }}</td>
@@ -204,9 +204,8 @@
                   <td>{{ item.sellingPrice | number:'1.0-0' }}</td>
                   <td>{{ item.profits | number:'1.0-0' }}</td>
               </tr>
-            </tbody>
-
-          </table>
+            </ng-template>
+          </p-table>
         </p-tabPanel>
       </p-tabView>
     </p-card>
@@ -228,22 +227,6 @@
           optionValue="value"
           (click)="colorsChartEnablerChange()"></p-selectButton>
         </div>
-        <!--<div class="d-flex align-items-center">
-
-          <p-multiSelect
-            [options]="allModelsList"
-            [(ngModel)]="selectedModels"
-            name="name"
-            defaultLabel="models"
-            [showClear]="true"
-            [showHeader]="false"
-            selectedItemsLabel="{0} model sélectionnés"
-            class="model-menu"
-            optionLabel="name"
-            placeholder="Select Models"
-          ></p-multiSelect>
-          <p-button label="Filter" class="ml-2" icon="pi pi-check" iconPos="right" (click)="getStatAllColorsChart()"></p-button>
-        </div>-->
       </div>
       <p-tabView *ngIf="colorsChartEnabler">
         <p-tabPanel header="Chart">

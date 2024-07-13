@@ -165,6 +165,19 @@ public class Model {
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Model model)) return false;
+        return Float.compare(model.purchasePrice, purchasePrice) == 0 && Double.compare(model.earningCoefficient, earningCoefficient) == 0 && Objects.equals(id, model.id) && Objects.equals(name, model.name) && Objects.equals(products, model.products) && Objects.equals(reference, model.reference) && Objects.equals(description, model.description) && Objects.equals(colors, model.colors) && Objects.equals(sizes, model.sizes) && Objects.equals(modelOffers, model.modelOffers) && Objects.equals(productHistories, model.productHistories) && Objects.equals(image, model.image) && Arrays.equals(bytes, model.bytes);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(id, name, products, reference, description, purchasePrice, earningCoefficient, colors, sizes, modelOffers, productHistories, image);
+        result = 31 * result + Arrays.hashCode(bytes);
+        return result;
+    }
 
     @Override
     public String toString() {

@@ -2,11 +2,11 @@ package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -16,32 +16,41 @@ public class FbPage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private String link;
-    @JsonIgnore
-    @OneToMany(mappedBy = "fbPage")
-    List<Packet> packets;
 
-    @ManyToMany(mappedBy = "fbPages")
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = true)
+    private String link;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "fbPage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Packet> packets;
+
+    @ManyToMany(mappedBy = "fbPages", fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<Offer> offers = new HashSet<>();
 
-
+    @Column(nullable = false)
     private boolean enabled;
 
+    // Default constructor
     public FbPage() {
     }
 
+    // Constructor for id and link
     public FbPage(Long id, String link) {
         this.id = id;
         this.link = link;
         this.enabled = true;
     }
 
+    // Constructor for name
     public FbPage(String name) {
         this.name = name;
     }
 
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -88,6 +97,23 @@ public class FbPage {
 
     public void setOffers(Set<Offer> offers) {
         this.offers = offers;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        System.out.println("oFBPage"+o);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FbPage fbPage = (FbPage) o;
+        return enabled == fbPage.enabled &&
+                Objects.equals(id, fbPage.id) &&
+                Objects.equals(name, fbPage.name) &&
+                Objects.equals(link, fbPage.link);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, link, enabled);
     }
 
     @Override

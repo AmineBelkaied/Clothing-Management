@@ -494,7 +494,7 @@
           <ng-container *ngIf="packet.packetDescription != ''; else addMode">
             <p
               changeColor
-              (click)="editProducts(packet)"
+              (click)="openOffersDialog(packet,true)"
               style="cursor: pointer"
             >
               <p-badge
@@ -523,7 +523,7 @@
             <button
               pButton
               pRipple
-              (click)="openNew(packet)"
+              (click)="openOffersDialog(packet,false)"
               icon="pi pi-plus"
               style="font-size: 2px; width: 5px"
               class="p-button-primary p-button-sm"
@@ -688,7 +688,8 @@
     <app-add-packet
       [packet]="packet"
       (submitEvent)="OnSubmit($event)"
-      [offersList]="editMode ? allOffersList : offersList"
+      [allOffersList]="allOffersList"
+      [offersListByFbPage]="offersListByFbPage"
       [editMode]="editMode"
     ></app-add-packet>
   </ng-template>

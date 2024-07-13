@@ -122,13 +122,12 @@ public class ProductsPacket {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ProductsPacket that = (ProductsPacket) o;
-        return Objects.equals(id, that.id) && Objects.equals(product, that.product) && Objects.equals(packet, that.packet) && Objects.equals(offer, that.offer) && Objects.equals(packetOfferId, that.packetOfferId) && Objects.equals(status, that.status);
+        if (!(o instanceof ProductsPacket that)) return false;
+        return Double.compare(that.profits, profits) == 0 && product.equals(that.product) && packet.equals(that.packet) && offer.equals(that.offer) && packetOfferId.equals(that.packetOfferId) && Objects.equals(status, that.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, product, packet, offer, packetOfferId, status,profits);
+        return Objects.hash(product, packet, offer, packetOfferId, status, profits);
     }
 }

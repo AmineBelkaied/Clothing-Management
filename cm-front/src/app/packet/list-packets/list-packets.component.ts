@@ -76,13 +76,12 @@ onRowSelect($event: TableRowSelectEvent) {
 
 
   modelDialog!: boolean;
-  submitted!: boolean;
 
   first = 0;
   rows = 100;
   currentPage = 0;
   oldFieldValue: string = "";
-  offersList: any[] = [];
+  offersListByFbPage: any[] = [];
   allOffersList: any[] = [];
   groupedCities: SelectItemGroup[] = [];
   fbPages: FbPage[] = [];
@@ -524,13 +523,7 @@ onRowSelect($event: TableRowSelectEvent) {
     ];
   }
 
-  findAllOffers(): void {
 
-    this.offerService.findAllOffers().subscribe((offers: any) => {
-      this.allOffersList = offers;
-      this.offersList = offers.filter((offer: Offer) => offer.enabled);
-    });
-  }
 
   findAllGroupedCities(): void {
     this.cityService.findAllGroupedCities().subscribe((groupedCities: any) => {
@@ -811,6 +804,8 @@ onRowSelect($event: TableRowSelectEvent) {
       this.packets[X].deliveryPrice=packet.deliveryPrice;
       this.packets[X].discount=packet.discount;
     }
+    console.log("update finished");
+
   }
 
   addAttempt(packet: Packet): void {
@@ -938,29 +933,43 @@ onRowSelect($event: TableRowSelectEvent) {
     });
   }
 
-  openNew(packet: Packet): void {
-    this.packet = Object.assign({}, packet);
-    this.submitted = false;
-    this.modelDialog = true;
-    this.editMode = false;
+  findAllOffers(): void {
+    this.offerService.findAllOffers().subscribe((offers: any) => {
+      //this.allOffersList = offers;
+      this.allOffersList = offers.filter((offer: Offer) => offer.enabled);
+    });
   }
 
-  editProducts(packet: Packet): void {
-    this.packet = Object.assign({}, packet);
-    this.submitted = false;
-    this.modelDialog = true;
-    this.editMode = true;
+  openOffersDialog(packet: Packet,editMode:boolean): void {
+    if(packet.fbPage){
+      this.loadOfferListAndOpenOffersDialog(packet);
+      this.editMode = editMode;
+    }else{ this.messageService.add({ severity: 'info', summary: 'Info', detail: 'Pas de page Facebook selectionné', life: 1000 });
+    }
+
+  }
+
+  loadOfferListAndOpenOffersDialog(packet:Packet){
+    this.offerService.findOffersByFbPageId(packet.fbPage.id).subscribe((offers: any) => {
+      this.offersListByFbPage=offers.filter((offer: Offer) => offer.enabled);
+      //console.log(this.offersListByFbPage);
+      //this.offersList=this.offersListByFbPage;
+      //this.offersList = offers.filter((offer: Offer) => offer.enabled);
+      this.packet = Object.assign({}, packet);
+      this.modelDialog = true;
+    })
   }
 
   hideDialog(): void {
     this.modelDialog = false;
-    this.submitted = false;
   }
 
   OnSubmit($event: any): void {
 
     console.log("onsubmit list packet",$event);
     this.modelDialog = $event.modelDialog;
+    console.log("$event.modelDialog"+this.modelDialog);
+
     this.updatePacketFields($event.packet);
     this.editMode ? this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été mis à jour avec succés', life: 1000 }) : this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été ajoutés avec succés', life: 1000 });
   }

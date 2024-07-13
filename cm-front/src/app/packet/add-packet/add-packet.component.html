@@ -7,6 +7,7 @@
             <div class="container-fluid">
             <div class="row">
               <div class="col-md-4">
+                <span>{{packetEarningCoefficient}}</span>
                 <span style="font-size: smaller;color: rgb(155, 154, 154)"  *ngIf="packetDescription != ''">Articles : </span>
                 <span style="font-size: 13.5px;font-family: Segoe UI', Tahoma, Geneva, Verdana, sans-serif', serif;font-weight: 550;">{{ packetDescription }} </span>
               </div>
@@ -14,9 +15,9 @@
                 <p-checkbox lass="mb-2" [binary]="true" inputId="binary" [ngModelOptions]="{standalone: true}" [(ngModel)]="enableFakeSize" ></p-checkbox>
                 <label class="ml-2 mt-2" for="ny">Fake Size</label>
               </div>
-              <div class="col-md-1">
-                <button pButton pRipple icon="pi pi-plus" class="p-button-success p-button-sm buttonSize pull-right mb-3 mr-3"
-                (click)="addOffer()"></button>
+              <div class="col-md-3" >
+                <p-checkbox lass="mb-2" [binary]="true" inputId="binary" [ngModelOptions]="{standalone: true}" [(ngModel)]="enableAllOffer" ></p-checkbox>
+                <label class="ml-2 mt-2" for="ny">All offer</label>
               </div>
             </div>
             </div>
@@ -28,11 +29,13 @@
                   <thead align="center">
                     <th>Offres</th>
                     <th>Modèles - Articles</th>
-                    <th></th>
+                    <th><button pButton pRipple icon="pi pi-plus" class="p-button-success p-button-sm buttonSize"
+                      (click)="addOffer()"></button>
+                    </th>
                   </thead>
                   <tr *ngFor="let offer of offers().controls; let i=index" [formGroupName]="i" class="mt-4">
                     <td><!-- ... Dropdown for selecting offer ... -->
-                      <p-dropdown [options]="offersList" (onChange)="onOfferChange($event.value, i)" optionLabel="name"
+                      <p-dropdown [options]="selectedOffers()" (onChange)="onOfferChange($event.value, i)" optionLabel="name"
                         formControlName="name" optionValue="name" [style]="{ width: '200px'}"
                         [panelStyle]="{ width: '200px' }" [showClear]="true" placeholder="Choisir l'offre" appendTo="body">
                       </p-dropdown>

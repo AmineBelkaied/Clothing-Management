@@ -8,6 +8,8 @@ import { Color } from 'src/shared/models/Color';
 import { Size } from 'src/shared/models/Size';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { OOS, NOT_CONFIRMED } from 'src/shared/utils/status-list';
+import { Offer } from 'src/shared/models/Offer';
+import { Packet } from 'src/shared/models/Packet';
 
 @Component({
   selector: 'app-add-packet',
@@ -18,7 +20,8 @@ import { OOS, NOT_CONFIRMED } from 'src/shared/utils/status-list';
 export class AddPacketComponent implements OnInit {
   @Input() packet: any;
 
-  @Input() offersList: any[] = [];
+  @Input() allOffersList: any[] = [];
+  @Input() offersListByFbPage: any[] = [];
 
   @Input() editMode: boolean = false;
 
@@ -27,6 +30,7 @@ export class AddPacketComponent implements OnInit {
   @Output() submitEvent: EventEmitter<any> = new EventEmitter();
 
   enableFakeSize : boolean = false;
+  enableAllOffer : boolean = false;
   private selectedOffer: any;
   totalPrice: number = 0;
   packetDescription: string = '';
@@ -39,7 +43,9 @@ export class AddPacketComponent implements OnInit {
   stockAvailable: number;
   colorSizeChoosen: boolean = true;
   productCount: number;
-
+  packetGainCoefficient =0;
+  packetPurshasePrice = 0;
+  packetEarningCoefficient=0;
 
   constructor(private fb: FormBuilder, private cdRef: ChangeDetectorRef, private packetService: PacketService,private confirmationService: ConfirmationService, private messageService: MessageService) {
     this.packetForm = this.fb.group({
@@ -120,7 +126,6 @@ export class AddPacketComponent implements OnInit {
   }
 
   addOffer(): void {
-
     this.offers().push(this.newOffer());
   }
 
@@ -193,13 +198,16 @@ export class AddPacketComponent implements OnInit {
     control.get(controlName)?.setValue(controlValue);
   }
 
+  selectedOffers(){
+    return this.enableAllOffer?this.allOffersList:this.offersListByFbPage
+  }
+
   onOfferChange(offerId: string, index: number): void {
     console.log("offerId",offerId);
 
     this.models(index).clear();
 
-    this.selectedOffer = this.offersList.find(off => off.name === offerId);
-    //console.log("this.selectedOffer",this.selectedOffer);
+    this.selectedOffer = this.selectedOffers().find(off => (off.name === offerId));
 
     if (this.selectedOffer != null && this.selectedOffer.models.length > 0) {
       this.setOfferModelsValues(index);
@@ -209,8 +217,6 @@ export class AddPacketComponent implements OnInit {
   }
 
   setOfferModelsValues(index: number): void {
-    //console.log("this.offers().at(index)",this.offers().at(index));
-
     this.setOfferControlValues(this.offers().at(index), this.selectedOffer);
     for (var i = 0; i < this.selectedOffer.models.length; i++) {
       this.addModel(index);
@@ -221,7 +227,7 @@ export class AddPacketComponent implements OnInit {
 
   clearModel(offerName: any, index: number): void {
     this.models(index).clear();
-    let offer: any = this.offersList.find(off => off.name == offerName);
+    let offer: any = this.selectedOffers().find(off => off.name == offerName);
     if (offer != null && offer.models.length > 0) {
       this.setOfferControlValues(this.offers().at(index), offer);
       for (var i = 0; i < offer.models.length; i++) {
@@ -233,7 +239,7 @@ export class AddPacketComponent implements OnInit {
 
   setSelectedProductValue(selectedModel: AbstractControl, index: number, selectedOffer: AbstractControl): void {
     if (this.editMode)
-      this.selectedOffer = this.offersList.find(offer => offer.offerId == selectedOffer.get('offerId')?.value);
+      this.selectedOffer = this.selectedOffers().find(offer => offer.offerId == selectedOffer.get('offerId')?.value);
       this.setNoChoiceColorSize(selectedModel, index);
       let selectedProduct = this.selectedOffer.models[index].products.find((product: any) => product.color.id == selectedModel.get('selectedColor')?.value.id && product.size.id == selectedModel.get('selectedSize')?.value.id);
       selectedModel.get('selectedProduct')?.setValue(selectedProduct);
@@ -293,7 +299,7 @@ export class AddPacketComponent implements OnInit {
   }
 
   submitProductsOffers(productsOffers: ProductOfferDTO[],stock:number){
-    //console.log("submitProductsOffers");
+    console.log("start submit");
     let selectedProducts ={};
     if(stock)
       selectedProducts = { 'idPacket': this.packet.id, 'totalPrice': this.totalPrice, 'productsOffers': productsOffers, 'packetDescription': this.packetDescription, 'deliveryPrice': this.packetForm.value.deliveryPrice, 'discount': this.packetForm.value.discount,'status': NOT_CONFIRMED, 'productCount':this.productCount};
@@ -302,26 +308,31 @@ export class AddPacketComponent implements OnInit {
 
     this.packetService.addProductsToPacket(selectedProducts,this.stockAvailable)
       .subscribe((packet: any) => {
+        console.log("end submit");
         let result = { 'packet': packet, 'modelDialog': false }
         this.submitEvent.emit(result);
+
       });
   }
 
   prepareProductsOffers(packet: any): ProductOfferDTO[] {
+    console.log("start prepare");
+
     let productsOffers: ProductOfferDTO[] = [];
     this.packetDescription = '';
     this.stockAvailable= 200;
     this.colorSizeChoosen =true;
     this.productCount = 0;
-    let packetGainCoefficient =0;
-    let packetPurshasePrice = 0;
+    this.packetGainCoefficient =0;
+    this.packetPurshasePrice = 0;
+    //calcul gain total du packet + coefficient de gain total
     for (var i = 0; i < packet.offers.length; i++) {
       let offer = packet.offers[i];
       if (offer.offerId != null && offer.offerId != undefined) {
         if (offer.models.length > 0) {
           for (var j = 0; j < offer.models.length; j++) {
-            packetGainCoefficient += offer.models[j].earnCoefficient;
-            packetPurshasePrice += offer.models[j].purshasePrice;
+            this.packetGainCoefficient += offer.models[j].earnCoefficient;
+            this.packetPurshasePrice += offer.models[j].purshasePrice;
           }
         }
       }
@@ -330,12 +341,6 @@ export class AddPacketComponent implements OnInit {
       let offer = packet.offers[i];
       if (offer.offerId != null && offer.offerId != undefined) {
         if (offer.models.length > 0) {
-          let packetGainCoefficient =0;
-          let packetPurshasePrice = 0;
-          for (var j = 0; j < offer.models.length; j++) {
-            packetGainCoefficient += offer.models[j].earnCoefficient;
-            packetPurshasePrice += offer.models[j].purshasePrice;
-          }
           for (var j = 0; j < offer.models.length; j++) {
             let qte =offer.models[j].selectedProduct.quantity;
             let colorSizeFalse = offer.models[j].selectedProduct.size.reference == "?" || offer.models[j].selectedProduct.color.name == "?";
@@ -343,7 +348,7 @@ export class AddPacketComponent implements OnInit {
             this.stockAvailable = x < this.stockAvailable ? x:this.stockAvailable;
             this.productCount+=1;
             productsOffers.push({ productId: offer.models[j].selectedProduct.id, offerId: offer.offerId, packetOfferIndex: i,
-              profits: ((packet.price-packet.discount-packetPurshasePrice)/packetGainCoefficient)*offer.models[j].earnCoefficient});
+              profits: this.packetEarningCoefficient*offer.models[j].earnCoefficient});
             this.setPacketDescription(offer.models[j]?.name,
               this.getElement(offer.models[j], 'selectedColor', 'name'),
               this.getElement(offer.models[j], 'selectedSize', 'reference'),
@@ -354,6 +359,7 @@ export class AddPacketComponent implements OnInit {
     }
 
     this.packetDescription = StringUtils.removeChars(this.packetDescription, 2);
+    console.log("end prepare");
     return productsOffers;
   }
 
@@ -400,7 +406,38 @@ export class AddPacketComponent implements OnInit {
     for (var i = 0; i < this.offers().length; i++) {
       this.totalPrice += this.offers().at(i).get('price')?.value;
     }
+    this.totalPrice += this.offers().at(i).get('price')?.value;
+    /*this.packetGainCoefficient =0;
+    this.packetPurshasePrice = 0;
+
+    //calcul gain total du packet + coefficient de gain total
+    console.dir(this.offers());
+
+    for (var i = 0; i < this.offers().length; i++) {
+      let offer = this.offers().at(i);
+      console.dir(offer);
+
+      if (offer.get('offerId')?.value != null && offer.get('offerId')?.value != undefined) {
+        let models = offer.get('models')?.value;
+        console.log("models:");
+
+        console.dir(models);
+        if (offer.get('models')?.value.length > 0) {
+          for (var j = 0; j < models.length; j++) {
+            let model = models[j];
+            console.log("model");
+            console.dir(model);
+
+            this.packetGainCoefficient += model.earnCoefficient;
+            this.packetPurshasePrice += model.purshasePrice;
+            this.totalPrice += this.offers().at(i).get('price')?.value;
+          }
+        }
+      }
+    }
+    //this.packetEarningCoefficient = (packet.price-packet.discount-this.packetPurshasePrice)/this.packetGainCoefficient;
     this.packetForm.controls['totalPrice'].setValue(this.totalPrice);
+    */
   }
 
   calculatePacketPrice() {

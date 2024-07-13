@@ -9,8 +9,6 @@ public class ModelQuantity {
     private Integer quantity;
     private Model model;
 
-    private double modelEarnCoefficient;
-
     //TODO list products
 
     public ModelQuantity() {
@@ -37,20 +35,11 @@ public class ModelQuantity {
         this.model = model;
     }
 
-    public double getModelEarnCoefficient() {
-        return modelEarnCoefficient;
-    }
-
-    public void setModelEarnCoefficient(double modelEarnCoefficient) {
-        this.modelEarnCoefficient = modelEarnCoefficient;
-    }
-
     @Override
     public String toString() {
         return "ModelQuantity{" +
                 "quantity=" + quantity +
                 ", model=" + model +
-                ", modelEarnCoefficient=" + modelEarnCoefficient +
                 '}';
     }
 }

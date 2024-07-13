@@ -91,6 +91,7 @@ export class PacketService {
     return this.http.get(this.baseUrl + '/findPacketRelatedProducts/' + id);
   }
 
+
   addPacket(): Observable<any> {
     //console.log('packet front before submit', packet);
     return this.http.get(this.baseUrl + '/add');

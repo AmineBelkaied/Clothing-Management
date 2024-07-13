@@ -18,6 +18,10 @@ export class OfferService {
     return this.http.get(this.baseUrl + "/findAll");
   }
 
+  findOffersByFbPageId(id: number) {
+    return this.http.get(this.baseUrl + "/findByFBPage/"+id);
+  }
+
   findAllOffersModelQuantities() {
     return this.http.get(this.baseUrl + "/findAllOffersModelQuantities");
   }

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -139,28 +140,31 @@ public class OfferServiceImpl implements OfferService {
     @Override
     public OfferModelQuantitiesDTO updateOffer(OfferModelQuantitiesDTO offerModelDTO) {
         // Update the offer
-        Optional<Offer> offer = offerRepository.findById(offerModelDTO.getOfferId());
-        Offer offerResult = null;
-        if(offer.isPresent()){
-           Offer offerToUpdate =  offer.get();
-           offerToUpdate.setName(offerModelDTO.getName());
-           offerToUpdate.setPrice(offerModelDTO.getPrice());
-           offerToUpdate.setEnabled(offerModelDTO.isEnabled());
-           offerToUpdate.setFbPages(offerModelDTO.getFbPages());
-           offerResult = offerRepository.save(offerToUpdate);
+        Optional<Offer> offerOptional = offerRepository.findById(offerModelDTO.getOfferId());
+        if (!offerOptional.isPresent()) {
+            throw new RuntimeException("Offer not found with ID: " + offerModelDTO.getOfferId());
         }
+
+        Offer offerToUpdate = offerOptional.get();
+        offerToUpdate.setName(offerModelDTO.getName());
+        offerToUpdate.setPrice(offerModelDTO.getPrice());
+        offerToUpdate.setEnabled(offerModelDTO.isEnabled());
+        offerToUpdate.setFbPages(offerModelDTO.getFbPages());
+        Offer updatedOffer = offerRepository.save(offerToUpdate);
+
         // Update the models of the offer and their quantities
         List<OfferModel> offerModels = offerModelRepository.findByOfferId(offerModelDTO.getOfferId());
         if(offerModels.size() > 0 )
-            offerModelRepository.deleteAll(offerModels);
-
+            for(OfferModel offerModel : offerModels)
+                offerModelRepository.deleteByOfferId(offerModel.getOffer().getId());
         for(ModelQuantity modelQuantity: offerModelDTO.getModelQuantities()){
-            offerModelRepository.addOfferModel(offerResult.getId() , modelQuantity.getModel().getId() , modelQuantity.getQuantity());
+            offerModelRepository.addOfferModel(updatedOffer.getId() , modelQuantity.getModel().getId() , modelQuantity.getQuantity());
         }
 
-        offerModelDTO.setOfferId(offerResult.getId());
+        offerModelDTO.setOfferId(updatedOffer.getId());
         return offerModelDTO;
     }
+
 
     @Override
     public void deleteOffer(Offer offer) {
@@ -177,28 +181,38 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public List<OfferModelsDTO> findOfferByFbPageId(Long fbPageId) throws IOException {
-        Map<Offer, List<OfferModel>> offerListMap = offerModelRepository.findByOfferId(fbPageId)
+    public List<OfferModelsDTO> findOfferByFbPageId(Long fbPageId) {
+        Map<Offer, List<OfferModel>> offerListMap = offerModelRepository.findByFbPageId(fbPageId)
                 .stream()
-                .collect(groupingBy(OfferModel::getOffer));
+                .collect(Collectors.groupingBy(OfferModel::getOffer));
 
         List<OfferModelsDTO> offerModelsListDTO = new ArrayList<>();
-        OfferModelsDTO offerModelsDTO = null;
 
-        for (Offer offer : offerListMap.keySet()) {
-            offerModelsDTO = new OfferModelsDTO(offer.getId(), offer.getName() , offer.getPrice() , offer.isEnabled());
-            List<OfferModel> offerModels= offerListMap.get(offer);
+        for (Map.Entry<Offer, List<OfferModel>> entry : offerListMap.entrySet()) {
+            Offer offer = entry.getKey();
+            List<OfferModel> offerModels = entry.getValue();
+
+            OfferModelsDTO offerModelsDTO = new OfferModelsDTO(
+                    offer.getId(),
+                    offer.getName(),
+                    offer.getPrice(),
+                    offer.isEnabled()
+            );
+
             List<Model> models = new ArrayList<>();
-            for(OfferModel offerModel : offerModels) {
-                if(offerModel.getQuantity() >= 1) {
-                    for (int i = 0; i < offerModel.getQuantity(); i++) {
-                        models.add(mapToModel(offerModel.getModel()));
-                    }
+            for (OfferModel offerModel : offerModels) {
+                try {
+                    models.addAll(Collections.nCopies(offerModel.getQuantity(), mapToModel(offerModel.getModel())));
+                } catch (IOException e) {
+                    // Handle IOException, log the error or rethrow it as a runtime exception
+                    e.printStackTrace();
                 }
             }
+
             offerModelsDTO.setModels(models);
             offerModelsListDTO.add(offerModelsDTO);
         }
+
         return offerModelsListDTO;
     }
 }

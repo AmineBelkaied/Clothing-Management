@@ -42,7 +42,6 @@ public class PacketServiceImpl implements PacketService {
     private final IProductsPacketRepository productsPacketRepository;
     private final IPacketStatusRepository packetStatusRepository;
     private final DeliveryCompanyServiceFactory deliveryCompanyServiceFactory;
-
     private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
     private final static List<String> ignoredDateStatusList = List.of(new String[]{ RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus()});
@@ -68,9 +67,10 @@ public class PacketServiceImpl implements PacketService {
 
     @Override
     public List<Packet> findAllPackets() {
-        return packetRepository.findAll().stream()
-                .sorted(Comparator.comparing(Packet::getDate).reversed())
+        List<Packet> sortedPackets = packetRepository.findAll().stream()
+                .sorted(Comparator.comparingLong(Packet::getId).reversed())
                 .collect(Collectors.toList());
+        return sortedPackets;
     }
 
     @Override
@@ -112,10 +112,6 @@ public class PacketServiceImpl implements PacketService {
         return Arrays.asList(status.split(",", -1));
     }
 
-    /*@Override
-    public Page<Packet> findAllPackets(String searchText, String    startDate, String endDate, String status, Pageable pageable,mandatoryDate) {
-        return null;
-    }*/
 
     public List<Packet> findAllPacketsByDate(String startDate, String endDate) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -170,10 +166,14 @@ public class PacketServiceImpl implements PacketService {
         return packet;
     }
     @Override
+    @Transactional("tenantTransactionManager")
     public Packet updatePacket(Packet packet) {
+        System.out.println("start update save"+packet);
+
         return packetRepository.save(packet);
     }
     @Override
+    @Transactional("tenantTransactionManager")
     public Packet updatePacketValid(String barCode,String type) {
         Optional<Packet> optionalPacket = packetRepository.findByBarCode(barCode);
         if (type.equals(CONFIRMED.getStatus())){
@@ -184,6 +184,7 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
+    @Transactional("tenantTransactionManager")
     public Packet patchPacket(Long idPacket, Map<String, Object> field) throws IOException {
         Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
         Packet packet = null;
@@ -216,46 +217,55 @@ public class PacketServiceImpl implements PacketService {
         return packet;
     }
     @Override
-    public Packet addProductsToPacket(SelectedProductsDTO selectedProductsDTO,Integer stock) {
-        final double[] count = {0};
+    @Transactional("tenantTransactionManager")
+    public Packet addProductsToPacket(SelectedProductsDTO selectedProductsDTO, Integer stock) {
         String noStockStatus = selectedProductsDTO.getStatus();
         List<ProductOfferDTO> productsOffers = selectedProductsDTO.getProductsOffers();
         Optional<Packet> optionalPacket = packetRepository.findById(selectedProductsDTO.getIdPacket());
+
         if (optionalPacket.isPresent()) {
-            Packet packet = optionalPacket.get();
-            packet.setPrice(selectedProductsDTO.getTotalPrice());
-            packet.setDeliveryPrice(selectedProductsDTO.getDeliveryPrice());
-            packet.setDiscount(selectedProductsDTO.getDiscount());
-            packet.setProductCount(selectedProductsDTO.getProductCount());
-            if (noStockStatus!= null && noStockStatus.equals(OOS.getStatus())
-                    &&(packet.getStatus().equals(NOT_CONFIRMED.getStatus())
-                    ||packet.getStatus().equals(NOTSERIOUS.getStatus())
-                    ||packet.getStatus().equals(CANCELED.getStatus())
-                    ||packet.getStatus().equals(UNREACHABLE.getStatus())))
-                packet.setStatus(OOS.getStatus());
-            if (noStockStatus!= null && (noStockStatus.equals(NOT_CONFIRMED.getStatus())||noStockStatus.equals(CANCELED.getStatus())))
-                {
-                    packet.setStatus(noStockStatus);
-                }
+            Packet existingPacket = optionalPacket.get();
+            existingPacket.setPrice(selectedProductsDTO.getTotalPrice());
+            existingPacket.setDeliveryPrice(selectedProductsDTO.getDeliveryPrice());
+            existingPacket.setDiscount(selectedProductsDTO.getDiscount());
+            existingPacket.setProductCount(selectedProductsDTO.getProductCount());
 
-            List<ProductsPacket> existingProductsPacket = productsPacketRepository.findByPacketId(packet.getId());
-            if(existingProductsPacket.size() > 0)
-                productsPacketRepository.deleteAll(existingProductsPacket);
+            if (noStockStatus != null && noStockStatus.equals(OOS.getStatus()) &&
+                    (existingPacket.getStatus().equals(NOT_CONFIRMED.getStatus()) ||
+                            existingPacket.getStatus().equals(NOTSERIOUS.getStatus()) ||
+                            existingPacket.getStatus().equals(CANCELED.getStatus()) ||
+                            existingPacket.getStatus().equals(UNREACHABLE.getStatus()))) {
+                existingPacket.setStatus(OOS.getStatus());
+            }
+
+            if (noStockStatus != null && (noStockStatus.equals(NOT_CONFIRMED.getStatus()) || noStockStatus.equals(CANCELED.getStatus()))) {
+                existingPacket.setStatus(noStockStatus);
+            }
+
+            List<ProductsPacket> existingProductsPacket = productsPacketRepository.findByPacketId(existingPacket.getId());
+            if (!existingProductsPacket.isEmpty()) {
+                productsPacketRepository.deleteAllInBatch(existingProductsPacket);
+            }
+
             List<ProductsPacket> newProductsPacket = new ArrayList<>();
+            for (ProductOfferDTO productOfferDTO : productsOffers) {
+                newProductsPacket.add(new ProductsPacket(new Product(productOfferDTO.getProductId()), existingPacket,
+                        new Offer(productOfferDTO.getOfferId()), productOfferDTO.getPacketOfferIndex(),
+                        productOfferDTO.getProfits()));
+            }
 
-            productsOffers.forEach(productOfferDTO -> {
-                newProductsPacket.add(new ProductsPacket(new Product(productOfferDTO.getProductId()), packet, new Offer(productOfferDTO.getOfferId()), productOfferDTO.getPacketOfferIndex(), productOfferDTO.getProfits()));
-            });
             productsPacketRepository.saveAll(newProductsPacket);
-            packet.setPacketDescription(selectedProductsDTO.getPacketDescription());
-            packet.setStock(stock);
-            System.out.println("updateProduct"+packet);
-            return updatePacket(packet);
+            existingPacket.setPacketDescription(selectedProductsDTO.getPacketDescription());
+            existingPacket.setStock(stock);
+
+            return updatePacket(existingPacket);
         }
-        return optionalPacket.get();
+        return optionalPacket.orElse(null);
     }
 
+
     @Override
+    @Transactional("tenantTransactionManager")
     public List<Packet> checkPacketProductsValidity(Long packetId) {
         System.out.println("checkPacketProductsValidity");
         List<ProductsPacket> existingProductsPacket = productsPacketRepository.findByPacketId(packetId);
@@ -282,6 +292,7 @@ public class PacketServiceImpl implements PacketService {
         return packetRepository.findAllById(updatedPacketList);
     }
 
+    @Transactional("tenantTransactionManager")
     public List<Long> updateUnConfirmedStock(Long productId, Integer stock) {
         List<Long> productIds = productsPacketRepository.getUnconfirmedPacketStock_By_ProductId(productId);
         int count = 0;
@@ -360,6 +371,7 @@ public class PacketServiceImpl implements PacketService {
      * @param packetsId
      */
     @Override
+    @Transactional("tenantTransactionManager")
     public void deleteSelectedPackets(List<Long> packetsId) {
         for (Long packetId : packetsId) {
 
@@ -388,6 +400,7 @@ public class PacketServiceImpl implements PacketService {
     }*/
 
     @Override
+    @Transactional("tenantTransactionManager")
     public List<DashboardCard> syncNotification(String startDate, String endDate) {
         return packetRepository.createNotification(startDate,endDate);
     }

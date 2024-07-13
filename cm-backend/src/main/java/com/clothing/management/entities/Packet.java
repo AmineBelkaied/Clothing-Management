@@ -13,7 +13,6 @@ import java.util.List;
 })
 public class Packet {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
