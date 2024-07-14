@@ -10,7 +10,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { StatsService } from 'src/shared/services/stats.service';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { Product } from 'src/shared/models/Product';
 import { Color } from 'src/shared/models/Color';
 
 @Component({

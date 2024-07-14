@@ -574,18 +574,16 @@ onRowSelect($event: TableRowSelectEvent) {
         }
       }
 
-      console.log("this.oldFieldValue", this.oldFieldValue + "/packet[this.selectedField]:" + packet[this.selectedField]);
-
       if (this.oldFieldValue !== packet[this.selectedField] && packet[this.selectedField] !== undefined) {
         switch (this.selectedField) {
           case 'status':
             this.handleStatusField(packet);
             break;
-          case 'city':
+          /*case 'city':
           case 'fbPage':
           case 'date':
-            this.updatePacket(packet);
-            break;
+            this.patchPacketService(packet);
+            break;*/
           default:
             this.patchPacketService(packet);
             break;
@@ -668,14 +666,19 @@ onRowSelect($event: TableRowSelectEvent) {
   }
 
   patchPacketService(packet : Packet) {
+    console.log("patch");
+
     let updatedField;
-    /*if(this.selectedField ==='city')
+    if(this.selectedField ==='city')
       updatedField = { [this.selectedField]: packet.city?.id };
     else if(this.selectedField ==='fbPage')
       {console.log(packet.fbPage?.id);
         updatedField = { [this.selectedField]: packet.fbPage?.id };}
-    else*/
-    updatedField = { [this.selectedField]: packet[this.selectedField] };
+    else
+    {console.log("else");
+
+      updatedField = { [this.selectedField]: packet[this.selectedField] };}
+
     console.dir(updatedField);
 
     let status = packet.status;

@@ -171,10 +171,10 @@ public class PacketServiceImpl implements PacketService {
         return packet;
     }
     @Override
-    @Transactional("tenantTransactionManager")
     public Packet updatePacket(Packet packet) {
         return packetRepository.save(packet);
     }
+
     @Override
     @Transactional("tenantTransactionManager")
     public Packet updatePacketValid(String barCode,String type) {
@@ -189,48 +189,51 @@ public class PacketServiceImpl implements PacketService {
     @Override
     @Transactional("tenantTransactionManager")
     public Packet patchPacket(Long idPacket, Map<String, Object> field) throws IOException {
-        Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
         Packet packet = null;
-        if (optionalPacket.isPresent()) {
-            packet = optionalPacket.get();
             Optional<String> firstKeyOptional = field.keySet().stream().findFirst();
             if (firstKeyOptional.isPresent()) {
                 String firstKey = firstKeyOptional.get();
                 Field fieldPacket = ReflectionUtils.findField(Packet.class, firstKey);
+                String value = String.valueOf(field.get(firstKey));
                 fieldPacket.setAccessible(true);
-                //System.out.println("firstKey:"+firstKey+"/field.get(firstKey):"+field.get(firstKey));
-
                 if (firstKey.equals("status")) {
-                        if (field.get(firstKey).equals(CONFIRMED.getStatus()))
+                    Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
+                        packet = optionalPacket.get();
+                        if (value.equals(CONFIRMED.getStatus()))
                             createBarCode(packet);
-                    updatePacketStatus(packet, String.valueOf(field.get(firstKey)));
-                }else {
-                    if (firstKey.equals("customerPhoneNb")) {
+                    updatePacketStatus(packet, value);
+                }else if (firstKey.equals("customerPhoneNb")) {
                         int existCount =0;
                         if(field.get(firstKey) != "" && field.get(firstKey) != null)
                             existCount = checkPhone(field.get(firstKey)+"");
-                        packet.setOldClient(existCount);
-                        //System.out.println("nombre de reccurance phone: "+existCount);
-                    }
-
-                    /*System.out.println(firstKey+"-"+field.get(firstKey));
-                    if(firstKey.equals("fbPage"))
-                    {
-                        Object fbPage = field.get(firstKey);
+                        //packet.setOldClient(existCount);
+                        packetRepository.savePhoneNumber(idPacket, value,existCount);
+                        System.out.println(firstKey);
+                }else if(firstKey.equals("fbPage")){
+                        packetRepository.saveFbPage(idPacket, Long.valueOf(value));
+                        /*Object fbPage = field.get(firstKey);
                         System.out.println(fieldPacket+"-"+field.get(firstKey)+"-"+ fbPage);
-                        packet.setFbPage(this.getFbPageFromObject(fbPage));
-                    }
-                    if(firstKey.equals("city"))
-                    {
-                        Object city = field.get(firstKey);
+                        packet.setFbPage(this.getFbPageFromObject(fbPage));*/
+                        System.out.println(firstKey);
+                } else if(firstKey.equals("city")){
+                        packetRepository.saveCity(idPacket, Long.valueOf(value));
+                        /*Object city = field.get(firstKey);
                         System.out.println(fieldPacket+"-"+field.get(firstKey)+"-"+ city);
-                        packet.setFbPage(this.getFbPageFromObject(city));
-                    }else*/
+                        packet.setFbPage(this.getFbPageFromObject(city));*/
+                        System.out.println(firstKey);
+                }else if (firstKey.equals("customerName")){
+                        packetRepository.saveCustomerName(idPacket, value);
+                        System.out.println(firstKey);
+                }else if (firstKey.equals("address")){
+                        packetRepository.saveAddress(idPacket, value);
+                        System.out.println(firstKey);
+                }else{
                         ReflectionUtils.setField(fieldPacket, packet, field.get(firstKey));
-                    updatePacket(packet);
+                        System.out.println("no"+firstKey);
+                        updatePacket(packet);
                 }
+                packet = packetRepository.findById(idPacket).get();
             }
-        }
         return packet;
     }
     public FbPage getFbPageFromObject(Object fbPageField){
@@ -253,6 +256,7 @@ public class PacketServiceImpl implements PacketService {
             throw new IllegalArgumentException("fbPage field is not a valid Map");
         }
     }
+
     @Override
     @Transactional("tenantTransactionManager")
     public Packet addProductsToPacket(SelectedProductsDTO selectedProductsDTO, Integer stock) {

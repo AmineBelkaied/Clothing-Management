@@ -139,7 +139,6 @@
       >
         <p-button
           [label]="statusItems[activeIndex].title"
-
           (click)="showStatusButton()"
           severity="success"
         ></p-button>
@@ -166,7 +165,6 @@
                   (click)="onActiveIndexChange(j)"
                 >
                   <div>
-
                       <p-selectButton
                       *ngIf="j == 2"
                       [options]="nonConfirmedOptions"

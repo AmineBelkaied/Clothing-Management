@@ -40,5 +40,6 @@ public interface PacketService {
     int deleteEmptyPacket();
 
     void updatePacketStockForRupture();
-    Packet updatePacketValid(String barCode,String type) throws Exception;
+
+    Packet updatePacketValid(String barCode, String type) throws Exception;
 }

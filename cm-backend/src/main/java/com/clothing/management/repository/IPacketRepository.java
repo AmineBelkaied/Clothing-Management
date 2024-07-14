@@ -70,4 +70,24 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query("UPDATE Packet p SET p.stock = (SELECT MIN(pp.product.quantity) FROM ProductsPacket pp JOIN pp.product pr WHERE pp.packet.id = p.id AND p.id = 29034)")
     void updatePacketStockForRuptureStatus();
 
+    @Modifying
+    @Query(value="UPDATE packet SET city_id = :cityId WHERE id = :packetId", nativeQuery = true)
+    void saveCity(@Param("packetId") Long packetId, @Param("cityId") Long cityId);
+
+    @Modifying
+    @Query(value="UPDATE packet SET fbpage_id = :fbPageId WHERE id = :packetId", nativeQuery = true)
+    void saveFbPage(@Param("packetId") Long packetId, @Param("fbPageId") Long fbPageId);
+
+    @Modifying
+    @Query(value="UPDATE packet SET customer_name = :name WHERE id = :packetId", nativeQuery = true)
+    void saveCustomerName(@Param("packetId") Long packetId, @Param("name") String name);
+
+    @Modifying
+    @Query(value="UPDATE packet SET address = :address WHERE id = :packetId", nativeQuery = true)
+    void saveAddress(@Param("packetId") Long packetId, @Param("address") String address);
+
+    @Modifying
+    @Query(value="UPDATE packet SET customer_phone_nb = :customerPhoneNumber , old_client = :oldClient WHERE id = :packetId", nativeQuery = true)
+    void savePhoneNumber(@Param("packetId") Long packetId, @Param("customerPhoneNumber") String customerPhoneNumber,@Param("oldClient") int oldClient);
+
 }
