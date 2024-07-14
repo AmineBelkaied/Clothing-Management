@@ -45,6 +45,13 @@ public class FbPage {
         this.enabled = true;
     }
 
+    public FbPage(Long id, String name, String link, boolean enabled) {
+        this.id = id;
+        this.name = name;
+        this.link = link;
+        this.enabled = enabled;
+    }
+
     // Constructor for name
     public FbPage(String name) {
         this.name = name;

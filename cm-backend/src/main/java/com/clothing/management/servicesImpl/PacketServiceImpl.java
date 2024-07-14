@@ -44,6 +44,7 @@ public class PacketServiceImpl implements PacketService {
     private final DeliveryCompanyServiceFactory deliveryCompanyServiceFactory;
     private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
+    private final IFbPageRepository fbPageRepository;
     private final static List<String> ignoredDateStatusList = List.of(new String[]{ RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus()});
 
     @Autowired
@@ -54,7 +55,8 @@ public class PacketServiceImpl implements PacketService {
             IPacketStatusRepository packetStatusRepository,
             DeliveryCompanyServiceFactory deliveryCompanyServiceFactory,
             SessionUtils sessionUtils,
-            IGlobalConfRepository globalConfRepository
+            IGlobalConfRepository globalConfRepository,
+            IFbPageRepository fbPageRepository
     ) {
         this.packetRepository = packetRepository;
         this.productRepository = productRepository;
@@ -63,6 +65,7 @@ public class PacketServiceImpl implements PacketService {
         this.deliveryCompanyServiceFactory = deliveryCompanyServiceFactory;
         this.globalConfRepository = globalConfRepository;
         this.sessionUtils = sessionUtils;
+        this.fbPageRepository = fbPageRepository;
     }
 
     @Override
@@ -74,6 +77,7 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
+    @Transactional("tenantTransactionManager")
     public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status, boolean mandatoryDate) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -156,6 +160,7 @@ public class PacketServiceImpl implements PacketService {
 
 
     @Override
+    @Transactional("tenantTransactionManager")
     public Packet addPacket() {
         GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
         System.out.println("global:"+globalConf);
@@ -168,8 +173,6 @@ public class PacketServiceImpl implements PacketService {
     @Override
     @Transactional("tenantTransactionManager")
     public Packet updatePacket(Packet packet) {
-        System.out.println("start update save"+packet);
-
         return packetRepository.save(packet);
     }
     @Override
@@ -209,12 +212,46 @@ public class PacketServiceImpl implements PacketService {
                         packet.setOldClient(existCount);
                         //System.out.println("nombre de reccurance phone: "+existCount);
                     }
-                    ReflectionUtils.setField(fieldPacket, packet, field.get(firstKey));
+
+                    /*System.out.println(firstKey+"-"+field.get(firstKey));
+                    if(firstKey.equals("fbPage"))
+                    {
+                        Object fbPage = field.get(firstKey);
+                        System.out.println(fieldPacket+"-"+field.get(firstKey)+"-"+ fbPage);
+                        packet.setFbPage(this.getFbPageFromObject(fbPage));
+                    }
+                    if(firstKey.equals("city"))
+                    {
+                        Object city = field.get(firstKey);
+                        System.out.println(fieldPacket+"-"+field.get(firstKey)+"-"+ city);
+                        packet.setFbPage(this.getFbPageFromObject(city));
+                    }else*/
+                        ReflectionUtils.setField(fieldPacket, packet, field.get(firstKey));
                     updatePacket(packet);
                 }
             }
         }
         return packet;
+    }
+    public FbPage getFbPageFromObject(Object fbPageField){
+
+        if (fbPageField instanceof Map) {
+            Map<String, Object> fbPageMap = (Map<String, Object>) fbPageField;
+            Object idValue = fbPageMap.get("id");
+            if (idValue != null) {
+                Long fbPageId = ((Number) idValue).longValue();
+                Optional<FbPage> fbPageOptional = fbPageRepository.findById(fbPageId);
+                if (fbPageOptional.isPresent()) {
+                    return fbPageOptional.get();
+                } else {
+                    throw new IllegalArgumentException("FbPage with ID " + fbPageId + " not found");
+                }
+            } else {
+                throw new IllegalArgumentException("FbPage ID is missing in the field map");
+            }
+        } else {
+            throw new IllegalArgumentException("fbPage field is not a valid Map");
+        }
     }
     @Override
     @Transactional("tenantTransactionManager")
@@ -299,7 +336,7 @@ public class PacketServiceImpl implements PacketService {
         if(productIds.size()>0){
             count = productsPacketRepository.updateUnconfirmedPacketStock_By_ProductId(productIds,stock);
         }
-        System.out.println(count+"updateUnConfirmedStock:"+productIds+" /id:"+productId+" /stock:"+stock);
+        //System.out.println(count+"updateUnConfirmedStock:"+productIds+" /id:"+productId+" /stock:"+stock);
         return productIds;
     }
 
@@ -390,6 +427,7 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
+    @Transactional("tenantTransactionManager")
     public int checkPhone(String phoneNumber) {
         return packetRepository.findAllPacketsByPhone_number(phoneNumber);
     }
@@ -405,12 +443,14 @@ public class PacketServiceImpl implements PacketService {
         return packetRepository.createNotification(startDate,endDate);
     }
     @Override
+    @Transactional("tenantTransactionManager")
     public List<PacketStatus> findPacketTimeLineById(Long idPacket) throws Exception {
         Packet packet = packetRepository.findById(idPacket)
                 .orElseThrow(() -> new Exception("Packet not found!"));
         return packet.getPacketStatus();
     }
     @Override
+    @Transactional("tenantTransactionManager")
     public DeliveryResponse createBarCode(Packet packet) throws IOException {
         DeliveryCompanyName deliveryCompanyName = DeliveryCompanyName.fromString(packet.getDeliveryCompany().getName());
         DeliveryCompanyService deliveryCompanyService = deliveryCompanyServiceFactory.getDeliveryCompanyService(deliveryCompanyName);
@@ -431,6 +471,7 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
+    @Transactional("tenantTransactionManager")
     public Packet getLastStatus(Packet packet) {
         try {
             DeliveryCompanyName deliveryCompanyName = DeliveryCompanyName.fromString(packet.getDeliveryCompany().getName());
@@ -534,6 +575,8 @@ public class PacketServiceImpl implements PacketService {
         int year2 = cal2.get(Calendar.YEAR);
         return (day1 == day2) && (year1 == year2);
     }
+
+    @Transactional("tenantTransactionManager")
     public Packet duplicatePacket(Long idPacket) {
         GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
         Packet packet = packetRepository.findById(idPacket).get();
@@ -569,6 +612,8 @@ public class PacketServiceImpl implements PacketService {
         packetRepository.save(packet);
         return response;
     }
+
+    @Transactional("tenantTransactionManager")
     public List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO) {
         List<String> errors = new ArrayList<>();
         //System.out.println(barCodeStatusDTO);
@@ -590,7 +635,9 @@ public class PacketServiceImpl implements PacketService {
         });
         return errors;
     }
-    private Packet updatePacketStatus(Packet packet,String status){
+
+    @Transactional("tenantTransactionManager")
+    public Packet updatePacketStatus(Packet packet,String status){
         if(packet.getExchangeId() != null){
             if (status.equals(PAID.getStatus())||status.equals(LIVREE.getStatus()))
                 return updateExchangePacketStatusToPaid(packet,status);
@@ -600,7 +647,9 @@ public class PacketServiceImpl implements PacketService {
         }
         return updatePacketStatusAndSaveToHistory(packet, status);
     }
-    private Packet updateExchangePacketStatusToReturnReceived(Packet packet){
+
+    @Transactional("tenantTransactionManager")
+    public Packet updateExchangePacketStatusToReturnReceived(Packet packet){
         //Long id = getExchangeId(packet);
         Long id = packet.getExchangeId();
         Optional<Packet> optionalPacket = packetRepository.findById(id);
@@ -610,7 +659,9 @@ public class PacketServiceImpl implements PacketService {
         return updatePacketStatusAndSaveToHistory(optionalPacket.get(), RETURN_RECEIVED.getStatus());
         else return updatePacketStatusAndSaveToHistory(packet, RETURN_RECEIVED.getStatus());
     }
-    private Packet updateExchangePacketStatusToPaid(Packet packet,String status){
+
+    @Transactional("tenantTransactionManager")
+    public Packet updateExchangePacketStatusToPaid(Packet packet,String status){
         //Long id = getExchangeId(packet);
         Long id = packet.getExchangeId();
         Optional<Packet> optionalPacket = packetRepository.findById(id);
@@ -620,7 +671,8 @@ public class PacketServiceImpl implements PacketService {
         return updatePacketStatusAndSaveToHistory(packet, status);
     }
 
-    private Packet updatePacketStatusAndSaveToHistory(Packet packet, String status) {
+    @Transactional("tenantTransactionManager")
+    public Packet updatePacketStatusAndSaveToHistory(Packet packet, String status) {
         if (packet.getStatus() == null) {
             packet.setStatus(NOT_CONFIRMED.getStatus());
         }
@@ -641,14 +693,15 @@ public class PacketServiceImpl implements PacketService {
         }
         return updatePacket(packet);
     }
-
-    private Packet savePacketStatus(Packet packet, String status) {
+    @Transactional("tenantTransactionManager")
+    public Packet savePacketStatus(Packet packet, String status) {
         packet.setStatus(status);
         packet.setLastUpdateDate(new Date());
         return updatePacket(packet);
     }
 
-    private void savePacketStatusToHistory(Packet packet, String status) {
+    @Transactional("tenantTransactionManager")
+    public void savePacketStatusToHistory(Packet packet, String status) {
         PacketStatus packetStatus = new PacketStatus();
         packetStatus.setPacket(packet);
         packetStatus.setStatus(status);
@@ -656,7 +709,8 @@ public class PacketServiceImpl implements PacketService {
         packetStatus.setUser(sessionUtils.getCurrentUser());
         packetStatusRepository.save(packetStatus);
     }
-    private void updateProducts_Status(Packet packet,String status){
+    @Transactional("tenantTransactionManager")
+    public void updateProducts_Status(Packet packet,String status){
         if(status.equals(LIVREE.getStatus())
                 ||status.equals(PAID.getStatus())
                 ||status.equals(CONFIRMED.getStatus())
@@ -665,12 +719,14 @@ public class PacketServiceImpl implements PacketService {
             updateProductsPacket_Status_ByPacketId(packet,status);
 
     }
-    private void updateProducts_Quantity(Packet packet,String status){
+    @Transactional("tenantTransactionManager")
+    public void updateProducts_Quantity(Packet packet,String status){
         if (status.equals(RETURN_RECEIVED.getStatus())
                 ||status.equals(CONFIRMED.getStatus())
                 ||status.equals(CANCELED.getStatus()))
             updateProductsQuantity(packet,status);
     }
+    @Transactional("tenantTransactionManager")
     public void updateProductsPacket_Status_ByPacketId(Packet packet,String status) {
         int x = -1;
         if (status.equals(RETURN_RECEIVED.getStatus()) || status.equals(CANCELED.getStatus())) x = 0;
@@ -685,7 +741,7 @@ public class PacketServiceImpl implements PacketService {
             }
         }
     }
-
+    @Transactional("tenantTransactionManager")
     public void updateProductsQuantity(Packet packet,String status) {
         int quantity = 0;
         if (status.equals(RETURN_RECEIVED.getStatus()) || status.equals(CANCELED.getStatus())) quantity = 1;
@@ -701,8 +757,8 @@ public class PacketServiceImpl implements PacketService {
         }
     }
 
-    private void updateProductQuantity(Product product, int quantityChange) {
-
+    @Transactional("tenantTransactionManager")
+    public void updateProductQuantity(Product product, int quantityChange) {
         product.setQuantity(product.getQuantity() + quantityChange);
         product.setDate(new Date());
         productRepository.save(product);

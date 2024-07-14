@@ -347,6 +347,7 @@ export class AddPacketComponent implements OnInit {
             let x =colorSizeFalse? -1 : qte < 1 ? 0 : qte;
             this.stockAvailable = x < this.stockAvailable ? x:this.stockAvailable;
             this.productCount+=1;
+            this.packetEarningCoefficient = (packet.price-packet.discount-this.packetPurshasePrice)/this.packetGainCoefficient;
             productsOffers.push({ productId: offer.models[j].selectedProduct.id, offerId: offer.offerId, packetOfferIndex: i,
               profits: this.packetEarningCoefficient*offer.models[j].earnCoefficient});
             this.setPacketDescription(offer.models[j]?.name,

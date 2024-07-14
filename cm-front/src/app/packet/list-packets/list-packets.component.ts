@@ -668,7 +668,16 @@ onRowSelect($event: TableRowSelectEvent) {
   }
 
   patchPacketService(packet : Packet) {
-    const updatedField = { [this.selectedField]: packet[this.selectedField] };
+    let updatedField;
+    /*if(this.selectedField ==='city')
+      updatedField = { [this.selectedField]: packet.city?.id };
+    else if(this.selectedField ==='fbPage')
+      {console.log(packet.fbPage?.id);
+        updatedField = { [this.selectedField]: packet.fbPage?.id };}
+    else*/
+    updatedField = { [this.selectedField]: packet[this.selectedField] };
+    console.dir(updatedField);
+
     let status = packet.status;
     this.packetService.patchPacket(packet.id, updatedField)
       .pipe(
