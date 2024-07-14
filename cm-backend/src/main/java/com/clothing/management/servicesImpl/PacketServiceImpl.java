@@ -166,8 +166,7 @@ public class PacketServiceImpl implements PacketService {
     @Transactional("tenantTransactionManager")
     public Packet addPacket() {
         GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
-        System.out.println("global:"+globalConf);
-        Packet packet =new Packet(globalConf.getDeliveryCompany());
+        Packet packet = new Packet(globalConf.getDeliveryCompany());
 
         packetRepository.save(packet);
         savePacketStatusToHistory(packet,CREATION.getStatus());
@@ -519,22 +518,15 @@ public class PacketServiceImpl implements PacketService {
 
     @Override
     public Packet addAttempt(Note note, Long packetId) throws Exception {
-        // Formatting the note date to "dd hh:mm" format
-        /*SimpleDateFormat sdf = new SimpleDateFormat("dd-HH:mm");
-        String noteWithDate = "-Le "+sdf.format(noteDate) + " " + note;
-        if(packet.getNote().equals("")){packet.setNote(noteWithDate);}
-        else packet.setNote(String.format("%s\n%s", packet.getNote(), noteWithDate));*/
-        //if(!packet.getStatus().equals(INJOIGNABLE) || packet.getStatus().equals(CANCELED))
         Packet packet = packetRepository.findById(packetId)
                 .orElseThrow(() -> new Exception("Packet with ID " + packetId + " does not exist."));
 
         note.setUser(sessionUtils.getCurrentUser());
         note.setPacket(packet);
         noteRepository.save(note);
+        packet.getNotes().add(note);
 
-        packet.setAttempt(packet.getAttempt() + 1);
-        packet.setLastNote(note);
-        savePacketStatusToHistory(packet, "tentative: " + packet.getAttempt() + " " + note.getExplanation());
+        savePacketStatusToHistory(packet, "tentative: " + packet.getNotes().size() + " " + note.getExplanation());
         return updatePacket(packet);
     }
 

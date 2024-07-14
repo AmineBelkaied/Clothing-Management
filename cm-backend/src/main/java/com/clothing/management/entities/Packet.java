@@ -66,7 +66,6 @@ public class Packet {
 
     private Integer stock;
 
-    private Integer attempt;
 
     @OneToMany(mappedBy = "packet", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Note> notes;
@@ -102,10 +101,9 @@ public class Packet {
         this.stock= -1;
         this.printLink = null;
         this.deliveryCompany=deliveryCompany;
-        this.attempt = 0;
     }
 
-    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note, Long exchangeId) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany, Long exchangeId) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -128,7 +126,6 @@ public class Packet {
         this.stock = stock;
         this.printLink = printLink;
         this.deliveryCompany = deliveryCompany;
-        this.attempt = attempt;
         this.exchangeId = exchangeId;
     }
 
@@ -304,14 +301,6 @@ public class Packet {
         return deliveryCompany;
     }
 
-    public Integer getAttempt() {
-        return attempt;
-    }
-
-    public void setAttempt(Integer attempt) {
-        this.attempt = attempt;
-    }
-
     public void setDeliveryCompany(DeliveryCompany deliveryCompany) {
         this.deliveryCompany = deliveryCompany;
     }
@@ -351,7 +340,6 @@ public class Packet {
                 ", lastUpdateDate=" + lastUpdateDate +
                 ", stock=" + stock +
                 ", printLink='" + printLink + '\'' +
-                ", attempt='" + attempt + '\'' +
                 ", exchangeId='" + exchangeId + '\'' +
                 '}';
 
