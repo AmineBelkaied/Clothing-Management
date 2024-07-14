@@ -28,10 +28,6 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             "AND p.barcode NOT LIKE 'b%' AND p.valid")
     public List<Packet> findAllDiggiePackets();
 
-
-    @Query(value="UPDATE packet p SET p.attempt = p.attempt + 1 WHERE  id= :packetId", nativeQuery = true)
-    Optional<Packet> addAttempt(@Param("packetId") Long packetId);
-
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode", nativeQuery = true)
     Optional<Packet> findByBarCode(@Param("barCode") String barCode);
 
