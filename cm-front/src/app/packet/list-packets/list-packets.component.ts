@@ -826,7 +826,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.packets[X].lastUpdateDate = packet.lastUpdateDate;
       if (action === 'ADD_NOTE_ACTION') {
         this.packets[X].notes!.length++;
-        this.packets[X].lastNote = packet.lastNote;
+        this.packets[X].notes = packet.notes?.slice();
       }
       this.packets[X].barcode = packet.barcode;
       this.packets[X].packetDescription = packet.packetDescription;
@@ -1384,10 +1384,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     }
   }
 }
-
-
-
-
 /*notificationList : any [] = [
   {
     class:'pi-check-circle',
