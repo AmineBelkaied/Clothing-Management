@@ -247,3 +247,11 @@ td {
 ::ng-deep .p-datatable.p-datatable-sm .p-datatable-thead > tr > th {
   padding: 0.2rem 0.2rem;
 }
+
+.bottom-overlay {
+  position: fixed !important;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-width: none;
+}
