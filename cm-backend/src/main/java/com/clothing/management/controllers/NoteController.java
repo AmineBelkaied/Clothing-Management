@@ -23,6 +23,11 @@ public class NoteController {
         return noteService.findAllNotes();
     }
 
+    @GetMapping(path = "/findAllNotesByPacketId/{packetId}")
+    public List<Note> findAllNotesByPacketId(@PathVariable Long packetId) {
+        return noteService.findAllNotesByPacketId(packetId);
+    }
+
     @GetMapping(path = "/findNoteById/{noteId}")
     public Optional<Note> findNoteById(@PathVariable Long noteId) {
         return noteService.findNoteById(noteId);

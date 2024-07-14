@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { baseUrl } from '../../assets/constants';
+import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { DeliveryCompany } from '../models/DeliveryCompany';
 
 @Injectable({
@@ -9,11 +9,12 @@ import { DeliveryCompany } from '../models/DeliveryCompany';
 })
 export class SteLivraisonService {
 
-  private baseUrl: string = baseUrl+"/deliveryCompany";
+  private baseUrl: string = environment.baseUrl + "/deliveryCompany";
   public deliveryCompanySubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public deliveryCompany: BehaviorSubject<any> = new BehaviorSubject([]);
   public deliveryCompanyList: DeliveryCompany[] = [];
   public editMode = false;
+
   constructor(private http: HttpClient) {
     this.findAllStes()
     .subscribe((deliveryCompanyList: any) => {

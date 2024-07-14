@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Size } from 'src/shared/models/Size';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
 
 
 @Injectable({
@@ -10,11 +10,12 @@ import { baseUrl } from '../../assets/constants';
 })
 export class SizeService {
 
-  private baseUrl: string = baseUrl+"/size";
+  private baseUrl: string = environment.baseUrl + "/size";
   public sizesSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public size: BehaviorSubject<any> = new BehaviorSubject([]);
   public sizes: Size[] = [];
   public editMode = false;
+  
   constructor(private http: HttpClient) {
     this.findAllSizes()
     .subscribe((sizeList: any) => {

@@ -79,7 +79,7 @@ import { PickListModule } from 'primeng/picklist';
 import { GlobalConfComponent } from './config/global-conf/global-conf.component';
 import { StepsModule } from 'primeng/steps';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
-
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 import { AuthInterceptor } from 'src/shared/helpers/interceptor';
 import { UserComponent } from './config/user/user.component';
@@ -171,7 +171,8 @@ import { AuthGuard } from 'src/shared/services/auth-gard.service';
     StepsModule,
     BreadcrumbModule,
     ReactiveFormsModule,
-    RippleModule
+    RippleModule,
+    OverlayPanelModule
   ],
   providers: [MessageService, ConfirmationService, CityTreeService, DatePipe,AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],

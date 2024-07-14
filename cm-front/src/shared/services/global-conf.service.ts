@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, shareReplay } from 'rxjs';
-import { baseUrl } from 'src/assets/constants';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { GlobalConf } from '../models/GlobalConf';
 
 @Injectable({
@@ -10,7 +10,7 @@ import { GlobalConf } from '../models/GlobalConf';
 export class GlobalConfService {
 
 
-  private baseUrl: string = baseUrl + "/globalConf";
+  private baseUrl: string = environment.baseUrl + "/globalConf";
   public editMode = false;
 
   constructor(private http: HttpClient) {}

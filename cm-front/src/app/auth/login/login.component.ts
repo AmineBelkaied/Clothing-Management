@@ -14,13 +14,13 @@ import { StorageService } from 'src/shared/services/strorage.service';
             margin-right: 1rem;
             color: var(--primary-color) !important;
         }
-            
+
     `]
 })
 export class LoginComponent {
 
     valCheck: string[] = ['remember'];
-    
+
     form: any = {
         userName: null,
         password: null,
@@ -32,9 +32,9 @@ export class LoginComponent {
       isLoginFailed = false;
       errorMessage = '';
       roles: string[] = [];
-    
+
       constructor(private authService: AuthService, private storageService: StorageService, private router: Router, private route: ActivatedRoute) { }
-    
+
       ngOnInit(): void {
         this.route.paramMap.subscribe(params => this.form.tenantName = params.get('tenantName'));
         if (this.storageService.isUserLoggedIn()) {
@@ -42,9 +42,9 @@ export class LoginComponent {
           this.roles = this.storageService.getUser().roles;
           this.router.navigate(["/"]);
         }
-        
+
       }
-    
+
       onSubmit(): void {
         //const { userName, password } = this.form;
         console.log(this.form);
@@ -53,7 +53,7 @@ export class LoginComponent {
 /*         this.authService.getTenantsByUs :er(this.form)
         .subscribe((result: any) => {
           console.log(result);
-          
+
         })  */
       }
 
@@ -68,7 +68,7 @@ export class LoginComponent {
 
             this.storageService.saveUser(data);
             this.storageService.saveTenant(this.form.tenantName);
-            
+
             this.isLoginFailed = false;
             this.isLoggedIn = true;
             this.storageService.isLoggedIn.next(true);
@@ -77,13 +77,13 @@ export class LoginComponent {
           },
           error: (err: any) => {
             console.log(err);
-            
+
            // this.errorMessage = err.error.message;
             this.isLoginFailed = true;
           }
-        })  ;  
+        });
       }
-    
+
       loginMaster(): void {
         this.authService.loginMaster(this.form).subscribe({
           next: (data: any) => {
@@ -94,7 +94,7 @@ export class LoginComponent {
             console.log("data", data);
 
             this.storageService.saveUser(data);
-            
+
             this.isLoginFailed = false;
             this.isLoggedIn = true;
             this.storageService.isLoggedIn.next(true);
@@ -103,11 +103,11 @@ export class LoginComponent {
           },
           error: (err: any) => {
             console.log(err);
-            
+
            // this.errorMessage = err.error.message;
             this.isLoginFailed = true;
           }
-        })  ;  
+        });
       }
 
       reloadPage(): void {

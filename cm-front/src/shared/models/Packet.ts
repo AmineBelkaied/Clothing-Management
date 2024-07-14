@@ -1,6 +1,7 @@
 import { City } from "./City";
 import { DeliveryCompany } from "./DeliveryCompany";
 import { FbPage } from "./FbPage";
+import { Note } from "./Note";
 
 export interface Packet {
     id?: number;
@@ -28,7 +29,8 @@ export interface Packet {
     stock?: number;
     deliveryCompany?: DeliveryCompany;
     attempt?: number;
-    note?: string
+    notes?: Note[];
+    lastNote?: Note;
     [key: string]: any;
 
 }

@@ -1,6 +1,7 @@
 package com.clothing.management.services;
 
 import com.clothing.management.dto.*;
+import com.clothing.management.entities.Note;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
 import com.clothing.management.models.DashboardCard;
@@ -30,7 +31,7 @@ public interface PacketService {
     public List<PacketStatus> findPacketTimeLineById(Long idPacket) throws Exception;
     DeliveryResponse createBarCode(Packet packet) throws IOException, InterruptedException;
     Packet getLastStatus(Packet packet) throws Exception;
-    Packet addAttempt(Long packetId,String note) throws ParseException;
+    Packet addAttempt(Note note, Long packetId) throws Exception;
     int checkPhone(String phoneNumber);
     //List<DashboardCard> createDashboard();
     List<DashboardCard> syncNotification(String beginDate, String endDate);

@@ -21,6 +21,11 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    public List<Note> findAllNotesByPacketId(Long packetId) {
+        return noteRepository.findNotesByPacketId(packetId);
+    }
+
+    @Override
     public Optional<Note> findNoteById(Long idNote) {
         return noteRepository.findById(idNote);
     }
@@ -39,5 +44,4 @@ public class NoteServiceImpl implements NoteService {
     public void deleteNoteById(Long noteId) {
         noteRepository.deleteById(noteId);
     }
-    
 }

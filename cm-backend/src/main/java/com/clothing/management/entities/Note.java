@@ -1,6 +1,8 @@
 package com.clothing.management.entities;
 
 import com.clothing.management.enums.ClientReason;
+import com.clothing.management.enums.SystemStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -19,10 +21,15 @@ public class Note {
     @Column(name = "client_reason")
     private ClientReason clientReason;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private SystemStatus status;
+
     private String explanation;
 
     @ManyToOne
     @JoinColumn(name = "packet_id")
+    @JsonIgnore
     private Packet packet;
 
     @ManyToOne
@@ -32,13 +39,14 @@ public class Note {
     public Note() {
     }
 
-    public Note(Long id, Date date, ClientReason clientReason, String explanation, User user, Packet packet) {
+    public Note(Long id, Date date, ClientReason clientReason, SystemStatus status, String explanation, Packet packet, User user) {
         this.id = id;
         this.date = date;
         this.clientReason = clientReason;
+        this.status = status;
         this.explanation = explanation;
-        this.user = user;
         this.packet = packet;
+        this.user = user;
     }
 
     public void setId(Long id) {
@@ -63,6 +71,14 @@ public class Note {
 
     public void setExplanation(String explanation) {
         this.explanation = explanation;
+    }
+
+    public SystemStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SystemStatus status) {
+        this.status = status;
     }
 
     public Date getDate() {
@@ -95,6 +111,7 @@ public class Note {
                 "id=" + id +
                 ", date=" + date +
                 ", clientReason=" + clientReason +
+                ", status=" + status +
                 ", explanation='" + explanation + '\'' +
                 ", packet=" + packet +
                 ", user=" + user +

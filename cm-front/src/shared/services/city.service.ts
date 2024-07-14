@@ -2,14 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { SelectItemGroup } from 'primeng/api';
 import { City } from 'src/shared/models/City';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CityService {
 
-  private baseUrl: string = baseUrl+"/city";
+  private baseUrl: string = environment.baseUrl + "/city";
   public citys: City[] = [];
   private groupedCities: SelectItemGroup[] = [];
   public editMode = false;

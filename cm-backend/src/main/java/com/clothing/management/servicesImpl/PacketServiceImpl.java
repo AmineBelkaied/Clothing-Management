@@ -42,6 +42,7 @@ public class PacketServiceImpl implements PacketService {
     private final IProductRepository productRepository;
     private final IProductsPacketRepository productsPacketRepository;
     private final IPacketStatusRepository packetStatusRepository;
+    private final INoteRepository noteRepository;
     private final DeliveryCompanyServiceFactory deliveryCompanyServiceFactory;
 
     private final SessionUtils sessionUtils;
@@ -54,6 +55,7 @@ public class PacketServiceImpl implements PacketService {
             IProductRepository productRepository,
             IProductsPacketRepository productsPacketRepository,
             IPacketStatusRepository packetStatusRepository,
+            INoteRepository noteRepository,
             DeliveryCompanyServiceFactory deliveryCompanyServiceFactory,
             SessionUtils sessionUtils,
             IGlobalConfRepository globalConfRepository
@@ -62,6 +64,7 @@ public class PacketServiceImpl implements PacketService {
         this.productRepository = productRepository;
         this.productsPacketRepository = productsPacketRepository;
         this.packetStatusRepository = packetStatusRepository;
+        this.noteRepository = noteRepository;
         this.deliveryCompanyServiceFactory = deliveryCompanyServiceFactory;
         this.globalConfRepository = globalConfRepository;
         this.sessionUtils = sessionUtils;
@@ -431,19 +434,23 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public Packet addAttempt(Long packetId, String note) throws ParseException {
-        Packet packet = packetRepository.findById(packetId).get();
-        packet.setAttempt(packet.getAttempt() + 1);
-        Date noteDate = new Date();
-
+    public Packet addAttempt(Note note, Long packetId) throws Exception {
         // Formatting the note date to "dd hh:mm" format
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-HH:mm");
+        /*SimpleDateFormat sdf = new SimpleDateFormat("dd-HH:mm");
         String noteWithDate = "-Le "+sdf.format(noteDate) + " " + note;
-        /*if(packet.getNote().equals("")){packet.setNote(noteWithDate);}
+        if(packet.getNote().equals("")){packet.setNote(noteWithDate);}
         else packet.setNote(String.format("%s\n%s", packet.getNote(), noteWithDate));*/
         //if(!packet.getStatus().equals(INJOIGNABLE) || packet.getStatus().equals(CANCELED))
+        Packet packet = packetRepository.findById(packetId)
+                .orElseThrow(() -> new Exception("Packet with ID " + packetId + " does not exist."));
 
-        savePacketStatusToHistory(packet, "tentative: " + packet.getAttempt() + " " + note);
+        note.setUser(sessionUtils.getCurrentUser());
+        note.setPacket(packet);
+        noteRepository.save(note);
+
+        packet.setAttempt(packet.getAttempt() + 1);
+        packet.setLastNote(note);
+        savePacketStatusToHistory(packet, "tentative: " + packet.getAttempt() + " " + note.getExplanation());
         return updatePacket(packet);
     }
 

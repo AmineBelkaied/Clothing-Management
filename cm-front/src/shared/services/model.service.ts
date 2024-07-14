@@ -1,14 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Model } from 'src/shared/models/Model';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ModelService {
 
-  private baseUrl: string = baseUrl+"/model";
+  private baseUrl: string = environment.baseUrl + "/model";
 
   constructor(private http: HttpClient) { }
 

@@ -11,4 +11,5 @@ public interface NoteService {
     Note addNote(Note note);
     Note updateNote(Note note);
     void deleteNoteById(Long noteId);
+    List<Note> findAllNotesByPacketId(Long packetId);
 }

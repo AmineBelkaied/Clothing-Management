@@ -6,6 +6,7 @@ import com.clothing.management.auth.mastertenant.service.MasterTenantService;
 import com.clothing.management.auth.util.DataSourceUtil;
 import com.clothing.management.auth.util.JwtTokenUtil;
 import com.clothing.management.dto.*;
+import com.clothing.management.entities.Note;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
 import com.clothing.management.models.DashboardCard;
@@ -141,9 +142,9 @@ public class PacketController {
     }
 
     @PostMapping(value = "/addAttempt/{packetId}", produces = "application/json")
-    public ResponseEntity<Packet> addAttempt(@PathVariable Long packetId,@RequestBody String note) throws ParseException {
+    public ResponseEntity<Packet> addAttempt(@RequestBody Note note, @PathVariable Long packetId) throws Exception {
         return new ResponseEntity<>(
-                packetService.addAttempt(packetId,note),
+                packetService.addAttempt(note, packetId),
                 HttpStatus.OK);
     }
 

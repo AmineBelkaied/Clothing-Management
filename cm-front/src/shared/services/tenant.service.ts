@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpRequest, HttpHeaders, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StorageService } from './strorage.service';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TenantService {
 
-  private endPoint: string = baseUrl + "/tenant";
+  private endPoint: string = environment.baseUrl + "/tenant";
 
 /*   private httpOptions = {
     headers: new HttpHeaders({'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization' : 'Bearer ' + this.storageService.getToken()})

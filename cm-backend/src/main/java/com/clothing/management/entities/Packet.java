@@ -68,9 +68,12 @@ public class Packet {
 
     private Integer attempt;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "packet", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Note> notes;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_note_id")
+    private Note lastNote;
 
     public Packet() {
     }
@@ -324,6 +327,14 @@ public class Packet {
 
     public void setNotes(List<Note> notes) {
         this.notes = notes;
+    }
+
+    public Note getLastNote() {
+        return lastNote;
+    }
+
+    public void setLastNote(Note lastNote) {
+        this.lastNote = lastNote;
     }
 
     @Override
