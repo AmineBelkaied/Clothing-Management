@@ -4,18 +4,18 @@ public enum ClientReason {
 
     UNREACHABLE("Client unreachable"),
     WILL_CALL_BACK("Will call back"),
-    CANCELED("Order canceled"),
-    PRODUCT_CHANGE("Change of product"),
-    SIZE_CHANGE("Change of size"),
-    COLOR_CHANGE("Change of color"),
+    PRODUCT_VERIFICATION("Change of product"),
+    SIZE_VERIFICATION("Change of size"),
     INCORRECT_NUMBER("Incorrect number provided"),
     BUSY_NUMBER("Number busy"),
-    NOT_SERIOUS("Not serious about purchase");
+
+    PRODUCT_OOS("Product out of stock"),
+    UNAVAILABLE_SIZE("Unavailable size");
 
     private final String description;
 
     ClientReason(String description) {
-        this.description = description;
+        this.description = description;;
     }
 
     public String getDescription() {

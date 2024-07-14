@@ -29,13 +29,13 @@ public class MasterTenantServiceImpl implements MasterTenantService{
 
     @Override
     public MasterTenant findByClientId(Integer clientId) {
-        LOG.info("findByClientId() method call...");
+        //LOG.info("findByClientId() method call...");
         return masterTenantRepository.findByTenantClientId(clientId);
     }
 
     @Override
     public MasterTenant findByTenantName(String tenantName) {
-        LOG.info("findByUserName() method call...");
+        //LOG.info("findByUserName() method call...");
         return masterTenantRepository.findByTenantName(tenantName);
     }
 }

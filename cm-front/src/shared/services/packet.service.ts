@@ -1,16 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
 import { CONFIRMED, VALIDATION } from '../utils/status-list';
+import { Note } from '../models/Note';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PacketService {
 
-  private baseUrl: string = baseUrl + '/packet';
+  private baseUrl: string = environment.baseUrl + '/packet';
   public packetsRequest?: Observable<any>;
   //public todaysPacketsRequest?: Observable<any>;
   public allPackets: Packet[] = [];
@@ -154,15 +155,15 @@ export class PacketService {
 
   getLastStatus(packet: Packet) {
     return this.http.post(
-      this.baseUrl + '/getLastStatus',packet
+      this.baseUrl + '/getLastStatus', packet
     );
   }
 
 
-  addAttempt(packetId: number,note: string) {
+  addAttempt(note: Note, idPacket: number) {
     //packet.note = note;
     return this.http.post(
-      this.baseUrl + '/addAttempt/'+packetId,note
+      this.baseUrl + '/addAttempt/' + idPacket, note
     );
   }
 

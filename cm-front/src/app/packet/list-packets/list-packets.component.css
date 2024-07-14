@@ -19,8 +19,8 @@ td {
  }
 
 :host ::ng-deep .small-select-button .p-button {
-  padding: 0.25rem 0.5rem !important;
-  font-size: 0.8rem !important;
+  padding: 0.19rem 0.5rem !important;
+  font-size: 0.7rem !important;
 }
 
 .scroll-wrapper {
@@ -78,6 +78,7 @@ td {
   flex: 1; /* Make cards fill available horizontal space */
   max-width: 100%; /* Ensure cards don't exceed parent width */
   height: 100%;
+  padding: 0.75rem !important;
 }
 
  .outofstockStatus {
@@ -213,4 +214,36 @@ td {
     z-index: 999; /* Pour s'assurer que les notifications sont au-dessus de tout le reste */
   }
 
+  .text-wrap {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
 
+::ng-deep .p-overlaypanel .p-overlaypanel-close {
+  width: 1.4rem !important;
+  height: 1.4rem !important;
+}
+
+::ng-deep .p-icon {
+  width: 0.6rem !important;
+}
+
+.word-break {
+  word-break: break-word; /* Ensures long words will break */
+  overflow-wrap: break-word; /* Ensures long words will break */
+  white-space: pre-wrap; /* Preserves whitespace and allows breaking */
+  max-width: 350px;
+}
+
+::ng-deep .p-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  line-height: 1.2rem;
+}
+
+::ng-deep .p-datatable.p-datatable-sm .p-datatable-thead > tr > th {
+  padding: 0.2rem 0.2rem;
+}

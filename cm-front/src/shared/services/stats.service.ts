@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Packet } from '../models/Packet';
-import { BehaviorSubject, Observable, Subject, tap, throwError } from 'rxjs';
-import { baseUrl } from '../../assets/constants';
+import { Observable} from 'rxjs';
+import { environment } from '../../environments/environment';
 import { DateUtils } from '../utils/date-utils';
 import { TO_VERIFY, CONFIRMED, IN_PROGRESS, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, PAID, RETURN_RECEIVED, RETURN, DELIVERED } from '../utils/status-list';
 
@@ -10,10 +10,11 @@ import { TO_VERIFY, CONFIRMED, IN_PROGRESS, IN_PROGRESS_1, IN_PROGRESS_2, IN_PRO
   providedIn: 'root'
 })
 export class StatsService {
+  
   constructor(private http: HttpClient,private dateUtils: DateUtils) {
   }
   //cityTree? : {name:string,occ:number}[];
-  private baseUrl: string = baseUrl+"/stat";
+  private baseUrl: string = environment.baseUrl + "/stat";
 
   public productsCount(modelId : number,startDate: String,endDate:String) : Observable<any>{
     return this.http.get(this.baseUrl + "/productsCount/"+modelId+"?beginDate=" + startDate + "&endDate=" + endDate);

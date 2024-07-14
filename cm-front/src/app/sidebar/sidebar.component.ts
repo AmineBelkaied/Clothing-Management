@@ -17,7 +17,7 @@ export class SidebarComponent implements OnInit {
   $unsubscribe: Subject<void> = new Subject();
   activeClass: boolean;
   activeRoute = false;
-  appName: string;
+  readonly appName: string= 'ABYSOFT';
   userName: string;
   isLoggedIn: boolean;
   isAdmin: boolean;

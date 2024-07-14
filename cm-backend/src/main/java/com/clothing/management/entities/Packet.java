@@ -62,15 +62,13 @@ public class Packet {
     @Column(name = "exchange_id")
     private Long exchangeId;
 
-
     private boolean valid;
 
     private Integer stock;
 
     private Integer attempt;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "packet", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Note> notes;
 
     @Column(name = "product_count")
@@ -105,7 +103,6 @@ public class Packet {
         this.printLink = null;
         this.deliveryCompany=deliveryCompany;
         this.attempt = 0;
-        this.note = "";
     }
 
     public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note, Long exchangeId) {
@@ -356,8 +353,6 @@ public class Packet {
                 ", printLink='" + printLink + '\'' +
                 ", attempt='" + attempt + '\'' +
                 ", exchangeId='" + exchangeId + '\'' +
-                ", haveExchange='" + haveExchange + '\'' +
-                ", productCount='" + productCount + '\'' +
                 '}';
 
     }

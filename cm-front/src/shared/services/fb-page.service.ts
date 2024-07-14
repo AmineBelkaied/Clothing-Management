@@ -2,14 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { FbPage } from 'src/shared/models/FbPage';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FbPageService {
 
-  private baseUrl: string = baseUrl+"/fbPage";
+  private baseUrl: string = environment.baseUrl + "/fbPage";
   public fbPageSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public fbPage: BehaviorSubject<any> = new BehaviorSubject([]);
   public fbPages: FbPage[] = [];

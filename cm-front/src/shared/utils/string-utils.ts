@@ -9,4 +9,8 @@ export class StringUtils {
             return array2.includes(element);
           });
     }
+
+    public static isStringValid(input: string | null | undefined): boolean {
+        return typeof input === 'string' && input.trim() !== '';
+      }
 }

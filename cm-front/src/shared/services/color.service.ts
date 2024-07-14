@@ -1,19 +1,20 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Color } from '../models/Color';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ColorService {
 
-  private baseUrl: string = baseUrl+"/color";
+  private baseUrl: string = environment.baseUrl + "/color";
   public colorsSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public color: BehaviorSubject<any> = new BehaviorSubject([]);
   public colors: Color[] = [];
   public editMode = false;
+  
   constructor(private http: HttpClient) {
     this.findAllColors()
     .subscribe((colorList: any) => {

@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GovernorateService {
 
-  private baseUrl: string = baseUrl+"/governorate";
+  private baseUrl: string = environment.baseUrl+"/governorate";
 
   constructor(private http: HttpClient) { }
 

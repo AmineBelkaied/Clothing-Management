@@ -2,14 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Offer } from 'src/shared/models/Offer';
 import { OfferModelDTO } from 'src/shared/models/OfferModelDTO';
-import { baseUrl } from '../../assets/constants';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OfferService {
 
-  private baseUrl: string = baseUrl+"/offer";
+  private baseUrl: string = environment.baseUrl + "/offer";
   public offers: OfferModelDTO[] = [];
 
   constructor(private http: HttpClient) { }
