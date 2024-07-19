@@ -261,6 +261,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   selectedPacketNotes: Note[] = [];
   @ViewChild("expRef") explanationElement: ElementRef;
   explanationTitle: string;
+  noteActionStatus: string;
 
   constructor(
     private packetService: PacketService,
@@ -784,6 +785,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   private updatePacket(packet: any): void {
+    console.log("test");
+
     this.packetService.updatePacket(packet)
       .pipe(
         catchError((err: any, caught: Observable<any>): Observable<any> => {
@@ -796,7 +799,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           return of();
         })
       )
-      .subscribe(() => {
+      .subscribe((result: any) => {
+        console.log(result);
+
+        console.log("test 2");
         this.loading = false;
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'The packet is successfully updated' });
       });
@@ -839,6 +845,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   addAttempt(packet: Packet, status: string): void {
+    this.noteActionStatus = status;
     console.log("packet:", packet);
     this.selectedPacket = packet;
     this.clientReasons = this.getReasonOptionsByStatus(status);
@@ -856,9 +863,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       clientReason.text = true
       clientReason.outlined = false
     });
+    console.log(this.noteActionStatus);
   }
 
   confirmNote() {
+
     this.note.date = new Date();
     this.note.explanation = StringUtils.isStringValid(this.explanation) ? this.explanationTitle + ' : ' + this.explanation : this.explanationTitle;
     /* if (this.note.trim() !== '')  // Check if value is not empty
@@ -866,120 +875,121 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
          this.confirmEvent.emit(this.note);
          note = this.note;
        }*/
-    this.packetService.addAttempt(this.note, this.selectedPacket.id!)
-      .subscribe({
-        next: (response: Packet) => {
-          console.log("response : ", response);
-          this.updatePacketFields(response, 'ADD_NOTE_ACTION');
-          this.visibleNote = false;
-          this.messageService.add({ severity: 'info', summary: 'Success', detail: 'La note a été ajoutée avec succés', life: 1200 });
-        },
-        error: (error: Error) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: "Une erreur est survenue lors de l'ajout de la note", life: 1200 });
-        }
-      });
-  }
-
-  /*showNotes(notes: Note[]) {
-     this.noteService.findAllNotesByPacketId(packetId)
-    .subscribe((notes: any) => this.selectedPacketNotes = notes);
-    this.selectedPacketNotes = notes;
-
-  }*/
-
-  getLastStock(packetId: number): void {
-    console.log("getLasStock-packetId", packetId);
-    //if (packet.status != PAID && packet.status != RETURN_RECEIVED && packet.status != DELIVERED)
-    this.packetService.getLastStock(packetId)
-      .subscribe({
-        next: (listupdatedStock: any) => {
-          console.log("getLasStock-listupdatedStock", listupdatedStock);
-          listupdatedStock.forEach((element: any) => {
-            this.updatePacketFields(element)
-          });
-        },
-        error: (error: Error) => {
-          console.log(error);
-        }
-      });
-  }
-
-  openLinkGetter(code: any, deliveryCompany: DeliveryCompany): void {
-    let link = deliveryCompany.barreCodeUrl + code;
-    console.log("link", link + "/code:" + code);
-    window.open(link, '_blank');
-  }
-
-  printFirst(link: string): void {
-    window.open(link, '_blank');
-  }
-
-  showTimeLineDialog(packet: Packet): void {
-    try {
-      this.packetService.getPacketTimeLine(packet.id).subscribe((response: any) => {
-        this.statusEvents = [];
-        this.suiviHeader = "Suivi Historique - Commande N° " + packet.id;
-        if (response != null && response.length > 0) {
-          response.forEach((element: any) => {
-            this.statusEvents.push({ status: element.status, date: element.date, user: element.user?.fullName, icon: PrimeIcons.ENVELOPE, color: '#9C27B0' });
-          });
-        }
-        //this.cdRef.detectChanges();
-        this.displayStatus = true;
-      }
-      );
-    } catch (error) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur dans le status' });
-    }
-  }
-
-  addNewRow(): void {
-    if (this.activeIndex != 2)
-      this.onActiveIndexChange(2);
-    if (this.loading == false) {
-      //this.activeIndex=2;
-      this.loading = true;
-      this.packetService
-        .addPacket()
-        .subscribe((response: Packet) => {
-          console.log("new pack", response);
-
-          this.loading = false;
-          this.packets.unshift(response);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
-        });
-    }
-  }
-
-  duplicatePacket(packet: Packet): void {
-    this.packetService
-      .duplicatePacket(packet.id)
-      .subscribe((response: Packet) => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est dupliqué avec succés', life: 1000 });
-        this.packets.unshift(response);
-      });
-  }
-
-  deleteSelectedPackets(): void {
-    console.log("this.selectedPackets", this.selectedPackets);
-
-    let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id);
-    this.confirmationService.confirm({
-      message: 'Êtes-vous sûr de vouloir supprimer les commandes séléctionnées ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
+    switch (this.noteActionStatus) {
+      case 'DELETED': {
+        let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id);
         this.packetService
           .deleteSelectedPackets(selectedPacketsByIds)
           .subscribe(() => {
-            this.addAttempt(this.selectedPackets[0], 'DELETED');
             this.packets = this.packets.filter((packet: Packet) => selectedPacketsByIds.indexOf(packet.id) == -1);
             this.selectedPackets = [];
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000 });
           });
+        break;
+      }
+      case 'UNREACHABLE': {
+        this.packetService.addAttempt(this.note, this.selectedPacket.id!)
+          .subscribe({
+            next: (response: Packet) => {
+              this.updatePacketFields(response, 'ADD_NOTE_ACTION');
+              this.messageService.add({ severity: 'info', summary: 'Success', detail: 'La note a été ajoutée avec succés', life: 1200 });
+            },
+            error: (error: Error) => {
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: "Une erreur est survenue lors de l'ajout de la note", life: 1200 });
+            }
+          });
+          break;
+      }
+      default: {
+        console.log("Note Action Status did not match any cases.");
+      }
+    }
+    this.visibleNote = false;
+}
+
+/*showNotes(notes: Note[]) {
+   this.noteService.findAllNotesByPacketId(packetId)
+  .subscribe((notes: any) => this.selectedPacketNotes = notes);
+  this.selectedPacketNotes = notes;
+
+}*/
+
+getLastStock(packetId: number): void {
+  console.log("getLasStock-packetId", packetId);
+  //if (packet.status != PAID && packet.status != RETURN_RECEIVED && packet.status != DELIVERED)
+  this.packetService.getLastStock(packetId)
+    .subscribe({
+      next: (listupdatedStock: any) => {
+        console.log("getLasStock-listupdatedStock", listupdatedStock);
+        listupdatedStock.forEach((element: any) => {
+          this.updatePacketFields(element)
+        });
+      },
+      error: (error: Error) => {
+        console.log(error);
       }
     });
+}
+
+openLinkGetter(code: any, deliveryCompany: DeliveryCompany): void {
+  let link = deliveryCompany.barreCodeUrl + code;
+  console.log("link", link + "/code:" + code);
+  window.open(link, '_blank');
+}
+
+printFirst(link: string): void {
+  window.open(link, '_blank');
+}
+
+showTimeLineDialog(packet: Packet): void {
+  try {
+    this.packetService.getPacketTimeLine(packet.id).subscribe((response: any) => {
+      this.statusEvents = [];
+      this.suiviHeader = "Suivi Historique - Commande N° " + packet.id;
+      if (response != null && response.length > 0) {
+        response.forEach((element: any) => {
+          this.statusEvents.push({ status: element.status, date: element.date, user: element.user?.fullName, icon: PrimeIcons.ENVELOPE, color: '#9C27B0' });
+        });
+      }
+      //this.cdRef.detectChanges();
+      this.displayStatus = true;
+    }
+    );
+  } catch(error) {
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur dans le status' });
   }
+}
+
+addNewRow(): void {
+  if(this.activeIndex != 2)
+  this.onActiveIndexChange(2);
+  if(this.loading == false) {
+  //this.activeIndex=2;
+  this.loading = true;
+  this.packetService
+    .addPacket()
+    .subscribe((response: Packet) => {
+      console.log("new pack", response);
+
+      this.loading = false;
+      this.packets.unshift(response);
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
+    });
+}
+  }
+
+duplicatePacket(packet: Packet): void {
+  this.packetService
+    .duplicatePacket(packet.id)
+    .subscribe((response: Packet) => {
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est dupliqué avec succés', life: 1000 });
+      this.packets.unshift(response);
+    });
+}
+
+deleteSelectedPackets(): void {
+  this.addAttempt(this.selectedPackets[0], 'DELETED');
+}
 
   openNew(packet: Packet): void {
     this.packet = Object.assign({}, packet);
@@ -1000,388 +1010,388 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.submitted = false;
   }
 
-  OnSubmit($event: any): void {
+OnSubmit($event: any): void {
 
     console.log("onsubmit list packet", $event);
     this.modelDialog = $event.modelDialog;
-    this.updatePacketFields($event.packet);
-    this.editMode ? this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été mis à jour avec succés', life: 1000 }) : this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été ajoutés avec succés', life: 1000 });
-  }
+  this.updatePacketFields($event.packet);
+  this.editMode ? this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été mis à jour avec succés', life: 1000 }) : this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été ajoutés avec succés', life: 1000 });
+}
 
-  checkValidity(date1: Date, date2: Date, status: String): boolean {
-    if (status != PAID && status != RETURN_RECEIVED)
-      return this.dateUtils.getDate(date1) < this.dateUtils.getDate(date2);
-    return false;
-  }
+checkValidity(date1: Date, date2: Date, status: String): boolean {
+  if (status != PAID && status != RETURN_RECEIVED)
+    return this.dateUtils.getDate(date1) < this.dateUtils.getDate(date2);
+  return false;
+}
 
-  handleInputChange() {
-    const inputValue = this.filter;
-    const numbersCount = (inputValue.match(/\d/g) || []).length;
-    if (numbersCount === 5 || numbersCount === 8 || numbersCount === 12) {
-      console.log("filterPackets-handleInputChange");
-      this.oldActiveIndex = this.activeIndex;
-      this.filterPackets('global');
-      this.activeIndex = 0;
-    }
-    if (this.filter === '') {
-      console.log("filterPackets-handleInputChange vide");
-      this.filterPackets('global');
-      this.activeIndex = this.oldActiveIndex;
-    }
-    console.log("this.activeIndex ", this.activeIndex);
-
-
-  }
-
-  filterPackets($event?: string): void {
-    //console.log("filterPackets",$event);
-
-    this.createRangeDate();
-    let page = 0;
-    if ($event == 'clear') {
-      this.selectedStates = [];
-      this.selectedStatus.setValue([]);
-    } else if ($event == 'page')
-      page = this.currentPage;
-    if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
-
-    if (this.filter !== '' && this.filter !== undefined) {
-      this.oldActiveIndex = this.activeIndex; this.activeIndex = 0; console.log("filter:", this.filter);
-    }
-
-    this.params = {
-      page: page,
-      size: this.pageSize,
-      searchText: this.filter != null && this.filter != '' ? this.filter : null,
-      startDate: this.dateUtils.formatDateToString(this.startDate),
-      endDate: this.dateUtils.formatDateToString(this.endDate),
-      status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join(),
-      mandatoryDate: this.mandatoryDateCheckBox
-    };
-
-    console.log("filterPackets params : ", this.params);
-
-    this.findAllPackets();
-  }
-
-  createRangeDate(): void {
-    console.log("createRangeDate : ", this.startDate);
-    if (this.rangeDates !== null) {
-      this.startDate = this.rangeDates[0];
-      if (this.rangeDates[1]) {
-        this.endDate = this.rangeDates[1];
-      } else {
-        this.endDate = this.startDate;
-      }
-    } else {
-      this.startDate = this.today;
-      this.endDate = this.today;
-    }
-    console.log("createRangeDate startDate: ", this.startDate);
-  }
-
-
-  onPageChange($event: any): void {
-    this.currentPage = $event.page;
-    this.pageSize = $event.rows;
-    console.log("filterPackets-onPageChange");
-
-    this.filterPackets('page');
-  }
-
-  resetTable(): void {
-    this.selectedStates = [];
-    this.selectedPackets = [];
-    this.selectedStatus.setValue([]);
-    this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now())];
-    console.log("filterPackets-resetTable");
+handleInputChange() {
+  const inputValue = this.filter;
+  const numbersCount = (inputValue.match(/\d/g) || []).length;
+  if (numbersCount === 5 || numbersCount === 8 || numbersCount === 12) {
+    console.log("filterPackets-handleInputChange");
+    this.oldActiveIndex = this.activeIndex;
     this.filterPackets('global');
+    this.activeIndex = 0;
   }
-
-  changeColor(this: any): void {
-    this.style.color = 'red';
-  }
-
-  calculatePrice(packet: Packet): number {
-    return packet.price! + packet.deliveryPrice! - packet.discount!;
-  }
-
-  getValue(fieldName: any): string {
-    return fieldName != null && fieldName != undefined ? fieldName : '';
-  }
-
-  isValid(field: any) {
-    return field != null && field != undefined && field != '';
-  }
-
-  trackByFunction = (index: any, item: { id: any }) => {
-    return item.id;
-  };
-
-  getPhoneNumber1(phoneNumber1: string): string {
-    if (this.getValue(phoneNumber1) != '' && phoneNumber1.includes('/')) {
-      return phoneNumber1.substring(0, 8);
-    }
-    return this.getValue(phoneNumber1);
-  }
-
-  getPhoneNumber2(phoneNumber: string): string {
-    if (this.getValue(phoneNumber) != '' && phoneNumber.includes('/')) {
-      return phoneNumber.substring(9, phoneNumber.length);
-    }
-    return '';
-  }
-
-  clearStatus(): void {
-    this.selectedStates = [];
-    this.packetStatusList = this.statusList;
-    this.selectedStatus.setValue([]);
-    if (this.filter != '' && this.filter != null) {
-      this.dt!.reset();
-      this.dt!.filterGlobal(this.filter, 'contains');
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.$unsubscribe.next();
-    this.$unsubscribe.complete();
-  }
-
-  checkCodeABarreExist(packet: Packet) {
-    return packet != undefined && packet.barcode != "" && packet.barcode != null
-  }
-
-  checkPhoneNbExist(packet: Packet) {
-    return packet != undefined && packet.customerPhoneNb != "" && packet.customerPhoneNb != null
-  }
-
-  mandatoryDateChange() {
-    if (this.selectedStatus.value != null && this.selectedStatus.value.length > 0)
-      console.log("filterPackets-mandatoryDateChange");
-    this.filterPackets('global')
-  }
-
-  oldDateFilter() {
-    this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now() - 86400000)];
-    console.log("filterPackets-oldDateFilter");
+  if (this.filter === '') {
+    console.log("filterPackets-handleInputChange vide");
     this.filterPackets('global');
-
-    //console.log('aaa',this.rangeDates);
+    this.activeIndex = this.oldActiveIndex;
   }
-  todayDate() {
-    if (this.rangeDates[0] != undefined && this.rangeDates[1] == undefined) {
-      this.rangeDates[0] = this.startDate;
-      this.endDate = this.today;
-      this.rangeDates = [this.startDate, this.today];
-      //this.createRangeDate();
-    }
-    else this.rangeDates = [this.today];
+  console.log("this.activeIndex ", this.activeIndex);
+
+
+}
+
+filterPackets($event ?: string): void {
+  //console.log("filterPackets",$event);
+
+  this.createRangeDate();
+  let page = 0;
+  if($event == 'clear') {
+  this.selectedStates = [];
+  this.selectedStatus.setValue([]);
+} else if ($event == 'page')
+  page = this.currentPage;
+if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
+
+if (this.filter !== '' && this.filter !== undefined) {
+  this.oldActiveIndex = this.activeIndex; this.activeIndex = 0; console.log("filter:", this.filter);
+}
+
+this.params = {
+  page: page,
+  size: this.pageSize,
+  searchText: this.filter != null && this.filter != '' ? this.filter : null,
+  startDate: this.dateUtils.formatDateToString(this.startDate),
+  endDate: this.dateUtils.formatDateToString(this.endDate),
+  status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join(),
+  mandatoryDate: this.mandatoryDateCheckBox
+};
+
+console.log("filterPackets params : ", this.params);
+
+this.findAllPackets();
+  }
+
+createRangeDate(): void {
+  console.log("createRangeDate : ", this.startDate);
+  if(this.rangeDates !== null) {
+  this.startDate = this.rangeDates[0];
+  if (this.rangeDates[1]) {
+    this.endDate = this.rangeDates[1];
+  } else {
+    this.endDate = this.startDate;
+  }
+} else {
+  this.startDate = this.today;
+  this.endDate = this.today;
+}
+console.log("createRangeDate startDate: ", this.startDate);
+  }
+
+
+onPageChange($event: any): void {
+  this.currentPage = $event.page;
+  this.pageSize = $event.rows;
+  console.log("filterPackets-onPageChange");
+
+  this.filterPackets('page');
+}
+
+resetTable(): void {
+  this.selectedStates = [];
+  this.selectedPackets = [];
+  this.selectedStatus.setValue([]);
+  this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now())];
+  console.log("filterPackets-resetTable");
+  this.filterPackets('global');
+}
+
+changeColor(this: any): void {
+  this.style.color = 'red';
+}
+
+calculatePrice(packet: Packet): number {
+  return packet.price! + packet.deliveryPrice! - packet.discount!;
+}
+
+getValue(fieldName: any): string {
+  return fieldName != null && fieldName != undefined ? fieldName : '';
+}
+
+isValid(field: any) {
+  return field != null && field != undefined && field != '';
+}
+
+trackByFunction = (index: any, item: { id: any }) => {
+  return item.id;
+};
+
+getPhoneNumber1(phoneNumber1: string): string {
+  if (this.getValue(phoneNumber1) != '' && phoneNumber1.includes('/')) {
+    return phoneNumber1.substring(0, 8);
+  }
+  return this.getValue(phoneNumber1);
+}
+
+getPhoneNumber2(phoneNumber: string): string {
+  if (this.getValue(phoneNumber) != '' && phoneNumber.includes('/')) {
+    return phoneNumber.substring(9, phoneNumber.length);
+  }
+  return '';
+}
+
+clearStatus(): void {
+  this.selectedStates = [];
+  this.packetStatusList = this.statusList;
+  this.selectedStatus.setValue([]);
+  if(this.filter != '' && this.filter != null) {
+  this.dt!.reset();
+  this.dt!.filterGlobal(this.filter, 'contains');
+}
+  }
+
+ngOnDestroy(): void {
+  this.$unsubscribe.next();
+  this.$unsubscribe.complete();
+}
+
+checkCodeABarreExist(packet: Packet) {
+  return packet != undefined && packet.barcode != "" && packet.barcode != null
+}
+
+checkPhoneNbExist(packet: Packet) {
+  return packet != undefined && packet.customerPhoneNb != "" && packet.customerPhoneNb != null
+}
+
+mandatoryDateChange() {
+  if (this.selectedStatus.value != null && this.selectedStatus.value.length > 0)
+    console.log("filterPackets-mandatoryDateChange");
+  this.filterPackets('global')
+}
+
+oldDateFilter() {
+  this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now() - 86400000)];
+  console.log("filterPackets-oldDateFilter");
+  this.filterPackets('global');
+
+  //console.log('aaa',this.rangeDates);
+}
+todayDate() {
+  if (this.rangeDates[0] != undefined && this.rangeDates[1] == undefined) {
+    this.rangeDates[0] = this.startDate;
+    this.endDate = this.today;
+    this.rangeDates = [this.startDate, this.today];
     //this.createRangeDate();
-    this.filterPackets('global');
   }
+  else this.rangeDates = [this.today];
+  //this.createRangeDate();
+  this.filterPackets('global');
+}
 
-  clearDate() {
-    this.rangeDates = [];
-    //this.createRangeDate();
-    console.log("filterPackets-clearDate");
-    this.filterPackets('global');
-  }
+clearDate() {
+  this.rangeDates = [];
+  //this.createRangeDate();
+  console.log("filterPackets-clearDate");
+  this.filterPackets('global');
+}
 
-  onHideShowOptionMenu() {
+onHideShowOptionMenu() {
 
-  }
-  openShowOptionMenu($event: any, packet: any) {
-    console.log("pp", packet);
+}
+openShowOptionMenu($event: any, packet: any) {
+  console.log("pp", packet);
 
-    this.optionButtons = [
-      {
-        label: 'Duplicate',
-        icon: 'pi pi-refresh',
-        disabled: !this.checkCodeABarreExist(packet),
-        command: () => {
-          this.duplicatePacket(packet)
-        }
-      },
-      {
-        label: 'Ajouter tentative',
-        icon: 'pi pi-refresh',
-        disabled: packet.status != UNREACHABLE,
-        command: () => {
-          this.addAttempt(packet, 'UNREACHABLE')
-        }
-      },
-      {
-        label: 'Valider stock',
-        icon: 'pi pi-refresh',
-        disabled: packet.stock > 15 || packet.stock == -1,
-        command: () => {
-          this.getLastStock(packet.id)
-        }
-      },
-      {
-        label: 'Chercher Tel',
-        icon: 'pi pi-phone',
-        disabled: !this.checkPhoneNbExist(packet),
-        command: () => {
-          this.filter = packet.customerPhoneNb;
-          this.filterPackets('phone');
-        }
-      },
-      {
-        label: 'History',
-        icon: 'pi pi-history',
-        disabled: false,
-        command: () => {
-          this.showTimeLineDialog(packet);
-        }
-      },
-      { separator: true },
-      {
-        label: 'Actualiser status',
-        icon: 'pi pi-sync',
-        disabled: !(this.checkCodeABarreExist(packet)),
-        command: () => {
-          this.getLastStatus(packet);
-        }
-      },
-      {
-        label: 'Tel',
-        icon: 'pi pi-search-plus',
-        disabled: !this.checkPhoneNbExist(packet),
-        command: () => {
-          this.openLinkGetter(packet.customerPhone, packet.deliveryCompany);
-        }
-      },
-      {
-        label: 'BarreCode',
-        icon: 'pi pi-qrcode',
-        disabled: !this.checkCodeABarreExist(packet),
-        command: () => {
-          this.openLinkGetter(packet.barcode, packet.deliveryCompany)
-        }
-      },
-      {
-        label: 'Print',
-        icon: 'pi pi-print',
-        disabled: !(this.checkCodeABarreExist(packet)),
-        command: () => {
-          this.printFirst(packet.printLink)
-        }
+  this.optionButtons = [
+    {
+      label: 'Duplicate',
+      icon: 'pi pi-refresh',
+      disabled: !this.checkCodeABarreExist(packet),
+      command: () => {
+        this.duplicatePacket(packet)
       }
-    ];
-    this.cm.target = $event.currentTarget;
-    this.cm.show(event);
-  }
-
-
-
-  download(text: any, filename: any) {
-    let element = document.createElement('a');
-    element.setAttribute(
-      'href',
-      'data:text/csv;charset=utf-8,' + encodeURIComponent(text)
-    );
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-  }
-
-  selectCity(packet: Packet) {
-    this.selectedCity = packet.city;
-  }
-  selectPhoneNumber(packet: any) {
-    this.selectedPhoneNumber = packet.customerPhoneNb;
-  }
-
-  onActiveIndexChange(event: any) {
-
-    console.log(event, this.canceledOptionsValue);
-    this.activeIndex = event;
-
-    if (this.statusItems[event].title == IN_PROGRESS) {
-      if (this.enCoursOptionsValue != undefined && this.enCoursOptionsValue.length > 0)
-        this.selectedStatus.patchValue(this.enCoursOptionsValue);
-      else
-        this.selectedStatus.patchValue([TO_VERIFY, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3]);
+    },
+    {
+      label: 'Ajouter tentative',
+      icon: 'pi pi-refresh',
+      disabled: packet.status != UNREACHABLE,
+      command: () => {
+        this.addAttempt(packet, 'UNREACHABLE')
+      }
+    },
+    {
+      label: 'Valider stock',
+      icon: 'pi pi-refresh',
+      disabled: packet.stock > 15 || packet.stock == -1,
+      command: () => {
+        this.getLastStock(packet.id)
+      }
+    },
+    {
+      label: 'Chercher Tel',
+      icon: 'pi pi-phone',
+      disabled: !this.checkPhoneNbExist(packet),
+      command: () => {
+        this.filter = packet.customerPhoneNb;
+        this.filterPackets('phone');
+      }
+    },
+    {
+      label: 'History',
+      icon: 'pi pi-history',
+      disabled: false,
+      command: () => {
+        this.showTimeLineDialog(packet);
+      }
+    },
+    { separator: true },
+    {
+      label: 'Actualiser status',
+      icon: 'pi pi-sync',
+      disabled: !(this.checkCodeABarreExist(packet)),
+      command: () => {
+        this.getLastStatus(packet);
+      }
+    },
+    {
+      label: 'Tel',
+      icon: 'pi pi-search-plus',
+      disabled: !this.checkPhoneNbExist(packet),
+      command: () => {
+        this.openLinkGetter(packet.customerPhone, packet.deliveryCompany);
+      }
+    },
+    {
+      label: 'BarreCode',
+      icon: 'pi pi-qrcode',
+      disabled: !this.checkCodeABarreExist(packet),
+      command: () => {
+        this.openLinkGetter(packet.barcode, packet.deliveryCompany)
+      }
+    },
+    {
+      label: 'Print',
+      icon: 'pi pi-print',
+      disabled: !(this.checkCodeABarreExist(packet)),
+      command: () => {
+        this.printFirst(packet.printLink)
+      }
     }
-    else if (this.statusItems[event].title == NOT_CONFIRMED) {
-      if (this.nonConfirmedOptionsValue != undefined && this.nonConfirmedOptionsValue.length > 0)
-        this.selectedStatus.patchValue(this.nonConfirmedOptionsValue);
-      else
-        this.selectedStatus.patchValue([NOT_CONFIRMED, UNREACHABLE]);
-    }
-    else if (this.statusItems[event].title == CANCELED) {
-      if (this.canceledOptionsValue != undefined && this.canceledOptionsValue.length > 0)
-        this.selectedStatus.patchValue(this.canceledOptionsValue);
-      else
-        this.selectedStatus.patchValue([CANCELED, DELETED]);
-    }
+  ];
+  this.cm.target = $event.currentTarget;
+  this.cm.show(event);
+}
 
-    else if (this.statusItems[event].title == "Terminé") {
-      if (this.endedOptionsValue != undefined && this.endedOptionsValue.length > 0)
-        this.selectedStatus.patchValue(this.endedOptionsValue);
-      else
-        this.selectedStatus.patchValue([DELIVERED, PAID, RETURN_RECEIVED]);
-    }
-    else {
-      this.selectedStatus.setValue([]);
-      this.selectedStatus.patchValue([this.statusItems[event].title]);
-    }
-    //console.log("filterPackets-onActiveIndexChange",this.params);
-    this.filterPackets('status');
+
+
+download(text: any, filename: any) {
+  let element = document.createElement('a');
+  element.setAttribute(
+    'href',
+    'data:text/csv;charset=utf-8,' + encodeURIComponent(text)
+  );
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+selectCity(packet: Packet) {
+  this.selectedCity = packet.city;
+}
+selectPhoneNumber(packet: any) {
+  this.selectedPhoneNumber = packet.customerPhoneNb;
+}
+
+onActiveIndexChange(event: any) {
+
+  console.log(event, this.canceledOptionsValue);
+  this.activeIndex = event;
+
+  if (this.statusItems[event].title == IN_PROGRESS) {
+    if (this.enCoursOptionsValue != undefined && this.enCoursOptionsValue.length > 0)
+      this.selectedStatus.patchValue(this.enCoursOptionsValue);
+    else
+      this.selectedStatus.patchValue([TO_VERIFY, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3]);
+  }
+  else if (this.statusItems[event].title == NOT_CONFIRMED) {
+    if (this.nonConfirmedOptionsValue != undefined && this.nonConfirmedOptionsValue.length > 0)
+      this.selectedStatus.patchValue(this.nonConfirmedOptionsValue);
+    else
+      this.selectedStatus.patchValue([NOT_CONFIRMED, UNREACHABLE]);
+  }
+  else if (this.statusItems[event].title == CANCELED) {
+    if (this.canceledOptionsValue != undefined && this.canceledOptionsValue.length > 0)
+      this.selectedStatus.patchValue(this.canceledOptionsValue);
+    else
+      this.selectedStatus.patchValue([CANCELED, DELETED]);
   }
 
-  showStatusButton() {
-    this.showStatus = !this.showStatus;
+  else if (this.statusItems[event].title == "Terminé") {
+    if (this.endedOptionsValue != undefined && this.endedOptionsValue.length > 0)
+      this.selectedStatus.patchValue(this.endedOptionsValue);
+    else
+      this.selectedStatus.patchValue([DELIVERED, PAID, RETURN_RECEIVED]);
   }
-
-  getReasonOptionsByStatus(status: string) {
-    return (Object.keys(ClientReason) as (keyof typeof ClientReason)[])
-      .filter(key => isNaN(Number(key)) && ClientReasonDetails[ClientReason[key]].status === status)  // Filter out any non-number keys
-      .map(key => {
-        const reasonKey = ClientReason[key];
-        const clientReasonDetails = ClientReasonDetails[reasonKey];
-        return {
-          value: key,
-          label: clientReasonDetails.label,
-          description: clientReasonDetails.description,
-          status: clientReasonDetails.status,
-          text: clientReasonDetails.text,
-          outlined: clientReasonDetails.outlined,
-          severity: clientReasonDetails.severity,
-        }
-      })
+  else {
+    this.selectedStatus.setValue([]);
+    this.selectedStatus.patchValue([this.statusItems[event].title]);
   }
+  //console.log("filterPackets-onActiveIndexChange",this.params);
+  this.filterPackets('status');
+}
 
-  onSelectReason(clientReason: ClientReason, index: number) {
-    this.explanationTitle = this.clientReasons[index]?.description;
-    if (this.explanationElement && this.explanationElement.nativeElement) {
-      setTimeout(() => {
-        this.explanationElement.nativeElement.focus();
-      }, 0);
-    }
-    this.clientReasons.forEach(clientReason => {
-      clientReason.text = true
-      clientReason.outlined = false
-    });
-    this.clientReasons[index].text = false;
-    this.clientReasons[index].outlined = true;
+showStatusButton() {
+  this.showStatus = !this.showStatus;
+}
 
-    this.note.clientReason = clientReason;
-    this.note.status = this.clientReasons[index].status;
+getReasonOptionsByStatus(status: string) {
+  return (Object.keys(ClientReason) as (keyof typeof ClientReason)[])
+    .filter(key => isNaN(Number(key)) && ClientReasonDetails[ClientReason[key]].status === status)  // Filter out any non-number keys
+    .map(key => {
+      const reasonKey = ClientReason[key];
+      const clientReasonDetails = ClientReasonDetails[reasonKey];
+      return {
+        value: key,
+        label: clientReasonDetails.label,
+        description: clientReasonDetails.description,
+        status: clientReasonDetails.status,
+        text: clientReasonDetails.text,
+        outlined: clientReasonDetails.outlined,
+        severity: clientReasonDetails.severity,
+      }
+    })
+}
+
+onSelectReason(clientReason: ClientReason, index: number) {
+  this.explanationTitle = this.clientReasons[index]?.description;
+  if (this.explanationElement && this.explanationElement.nativeElement) {
+    setTimeout(() => {
+      this.explanationElement.nativeElement.focus();
+    }, 0);
   }
+  this.clientReasons.forEach(clientReason => {
+    clientReason.text = true
+    clientReason.outlined = false
+  });
+  this.clientReasons[index].text = false;
+  this.clientReasons[index].outlined = true;
 
-  onNoteClick(event: MouseEvent, op: any, notes: Note[]): void {
-    event.stopPropagation(); // Prevent the click event from propagating
-    if (notes.length > 1) {
-      op.toggle(event);
-      this.selectedPacketNotes = notes;
-    }
+  this.note.clientReason = clientReason;
+  this.note.status = this.clientReasons[index].status;
+}
+
+onNoteClick(event: MouseEvent, op: any, notes: Note[]): void {
+  event.stopPropagation(); // Prevent the click event from propagating
+  if(notes.length > 1) {
+  op.toggle(event);
+  this.selectedPacketNotes = notes;
+}
   }
 }
 /*notificationList : any [] = [

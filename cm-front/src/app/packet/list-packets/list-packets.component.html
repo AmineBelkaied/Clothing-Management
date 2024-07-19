@@ -3,15 +3,6 @@
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb" style="position: relative">
     <div class="notification-container">
-      <!--<i class="pi mr-4 p-text-secondary"
-          pBadge
-         [ngClass]="notification.class"
-         style="font-size: 1.5rem; cursor: pointer;"
-         [value]="notification.count"
-         [severity]="notification.severity"
-         (click)="onNotificationClick(notification.status)"
-         *ngFor="let notification of notificationList">
-      </i>-->
       <p-avatar [label]="
           realTotalItems == undefined
             ? 0 + ''
@@ -59,41 +50,62 @@
         <p-button [label]="statusItems[activeIndex].title" (click)="showStatusButton()" severity="success"></p-button>
       </div>
     </div>
+    </div>
     <div class="container-fluid" *ngIf="showStatus">
-      <div class="card ml-1 mt-1 mb-1" style="background-color: #fbfbfb; display: flex; align-items: center"
-        style="position: relative; padding: 2px">
+      <div
+        class="card ml-1 mt-1 mb-1"
+        style="background-color: #fbfbfb; display: flex; align-items: center"
+        style="position: relative; padding: 2px"
+      >
         <!--<p-steps [model]="items" [readonly]="false" [activeIndex]="activeIndex" (activeIndexChange)="onActiveIndexChange($event)">
           </p-steps>-->
         <div class="px-4 py-2 md:px-6 lg:px-6">
           <div class="grid grid-cols-1 md:grid-cols-6 gap-2">
-            <div class="col-span-3 md:col-span-1" *ngFor="let item of statusItems; let j = index">
-              <div class="statusCard surface-card shadow-6 p-3 border-round"
-                *ngIf="(!(j == 0) && !(j == 7)) || isAdmin">
-                <div class="flex justify-content-between mb-1" (click)="onActiveIndexChange(j)">
+            <div
+              class="col-span-3 md:col-span-1"
+              *ngFor="let item of statusItems; let j = index"
+            >
+              <div
+                class="statusCard surface-card shadow-6 p-3 border-round"
+                *ngIf="(!(j == 0) && !(j == 7)) || isAdmin"
+              >
+                <div
+                  class="flex justify-content-between mb-1"
+                  (click)="onActiveIndexChange(j)"
+                >
                   <div>
-                    <div class="text-900 font-medium text-xl">
-                      {{ item.badgeByDate }}
-                    </div>
-                  </div>
-                  <div>
-                    <span class="block text-500 font-medium mt-1 ml-1">{{
-                      item.title
-                      }}</span>
-                  </div>
-                  <div class="flex ml-1 align-items-center justify-content-center bg-{{
-                      item.color
-                    }}-100 border-round" style="width: 2rem; height: 2rem">
-                    <i class="{{ item.icon }} text-white-500 text-xl"></i>
-                  </div>
-                </div>
+                      <p-selectButton
+                      *ngIf="j == 2"
+                      [options]="nonConfirmedOptions"
+                      [(ngModel)]="nonConfirmedOptionsValue"
+                      [multiple]="true"
+                      optionLabel="name"
+                      optionValue="value"
+                      class="small-select-button"
+                      (onOptionClick)="onActiveIndexChange(2)"
+                    ></p-selectButton>
 
-                <p-selectButton *ngIf="j == 2" [options]="nonConfirmedOptions" [(ngModel)]="nonConfirmedOptionsValue"
-                  [multiple]="true" optionLabel="name" optionValue="value" class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(2)"></p-selectButton>
+                    <p-selectButton
+                      *ngIf="j == 4"
+                      [options]="enCoursOptions"
+                      [(ngModel)]="enCoursOptionsValue"
+                      [multiple]="true"
+                      optionLabel="name"
+                      optionValue="value"
+                      class="small-select-button"
+                      (onOptionClick)="onActiveIndexChange(4)"
+                    ></p-selectButton>
 
-                <p-selectButton *ngIf="j == 4" [options]="enCoursOptions" [(ngModel)]="enCoursOptionsValue"
-                  [multiple]="true" optionLabel="name" optionValue="value" class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(4)"></p-selectButton>
+                    <p-selectButton
+                      *ngIf="j == 6"
+                      [options]="canceledOptions"
+                      [(ngModel)]="canceledOptionsValue"
+                      [multiple]="true"
+                      optionLabel="name"
+                      optionValue="value"
+                      class="small-select-button"
+                      (onOptionClick)="onActiveIndexChange(6)"
+                    ></p-selectButton>
 
                 <p-selectButton *ngIf="j == 6" [options]="canceledOptions" [(ngModel)]="canceledOptionsValue"
                   [multiple]="true" optionLabel="name" optionValue="value" class="small-select-button"
@@ -112,7 +124,6 @@
       </div>
     </div>
   </div>
-</div>
 <div class="table-container" style="height: max-content">
   <p-table #dt [columns]="cols" [showCurrentPageReport]="true" [value]="packets"
     styleClass="p-datatable-gridlines p-datatable-sm mb-1" class="table table-hover" [(selection)]="selectedPackets"
@@ -196,13 +207,13 @@
             </p-cellEditor>
           </div>
           <div *ngIf="
-              packet?.notes.length > 0 &&
+              packet?.notes?.length > 0 &&
               (packet.status === 'Injoignable' || packet.status === 'Supprimé' || packet.status === 'Annuler')
             " style="background-color: #c7ecee; !important; border-radius: 10px"  (click)="onNoteClick($event, op, packet?.notes)">
             <i class="pi pi-comment mr-3 p-text-secondary" severity="info" [value]="packet?.notes.length" *ngIf="packet?.notes.length > 1" pBadge style="font-size: 1rem" value="2"></i>
             <span> - {{ packet.notes[packet.notes.length - 1]?.explanation }} </span>
             <p class="align-center"><small> {{ packet.notes[packet.notes.length - 1]?.user?.userName }} - {{ packet.notes[packet.notes.length - 1]?.date | date: 'dd/MM/yy HH:mm' }}</small></p>
-        
+
           </div>
         </td>
 
@@ -439,11 +450,11 @@
 
 <p-overlayPanel #op [style]="{ width: 'auto'}" [showCloseIcon]="true" appendTo="body">
   <ng-template pTemplate="content">
-      <p-table 
+      <p-table
           [value]="selectedPacketNotes"
           styleClass="p-datatable p-datatable-sm mb-1"
-          [paginator]="selectedPacketNotes.length > 6" 
-          [rows]="7" 
+          [paginator]="selectedPacketNotes.length > 6"
+          [rows]="7"
           responsiveLayout="scroll">
               <ng-template pTemplate="header">
                   <tr class="align-center">
