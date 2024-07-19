@@ -1,7 +1,11 @@
 <p-toast position="bottom-right"></p-toast>
 <p-contextMenu #cm [model]="optionButtons" (onHide)="onHideShowOptionMenu()"></p-contextMenu>
 <div class="container-fluid">
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb" style="position: relative">
+  <div
+    class="card ml-4 mt-2 mb-3"
+    style="background-color: #fbfbfb"
+    style="position: relative"
+  >
     <div class="notification-container">
       <!--<i class="pi mr-4 p-text-secondary"
           pBadge
@@ -12,95 +16,195 @@
          (click)="onNotificationClick(notification.status)"
          *ngFor="let notification of notificationList">
       </i>-->
-      <p-avatar [label]="
+      <p-avatar
+        [label]="
           realTotalItems == undefined
             ? 0 + ''
             : realTotalItems > pageSize
             ? realTotalItems + ''
             : totalItems + ''
-        " styleClass="mr-2" size="normal" [style]="{ 'background-color': '#32CD32', color: '#ffffff' }"
-        shape="circle"></p-avatar>
+        "
+        styleClass="mr-2"
+        size="normal"
+        [style]="{ 'background-color': '#32CD32', color: '#ffffff' }"
+        shape="circle"
+      ></p-avatar>
     </div>
     <div class="justify-content-center row">
-      <div class="col d-flex flex-wrap align-items-center w-100 ml-2" style="min-width: 350px; max-width: 410px">
-        <button pButton pRipple icon="pi pi-plus" class="p-button-success mb-2 mt-2 buttonSize"
-          (click)="addNewRow()"></button>
-        <button pButton pRipple icon="pi pi-trash" class="p-button-danger mb-2 ml-2 mt-2 buttonSize"
-          (click)="deleteSelectedPackets()" [disabled]="!selectedPackets || selectedPackets.length == 0"></button>
-        <button pButton pRipple icon="pi pi-refresh" class="p-button-infos mb-2 ml-2 mt-2 buttonSize"
-          (click)="resetTable()"></button>
+      <div
+        class="col d-flex flex-wrap align-items-center w-100 ml-2"
+        style="min-width: 350px; max-width: 410px"
+      >
+        <button
+          pButton
+          pRipple
+          icon="pi pi-plus"
+          class="p-button-success mb-2 mt-2 buttonSize"
+          (click)="addNewRow()"
+        ></button>
+        <button
+          pButton
+          pRipple
+          icon="pi pi-trash"
+          class="p-button-danger mb-2 ml-2 mt-2 buttonSize"
+          (click)="deleteSelectedPackets()"
+          [disabled]="!selectedPackets || selectedPackets.length == 0"
+        ></button>
+        <button
+          pButton
+          pRipple
+          icon="pi pi-refresh"
+          class="p-button-infos mb-2 ml-2 mt-2 buttonSize"
+          (click)="resetTable()"
+        ></button>
         <span class="p-input-icon-left ml-2">
           <i class="pi pi-search"></i>
-          <input pInputText type="text" [(ngModel)]="filter" (onChange)="(filter)" (keyup.enter)="filterPackets()"
-            (input)="handleInputChange()" placeholder="Client, Tel, Ville, Adresse, Page, Id"
-            [style]="{ width: '250px' }" />
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="filter"
+            (onChange)="(filter)"
+            (keyup.enter)="filterPackets()"
+            (input)="handleInputChange()"
+            placeholder="Client, Tel, Ville, Adresse, Page, Id"
+            [style]="{ width: '250px' }"
+          />
           <!--(input)="dt.filterGlobal($any($event.target).value, 'contains')"-->
         </span>
       </div>
-      <div class="col d-flex flex-wrap align-items-center w-130" style="min-width: 260px; max-width: 290px">
-        <p-calendar [(ngModel)]="rangeDates" (ngModelChange)="filterPackets('date')" selectionMode="range"
-          [readonlyInput]="true" inputId="range" placeholder="Filtrer par date/période" [showClear]="false"
-          (onClearClick)="resetTable()" [showIcon]="true" class="ml-0" [style]="{ width: '12rem' }" dateFormat="dd/mm"
-          [touchUI]="true">
+      <div
+        class="col d-flex flex-wrap align-items-center w-130"
+        style="min-width: 260px; max-width: 290px"
+      >
+        <p-calendar
+          [(ngModel)]="rangeDates"
+          (ngModelChange)="filterPackets('date')"
+          selectionMode="range"
+          [readonlyInput]="true"
+          inputId="range"
+          placeholder="Filtrer par date/période"
+          [showClear]="false"
+          (onClearClick)="resetTable()"
+          [showIcon]="true"
+          class="ml-0"
+          [style]="{ width: '12rem' }"
+          dateFormat="dd/mm"
+          [touchUI]="true"
+        >
           <ng-template pTemplate="footer">
             <div style="display: flex; align-items: center">
-              <p-selectButton [options]="dateOptions" [(ngModel)]="mandatoryDateCheckBox" optionLabel="label"
-                optionValue="value" (click)="mandatoryDateChange()"></p-selectButton>
-              <p-button label="Ancien Date" styleClass="p-button-text" (click)="oldDateFilter()"></p-button>
-              <p-button label="Today" styleClass="p-button-text" (click)="todayDate()"></p-button>
-              <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
+              <p-selectButton
+                [options]="dateOptions"
+                [(ngModel)]="mandatoryDateCheckBox"
+                optionLabel="label"
+                optionValue="value"
+                (click)="mandatoryDateChange()"
+              ></p-selectButton>
+              <p-button
+                label="Ancien Date"
+                styleClass="p-button-text"
+                (click)="oldDateFilter()"
+              ></p-button>
+              <p-button
+                label="Today"
+                styleClass="p-button-text"
+                (click)="todayDate()"
+              ></p-button>
+              <p-button
+                label="Clear"
+                styleClass="p-button-text"
+                (click)="clearDate()"
+              ></p-button>
             </div>
           </ng-template>
         </p-calendar>
-        <button type="button" pButton pRipple icon="pi pi-file" class="ml-1 mt-1 buttonSize" pTooltip="CSV"
-          tooltipPosition="bottom"></button><!--(click)="exportCSV()"-->
+        <button
+          type="button"
+          pButton
+          pRipple
+          icon="pi pi-file"
+          class="ml-1 mt-1 buttonSize"
+          pTooltip="CSV"
+          tooltipPosition="bottom"
+        ></button
+        ><!--(click)="exportCSV()"-->
       </div>
-      <div class="col d-flex flex-wrap align-items-center w-100" style="min-width: 150px; max-width: 250px">
-        <p-button [label]="statusItems[activeIndex].title" (click)="showStatusButton()" severity="success"></p-button>
+      <div
+        class="col d-flex flex-wrap align-items-center w-100"
+        style="min-width: 150px; max-width: 250px"
+      >
+        <p-button
+          [label]="statusItems[activeIndex].title"
+          (click)="showStatusButton()"
+          severity="success"
+        ></p-button>
       </div>
     </div>
     <div class="container-fluid" *ngIf="showStatus">
-      <div class="card ml-1 mt-1 mb-1" style="background-color: #fbfbfb; display: flex; align-items: center"
-        style="position: relative; padding: 2px">
+      <div
+        class="card ml-1 mt-1 mb-1"
+        style="background-color: #fbfbfb; display: flex; align-items: center"
+        style="position: relative; padding: 2px"
+      >
         <div class="px-4 py-2 md:px-6 lg:px-6">
           <div class="grid grid-cols-1 md:grid-cols-6 gap-2">
-            <div class="col-span-3 md:col-span-1" *ngFor="let item of statusItems; let j = index">
-              <div class="statusCard surface-card shadow-6 p-3 border-round"
-                *ngIf="(!(j == 0) && !(j == 7)) || isAdmin">
-                <div class="flex justify-content-between mb-1" (click)="onActiveIndexChange(j)">
+            <div
+              class="col-span-3 md:col-span-1"
+              *ngFor="let item of statusItems; let j = index"
+            >
+              <div
+                class="statusCard surface-card shadow-6 p-3 border-round"
+                *ngIf="(!(j == 0) && !(j == 7)) || isAdmin"
+              >
+                <div
+                  class="flex justify-content-between mb-1"
+
+                >
                   <div>
-                    <div class="text-900 font-medium text-xl">
-                      {{ item.badgeByDate }}
-                    </div>
-                  </div>
-                  <div>
-                    <span class="block text-500 font-medium mt-1 ml-1">{{
-                      item.title
-                      }}</span>
-                  </div>
-                  <div class="flex ml-1 align-items-center justify-content-center bg-{{
-                      item.color
-                    }}-100 border-round" style="width: 2rem; height: 2rem">
-                    <i class="{{ item.icon }} text-white-500 text-xl"></i>
-                  </div>
-                </div>
+                      <p-selectButton
+                      *ngIf="j == 2"
+                      [options]="nonConfirmedOptions"
+                      [(ngModel)]="nonConfirmedOptionsValue"
+                      [multiple]="true"
+                      optionLabel="name"
+                      optionValue="value"
+                      class="small-select-button"
+                      (onOptionClick)="onActiveIndexChange(2)"
+                    ></p-selectButton>
 
-                <p-selectButton *ngIf="j == 2" [options]="nonConfirmedOptions" [(ngModel)]="nonConfirmedOptionsValue"
-                  [multiple]="true" optionLabel="name" optionValue="value" class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(2)"></p-selectButton>
+                    <p-selectButton
+                      *ngIf="j == 4"
+                      [options]="enCoursOptions"
+                      [(ngModel)]="enCoursOptionsValue"
+                      [multiple]="true"
+                      optionLabel="name"
+                      optionValue="value"
+                      class="small-select-button"
+                      (onOptionClick)="onActiveIndexChange(4)"
+                    ></p-selectButton>
 
-                <p-selectButton *ngIf="j == 4" [options]="enCoursOptions" [(ngModel)]="enCoursOptionsValue"
-                  [multiple]="true" optionLabel="name" optionValue="value" class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(4)"></p-selectButton>
+                    <p-selectButton
+                      *ngIf="j == 6"
+                      [options]="canceledOptions"
+                      [(ngModel)]="canceledOptionsValue"
+                      [multiple]="true"
+                      optionLabel="name"
+                      optionValue="value"
+                      class="small-select-button"
+                      (onOptionClick)="onActiveIndexChange(6)"
+                    ></p-selectButton>
 
-                <p-selectButton *ngIf="j == 6" [options]="canceledOptions" [(ngModel)]="canceledOptionsValue"
-                  [multiple]="true" optionLabel="name" optionValue="value" class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(6)"></p-selectButton>
-
-                <p-selectButton *ngIf="j == 7" [options]="endedOptions" [(ngModel)]="endedOptionsValue"
-                  [multiple]="true" optionLabel="name" optionValue="value" class="small-select-button"
-                  (onOptionClick)="onActiveIndexChange(7)"></p-selectButton>
-                <span class="block text-500 font-medium mt-1 ml-1" *ngIf="j != 2 && j != 4 && j != 6 && j != 7">
+                    <p-selectButton
+                      *ngIf="j == 7"
+                      [options]="endedOptions"
+                      [(ngModel)]="endedOptionsValue"
+                      [multiple]="true"
+                      optionLabel="name"
+                      optionValue="value"
+                      class="small-select-button"
+                      (onOptionClick)="onActiveIndexChange(7)"
+                    ></p-selectButton>
+                    <span class="block text-500 font-medium mt-1 ml-1" *ngIf="j != 2 && j != 4 && j != 6 && j != 7">
                       {{
                       item.title
                       }}</span>
@@ -110,6 +214,7 @@
                       item.color
                     }}-100 border-round"
                     style="width: 2rem; height: 2rem"
+                    (click)="onActiveIndexChange(j)"
                   >
                     <i class="{{ item.icon }} text-white-500 text-xl"></i>
                   </div>
@@ -119,9 +224,14 @@
                     ({{ item.badgeByDate }})
                   </span>
 
-                <span*ngIf="isAdmin || (j != 0 && j != 7)" class="text-green-500 font-medium">{{ item.badge
-                  }}</span><!--*ngIf="j != 2 && j != 4 && j != 6 && j != 7"-->
-                <span *ngIf="isAdmin || (j != 0 && j != 7)" class="text-500"> depuis la création</span>
+                <span *ngIf="isAdmin || (j != 0 && j != 7)"
+                  class="text-green-500 font-medium"
+                  >{{ item.badge }}</span
+                >
+                <span *ngIf="isAdmin || (j != 0 && j != 7)"
+                  class="text-500"
+                  > depuis la création</span
+                >
               </div>
             </div>
           </div>
@@ -130,6 +240,7 @@
     </div>
   </div>
 </div>
+
 <div class="table-container" style="height: max-content">
   <p-table #dt [columns]="cols" [showCurrentPageReport]="true" [value]="packets"
     styleClass="p-datatable-gridlines p-datatable-sm mb-1" class="table table-hover" [(selection)]="selectedPackets"
@@ -213,7 +324,7 @@
             </p-cellEditor>
           </div>
           <div *ngIf="
-              packet?.notes.length > 0 &&
+              packet?.notes?.length > 0 &&
               (packet.status === 'Injoignable' || packet.status === 'Supprimé' || packet.status === 'Annuler')
             " style="background-color: #c7ecee; !important; border-radius: 10px"  (click)="onNoteClick($event, op, packet?.notes)">
             <i class="pi pi-comment mr-3 p-text-secondary" severity="info" [value]="packet?.notes.length" *ngIf="packet?.notes.length > 1" pBadge style="font-size: 1rem" value="2"></i>

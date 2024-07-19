@@ -260,6 +260,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   selectedPacketNotes: Note[] = [];
   @ViewChild("expRef") explanationElement: ElementRef;
   explanationTitle: string;
+  noteActionStatus: string;
 
   constructor(
     private packetService: PacketService,
@@ -840,6 +841,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   addAttempt(packet: Packet, status: string): void {
+    this.noteActionStatus = status;
     console.log("packet:", packet);
     this.selectedPacket = packet;
     this.clientReasons = this.getReasonOptionsByStatus(status);
@@ -857,9 +859,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       clientReason.text = true
       clientReason.outlined = false
     });
+    console.log(this.noteActionStatus);
   }
 
   confirmNote() {
+
     this.note.date = new Date();
     this.note.explanation = StringUtils.isStringValid(this.explanation) ? this.explanationTitle + ' : ' + this.explanation : this.explanationTitle;
     /* if (this.note.trim() !== '')  // Check if value is not empty
@@ -867,19 +871,37 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
          this.confirmEvent.emit(this.note);
          note = this.note;
        }*/
-    this.packetService.addAttempt(this.note, this.selectedPacket.id!)
-      .subscribe({
-        next: (response: Packet) => {
-          console.log("response : ", response);
-          this.updatePacketFields(response, 'ADD_NOTE_ACTION');
-          this.visibleNote = false;
-          this.messageService.add({ severity: 'info', summary: 'Success', detail: 'La note a été ajoutée avec succés', life: 1200 });
-        },
-        error: (error: Error) => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: "Une erreur est survenue lors de l'ajout de la note", life: 1200 });
-        }
-      });
-  }
+    switch (this.noteActionStatus) {
+      case 'DELETED': {
+        let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id);
+        this.packetService
+          .deleteSelectedPackets(selectedPacketsByIds)
+          .subscribe(() => {
+            this.packets = this.packets.filter((packet: Packet) => selectedPacketsByIds.indexOf(packet.id) == -1);
+            this.selectedPackets = [];
+            this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000 });
+          });
+        break;
+      }
+      case 'UNREACHABLE': {
+        this.packetService.addAttempt(this.note, this.selectedPacket.id!)
+          .subscribe({
+            next: (response: Packet) => {
+              this.updatePacketFields(response, 'ADD_NOTE_ACTION');
+              this.messageService.add({ severity: 'info', summary: 'Success', detail: 'La note a été ajoutée avec succés', life: 1200 });
+            },
+            error: (error: Error) => {
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: "Une erreur est survenue lors de l'ajout de la note", life: 1200 });
+            }
+          });
+          break;
+      }
+      default: {
+        console.log("Note Action Status did not match any cases.");
+      }
+    }
+    this.visibleNote = false;
+}
 
   /*showNotes(notes: Note[]) {
      this.noteService.findAllNotesByPacketId(packetId)
@@ -962,24 +984,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   deleteSelectedPackets(): void {
-    console.log("this.selectedPackets", this.selectedPackets);
-
-    let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id);
-    this.confirmationService.confirm({
-      message: 'Êtes-vous sûr de vouloir supprimer les commandes séléctionnées ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.packetService
-          .deleteSelectedPackets(selectedPacketsByIds)
-          .subscribe(() => {
-            this.addAttempt(this.selectedPackets[0], 'DELETED');
-            this.packets = this.packets.filter((packet: Packet) => selectedPacketsByIds.indexOf(packet.id) == -1);
-            this.selectedPackets = [];
-            this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000 });
-          });
-      }
-    });
+    this.addAttempt(this.selectedPackets[0], 'DELETED');
   }
 
   findAllOffers(): void {
