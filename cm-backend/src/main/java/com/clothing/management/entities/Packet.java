@@ -1,10 +1,11 @@
 package com.clothing.management.entities;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "packet", indexes = {
@@ -34,18 +35,21 @@ public class Packet {
     @Column(name = "old_client")
     private Integer oldClient;
 
-    @OneToMany(mappedBy = "packet" , cascade = {CascadeType.PERSIST, CascadeType.PERSIST}, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<ProductsPacket> products;
+    @OneToMany(mappedBy = "packet" , cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<ProductsPacket> productsPackets;
+
     @JsonIgnore
     @OneToMany(mappedBy = "packet", fetch = FetchType.EAGER)
     List<PacketStatus> packetStatus;
+
     @ManyToOne
     @JoinColumn(name = "fbpage_id")
     private FbPage fbPage;
+
     @ManyToOne
     @JoinColumn(name = "delivery_company")
     private DeliveryCompany deliveryCompany;
+
     private double price;
     @Column(name = "delivery_price")
     private double deliveryPrice;
@@ -64,8 +68,6 @@ public class Packet {
 
     private boolean valid;
 
-    private Integer stock;
-
     private Integer attempt;
     private String note;
 
@@ -76,7 +78,17 @@ public class Packet {
     @Column(name = "have_exchange")
     private boolean haveExchange;
 
+    public void addProductsToPacket(List<ProductsPacket> productsPacket) {
+        for (ProductsPacket productPacket : productsPacket) {
+            productPacket.setPacket(this);
+        }
+        this.productsPackets.clear(); // Clear existing productsPackets if necessary
+        this.productsPackets.addAll(productsPacket);
+    }
+
     public Packet() {
+        this.productsPackets=new ArrayList<>();
+        this.packetStatus = new ArrayList<>();
     }
 
     public Packet(DeliveryCompany deliveryCompany) {
@@ -87,26 +99,25 @@ public class Packet {
         this.packetDescription= "";
         this.barcode= "";
         this.lastDeliveryStatus = "";
-        this.packetStatus = null;
+        this.packetStatus = new ArrayList<>();
         this.fbPage = null;
         this.price= 0;
         this.deliveryPrice = 0;
         this.discount = 0;
-        this.status= "Non confirmée";
         this.date=new Date();
         this.status = null;
         this.lastUpdateDate = null;
         this.valid= false;
-        this.stock= -1;
         this.printLink = null;
         this.deliveryCompany=deliveryCompany;
         this.attempt = 0;
         this.note = "";
         this.haveExchange=false;
         this.productCount=0;
+        this.productsPackets = new ArrayList<>();
     }
 
-    /*public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> products, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note, Long exchangeId) {
+    public Packet(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> productsPackets, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, Integer stock, String printLink,DeliveryCompany deliveryCompany,Integer attempt, String note, Long exchangeId) {
         this.id = id;
         this.customerName = customerName;
         this.customerPhoneNb = customerPhoneNb;
@@ -116,7 +127,7 @@ public class Packet {
         this.packetDescription = packetDescription;
         this.barcode = barcode;
         this.lastDeliveryStatus = lastDeliveryStatus;
-        this.products = products;
+        this.productsPackets = productsPackets;
         this.packetStatus = packetStatus;
         this.fbPage = fbPage;
         this.price = price;
@@ -126,12 +137,12 @@ public class Packet {
         this.status = status;
         this.lastUpdateDate = lastUpdateDate;
         this.valid = valid;
-        this.stock = stock;
         this.printLink = printLink;
         this.deliveryCompany = deliveryCompany;
         this.attempt = attempt;
         this.exchangeId = exchangeId;
-    }*/
+        this.note=note;
+    }
 
     public Long getId() {
         return id;
@@ -165,12 +176,12 @@ public class Packet {
 
     public void setAddress(String address) { this.address = address; }
 
-    public List<ProductsPacket> getProducts() {
-        return products;
+    public List<ProductsPacket> getProductsPackets() {
+        return productsPackets;
     }
 
-    public void setProducts(List<ProductsPacket> products) {
-        this.products = products;
+    public void setProductsPackets(List<ProductsPacket> productsPackets) {
+        this.productsPackets = productsPackets;
     }
 
     public FbPage getFbPage() {
@@ -293,14 +304,6 @@ public class Packet {
         this.valid = valid;
     }
 
-    public Integer getStock() {
-        return stock;
-    }
-
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
-
     public DeliveryCompany getDeliveryCompany() {
         return deliveryCompany;
     }
@@ -366,14 +369,25 @@ public class Packet {
                 ", date=" + date +
                 ", status='" + status + '\'' +
                 ", lastUpdateDate=" + lastUpdateDate +
-                ", stock=" + stock +
                 ", printLink='" + printLink + '\'' +
                 ", attempt='" + attempt + '\'' +
                 ", note='" + note + '\'' +
                 ", exchangeId='" + exchangeId + '\'' +
                 ", haveExchange='" + haveExchange + '\'' +
                 ", productCount='" + productCount + '\'' +
+                ", valid='" + valid + '\'' +
                 '}';
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Packet packet)) return false;
+        return Double.compare(packet.price, price) == 0 && Double.compare(packet.deliveryPrice, deliveryPrice) == 0 && Double.compare(packet.discount, discount) == 0 && exchange == packet.exchange && valid == packet.valid && haveExchange == packet.haveExchange && id.equals(packet.id) && Objects.equals(customerName, packet.customerName) && Objects.equals(customerPhoneNb, packet.customerPhoneNb) && Objects.equals(city, packet.city) && Objects.equals(address, packet.address) && Objects.equals(packetDescription, packet.packetDescription) && Objects.equals(barcode, packet.barcode) && Objects.equals(lastDeliveryStatus, packet.lastDeliveryStatus) && Objects.equals(oldClient, packet.oldClient) && Objects.equals(productsPackets, packet.productsPackets) && Objects.equals(packetStatus, packet.packetStatus) && Objects.equals(fbPage, packet.fbPage) && Objects.equals(deliveryCompany, packet.deliveryCompany) && Objects.equals(date, packet.date) && Objects.equals(status, packet.status) && Objects.equals(lastUpdateDate, packet.lastUpdateDate) && Objects.equals(printLink, packet.printLink) && Objects.equals(exchangeId, packet.exchangeId) && Objects.equals(attempt, packet.attempt) && Objects.equals(note, packet.note) && Objects.equals(productCount, packet.productCount);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, customerName, customerPhoneNb, city, address, packetDescription, barcode, lastDeliveryStatus, oldClient, productsPackets, packetStatus, fbPage, deliveryCompany, price, deliveryPrice, discount, date, status, lastUpdateDate, exchange, printLink, exchangeId, valid, attempt, note, productCount, haveExchange);
     }
 }

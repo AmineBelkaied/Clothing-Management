@@ -11,6 +11,7 @@ import { StatsService } from 'src/shared/services/stats.service';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { Color } from 'src/shared/models/Color';
+import { Product } from 'src/shared/models/Product';
 
 @Component({
   selector: 'app-stock',
@@ -18,19 +19,21 @@ import { Color } from 'src/shared/models/Color';
   styleUrls: ['./stock.component.scss'],
 })
 export class StockComponent implements OnInit {
-  products: any[] = [];
+  products: Product[][] = [];
   models: Model[] = [];
 
   chartOptions : String[] = ["Color","Size","Id"];
   selectedChart : String = "Color";
 
   selectedModel: Model= {
-    id: null,
+    id: 0,
     name: '',
-    reference: '',
     colors: [],
     sizes: [],
-    products:[],
+    products: [],
+    purchasePrice:15,
+    earningCoefficient:1,
+    deleted: false
   };
 
 
@@ -298,9 +301,10 @@ export class StockComponent implements OnInit {
   getStockByModelId(modelId: number) {
     this.productService.getStock(modelId).subscribe((result: any) => {
       this.products = result.productsByColor;
+      let productByColor = this.products[0]
       if(this.products != undefined)
-        this.modelName=this.products[0][0].model.name;
-        this.colors=this.products[0][0].model.colors;
+        this.modelName=productByColor[0].model?.name!;
+        this.colors=productByColor[0].model?.colors!;
       //console.log('this.products[0]',this.products[0]);
       this.sizes = result.sizes;
     });
@@ -385,7 +389,7 @@ export class StockComponent implements OnInit {
     let totRow = 0;
     for (var i = 0; i < this.products[j].length; i++)
     {
-      if (this.stock==true)totRow += this.products[j][i].quantity;
+      if (this.stock==true)totRow += this.products[j][i].qte;
       else totRow += this.getCount(this.products[j][i].id);
     }
     return totRow;
@@ -396,7 +400,7 @@ export class StockComponent implements OnInit {
     let totRow2 = 0;
     for (var i = 0; i < this.products[j].length; i++)
     {
-      totRow += this.products[j][i].quantity;
+      totRow += this.products[j][i].qte;
       totRow2 += this.getCount(this.products[j][i].id);
     }
     let nbrJours = this.datesList.length+1;
@@ -417,7 +421,7 @@ export class StockComponent implements OnInit {
     if (this.products[j][i] != undefined)
     if (this.stock==true){
       //console.log("this.products[j][i]",this.products[j][i]);
-       totColumn += this.products[j][i].quantity;
+       totColumn += this.products[j][i].qte;
       }
     else totColumn += this.getCount(this.products[j][i].id);
     return totColumn;
@@ -428,7 +432,7 @@ export class StockComponent implements OnInit {
     if(this.products == undefined)return 0
     for (var j = 0; j < this.products.length; j++)
       for (var i = 0; i < this.products[j].length; i++)
-        if (this.stock==true)tot += this.products[j][i].quantity;
+        if (this.stock==true)tot += this.products[j][i].qte;
         else tot += this.getCount(this.products[j][i].id);
 
     return tot;
@@ -459,7 +463,7 @@ export class StockComponent implements OnInit {
           for (var i = 0; i < this.products[j].length; i++)
             if (this.selectedProducts.includes(this.products[j][i].id)) {
               //console.log('prod', this.products[j][i].color.name);
-              this.products[j][i].quantity += this.qte;
+              this.products[j][i].qte += this.qte;
               rows[j].cells[i + 1].setAttribute(
                 'style',
                 'background-color: rgb(152, 251, 152);'
@@ -536,7 +540,7 @@ export class StockComponent implements OnInit {
       for (var j = 0; j < this.products.length; j++)
         for (var i = 0; i < this.products[j].length; i++)
         if(product.productId == this.products[j][i].id)
-          this.products[j][i].quantity = this.products[j][i].quantity - product.quantity;
+          this.products[j][i].qte = this.products[j][i].qte - product.qte;
     });
   }
 
@@ -547,11 +551,11 @@ export class StockComponent implements OnInit {
     return false
   }
 
-  getSeverity(product: any) {
-    let delait = this.getDaysStock(product.quantity,product.id);
+  getSeverity(product: Product) {
+    let delait = this.getDaysStock(product.qte,product.id);
 
     switch (true) {
-      case product.quantity <1:
+      case product.qte <1:
         return 'danger';
 
         case delait < this.stockFabricationDelait:
@@ -564,10 +568,10 @@ export class StockComponent implements OnInit {
             return 'success';
     }
   }
-  getSeverityMsg(product: any) {
-    let delait = this.getDaysStock(product.quantity,product.id);
+  getSeverityMsg(product: Product) {
+    let delait = this.getDaysStock(product.qte,product.id);
     switch (true) {
-      case product.quantity <1:
+      case product.qte <1:
         return 'RUPTURE';
         case delait < this.stockFabricationDelait:
             return 'LOW STOCK';

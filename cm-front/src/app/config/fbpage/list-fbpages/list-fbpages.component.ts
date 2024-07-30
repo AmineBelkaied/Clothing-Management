@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from 'src/shared/services/fb-page.service';
 
@@ -9,25 +10,27 @@ import { FbPageService } from 'src/shared/services/fb-page.service';
   templateUrl: './list-fbpages.component.html',
   styleUrls: ['./list-fbpages.component.scss']
 })
-export class ListFbpagesComponent implements OnInit {
+export class ListFbpagesComponent implements OnInit,OnDestroy {
 
   fbPages: FbPage[] = [];
+  $unsubscribe: Subject<void> = new Subject();
 
-  constructor(private fbPageService: FbPageService,private messageService: MessageService, private confirmationService: ConfirmationService) { }
+  constructor(
+    private fbPageService: FbPageService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService) {
+
+     }
 
   ngOnInit(): void {
-    /*this.fbPageService.fbPageSubscriber
-    .subscribe((fbPageList: any) => {
-      console.log(fbPageList);
-      
-      this.fbPages = fbPageList;
-      console.log("this.fbPages",this.fbPages);
-
-    });*/
-    this.fbPageService.findAllFbPages().subscribe((result: any) => {
-      this.fbPages = result;
-    });
+    //this.fbPageService.loadFbPages();
+    this.fbPageService.findAllFbPages().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (fbPages: FbPage[]) => {
+        this.fbPages = fbPages;
+      }
+    );
   }
+
 
   editFbPage(fbPage: any){
     this.fbPageService.editFbPage({...fbPage});
@@ -42,7 +45,7 @@ export class ListFbpagesComponent implements OnInit {
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.fbPageService.deleteFbPageById(fbPage.id)
+        this.fbPageService.deleteFbPageById(fbPage.id).pipe(takeUntil(this.$unsubscribe))
           .subscribe(result => {
             this.fbPages = this.fbPages.filter(val => val.id !== fbPage.id);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page faecbook a été supprimée avec succés", life: 1000 });
@@ -52,12 +55,11 @@ export class ListFbpagesComponent implements OnInit {
   }
 
   enableFbPage(fbPage: any)  {
-    console.log("fbpage: " + fbPage.enabled);
+    this.fbPageService.setFbPagesConfSubscriber(fbPage);
+  }
 
-    this.fbPageService.updateFbPage(fbPage)
-    .subscribe((updatedFbPage: any) => {
-      console.log(updatedFbPage);
-      this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été modifiée avec succés", life: 1000 });
-    });
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+this.$unsubscribe.complete();
   }
 }

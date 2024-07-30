@@ -1,5 +1,6 @@
 package com.clothing.management.repository;
 
+import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.models.DashboardCard;
 import org.springframework.data.domain.Page;
@@ -9,6 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +24,10 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
 
 
     @Query(value="SELECT p FROM Packet p WHERE p.status NOT IN :statuses " +
-            "AND p.barcode NOT LIKE 'b%' AND p.valid")
+            "AND p.valid")
     public List<Packet> findAllDiggiePackets(@Param("statuses") List<String> statuses);
 
+    @Transactional
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode OR p.id = :barCode", nativeQuery = true)
     Optional<Packet> findByBarCode(@Param("barCode") String barCode);
 
@@ -39,7 +44,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
 
     @Query(value ="SELECT p FROM Packet p WHERE CAST(p.id as String) LIKE %:searchField% OR  p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.barcode LIKE %:searchField%")
     Page<Packet> findAllPacketsByField(@Param("searchField") String searchField, Pageable pageable);
-
+    @Transactional
     @Query(value ="SELECT p FROM Packet p WHERE CAST(p.id as String) LIKE %:searchField% OR  p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.barcode LIKE %:searchField% AND DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)")
     Page<Packet> findAllPacketsByFieldAndDate(@Param("searchField") String searchField, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 
@@ -49,6 +54,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList) AND (p.status IN (:ignoredDateStatusList) OR (DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)))")
     Page<Packet> findAllPacketsByStatus(@Param("ignoredDateStatusList") List<String> ignoredDateStatusList, @Param("selectedList") List<String> selectedList, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 
+    @Transactional
     @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList)")
     Page<Packet> findAllPacketsByStatus(@Param("selectedList") List<String> selectedList, Pageable pageable);
 
@@ -65,10 +71,6 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Modifying
     @Query(value="DELETE FROM packet WHERE customer_name='' AND customer_phone_nb='';", nativeQuery = true)
     public int deleteEmptyPacket();
-
-    @Modifying
-    @Query("UPDATE Packet p SET p.stock = (SELECT MIN(pp.product.quantity) FROM ProductsPacket pp JOIN pp.product pr WHERE pp.packet.id = p.id AND p.id = 29034)")
-    void updatePacketStockForRuptureStatus();
 
     @Modifying
     @Query(value="UPDATE packet SET city_id = :cityId WHERE id = :packetId", nativeQuery = true)
@@ -89,5 +91,13 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Modifying
     @Query(value="UPDATE packet SET customer_phone_nb = :customerPhoneNumber , old_client = :oldClient WHERE id = :packetId", nativeQuery = true)
     void savePhoneNumber(@Param("packetId") Long packetId, @Param("customerPhoneNumber") String customerPhoneNumber,@Param("oldClient") int oldClient);
+
+    @Modifying
+    @Query(value="UPDATE packet SET date = :date WHERE id = :packetId", nativeQuery = true)
+    void saveDate(@Param("packetId") Long packetId, @Param("date") Date date);
+
+    @Modifying
+    @Query(value="UPDATE packet SET barcode = :barcode WHERE id = :packetId", nativeQuery = true)
+    void saveBarcode(@Param("packetId") Long packetId, @Param("barcode") String barcode);
 
 }

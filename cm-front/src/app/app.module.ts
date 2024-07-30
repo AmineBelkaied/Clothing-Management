@@ -84,12 +84,17 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { AuthInterceptor } from 'src/shared/helpers/interceptor';
 import { UserComponent } from './config/user/user.component';
 import { PasswordModule } from 'primeng/password';
+import { SizeService } from 'src/shared/services/size.service';
 
 import 'tslib';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
+import { GlobalConfService } from 'src/shared/services/global-conf.service';
+import { OfferService } from 'src/shared/services/offer.service';
+import { catchError, finalize, tap, throwError } from 'rxjs';
+import { GlobalConf } from 'src/shared/models/GlobalConf';
 
 @NgModule({
   declarations: [
@@ -173,8 +178,67 @@ import { AuthGuard } from 'src/shared/services/auth-gard.service';
     ReactiveFormsModule,
     RippleModule
   ],
-  providers: [MessageService, ConfirmationService, CityTreeService, DatePipe,AuthGuard,
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
+  providers: [
+    MessageService,
+    ConfirmationService,
+    CityTreeService,
+    DatePipe,
+    AuthGuard,
+    GlobalConfService,
+    OfferService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeApp,
+      deps: [GlobalConfService,OfferService],multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true }],
   bootstrap: [AppComponent]
 })
+
+
 export class AppModule { }
+
+export function initializeApp(globalConfService: GlobalConfService,offerService:OfferService): () => void {
+  return () => {
+    console.log("initializeApp");
+
+    globalConfService.getGlobalConf().pipe(
+      tap((globalConf: GlobalConf) => {
+        console.log("return getGlobalConf");
+
+        // Emit the new global configuration through the subscriber
+        globalConfService.globalConfSubscriber.next(globalConf);
+        // Update the local state
+        globalConfService.globalConf = globalConf;
+        console.log("loadOffers");
+        offerService.loadOffers();
+      }),
+      catchError((error) => {
+        // Handle the error here
+        console.error('Error loading global configuration:', error);
+        return throwError(() => error);
+      })
+    ).subscribe();
+  }
+}
+
+
+
+    /*.pipe(
+    tap(() => {
+      console.log("loadOffers");
+      offerService.loadOffers();
+    }),
+    catchError((error) => {
+      // Handle the error here
+      console.error('Error loading offers:', error);
+      return throwError(() => error);
+    }),
+    finalize(() => {
+      console.log('Initialization finished.');
+    })
+  );}*/
+

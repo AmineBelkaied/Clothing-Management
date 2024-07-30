@@ -69,7 +69,6 @@ public class JaxApiService extends DeliveryCompanyService {
         HttpsURLConnection connection = getHttpsURLConnection(url, deliveryCompany, method);
         DeliveryResponseJax deliveryResponse = new DeliveryResponseJax();
         StringBuilder response = new StringBuilder();
-        LOGGER.info(jsonBody);
         if (method == HttpMethod.POST) {
             connection.setDoOutput(true);
             try (OutputStream outputStream = connection.getOutputStream()) {
@@ -120,7 +119,7 @@ public class JaxApiService extends DeliveryCompanyService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                LOGGER.info("line: {}", line);
+                LOGGER.info("line-: {}", line);
                 response.append(line);
             }
         } catch (Exception e) {

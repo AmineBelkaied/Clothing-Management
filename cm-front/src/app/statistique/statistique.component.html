@@ -78,8 +78,24 @@
 <!-----------------------------------Packets Chart---------------------------------------->
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-    <p-card header = "Packets" [style]="{ width: '100%'}">
-      <p-tabView>
+    <p-card [style]="{ width: '100%'}">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <H3>Packets Chart</H3>
+        </div>
+        <div class="d-flex align-items-center">
+          <p-selectButton
+                [options]="deliveryCompanyList"
+                [(ngModel)]="deliveryCompanyName"
+                optionLabel="name"
+                optionValue="name"
+                (onOptionClick)="getStatAllPacketsChart()"/>
+        </div>
+        <div>
+          <p-selectButton [options]="enablerOptions" [(ngModel)]="packetsChartEnabler" optionLabel="label" optionValue="value" (click)="packetsChartEnablerChange()"></p-selectButton>
+        </div>
+      </div>
+      <p-tabView  *ngIf="packetsChartEnabler">
         <p-tabPanel header="Chart">
           <p-chart type="line" [data]="packetsData" [options]="packetsOptions"></p-chart>
         </p-tabPanel>
@@ -119,12 +135,15 @@
             <H3>Models Chart</H3>
           </div>
           <div>
-            inclure les packets en cours dans la somme des packets payées
-            <p-selectButton [options]="progressOptions"  [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value" (click)="modelChartEnablerChange()"></p-selectButton>
+            inclure en cours à la somme
+            <p-selectButton [options]="progressOptions"  [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
+          </div>
+          <div>
+            <p-selectButton [options]="enablerOptions" [(ngModel)]="modelsChartEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
           </div>
         </div>
 
-        <p-tabView>
+        <p-tabView  *ngIf="modelsChartEnabler">
           <p-tabPanel header="Chart">
             <p-chart type="line" [data]="modelsData" [options]="modelsOptions"></p-chart>
           </p-tabPanel>

@@ -49,8 +49,9 @@ public class StatController {
     @GetMapping(path = "/statAllPackets")
     public Map <String , List<?>> statAllPackets(
             @RequestParam(required = true) String beginDate,
-            @RequestParam(required = true) String endDate) {
-        return statService.statAllPacketsChart(beginDate,endDate);
+            @RequestParam(required = true) String endDate,
+            @RequestParam(required = false) String deliveryCompanyName) {
+        return statService.statAllPacketsChart(beginDate,endDate,deliveryCompanyName);
     }
     @GetMapping(path = "/statAllOffers")
     public Map <String , List<?>> statAllOffers(

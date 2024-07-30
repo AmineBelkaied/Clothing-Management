@@ -10,11 +10,6 @@
               <input pInputText id="name" placeholder="Nom du modèle" name="name" [(ngModel)]="model.name" />
             </div>
             <div class="col-md-4">
-              <label for="reference" class="form-label">Référence</label>
-              <input pInputText id="reference" placeholder="Référence du modèle" name="reference"
-                [(ngModel)]="model.reference" minlength="2" maxlength="10" [disabled]="editMode" />
-            </div>
-            <div class="col-md-4">
               <label for="description" class="form-label">Description</label>
               <input pInputText id="description" placeholder="Description du modèle" name="description"
                 [(ngModel)]="model.description" />
@@ -22,13 +17,13 @@
             <div class="col-md-4">
               <label for="purchasePrice" class="form-label">Prix d'achat</label>
               <input pInputText type="number" id="purchasePrice" placeholder="Prix d'achat" name="purchasePrice"
-                [(ngModel)]="model.purchasePrice" (ngModelChange)="calculateGainCoefficient(model,$event)" />
+                [(ngModel)]="model.purchasePrice" (ngModelChange)="calculateGainCoefficient(model)" />
             </div>
             <p>{{ model.earningCoefficient | number:'1.2-2'}} X </p>
             <div class="col-md-4">
               <label for="salePrice" class="form-label">Vente</label>
               <input pInputText type="number" id="salePrice" placeholder="Prix de vente" name="salePrice"
-                [value]="calculateSalePrice(model)" (input)="calculateGainCoefficient(model,$event)" />
+                 [(ngModel)]="salePrice" (ngModelChange)="calculateGainCoefficient(model)" />
             </div>
           </div>
 
@@ -53,18 +48,6 @@
                 optionLabel="reference" appendTo="body"></p-multiSelect>
             </div>
           </div>
-          <!--div class="row mt-4">
-            <div class="col-md-12">
-              <p-fileUpload [customUpload]="true"  chooseLabel="Choisir une image" accept="image/*" [maxFileSize]="1000000" [multiple]="false" [auto]="true"
-                (uploadHandler)="selectFile($event)" [previewWidth]="150">
-                <ng-template pTemplate="content" let-files >
-                  <div *ngIf="image != null && selectedFile == null"><img [src]="image" alt="Image" width="250" height="250" class="shadow-4"></div>
-              </ng-template>
-              </p-fileUpload>
-            </div>
-          </div-->
-          <br>
-
         </div>
       </form>
     </div>

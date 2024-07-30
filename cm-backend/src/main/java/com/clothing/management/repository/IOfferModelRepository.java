@@ -1,5 +1,7 @@
 package com.clothing.management.repository;
 
+import com.clothing.management.entities.Model;
+import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.OfferModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public interface IOfferModelRepository extends JpaRepository<OfferModel , Long> {
 
@@ -18,10 +21,10 @@ public interface IOfferModelRepository extends JpaRepository<OfferModel , Long> 
      void addOfferModel(@Param("offerId") Long offerId, @Param("modelId") Long modelId, @Param("quantity") float quantity);
 
     @Query("SELECT offerModel FROM OfferModel offerModel where offerModel.offer.id= :offerId")
-    List<OfferModel> findByOfferId(@Param("offerId") Long offerId);
+    Set<OfferModel> findByOfferId(@Param("offerId") Long offerId);
 
     @Query("SELECT om FROM OfferModel om JOIN om.offer o JOIN o.fbPages fb WHERE fb.id = :fbPageId")
-    List<OfferModel> findByFbPageId(@Param("fbPageId") Long fbPageId);
+    List<OfferModel> findOffersByFbPageId(@Param("fbPageId") Long fbPageId);
 
     @Transactional
     @Modifying

@@ -24,7 +24,8 @@
     <!--     </p-toolbar> -->
 
     <p-table #dt [value]="offers" [rows]="10" responsiveLayout="scroll" [(selection)]="selectedOffers" [rowHover]="true"
-        dataKey="offerId">
+        dataKey="id" [rowTrackBy]="trackByFunction"
+        selectionMode="multiple">
         <ng-template pTemplate="header">
             <tr>
                 <th style="width: 3rem">
@@ -46,10 +47,10 @@
         <ng-template pTemplate="body" let-offer>
             <tr>
                 <td>
-                    <p-tableCheckbox [value]="offer"></p-tableCheckbox>
+                    <p-tableCheckbox [value]="offer">{{offer.id}}</p-tableCheckbox>
                 </td>
                 <td>{{offer.name}}</td>
-                <td>{{displayOfferModels(offer.modelQuantities)}}</td>
+                <td>{{displayOfferModels(offer.offerModels)}}</td>
                 <td>{{displayPages(offer.fbPages)}}</td>
                 <td>{{offer.price}} DT</td>
                 <td>
@@ -81,7 +82,7 @@
 <p-dialog [(visible)]="offerDialog" [style]="{width: '60%'}" header="Détails de l'offre" [modal]="true"
     styleClass="p-fluid">
     <ng-template pTemplate="content">
-        <app-add-offer [offerModelDTO]="offer" [modelList]="models" [fbPages]="fbPages" [editMode]="editMode"
+        <app-add-offer [modelList]="models" [editMode]="editMode"
             (submitEvent)="OnSubmit($event)"></app-add-offer>
     </ng-template>
 </p-dialog>

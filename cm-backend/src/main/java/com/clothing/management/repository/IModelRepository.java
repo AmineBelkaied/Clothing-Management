@@ -9,6 +9,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IModelRepository extends JpaRepository<Model, Long> {
 
-    @Query("SELECT m FROM Model m where m.reference = :modelRef")
-    Model findByReference(@Param("modelRef") String modelRef);
 }

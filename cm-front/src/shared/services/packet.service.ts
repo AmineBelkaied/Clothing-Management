@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
 import { baseUrl } from '../../assets/constants';
 import { CONFIRMED, VALIDATION } from '../utils/status-list';
@@ -70,19 +70,6 @@ export class PacketService {
     return this.http.get(this.baseUrl+path);
   }
 
- /* public findAllPacketsByDateAndModels(startDate: String,endDate:String,models:number[]): Observable<any> {
-    // only create a new request if you don't already have one stored
-    // save your request
-    let path = '/findAllPacketsByDateAndModels?startDate=' + startDate + "&endDate=" + endDate + "&models=" + models;
-    return this.http.get(this.baseUrl+path);
-  }*/
-
-  // Call this method whenever you want to access the "cached" request
-  /*public findAllTodaysPackets(): Observable<any> {
-    // return the saved request
-    return this.http.get(this.baseUrl + '/findAllTodaysPackets');
-  }*/
-
   findPacketById(id: number): Observable<any> {
     return this.http.get(this.baseUrl + '/findById/' + id);
   }
@@ -111,10 +98,10 @@ export class PacketService {
     });
   }
 
-  addProductsToPacket(selectedProducts: any,stock:number): Observable<any> {
+  addProductsToPacket(selectedProducts: any): Observable<any> {
     //console.log('selectedProducts', selectedProducts);
-    return this.http.post(this.baseUrl + '/addProducts?stock='+stock, selectedProducts, {
-      headers: { 'content-type': 'application/json' },
+    return this.http.post(this.baseUrl + '/addProducts', selectedProducts, {
+      headers: { 'content-type': 'application/json' }
     });
   }
 
@@ -152,10 +139,8 @@ export class PacketService {
     return this.http.get(this.baseUrl + '/getPacketTimeLine/' + idPacket);
   }
 
-  getLastStatus(packet: Packet) {
-    return this.http.post(
-      this.baseUrl + '/getLastStatus',packet
-    );
+  getLastStatus(id: number) {
+    return this.http.post(this.baseUrl + '/getLastStatus',id);
   }
 
 

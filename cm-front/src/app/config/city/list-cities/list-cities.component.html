@@ -3,18 +3,18 @@
     <div class="card ml-3 mr-3 mt-2 mb-3" style="background-color: #ffffff">
         <div class="card-body">
         <div class="row">
-            <div class="col-md-7">
+            <div class="col-md-4">
                 <h5>Liste des villes</h5>
             </div>
             <div class="col-md-3">
-                <span class="p-input-icon-left ml-auto">
+                <span class="p-input-icon-left">
                     <i class="pi pi-search"></i>
                     <input pInputText type="text" (input)="search(dt , $event)" class="p-inputtext-sm"  placeholder="Rechercher .." />
                 </span>
             </div>
-            <div class="col-md-2">
-                <button pButton pRipple icon="pi pi-plus" class="p-button-success p-button-sm  mr-4 buttonSize" (click)="openNew()"></button>
-                <button pButton pRipple icon="pi pi-trash" class="p-button-danger p-button-sm   buttonSize" (click)="deleteSelectedCities()" [disabled]="!selectedCities || !selectedCities.length"></button>
+            <div class="col-md-3">
+                <button pButton pRipple icon="pi pi-plus" class="p-button-success p-button-sm buttonSize" (click)="openNew()"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-danger p-button-sm buttonSize" (click)="deleteSelectedCities()" [disabled]="!selectedCities || !selectedCities.length"></button>
             </div>
         </div>
     </div>

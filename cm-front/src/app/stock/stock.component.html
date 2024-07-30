@@ -105,8 +105,8 @@
                               <h4 *ngIf="getCountProgress(productSize.id) === 0">{{ getCount(productSize.id) }}</h4>
                               <h6 *ngIf="getCountExchange(productSize.id) !== 0">Echange : {{getCountExchange(productSize.id)}}</h6>
                             </ng-container>
-                            <h6 *ngIf="stock==true">{{ productSize.quantity }}</h6>
-                            <h4 *ngIf="delai === true">{{ getDaysStock(productSize.quantity,productSize.id) }}j</h4>
+                            <h6 *ngIf="stock==true">{{ productSize.qte }}</h6>
+                            <h4 *ngIf="delai === true">{{ getDaysStock(productSize.qte,productSize.id) }}j</h4>
                           </div>
                           <div class="text-center" style="margin-top: 10px;" *ngIf="stock==true">
                             <p-tag [value]="getSeverityMsg(productSize)" [severity]="getSeverity(productSize)"></p-tag>

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { Subject, takeUntil } from 'rxjs';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
-import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
 
 
@@ -10,23 +10,23 @@ import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
   templateUrl: './list-ste-livraison.component.html',
   styleUrls: ['./list-ste-livraison.component.scss']
 })
-export class ListSteLivraisonComponent implements OnInit {
-
+export class ListSteLivraisonComponent implements OnInit,OnDestroy {
 
   deliveryCompanyList: DeliveryCompany[] = [];
+  $unsubscribe: Subject<void> = new Subject();
 
-  constructor(private globalConfService: GlobalConfService,
-              private steLivraisonService: SteLivraisonService,
+  constructor(private steLivraisonService: SteLivraisonService,
               private messageService: MessageService,
-              private confirmationService: ConfirmationService) { }
-  config: any = {};
+              private confirmationService: ConfirmationService) {
+                this.steLivraisonService.loadDeliveryCompanies();
+              }
 
   ngOnInit(): void {
-    this.steLivraisonService.deliveryCompanySubscriber
-    .subscribe((stesList: any) => {
-      this.deliveryCompanyList = stesList;
-      //console.log("this.stes",this.deliveryCompanyList);
-    });
+    this.steLivraisonService.getDCSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (dc: DeliveryCompany[]) => {
+        this.deliveryCompanyList = dc;
+      }
+    );
   }
 
   editSte(ste: any){
@@ -57,6 +57,11 @@ export class ListSteLivraisonComponent implements OnInit {
       console.log(updatedSte);
       this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La societe de livraison a été modifiée avec succés", life: 1000 });
     });
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+this.$unsubscribe.complete();
   }
 
 

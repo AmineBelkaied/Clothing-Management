@@ -1,6 +1,6 @@
 import { Model } from "./Model";
 
-export interface ModelQuantity {
+export interface OfferModelsDTO {
     model: Model;
     quantity: number;
 }

@@ -8,7 +8,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "color")
+@Table(name = "color", indexes = {
+        @Index(name = "idx_id", columnList = "id")
+})
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Color {
 
@@ -21,7 +23,10 @@ public class Color {
     @JsonBackReference
     private Set<Model> models = new HashSet<>();
 
+    private boolean deleted;
+
     public Color() {
+        deleted = false;
     }
 
     public Color(Long id) {
@@ -66,12 +71,21 @@ public class Color {
         this.models = models;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
     @Override
     public String toString() {
         return "Color{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", reference='" + reference + '\'' +
+                ", deleted='" + deleted + '\'' +
                 '}';
     }
 }

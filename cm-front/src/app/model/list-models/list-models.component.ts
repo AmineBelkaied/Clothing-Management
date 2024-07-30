@@ -1,13 +1,13 @@
 import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { Subject, takeUntil } from 'rxjs';
 import { Color } from 'src/shared/models/Color';
 import { Model } from 'src/shared/models/Model';
 import { Size } from 'src/shared/models/Size';
 import { ColorService } from 'src/shared/services/color.service';
 import { ModelService } from 'src/shared/services/model.service';
 import { SizeService } from 'src/shared/services/size.service';
-import { UploadFileService } from 'src/shared/services/upload.service';
 
 @Component({
   selector: 'app-list-models',
@@ -19,15 +19,18 @@ export class ListModelsComponent implements OnInit {
 
   models: any[] = [];
 
-  model: Model = {
+  model: Model;/*  = {
+    "id":"",
     "name": "",
-    "reference": "",
     "description": "",
     "colors": [],
-    "sizes": []
-  }
+    "sizes": [],
+    "products":[],
+    "earningCoefficient":1,
+    "purchasePrice":15,
+    "deleted":false
+  } */
   editMode = false;
-  image: any;
 
   colors: Color[] = [];
   sizes: Size[] = [];
@@ -35,37 +38,31 @@ export class ListModelsComponent implements OnInit {
 
   submitted: boolean = false;
   selectedFile: any;
+  $unsubscribe: Subject<void> = new Subject();
 
-  constructor(private modelService: ModelService, private messageService: MessageService,private uploadService: UploadFileService,
-     private confirmationService: ConfirmationService, private colorService: ColorService, private sizeService: SizeService) {
+  constructor(private modelService: ModelService, private messageService: MessageService,
+     private confirmationService: ConfirmationService,private sizeService : SizeService,private colorService : ColorService) {
   }
 
-
   ngOnInit() {
-    this.colorService.findAllColors()
-    .subscribe((colors: any) => {
-      this.colors = colors.filter((color: Color) => color.reference != "?");
-      //console.log(this.colors)
-    })
-    this.sizeService.findAllSizes()
-    .subscribe((sizes: any) => {
-      this.sizes = sizes.filter((size: any) => size.reference != "?");
-      //console.log(this.sizes)
-    })
-    this.modelService.findAllModels().subscribe((data: any) => {
+    this.sizeService.loadSizes();
+    this.colorService.loadColors();
+
+    this.modelService.findAllModelsDTO().pipe(takeUntil(this.$unsubscribe)).subscribe((data: any) => {
       this.models = data;
-      //console.log(this.models);
-      this.models.map(model => model.image = 'data:image/jpeg;base64,' + model.bytes)
     });
   }
 
   openNew() {
     this.model = {
-      "name": "",
-      "reference": "",
-      "description": "",
-      "colors": [],
-      "sizes": []
+      name: "",
+      description: "",
+      colors: [],
+      sizes: [],
+      products:[],
+      earningCoefficient:1,
+      purchasePrice:15,
+      deleted:false
     }
     this.submitted = false;
     this.modelDialog = true;
@@ -80,7 +77,7 @@ export class ListModelsComponent implements OnInit {
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.modelService.deleteSelectedModels(selectedModelsId)
+        this.modelService.deleteSelectedModels(selectedModelsId).pipe(takeUntil(this.$unsubscribe))
           .subscribe(result => {
             this.models = this.models.filter(val => !this.selectedModels.includes(val));
             this.selectedModels = [];
@@ -91,10 +88,11 @@ export class ListModelsComponent implements OnInit {
   }
 
   editModel(model: Model) {
+    console.log("editModel",model)
     this.model = { ...model };
-    this.model.colors = this.model.colors.filter((color: Color) => color.reference != "?");
-    this.model.sizes = this.model.sizes.filter((size: Size) => size.reference != "?");
-    this.model.image = null;
+    this.model.colors = this.model.colors?.filter((color: Color) => color.reference != "?");
+    this.model.sizes = this.model.sizes?.filter((size: Size) => size.reference != "?");
+    this.modelService.setModel(model);
     this.modelDialog = true;
     this.editMode = true;
   }
@@ -106,7 +104,7 @@ export class ListModelsComponent implements OnInit {
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.modelService.deleteModelById(model.id).subscribe((response: any) => {
+        this.modelService.deleteModelById(model.id).pipe(takeUntil(this.$unsubscribe)).subscribe((response: any) => {
           this.models = this.models.filter(val => val.id !== model.id);
           this.model = Object.assign({}, this.model);
           this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'model Deleted', life: 3000 });
@@ -124,29 +122,38 @@ export class ListModelsComponent implements OnInit {
     this.submitted = true;
 
     if (this.model.name.trim()) {
-      if (this.model.id) {
+      let id = this.model.id;
+
+      if (id !== undefined) {
+        console.log("update model:",this.model);
+
         this.modelService.updateModel(this.model)
           .subscribe({
             next: (response: any) => {
               console.log(response);
-              this.models[this.findIndexById(this.model.id)] = this.model;
-              this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Le modèle a été mis à jour avec succés', life: 3000 });
-              this.uploadFile(this.model);
+              const index = this.findIndexById(id!);
+              if (index !== -1) {
+                this.models[index] = this.model;
+                this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Le modèle a été mis à jour avec succés', life: 3000 });
+              }else {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Erreur',
+                  detail: 'Modèle introuvable',
+                  life: 3000
+                });
+              }
             }
           });
       }
       else {
         console.log(this.model.colors)
-        //this.model.colors = this.model.colors.map((color: any) => {return  {"code" : color.code , "name" : color.name}});
         this.modelService.addModel(this.model)
           .subscribe({
             next: (response: any) => {
               console.log(response);
-              //this.model.id = this.createId();
-              //this.model.image = 'model-placeholder.svg';
               this.models.push(response);
               this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Le modèle a été crée avec succés', life: 3000 });
-              this.uploadFile(response);
             },
             error: error => {
 
@@ -160,7 +167,7 @@ export class ListModelsComponent implements OnInit {
     }
   }
 
-  findIndexById(id: string): number {
+  findIndexById(id: number): number {
     let index = -1;
     for (let i = 0; i < this.models.length; i++) {
       if (this.models[i].id === id) {
@@ -168,26 +175,7 @@ export class ListModelsComponent implements OnInit {
         break;
       }
     }
-
     return index;
-  }
-
-  /*findColorById(id: string): any {
-    for (let i = 0; i < this.colors.length; i++) {
-      if (this.colors[i].code === id) {
-        return this.colors[i].name;
-      }
-    }
-
-  }*/
-
-  createId(): string {
-    let id = '';
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (var i = 0; i < 5; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
   }
 
   modelColorsDisplay(colors: any[]) {
@@ -212,26 +200,5 @@ export class ListModelsComponent implements OnInit {
     return sizeDisplay;
   }
 
-  onUpload($event: any) {
-    this.selectedFile = $event;
-    console.log(this.selectedFile);
 
-  }
-
-  uploadFile(model: Model) {
-    this.uploadService.upload(this.selectedFile, model.id).subscribe(
-      (      event: any) => {
-        if (event.type === HttpEventType.UploadProgress) {
-         // this.progress = Math.round(100 * event.loaded / event.total);
-        } else if (event instanceof HttpResponse) {
-          console.log(event.body);
-        model.image = 'data:image/jpeg;base64,' + event.body.bytes;
-        }
-      },
-      (      err: any) => {
-       // this.message = 'Could not upload the file!';
-      });
-
-    this.selectedFile = undefined;
-  }
 }

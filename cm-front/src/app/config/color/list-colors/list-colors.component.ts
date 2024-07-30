@@ -1,21 +1,28 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Color } from 'src/shared/models/Color';
 import { ColorService } from '../../../../shared/services/color.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-list-colors',
   templateUrl: './list-colors.component.html',
   styleUrls: ['./list-colors.component.css']
 })
-export class ListColorsComponent implements OnInit {
+export class ListColorsComponent implements OnInit,OnDestroy {
 
   colors: Color[] = [];
+  $unsubscribe: Subject<void> = new Subject();
+  constructor(
+    private colorService: ColorService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService) {
 
-  constructor(private colorService: ColorService,private messageService: MessageService, private confirmationService: ConfirmationService) { }
+     }
 
   ngOnInit(): void {
-    this.colorService.colorsSubscriber
+    this.colorService.loadColors();
+    this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
     .subscribe((colorList: any) => {
       this.colors = colorList;
     });
@@ -34,12 +41,17 @@ export class ListColorsComponent implements OnInit {
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.colorService.deleteColorById(color.id)
+        this.colorService.deleteColorById(color.id).pipe(takeUntil(this.$unsubscribe))
           .subscribe(result => {
             this.colors = this.colors.filter(val => val.id !== color.id);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La couleur a été supprimée avec succés", life: 1000 });
           })
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 }

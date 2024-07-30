@@ -1,11 +1,10 @@
 package com.clothing.management.controllers;
 
+import com.clothing.management.dto.ProductDTO;
 import com.clothing.management.dto.ProductHistoryDTO;
-import com.clothing.management.dto.ProductQuantity;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.Product;
-import com.clothing.management.entities.ProductHistory;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -30,7 +27,7 @@ public class ProductController {
     ProductService productService;
 
     @GetMapping(path = "/findAll")
-    public List<Product> findAllProducts() {
+    public List<ProductDTO> findAllProducts() {
         return productService.findAllProducts();
     }
 

@@ -5,11 +5,13 @@ import com.clothing.management.repository.IFbPageRepository;
 import com.clothing.management.services.FbPageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional("tenantTransactionManager")
 public class FbPageServiceImpl implements FbPageService {
 
     @Autowired
@@ -26,18 +28,18 @@ public class FbPageServiceImpl implements FbPageService {
     }
 
     @Override
-    public FbPage addFbPage(FbPage FbPage) {
-        return fbPageRepository.save(FbPage);
+    public FbPage addFbPage(FbPage fbPage) {
+        return fbPageRepository.save(fbPage);
     }
 
     @Override
-    public FbPage updateFbPage(FbPage FbPage) {
-        return fbPageRepository.save(FbPage);
+    public FbPage updateFbPage(FbPage fbPage) {
+        return fbPageRepository.save(fbPage);
     }
 
     @Override
-    public void deleteFbPage(FbPage FbPage) {
-        fbPageRepository.delete(FbPage);
+    public void deleteFbPage(FbPage fbPage) {
+        fbPageRepository.delete(fbPage);
     }
 
     @Override

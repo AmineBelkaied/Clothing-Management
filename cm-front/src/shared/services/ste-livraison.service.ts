@@ -15,11 +15,17 @@ export class SteLivraisonService {
   public deliveryCompanyList: DeliveryCompany[] = [];
   public editMode = false;
   constructor(private http: HttpClient) {
+
+  }
+  loadDeliveryCompanies(){
     this.findAllStes()
     .subscribe((deliveryCompanyList: any) => {
         this.deliveryCompanySubscriber.next(deliveryCompanyList);
         this.deliveryCompanyList = deliveryCompanyList.filter((deliveryCompany: any) => deliveryCompany.enabled);
     });
+  }
+  getDCSubscriber(): Observable<DeliveryCompany[]> {
+    return this.deliveryCompanySubscriber.asObservable();
   }
 
   findAllStes() {

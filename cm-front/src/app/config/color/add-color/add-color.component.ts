@@ -1,7 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Form, NgForm } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { Observable, catchError } from 'rxjs';
+import { Observable, Subject, catchError, takeUntil } from 'rxjs';
 import { Color } from 'src/shared/models/Color';
 import { ColorService } from 'src/shared/services/color.service';
 
@@ -11,14 +11,15 @@ import { ColorService } from 'src/shared/services/color.service';
   templateUrl: './add-color.component.html',
   styleUrls: ['./add-color.component.css']
 })
-export class AddColorComponent implements OnInit {
+export class AddColorComponent implements OnInit,OnDestroy {
 
   color!: Color;
   editMode!: boolean;
+  $unsubscribe: Subject<void> = new Subject();
   constructor(public colorService: ColorService, private messageService: MessageService) { }
 
   ngOnInit(): void {
-    this.colorService.color.subscribe(color => {
+    this.colorService.color.pipe(takeUntil(this.$unsubscribe)).subscribe(color => {
       this.color = color
     });
   }
@@ -66,5 +67,10 @@ export class AddColorComponent implements OnInit {
   reset(modelForm: NgForm){
     modelForm.reset();
     this.colorService.editMode = false;
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 }

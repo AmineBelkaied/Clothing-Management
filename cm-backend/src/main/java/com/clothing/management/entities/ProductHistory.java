@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name="product_history")
+@Table(name="product_history", indexes = {
+        @Index(name = "idx_product_id", columnList = "product_id")
+})
 public class ProductHistory {
 
     @Id

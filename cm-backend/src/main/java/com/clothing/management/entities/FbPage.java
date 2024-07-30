@@ -2,6 +2,7 @@ package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -10,7 +11,9 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "fb_page")
+@Table(name = "fb_page", indexes = {
+        @Index(name = "idx_id", columnList = "id")
+})
 public class FbPage {
 
     @Id
@@ -24,21 +27,30 @@ public class FbPage {
     private String link;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "fbPage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fbPage", fetch = FetchType.LAZY)
     private List<Packet> packets;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "fbPages", fetch = FetchType.LAZY)
-    @JsonBackReference
     private Set<Offer> offers = new HashSet<>();
 
     @Column(nullable = false)
     private boolean enabled;
 
+    private boolean deleted;
+
     // Default constructor
     public FbPage() {
+        deleted = false;
     }
 
     // Constructor for id and link
+    public FbPage(FbPage fbPage) {
+        this.id = fbPage.getId();
+        this.name = fbPage.getName();
+        this.enabled = fbPage.isEnabled();
+    }
+
     public FbPage(Long id, String link) {
         this.id = id;
         this.link = link;
@@ -74,14 +86,6 @@ public class FbPage {
         this.name = name;
     }
 
-    public List<Packet> getPackets() {
-        return packets;
-    }
-
-    public void setPackets(List<Packet> packets) {
-        this.packets = packets;
-    }
-
     public String getLink() {
         return link;
     }
@@ -106,6 +110,14 @@ public class FbPage {
         this.offers = offers;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
     @Override
     public boolean equals(Object o) {
         System.out.println("oFBPage"+o);
@@ -125,11 +137,6 @@ public class FbPage {
 
     @Override
     public String toString() {
-        return "FbPage{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", link='" + link + '\'' +
-                ", enabled=" + enabled +
-                '}';
+        return name;
     }
 }

@@ -20,13 +20,13 @@ public class DeliveryCompany {
     @Column(name = "barre_code_url")
     private String barreCodeUrl;
 
+    private boolean deleted;
+
     @Column(name = "additional_name")
     private String additionalName;
-    @JsonIgnore
-    @OneToMany(mappedBy = "deliveryCompany")
-    List<Packet> packets;
 
     public DeliveryCompany() {
+        deleted=false;
     }
 
     public DeliveryCompany(String name, String token, String apiName) {
@@ -60,14 +60,6 @@ public class DeliveryCompany {
         this.name = name;
     }
 
-    public List<Packet> getPackets() {
-        return packets;
-    }
-
-    public void setPackets(List<Packet> packets) {
-        this.packets = packets;
-    }
-
     public String getToken() {
         return token;
     }
@@ -98,6 +90,14 @@ public class DeliveryCompany {
 
     public void setAdditionalName(String additionalName) {
         this.additionalName = additionalName;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     @Override

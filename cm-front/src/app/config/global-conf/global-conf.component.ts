@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { Observable, Subject, catchError, takeUntil } from 'rxjs';
+import { Observable, Subject, Subscription, catchError, takeUntil } from 'rxjs';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
@@ -15,47 +15,39 @@ import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
 export class GlobalConfComponent implements OnInit, OnDestroy {
 
 
-  globalConf: GlobalConf = {
-    applicationName: ""
-  };
+  globalConf: GlobalConf;// = {applicationName: ""};
   editMode!: boolean;
   deliveryCompanies: DeliveryCompany[];
   $unsubscribe: Subject<void> = new Subject();
 
-  constructor(public globalConfService: GlobalConfService, private deliveryCompanyService: SteLivraisonService, private messageService: MessageService) {}
+  constructor(
+    public globalConfService: GlobalConfService,
+    private steLivraisonService: SteLivraisonService,
+    private messageService: MessageService) {
+
+    }
 
   ngOnInit(): void {
+    this.steLivraisonService.getDCSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (dc: DeliveryCompany[]) => {
+        this.deliveryCompanies = dc;
+      }
+    );
 
-    this.globalConfService.getGlobalConf()
-    .pipe(takeUntil(this.$unsubscribe))
-    .subscribe((globalConf: GlobalConf) => {
-      if(globalConf)
-      this.globalConf = globalConf
-      console.log(this.globalConf);})
-
-    this.deliveryCompanyService.findAllStes()
-    .subscribe((deliveryCompanies: any) => this.deliveryCompanies = deliveryCompanies)
+    this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (globalConf: GlobalConf) => {
+        this.globalConf = globalConf;
+      }
+    );
   }
 
   addGlobalConf(form: NgForm) {
-      this.globalConfService.updateGlobalConf(this.globalConf)
-      .pipe(
-        catchError((err: any, caught: Observable<any>): any => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: "Erreur lors de le modification' " + err.error.message,
-          });
-        })
-      )
-      .subscribe((result: any) => {
-        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été modifiée avec succés", life: 1000 });
-      });
+      this.globalConfService.setGlobalConfSubscriber(this.globalConf);
   }
 
   ngOnDestroy(): void {
     this.$unsubscribe.next();
-
+this.$unsubscribe.complete();
   }
 
 }

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Model } from 'src/shared/models/Model';
 import { baseUrl } from '../../assets/constants';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +10,23 @@ import { baseUrl } from '../../assets/constants';
 export class ModelService {
 
   private baseUrl: string = baseUrl+"/model";
-
+  public modelSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
+  model : Model;
   constructor(private http: HttpClient) { }
+
+  setModel(model:any){
+    this.model = model;
+    this.modelSubscriber.next(model);
+  }
+
+
+  getmodelSubscriber(): Observable<Model> {
+    return this.modelSubscriber.asObservable();
+  }
+
+  findAllModelsDTO() {
+    return this.http.get(this.baseUrl + "/modelsDTO");
+  }
 
   findAllModels() {
     return this.http.get(this.baseUrl + "/findAll");

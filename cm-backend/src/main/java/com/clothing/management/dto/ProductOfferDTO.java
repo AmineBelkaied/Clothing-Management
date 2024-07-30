@@ -5,9 +5,7 @@ public class ProductOfferDTO {
     private Long productId;
     private Long offerId;
     private Long packetOfferIndex;
-
     private  double profits;
-
     public ProductOfferDTO(Long productId, Long offerId,Long packetOfferIndex,double profits) {
         this.productId = productId;
         this.offerId = offerId;

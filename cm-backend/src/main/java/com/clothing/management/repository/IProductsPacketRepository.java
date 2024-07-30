@@ -17,6 +17,7 @@ import java.util.List;
 
 public interface IProductsPacketRepository extends JpaRepository<ProductsPacket , Long> {
 
+    @Transactional
     @Query(value = "select * from products_packet  where packet_id = :packetId", nativeQuery = true)
     public List<ProductsPacket> findByPacketId(Long packetId);
 
@@ -127,6 +128,23 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     public List<ProductsDayCountDTO> statAllModelsByColor(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
     //(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countOos, Long countAll)
+    @Query(value = "SELECT NEW com.clothing.management.dto.PacketsStatCountDTO(" +
+            "DATE(p.date), " +
+            "SUM(CASE WHEN p.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.valid = true AND (p.haveExchange = false OR p.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Livrée', 'Payée')) AND p.status <> 'Annuler' THEN 1 ELSE 0 END), " +// out
+            "SUM(CASE WHEN p.haveExchange = true AND p.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END), " +//echange
+            "SUM(CASE WHEN p.status IN ('Retour', 'Retour reçu') AND p.haveExchange = false THEN 1 ELSE 0 END), " +//retour
+            "SUM(CASE WHEN p.status = 'En rupture' THEN 1 ELSE 0 END), " +//En rupture
+            "SUM(CASE WHEN p.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
+            "SUM(1)) " +//tout
+            "FROM Packet p " +
+            "WHERE DATE(p.date) >= DATE(:beginDate) " +
+            "AND DATE(p.date) <= DATE(:endDate) " +
+            "AND p.deliveryCompany.name = :deliveryCompanyName " +
+            "GROUP BY DATE(p.date) ORDER BY DATE(p.date) ASC")
+    public List<PacketsStatCountDTO> statAllPackets(@Param("beginDate") String beginDate, @Param("endDate") String endDate,@Param("deliveryCompanyName") String deliveryCompanyName);
+
+
     @Query(value = "SELECT NEW com.clothing.management.dto.PacketsStatCountDTO(" +
             "DATE(p.date), " +
             "SUM(CASE WHEN p.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +

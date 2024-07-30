@@ -12,10 +12,6 @@ import java.util.List;
 
 @Repository
 public interface IProductRepository extends JpaRepository<Product, Long> {
-    //Product findByReference(String offerProductRef);
-    List<Product> findAllByModel(Long idModel);
-    //List<Product> findAllByReference(String offerProductRef);
-
     @Query(value="DELETE FROM `product` WHERE model_id = :modelId AND color_id = :colorId", nativeQuery = true)
     int deleteProductsByModelAndColor(@Param("modelId") Long modelId, @Param("colorId") Long colorsId);
 

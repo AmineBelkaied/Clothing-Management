@@ -1,10 +1,11 @@
-import { Model } from "./Model";
+import { FbPage } from "./FbPage";
+import { OfferModelsDTO } from "./OfferModelsDTO";
 
 export interface Offer {
-    id?: any;
+    id: number;
     name: string;
     price: number;
-    models?: Model[];
-    quantity?: number;
     enabled?: boolean;
+    offerModels: any[];
+    fbPages: FbPage[];
 }

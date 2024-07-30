@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Model } from 'src/shared/models/Model';
-import { ModelQuantity } from 'src/shared/models/ModelQuantity';
+import { OfferModelsDTO } from 'src/shared/models/OfferModelsDTO';
 import { Offer } from 'src/shared/models/Offer';
-import { OfferModelDTO } from 'src/shared/models/OfferModelDTO';
 import { ModelService } from '../../../shared/services/model.service';
 import { OfferService } from '../../../shared/services/offer.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from 'src/shared/services/fb-page.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-list-offers',
@@ -19,78 +19,82 @@ export class ListOffersComponent implements OnInit {
 
   offerDialog!: boolean;
 
-  offers: OfferModelDTO[] = [];
+  offers: Offer[] = [];
+
   models: Model[] = [];
+
   fbPages: FbPage[];
 
-  offer: OfferModelDTO = {
-    "offerId": "",
-    "name": "",
-    "modelQuantities": [],
-    "fbPages" : [],
-    "price": 0,
-    "enabled": false,
-  }
   editMode = false;
 
-  selectedOffers: Offer[] = [];
+  selectedOffers: any[] = [];
 
   submitted: boolean = false;
 
   statuses: any[] = [];
 
-  constructor(private offerService: OfferService, private modelService: ModelService, private fbPageService: FbPageService, private messageService: MessageService,
+  $unsubscribe: Subject<void> = new Subject();
+
+  trackByFunction = (index: any, item: { id: any }) => {
+    return item.id;
+  };
+
+  constructor(
+    private offerService: OfferService,
+    private modelService: ModelService,
+    private fbPageService: FbPageService,
+    private messageService: MessageService,
     private confirmationService: ConfirmationService) {
   }
 
   ngOnInit() {
-    this.offerService.findAllOffersModelQuantities().subscribe((offerList: any) => {
-      this.offers = offerList;
-      console.log(this.offers)
-    });
-    this.modelService.findAllModels().subscribe((modelList: any) => {
+    console.log("init list-offers");
+    this.offerService.getOffersSubscriber()
+      .pipe(takeUntil(this.$unsubscribe))
+      .subscribe({
+        next: (offerList: any) => {
+          if (offerList.length > 0)
+            this.offers = offerList;
+        },
+        error: (err: any) => {
+          console.error('Error fetching offers:', err);
+        }
+      });
+
+    this.modelService.findAllModels().pipe(takeUntil(this.$unsubscribe)).subscribe((modelList: any) => {
       this.models = modelList;
     });
-    this.fbPageService.findAllFbPages().subscribe((fbPageList: any) => {
-      this.fbPages = fbPageList;
-    });
+    this.fbPageService.loadFbPages();
   }
 
   openNew() {
-    this.offer = {
-      "name": "",
-      "modelQuantities": [],
-      "fbPages" : [],
-      "price": 0,
-      "enabled": false,
-    }
     this.submitted = false;
     this.offerDialog = true;
     this.editMode = false;
   }
 
   deleteSelectedOffers() {
-    let selectedOffersId = this.selectedOffers.map((selectedOffer: any) => selectedOffer.offerId);
+    let selectedOffersId = this.selectedOffers.map((selectedOffer: any) => selectedOffer.id);
     console.log(selectedOffersId);
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer les offres séléctionnées ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.offerService.deleteSelectedOffers(selectedOffersId)
+        this.offerService.deleteSelectedOffers(selectedOffersId).pipe(takeUntil(this.$unsubscribe))
           .subscribe(result => {
             console.log("offers successfully deleted !");
-            this.offers = this.offers.filter((offer: OfferModelDTO) => selectedOffersId.indexOf(offer.offerId) == -1);
+            this.offers = this.offers.filter((offer: Offer) => selectedOffersId.indexOf(offer.id) == -1);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les offres séléctionnés ont été supprimé avec succés', life: 1000 });
           })
       }
     });
   }
 
-  editOffer(offer: OfferModelDTO) {
-    this.offer = { ...offer };
-    this.offerDialog = true;
-    this.editMode = true;
+  editOffer(offer: any) {
+    this.offerService.setOffer(offer);
+      this.offerDialog = true;
+      this.editMode = true;
   }
 
   deleteOffer(offer: Offer) {
@@ -100,30 +104,31 @@ export class ListOffersComponent implements OnInit {
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.offerService.deleteOfferById(offer.id).subscribe((response: any) => {
-          this.offers = this.offers.filter(val => val.offerId !== offer.id);
-          this.offer = Object.assign({}, this.offer);
+        /*-----------------------------------correction pour la suppression ------------------------------
+        this.offerService.deleteOfferById(offer.id).pipe(takeUntil(this.$unsubscribe)).subscribe((response: any) => {
+          this.offers = this.offers.filter(val => val.id !== offer.id);
+          //this.offer = Object.assign({}, this.offer);
           this.messageService.add({ severity: 'success', summary: 'Succés', detail: "L'offre a été supprimée avec succés", life: 1000 });
         })
+        */
       }
     });
   }
 
 
-  findIndexById(id: string): number {
+  findIndexById(id: number): number {
     let index = -1;
     for (let i = 0; i < this.offers.length; i++) {
-      if (this.offers[i].offerId === id) {
+      if (this.offers[i].id == id) {
         index = i;
         break;
       }
     }
-
     return index;
   }
 
-  displayOfferModels(modelQuantities: ModelQuantity[]) {
-
+  displayOfferModels(modelQuantities: OfferModelsDTO[]) {
+//console.log("modelQuantities",modelQuantities);
     let offerModels = "";
     modelQuantities.forEach((modelQuantity, index) => {
       if (index < modelQuantities.length - 1 && index>0)
@@ -160,5 +165,11 @@ export class ListOffersComponent implements OnInit {
       this.messageService.add({ severity: 'success', summary: 'Successful', detail: "L'offre a été crée avec succés", life: 1000 });
     }
     this.hideDialog();
+  }
+
+  ngOnDestroy(): void {
+    console.log("destroy list-offers");
+
+    this.$unsubscribe.next();
   }
 }

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { Observable, catchError } from 'rxjs';
+import { Observable, Subject, catchError, takeUntil } from 'rxjs';
 import { Size } from 'src/shared/models/Size';
 import { SizeService } from 'src/shared/services/size.service';
 
@@ -10,16 +10,17 @@ import { SizeService } from 'src/shared/services/size.service';
   templateUrl: './add-size.component.html',
   styleUrls: ['./add-size.component.css']
 })
-export class AddSizeComponent implements OnInit {
+export class AddSizeComponent implements OnInit,OnDestroy {
 
-  size!: Size;
+  size: Size;
   editMode!: boolean;
+  $unsubscribe: Subject<void> = new Subject();
   constructor(public sizeService: SizeService, private messageService: MessageService) { }
 
   ngOnInit(): void {
-    this.sizeService.size.subscribe(size => {
+    this.sizeService.size.pipe(takeUntil(this.$unsubscribe)).subscribe(size => {
+      if(size!= null)
       this.size = size;
-      console.log(this.size)
     });
   }
 
@@ -68,4 +69,8 @@ export class AddSizeComponent implements OnInit {
     this.sizeService.editMode = false;
   }
 
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+this.$unsubscribe.complete();
+  }
 }

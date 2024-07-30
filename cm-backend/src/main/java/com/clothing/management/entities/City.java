@@ -1,9 +1,12 @@
 package com.clothing.management.entities;
-
 import jakarta.persistence.*;
+import java.util.Objects;
 
 @Entity
-@Table(name = "city")
+@Table(name = "city", indexes = {
+        @Index(name = "idx_id", columnList = "id"),
+        @Index(name = "idx_governorate_id", columnList = "governorate_id")
+})
 public class City {
 
     @Id
@@ -51,4 +54,26 @@ public class City {
         this.postalCode = postalCode;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof City)) return false;
+        City city = (City) o;
+        return Objects.equals(id, city.id) &&
+                Objects.equals(name, city.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, governorate);
+    }
+
+    @Override
+    public String toString() {
+        return "City{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", governorate=" + governorate +
+                '}';
+    }
 }

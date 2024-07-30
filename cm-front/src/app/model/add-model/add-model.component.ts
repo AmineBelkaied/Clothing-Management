@@ -1,11 +1,12 @@
 import { HttpEventType, HttpResponse } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-import { Observable } from 'rxjs';
+import { Component, EventEmitter, Input, OnInit, OnDestroy} from '@angular/core';
+import { Observable, Subject, Subscription, takeUntil } from 'rxjs';
 import { Color } from 'src/shared/models/Color';
 import { Model } from 'src/shared/models/Model';
 import { Size } from 'src/shared/models/Size';
-import { UploadFileService } from 'src/shared/services/upload.service';
+import { ColorService } from 'src/shared/services/color.service';
+import { ModelService } from 'src/shared/services/model.service';
+import { SizeService } from 'src/shared/services/size.service';
 
 @Component({
   selector: 'app-add-model',
@@ -21,17 +22,57 @@ import { UploadFileService } from 'src/shared/services/upload.service';
 
 
 
-export class AddModelComponent implements OnInit{
+export class AddModelComponent implements OnInit,OnDestroy{
   salePrice : number = 1;
-  calculateSalePrice(model: Model): any {
-      if(model.purchasePrice && model.earningCoefficient)
-        return Math.round(model.earningCoefficient * model.purchasePrice);
+  model: Model;
+  @Input() editMode!: boolean;
+  colors: Color[] = [];
+  sizes: Size[] = [];
+  currentFile: any;
+  progress = 0;
+  message : any;
+  allOffersList: any[] = [];
+  $unsubscribe: Subject<void> = new Subject();
+
+  constructor(
+    private modelService : ModelService,
+    private colorService : ColorService,
+    private sizeService : SizeService) {
+
   }
 
-  calculateGainCoefficient(model: Model, event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.salePrice= parseFloat(input.value);
+  ngOnInit(): void {
+    this.modelService.getmodelSubscriber()
+    .pipe(takeUntil(this.$unsubscribe))
+    .subscribe((model: Model) => {
+      this.model = model;
+      this.salePrice = this.calculateSalePrice(this.model);
+    });
+    /*this.offersService.getOffersSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(offersList => {
+      this.allOffersList = offersList;
+      //this.models.find((model:Model)=>model.id == model)
+    });*/
 
+    console.log("ngOnInit",this.model);
+
+    this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
+    .subscribe((colorList: Color[]) => {
+      this.colors = colorList.filter((color: Color) => color.reference != "?");
+    });
+
+    this.sizeService.getSizesSubscriber().pipe(takeUntil(this.$unsubscribe))
+      .subscribe((sizeList: Size[]) => {
+        this.sizes = sizeList.filter((size: any) => size.reference != "?");
+      })
+
+  }
+
+  calculateSalePrice(model: Model): any {
+    if(model.purchasePrice && model.earningCoefficient)
+      return Math.round(model.earningCoefficient * model.purchasePrice);
+  }
+
+  calculateGainCoefficient(model: Model): void {
     if (model.purchasePrice && this.salePrice) {
       let gc = this.salePrice / model.purchasePrice;
       model.earningCoefficient = parseFloat(gc.toFixed(2))
@@ -40,65 +81,8 @@ export class AddModelComponent implements OnInit{
     }
   }
 
-  @Input() model: Model = {
-    "id" : "",
-    "name" : "",
-    "reference" : "",
-    "description" : "",
-    "colors" : [],
-    "sizes": [],
-    "purchasePrice":10,
-    "earningCoefficient":2
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
-
-  @Input() colors: Color[] = [];
-  @Input() sizes: Size[] = [];
-  @Input() editMode!: boolean;
-  selectedColors: any[] = [];
-
-  selectedFile: File | undefined;
-  currentFile: any;
-  progress = 0;
-  message : any;
-  image: any;
-  fileInfos: Observable<any> = new Observable();
-
-  selectedSize: any;
-  //@Output()
-  //selectedFileEvent: EventEmitter<any> = new EventEmitter();
-
-  constructor(private uploadFileService: UploadFileService, private sanitizer: DomSanitizer) {
-  }
-
-  ngOnInit(): void {
-    if(this.editMode) {
-      /*this.uploadFileService.getImage(this.model.id)
-      .subscribe((data: any) => {
-              // Replace this with your actual byte array and MIME type
-        /* const byteArray = new Uint8Array(data);
-        const mimeType = 'image/png'; // Replace with the appropriate MIME type
-        this.convertByteArrayToImageUrl(byteArray, mimeType);
-        console.log(data);
-
-        const blobUrl = URL.createObjectURL(data.body);
-        this.image = this.sanitizer.bypassSecurityTrustUrl(blobUrl);
-      });*/
-    }
-  }
-
-  /*selectFile($event: any) {
-    this.selectedFile = $event.files[0];
-    this.selectedFileEvent.emit(this.selectedFile);
-  }
-
-    // Method to convert byte array to data URL
-    convertByteArrayToImageUrl(byteArray: Uint8Array, mimeType: string) {
-      const binary:any = [];
-      byteArray.forEach(byte => binary.push(String.fromCharCode(byte)));
-      const base64String = btoa(binary.join(''));
-      this.image = `data:${mimeType};base64,${base64String}`;
-    }*/
-
-
-
 }

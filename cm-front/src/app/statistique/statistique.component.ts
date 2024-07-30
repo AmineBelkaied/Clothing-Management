@@ -11,6 +11,8 @@ import { ModelService } from 'src/shared/services/model.service';
 import { ActivatedRoute } from '@angular/router';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
+import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 
 @Component({
   selector: 'app-statistique',
@@ -23,11 +25,13 @@ export class StatistiqueComponent implements OnInit {
 
   offersCount: ProductCountDTO[] = [];
   selectedModels: FormControl = new FormControl();
+  packetsChartEnabler : boolean = true;
+  modelsChartEnabler : boolean = false;
+  offersChartEnabler : boolean = false;
   colorsChartEnabler : boolean = false;
   stockChartEnabler : boolean = false;
   pagesChartEnabler : boolean = false;
   statesChartEnabler : boolean = false;
-  offersChartEnabler : boolean = false;
   countProgressEnabler : boolean = false;
   //countProductsPerDay : Number[] = [];
   packets: Packet[] = [];
@@ -120,6 +124,8 @@ export class StatistiqueComponent implements OnInit {
   dates: any[];
   enablerOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
   progressOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
+  deliveryCompanyName : string = "ALL";
+  deliveryCompanyList: DeliveryCompany[] = [];
 
   constructor(
     private packetService: PacketService,
@@ -127,7 +133,8 @@ export class StatistiqueComponent implements OnInit {
     public datePipe: DatePipe,
     private dateUtils: DateUtils,
     private modelService: ModelService,
-    private activateRoute: ActivatedRoute
+    private activateRoute: ActivatedRoute,
+    private steLivraisonService: SteLivraisonService,
   ) {}
 
   StatesData: any;
@@ -136,6 +143,19 @@ export class StatistiqueComponent implements OnInit {
   PagesOptions: any;
 
   ngOnInit() {
+    this.steLivraisonService.deliveryCompanySubscriber
+    .subscribe((stesList: any) => {
+      //this.deliveryCompanyList = stesList;
+      //console.log("this.stes",this.deliveryCompanyList);
+      const uniqueCompanies = new Map();
+        stesList.forEach((company: DeliveryCompany) => {
+            if (!uniqueCompanies.has(company.name)) {
+                uniqueCompanies.set(company.name, company);
+            }
+        });
+        // Convert the Map values back to an array
+        this.deliveryCompanyList = Array.from(uniqueCompanies.values());
+    });
     this.selectedModels.setValue([]);
     //this.rangeDates[0] = new Date();
     const documentStyle = getComputedStyle(document.documentElement);
@@ -389,11 +409,12 @@ export class StatistiqueComponent implements OnInit {
 
   findAllPackets(): void {
     this.setCalendar();
-    this.getStatAllModelsChart();
-    this.getStatAllPacketsChart();
+    if(this.packetsChartEnabler)this.getStatAllPacketsChart();
+    if(this.modelsChartEnabler)this.getStatAllModelsChart();
+    if(this.offersChartEnabler)this.getStatAllOffersChart();
     if(this.stockChartEnabler)this.getStatStockChart();
     if(this.colorsChartEnabler)this.getStatAllColorsChart();
-    if(this.offersChartEnabler)this.getStatAllOffersChart();
+
 
 
     this.packetService
@@ -455,8 +476,9 @@ export class StatistiqueComponent implements OnInit {
   }
 
   getStatAllPacketsChart() {
+    if(this.deliveryCompanyName==null)this.deliveryCompanyName="ALL";
     this.statsService
-      .statAllPackets(this.startDateString, this.endDateString)
+      .statAllPackets(this.startDateString, this.endDateString, this.deliveryCompanyName)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: any) => {
@@ -898,35 +920,40 @@ export class StatistiqueComponent implements OnInit {
     });
   }
 
+
+  packetsChartEnablerChange() {
+    if(this.packetsChartEnabler)
+      this.getStatAllPacketsChart();
+  }
+
+  modelsChartEnablerChange() {
+    if(this.modelsChartEnabler)
+      this.getStatAllModelsChart();
+  }
+
   colorsChartEnablerChange() {
-    if(this.colorsChartEnabler){
+    if(this.colorsChartEnabler)
       this.getStatAllColorsChart();
-    }
   }
 
   offersChartEnablerChange() {
-    if(this.offersChartEnabler){
+    if(this.offersChartEnabler)
       this.getStatAllOffersChart();
-    }
   }
 
-  modelChartEnablerChange() {
-    this.getStatAllModelsChart();
-  }
   pagesChartEnablerChange() {
-    if(this.pagesChartEnabler){
+    if(this.pagesChartEnabler)
       this.getStatAllPacketsChart();
-    }
   }
 
   statesChartEnablerChange() {
-    if(this.statesChartEnabler){
+    if(this.statesChartEnabler)
       this.getStatAllPacketsChart();
-    }
   }
 
   stockChartEnablerChange() {
-    if(this.stockChartEnabler)this.getStatStockChart();
+    if(this.stockChartEnabler)
+      this.getStatStockChart();
   }
 
   formatNumber(item: any) {

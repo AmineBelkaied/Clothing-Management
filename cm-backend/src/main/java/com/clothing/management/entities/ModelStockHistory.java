@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
-@Table(name = "model_stock_history")
+@Table(name = "model_stock_history", indexes = {
+        @Index(name = "idx_model_id", columnList = "model_id")
+})
 public class ModelStockHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

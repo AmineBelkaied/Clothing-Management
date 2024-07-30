@@ -34,7 +34,6 @@
                 </th>
                 <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon></th>
                 <!--th>Image</th-->
-                <th pSortableColumn="reference">Référence <p-sortIcon field="reference"></p-sortIcon></th>
                 <th pSortableColumn="purchasePrice">Prix d'achat<p-sortIcon field="reference"></p-sortIcon></th>
                 <th pSortableColumn="purchasePrice">Prix de vente<p-sortIcon field="reference"></p-sortIcon></th>
                 <th pSortableColumn="colors">Couleurs <p-sortIcon field="colors"></p-sortIcon></th>
@@ -50,7 +49,6 @@
                 </td>
                 <td>{{model.name}}</td>
                 <!--td><img  *ngIf="model.bytes != null" [src]="model.image" [alt]="model.name" width="100" height="100" class="shadow-4" /></td-->
-                <td>{{model.reference}}</td>
                 <td>{{model.purchasePrice}}</td>
                 <td>{{model.purchasePrice * model.earningCoefficient | number:'1.0-0'}}</td>
                 <td>{{modelColorsDisplay(model.colors)}}</td>
@@ -74,11 +72,10 @@
 
 <p-dialog [(visible)]="modelDialog" [style]="{width: '60%'}" header="Détails du modèle" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
-        <app-add-model [model]="model" [colors]="colors" [sizes]="sizes" [editMode]="editMode" (selectedFileEvent)="onUpload($event)"></app-add-model>
+        <app-add-model [editMode]="editMode"></app-add-model>
     </ng-template>
 
     <ng-template pTemplate="footer">
-<!--         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button> -->
         <button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'" [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"  class="p-button-text" (click)="saveModel()"></button>
     </ng-template>
 </p-dialog>

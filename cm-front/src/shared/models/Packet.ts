@@ -1,6 +1,7 @@
 import { City } from "./City";
 import { DeliveryCompany } from "./DeliveryCompany";
 import { FbPage } from "./FbPage";
+import {Offer} from "./Offer";
 
 export interface Packet {
     id?: number;
@@ -8,29 +9,27 @@ export interface Packet {
     customerName?: string;
     customerPhoneNb?: string;
     city?: City;
-    fbPage?: any;
     address?: string;
-    price?: number;
-    deliveryPrice?: number;
-    discount?: number;
-    relatedProducts?: string;
-    packetReference?: string;
     packetDescription?: string;
-    status?: any;
-    confirmation?: boolean;
     barcode?: any;
     lastDeliveryStatus?: any;
-    lastUpdateDate?: any;
-    exchangeId?: number;
-    printLink?:string;
     oldClient?: number;
+    offers: Offer[];
+    fbPage?: FbPage;
+    deliveryCompany?: DeliveryCompany;
+    price: number;
+    deliveryPrice: number;
+    discount: number;
+    status?: any;
+    lastUpdateDate?: any;
+    printLink?:string;
     valid?: boolean;
     stock?: number;
-    deliveryCompany?: DeliveryCompany;
     attempt?: number;
     note?: string;
+    productCount: number;
+    exchangeId?: number;
     haveExchange?:boolean;
-    productCount?:number;
-    [key: string]: any;
+    //[key: string]: any;
 
 }

@@ -1,5 +1,6 @@
 package com.clothing.management.services;
 
+import com.clothing.management.dto.ProductDTO;
 import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDto;
@@ -14,7 +15,7 @@ import java.util.Optional;
 
 public interface ProductService {
     
-    public List<Product> findAllProducts();
+    public List<ProductDTO> findAllProducts();
     public Optional<Product> findProductById(Long idProduct);
     //public Product findProductByReference(String reference);
     public Product addProduct(Product product);

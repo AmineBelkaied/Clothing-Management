@@ -1,5 +1,6 @@
 package com.clothing.management.servicesImpl;
 
+import com.clothing.management.dto.ModelDTO;
 import com.clothing.management.entities.Color;
 import com.clothing.management.entities.Model;
 import com.clothing.management.entities.Product;
@@ -13,10 +14,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.sql.SQLOutput;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,15 +33,7 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public List<Model> findAllModels() {
-        return modelRepository.findAll().stream().peek(model ->
-        {
-            try {
-                if (model.getImage() != null)
-                    model.setBytes(Files.readAllBytes(new File(model.getImage().getImagePath()).toPath()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).collect(Collectors.toList());
+        return modelRepository.findAll();
     }
 
     @Override
@@ -147,5 +136,14 @@ public class ModelServiceImpl implements ModelService {
     @Override
     public void deleteSelectedModels(List<Long> modelsId) {
         modelRepository.deleteAllById(modelsId);
+    }
+
+    @Override
+    public List<ModelDTO> getModels(){
+        List<ModelDTO> ModelsListMap = modelRepository.findAll()
+                .stream()
+                .map(ModelDTO::new)
+                .collect(Collectors.toList());
+        return ModelsListMap;
     }
 }

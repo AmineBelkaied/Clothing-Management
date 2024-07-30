@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit , OnDestroy} from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { Size } from 'src/shared/models/Size';
 import { SizeService } from 'src/shared/services/size.service';
 
@@ -8,21 +9,25 @@ import { SizeService } from 'src/shared/services/size.service';
   templateUrl: './list-sizes.component.html',
   styleUrls: ['./list-sizes.component.css']
 })
-export class ListSizesComponent implements OnInit {
+export class ListSizesComponent implements OnInit, OnDestroy {
 
   sizes: Size[] = [];
-  constructor(private sizeSerivce: SizeService, private messageService: MessageService, private confirmationService: ConfirmationService) { }
+  $unsubscribe: Subject<void> = new Subject();
+  constructor(private sizeService: SizeService, private messageService: MessageService, private confirmationService: ConfirmationService) {
+    this.sizeService.loadSizes();
+   }
 
   ngOnInit(): void {
-    this.sizeSerivce.sizesSubscriber
-      .subscribe((sizeList: any) => {
-        this.sizes = sizeList;
-      })
+    this.sizeService.getSizesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (sizes: Size[]) => {
+        this.sizes = sizes;
+      }
+    );
   }
 
   editSize(size: any) {
-    this.sizeSerivce.editSize({...size});
-    this.sizeSerivce.editMode = true;
+    this.sizeService.editSize({...size});
+    this.sizeService.editMode = true;
   }
 
   deleteSize(size: any) {
@@ -31,12 +36,17 @@ export class ListSizesComponent implements OnInit {
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.sizeSerivce.deleteSizeById(size.id)
+        this.sizeService.deleteSizeById(size.id).pipe(takeUntil(this.$unsubscribe))
           .subscribe(result => {
             this.sizes = this.sizes.filter(val => val.id !== size.id);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été supprimée avec succés", life: 1000 });
           })
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+this.$unsubscribe.complete();
   }
 }

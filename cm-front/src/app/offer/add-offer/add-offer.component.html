@@ -4,62 +4,80 @@
     <div class="card-text">
       <form [formGroup]="offerForm">
         <div class="container-fluid">
-          <div class="row">
-            <div class="col-md-5">
-              <label for="name" class="form-label">Nom</label>
-              <input
-                pInputText
-                id="name"
-                placeholder="Nom de l'offre"
-                name="name"
-                formControlName="name"
-              />
-            </div>
-            <div class="col-md-5">
-              <label for="price" class="form-label">Prix</label>
-              <input
-                pInputText
-                type="number"
-                id="price"
-                min="1"
-                placeholder="Prix de l'offre"
-                name="price"
-                formControlName="price"
-              />
-            </div>
-            <div class="col-md-2">
-              <div class="row ml-3">
-                <label for="enabled" class="form-label">Activé</label>
-                <p-inputSwitch formControlName="enabled"></p-inputSwitch>
-              </div>
-            </div>
-          </div>
-
           <div class="row mt-5">
             <div class="card" style="width: 100%">
               <div class="card-body">
-                <div class="card-title">
-                  <p>
-                    <button
-                      pButton
-                      pRipple
-                      icon="pi pi-plus"
-                      class="p-button-success p-button-sm buttonSize pull-right mb-3 mr-3"
-                      (click)="addModelQuantity()"
-                    ></button>
-                  </p>
-                </div>
                 <div class="card-text">
                   <div class="container-fluid">
-                    <table
+                    <div class="row">
+                      <div class="col-md-5">
+                        <label for="name" class="form-label">Nom</label>
+                        <input
+                          pInputText
+                          id="name"
+                          placeholder="Nom de l'offre"
+                          name="name"
+                          formControlName="name"
+                        />
+                      </div>
+                      <div class="col-md-5">
+                        <label for="price" class="form-label">Prix</label>
+                        <input
+                          pInputText
+                          type="number"
+                          id="price"
+                          min="1"
+                          placeholder="Prix de l'offre"
+                          name="price"
+                          formControlName="price"
+                        />
+                      </div>
+                      <div class="col-md-2">
+                        <div class="row ml-3">
+                          <label for="enabled" class="form-label">Activé</label>
+                          <p-inputSwitch formControlName="enabled"></p-inputSwitch>
+                        </div>
+                      </div>
+                      <div class="col-md-3 mt-3" style="margin-left: 80%" *ngIf="editMode">
+                        <button
+                          pButton
+                          pRipple
+                          [label]="editMode ? 'Modifier offre' : 'Ajouter list offre'"
+                          [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"
+                          class="p-button-text"
+                          (click)="saveOffer('Offer')"
+                      ></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="container-fluid">
+          <div class="row mt-5">
+            <div class="card" style="width: 100%">
+              <div class="card-body">
+                <div class="card-text">
+                  <div class="container-fluid">
+                    <div class="row mt-4">
+                      <table
                       class="table table-bordered"
                       style="background-color: #fcfcfc"
-                      formArrayName="modelQuantities"
+                      formArrayName="offerModels"
                     >
                       <thead>
                         <th>Modèle</th>
                         <th>Quantité</th>
-                        <th></th>
+                        <th><button
+                          pButton
+                          pRipple
+                          icon="pi pi-plus"
+                          class="p-button-success p-button-sm buttonSize"
+                          (click)="addModelQuantity()"
+                        ></button></th>
                       </thead>
                       <tr
                         *ngFor="
@@ -111,49 +129,63 @@
                         Ajouter un modèle pour cette offre
                       </p>
                     </ng-container>
+                    </div>
+                    <div class="col-md-3 mt-3" style="margin-left: 80%" *ngIf="editMode">
+                      <button
+                        pButton
+                        pRipple
+                        [label]="editMode ? 'Modifier list models' : 'Ajouter les models'"
+                        [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"
+                        class="p-button-text"
+                        (click)="saveOffer('Models')"
+                      ></button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="row mt-4">
-            <div class="col-md-12">
-              <label for="fbPages" class="form-label">Pages Fb</label>
-              <p-multiSelect
-                [options]="fbPages"
-                formControlName="fbPages"
-                name="fbPages"
-                display="chip"
-                [style]="{ width: '100%' }"
-                [panelStyle]="{ width: '50%' }"
-                [placeholder]="'-- Choisir les pages fb --'"
-                optionLabel="name"
-                appendTo="body"
-              ></p-multiSelect>
-            </div>
-            <!--             <div class="col-md-1">
-                    <button type="submit" class="btn btn-primary float-end">Ajouter</button>
-                  </div> -->
-          </div>
-          <!--                  <br>
-                    <div class="row">
-                      <div class="col-md-2" style="margin-left:80%">
-                        <button pButton pRipple label="Valider" icon="pi pi-check" class="p-button-text p-button-sm" (click)="onSubmit()"></button>
-                      </div>
-                    </div> -->
-          <div class="col-md-3 mt-3" style="margin-left: 80%">
-            <!--                     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button> -->
-            <button
-              pButton
-              pRipple
-              [label]="editMode ? 'Modifier' : 'Ajouter'"
-              [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"
-              class="p-button-text"
-              (click)="saveOffer()"
-            ></button>
-          </div>
-          <br />
+
         </div>
+        <div class="container-fluid">
+          <div class="row mt-5">
+            <div class="card" style="width: 100%">
+              <div class="card-body">
+                <div class="card-text">
+                  <div class="container-fluid">
+                    <div class="row mt-4">
+                      <div class="col-md-12">
+                        <label for="fbPages" class="form-label">Pages Fb</label>
+                        <p-multiSelect
+                          [options]="fbPages"
+                          formControlName="fbPages"
+                          name="fbPages"
+                          [style]="{ width: '100%' }"
+                          [panelStyle]="{ width: '50%' }"
+                          [placeholder]="'-- Choisir les pages fb --'"
+                          optionLabel="name"
+                          appendTo="body"
+                        ></p-multiSelect>
+                      </div>
+                    </div>
+                    <div class="col-md-3 mt-3" style="margin-left: 80%">
+                      <button
+                        pButton
+                        pRipple
+                        [label]="editMode ? 'Modifier' : 'Ajouter'"
+                        [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"
+                        class="p-button-text"
+                        (click)="saveOffer('FbPages')"
+                      ></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
       </form>
     </div>
   </div>

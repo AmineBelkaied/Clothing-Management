@@ -1,59 +1,93 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Size } from 'src/shared/models/Size';
 import { baseUrl } from '../../assets/constants';
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class SizeService {
 
-  private baseUrl: string = baseUrl+"/size";
-  public sizesSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
+  private baseUrl: string = baseUrl + "/size";
+  public sizesSubscriber: BehaviorSubject<Size[]> = new BehaviorSubject<Size[]>([]);
   public size: BehaviorSubject<any> = new BehaviorSubject([]);
   public sizes: Size[] = [];
   public editMode = false;
+
   constructor(private http: HttpClient) {
-    this.findAllSizes()
-    .subscribe((sizeList: any) => {
-        this.sizesSubscriber.next(sizeList);
+    //this.loadSizes();
+  }
+
+  loadSizes(): void {
+    this.findAllSizes().subscribe(
+      (sizeList: Size[]) => {
         this.sizes = sizeList;
-    });
+        this.sizesSubscriber.next(this.sizes);
+      },
+      (error) => {
+        console.error('Error fetching sizes:', error);
+      }
+    );
   }
 
-  findAllSizes() {
-    return this.http.get(this.baseUrl + "/findAll");
+  findAllSizes(): Observable<Size[]> {
+    return this.http.get<Size[]>(this.baseUrl + "/findAll").pipe(
+      catchError(this.handleError<Size[]>('findAllSizes', []))
+    );
   }
 
-  findSizeById(id: number) {
-    return this.http.get(this.baseUrl + "/findById/" + id);
+  findSizeById(id: number): Observable<Size> {
+    return this.http.get<Size>(this.baseUrl + "/findById/" + id).pipe(
+      catchError(this.handleError<Size>('findSizeById'))
+    );
   }
 
-  addSize(size: Size) {
-    return this.http.post(this.baseUrl + "/add" , size , {observe: 'body'})
+  addSize(size: Size): Observable<Size> {
+    return this.http.post<Size>(this.baseUrl + "/add", size, { observe: 'body' }).pipe(
+      catchError(this.handleError<Size>('addSize'))
+    );
   }
 
-  updateSize(size: Size) {
-    return this.http.put(this.baseUrl + "/update" , size , {headers : { 'content-type': 'application/json'}})
+  updateSize(size: Size): Observable<void> {
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.put<void>(this.baseUrl + "/update", size, { headers }).pipe(
+      catchError(this.handleError<void>('updateSize'))
+    );
   }
 
-  deleteSizeById(idSize: any) {
-    return this.http.delete(this.baseUrl + "/deleteById/" + idSize)
+  deleteSizeById(idSize: number): Observable<void> {
+    return this.http.delete<void>(this.baseUrl + "/deleteById/" + idSize).pipe(
+      catchError(this.handleError<void>('deleteSizeById'))
+    );
   }
 
-  pushSize(size: Size){
+  pushSize(size: Size): void {
     this.sizes.push(size);
+    this.sizesSubscriber.next(this.sizes);
   }
 
-  spliceSize(updatedSize: any){
-    let index = this.sizes.findIndex(size => size.id == updatedSize.id);
-    console.log(index);
-    this.sizes.splice(index , 1 , updatedSize);
+  spliceSize(updatedSize: Size): void {
+    const index = this.sizes.findIndex(size => size.id === updatedSize.id);
+    if (index !== -1) {
+      this.sizes.splice(index, 1, updatedSize);
+      this.sizesSubscriber.next(this.sizes);
+    }
   }
 
-  editSize(size: Size) {
+  editSize(size: Size): void {
     this.size.next(size);
+  }
+
+  getSizesSubscriber(): Observable<Size[]> {
+    return this.sizesSubscriber.asObservable();
+  }
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`);
+      return of(result as T);
+    };
   }
 }

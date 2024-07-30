@@ -1,16 +1,11 @@
 package com.clothing.management.services;
 
 import com.clothing.management.dto.ProductHistoryDTO;
-import com.clothing.management.dto.ProductQuantity;
-import com.clothing.management.dto.StockDTO;
-import com.clothing.management.entities.Product;
 import com.clothing.management.entities.ProductHistory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface ProductHistoryService {

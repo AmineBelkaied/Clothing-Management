@@ -1,8 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { CityService } from 'src/shared/services/city.service';
 import { City } from 'src/shared/models/City';
 import { Governorate } from 'src/shared/models/Governorate';
+import { Subject, takeUntil } from 'rxjs';
+import { GovernorateService } from 'src/shared/services/governorate.service';
 
 
 @Component({
@@ -10,7 +12,7 @@ import { Governorate } from 'src/shared/models/Governorate';
   templateUrl: './list-cities.component.html',
   styleUrls: ['./list-cities.component.scss']
 })
-export class ListCitiesComponent implements OnInit {
+export class ListCitiesComponent implements OnInit,OnDestroy {
 
   cities: City[] = [];
   cityDialog!: boolean;
@@ -20,11 +22,16 @@ export class ListCitiesComponent implements OnInit {
   oldCity!: City;
   editMode = false;
   submitted = false;
+  $unsubscribe: Subject<void> = new Subject();
 
-  @Input() governorates: Governorate[] = [];
   selectedCities: City[] = [];
-  constructor(private citySerivce: CityService, private messageService: MessageService, private confirmationService: ConfirmationService) {
-    this.governorate = {
+  governorates: Governorate[] = [];
+
+  constructor(
+    private citySerivce: CityService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService) {
+    /*this.governorate = {
       "id" :"",
       "name": ""
     };
@@ -33,17 +40,17 @@ export class ListCitiesComponent implements OnInit {
       "name": "",
       "postalCode": "",
       "governorate" : this.governorate
-    }
+    }*/
    }
 
   ngOnInit(): void {
-    this.citySerivce.findAllCitys()
+    this.citySerivce.findAllCitys().pipe(takeUntil(this.$unsubscribe))
       .subscribe((cityList: any) => {
         this.cities = cityList;
-        console.log(this.cities)
+        //console.log(this.cities)
       })
 
-  }   
+  }
 
 
   deleteCity(city: any) {
@@ -52,7 +59,7 @@ export class ListCitiesComponent implements OnInit {
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.citySerivce.deleteCityById(city.id)
+        this.citySerivce.deleteCityById(city.id).pipe(takeUntil(this.$unsubscribe))
           .subscribe(result => {
             this.cities = this.cities.filter(val => val.id !== city.id);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été supprimée avec succés", life: 1000 });
@@ -85,14 +92,14 @@ export class ListCitiesComponent implements OnInit {
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.citySerivce.deleteSelectedCities(selectedCitiesId)
+        this.citySerivce.deleteSelectedCities(selectedCitiesId).pipe(takeUntil(this.$unsubscribe))
           .subscribe(result => {
             this.cities = this.cities.filter((city: City) => selectedCitiesId.indexOf(city.id) == -1);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les villes séléctionnées ont été supprimé avec succés', life: 1000 });
           })
       }
     });
-  } 
+  }
 
   editCity(city: City) {
     this.city = { ...city };
@@ -134,9 +141,9 @@ export class ListCitiesComponent implements OnInit {
             }
           })
       }
- 
+
       console.log(this.cities);
-      
+
       this.cityDialog = false;
       this.governorate = Object.assign({}, this.governorate);
       this.city = Object.assign({}, this.city);
@@ -155,7 +162,7 @@ export class ListCitiesComponent implements OnInit {
     return index;
   }
 
-  
+
   search(dt: any, event: any) {
     this.cities = this.cities.slice();
     console.log(event.target.value);
@@ -164,15 +171,20 @@ export class ListCitiesComponent implements OnInit {
 
   onEditInit($event: any) {
     this.oldCity = Object.assign({}, $event.data);
-  } 
+  }
 
   onEditComplete($event: any) {
     if(JSON.stringify(this.oldCity) != JSON.stringify($event.data)) {
-      this.citySerivce.updateCity($event.data)
+      this.citySerivce.updateCity($event.data).pipe(takeUntil(this.$unsubscribe))
       .subscribe(result => {
         console.log("city successfully updated !");
         this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'La ville a été mise à jour avec succés', life: 1000 });
       })
     }
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 }

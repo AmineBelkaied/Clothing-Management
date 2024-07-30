@@ -35,9 +35,9 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public Color updateColor(Color color) throws Exception {
-        Color colorByReference = colorRepository.findByReference(color.getReference());
-        if(colorByReference != null)
-            throw new Exception("Cette référence existe déjà");
+        //Optional<Color> colorByReference = colorRepository.findById(color.getId());
+        /*if(color. != null)
+            throw new Exception("Cette référence existe déjà");*/
         return colorRepository.save(color);
     }
 

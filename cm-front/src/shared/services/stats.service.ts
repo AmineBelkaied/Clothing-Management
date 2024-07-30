@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Packet } from '../models/Packet';
-import { BehaviorSubject, Observable, Subject, tap, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { baseUrl } from '../../assets/constants';
 import { DateUtils } from '../utils/date-utils';
 import { TO_VERIFY, CONFIRMED, IN_PROGRESS, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, PAID, RETURN_RECEIVED, RETURN, DELIVERED } from '../utils/status-list';
@@ -30,8 +30,8 @@ export class StatsService {
     return this.http.get(this.baseUrl + "/statStock?beginDate=" + startDate + "&endDate=" + endDate);
   }
 
-  public statAllPackets(startDate: String,endDate:String) : Observable<any>{
-    return this.http.get(this.baseUrl + "/statAllPackets?beginDate=" + startDate + "&endDate=" + endDate);
+  public statAllPackets(startDate: String,endDate:String,deliveryCompanyName: String) : Observable<any>{
+    return this.http.get(this.baseUrl + "/statAllPackets?beginDate=" + startDate + "&endDate=" + endDate+ "&deliveryCompanyName=" + deliveryCompanyName);
   }
   public statAllColors(startDate: String,endDate:String,modelsListIdsArray:number[]) : Observable<any>{
     return this.http.get(this.baseUrl + "/statAllColors?beginDate=" + startDate + "&endDate=" + endDate + "&modelIds="+ modelsListIdsArray);

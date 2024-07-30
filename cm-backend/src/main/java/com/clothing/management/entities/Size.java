@@ -8,7 +8,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "size")
+@Table(name = "size", indexes = {
+        @Index(name = "idx_id", columnList = "id")
+})
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Size implements Comparable<Size> {
 

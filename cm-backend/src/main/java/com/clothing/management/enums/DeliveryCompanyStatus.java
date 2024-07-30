@@ -1,15 +1,12 @@
 package com.clothing.management.enums;
 
-import com.clothing.management.models.JaxStatusModel;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 
 public enum DeliveryCompanyStatus {
 
     WAITING("En attente", "En attente", Arrays.asList("En attente", "à enlever")),
-    EN_COURS("En cours", "En cours", List.of("En cours de livraison")),
+    IN_PROGRESS("En cours", "En cours", List.of("En cours de livraison")),
     LIVREE("Livré", "Livrer", List.of("Livré")),
     EXCHANGE("Echange", "Echange", List.of("Echange")),
     RETOUR_EXPEDITEUR("Retour Expéditeur", "Retour Expediteur", Arrays.asList("En cours de préparation au retour vers l'expéditeur", "Colis à retourner", "Retour expéditeur")),

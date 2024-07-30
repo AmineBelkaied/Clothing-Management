@@ -1,6 +1,7 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.auth.util.SessionUtils;
+import com.clothing.management.dto.ProductDTO;
 import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDto;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.groupingBy;
 
 @Service
+@Transactional("tenantTransactionManager")
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
@@ -42,8 +45,8 @@ public class ProductServiceImpl implements ProductService {
     private Long productModel;
 
     @Override
-    public List<Product> findAllProducts() {
-        return productRepository.findAll().stream().map(product -> mapToProduct(product)).collect(Collectors.toList());
+    public List<ProductDTO> findAllProducts() {
+        return productRepository.findAll().stream().map(ProductDTO::new).collect(Collectors.toList());
     }
     private Product mapToProduct(Product product) {
         Product newProduct = new Product();
@@ -64,7 +67,6 @@ public class ProductServiceImpl implements ProductService {
         newModel.setSizes(model.getSizes());
         newModel.setDescription(model.getDescription());
         newModel.setName(model.getName());
-        newModel.setReference(model.getReference());
         newModel.setPurchasePrice(model.getPurchasePrice());
         newModel.setEarningCoefficient(model.getEarningCoefficient());
         return newModel;
@@ -99,9 +101,9 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteAllById(productsId);
     }
 
-    public StockDTO getStock(Long modelId) {
+    public StockDTO getStock(Long modelId) {// correction ----------------------------
         StockDTO stockDTO = new StockDTO();
-        List<List<Object>> productsByColors = new ArrayList<>();
+        List<List<ProductDTO>> productsByColors = new ArrayList<>();
         modelRepository.findById(modelId).ifPresent(model -> {
             Map<Color, List<Product>> groupedProducts = model.getProducts()
                     .stream()
@@ -109,10 +111,10 @@ public class ProductServiceImpl implements ProductService {
                     .collect(groupingBy(Product::getColor));
 
             groupedProducts.forEach((color, products) -> {
-                List<Object> objects = new ArrayList<>();
+                List<ProductDTO> productDTOList = new ArrayList<>();
                 //objects.add(color);
-                objects.addAll(sortProductBySize((products.stream().map(product -> mapToProduct(product)).collect(Collectors.toList()))));
-                productsByColors.add(objects);
+                productDTOList.addAll(sortProductBySize((products.stream().map(ProductDTO::new).collect(Collectors.toList()))));
+                productsByColors.add(productDTOList);
             });
             stockDTO.setProductsByColor(productsByColors);
             stockDTO.setSizes(sortSizes(model.getSizes().stream().filter(size -> !size.getReference().equals("?")).collect(Collectors.toSet())));
@@ -121,8 +123,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-    private List<Product> sortProductBySize(List<Product> products) {
-        Comparator<Product> sizeComparator = (product1, product2) -> {
+    private List<ProductDTO> sortProductBySize(List<ProductDTO> products) {
+        Comparator<ProductDTO> sizeComparator = (product1, product2) -> {
             // Define the order of sizes
             String[] order = {"XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"};
             int index1 = getIndex(product1.getSize().getReference(), order);
@@ -157,22 +159,30 @@ public class ProductServiceImpl implements ProductService {
         return -1; // Default index if not found (shouldn't happen in this example)
     }
 
-    public Page<ProductHistoryDTO> addStock(StockUpdateDto updateIdSockList) {
-        updateIdSockList.getProductsId().forEach(productId -> {
-            Product product = findProductById(productId)
-                    .orElseThrow(() -> {
-                        throw new ProductNotFoundException("The product does not exists!");
-                    });
-            productModel = updateIdSockList.getModelId();
-            product.setQuantity(product.getQuantity() + updateIdSockList.getQte());
+
+    public Page<ProductHistoryDTO> addStock(StockUpdateDto updateIdStockList) {
+            // Iterate through the list of product IDs to update each product's stock
+            updateIdStockList.getProductsId().forEach(productId -> {
+                // Find the product by its ID
+                Product product = findProductById(productId)
+                        .orElseThrow(() -> new ProductNotFoundException("The product does not exist!"));
+
+            product.setQuantity(product.getQuantity() + updateIdStockList.getQte());
             updateProduct(product);
 
-            ProductHistory productHistory = new ProductHistory(product, updateIdSockList.getQte(), new Date(), product.getModel(), sessionUtils.getCurrentUser(), updateIdSockList.getComment());
+            ProductHistory productHistory =
+                    new ProductHistory(
+                            product,
+                            updateIdStockList.getQte(),
+                            new Date(), product.getModel(),
+                            sessionUtils.getCurrentUser(),
+                            updateIdStockList.getComment()
+                    );
             productHistoryRepository.save(productHistory);
         });
 
         Pageable paging = PageRequest.of(0, 10, Sort.by("lastModificationDate").descending());
-        return productHistoryRepository.findAll(updateIdSockList.getModelId(), paging);
+        return productHistoryRepository.findAll(updateIdStockList.getModelId(), paging);
     }
 
     @Override

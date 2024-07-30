@@ -7,7 +7,10 @@ import java.util.Date;
 import java.util.Set;
 
 @Entity
-@Table(name="packet_status")
+@Table(name="packet_status", indexes = {
+        @Index(name = "idx_id", columnList = "id"),
+        @Index(name = "idx_packet_id", columnList = "packet_id")
+})
 public class PacketStatus {
 
     @Id
@@ -15,6 +18,7 @@ public class PacketStatus {
     private Long id;
     private Date date;
     private String status;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "packet_id")
     private Packet packet;

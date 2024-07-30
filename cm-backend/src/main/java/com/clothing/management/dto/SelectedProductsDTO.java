@@ -14,7 +14,6 @@ public class SelectedProductsDTO {
     private double totalPrice;
     private double deliveryPrice;
     private double discount;
-
     private String packetDescription;
     private List<ProductOfferDTO> productsOffers;
 

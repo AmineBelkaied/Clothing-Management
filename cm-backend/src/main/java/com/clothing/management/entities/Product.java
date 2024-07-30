@@ -5,36 +5,48 @@ import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Table(name = "product")
+@Table(name = "product", indexes = {
+        @Index(name = "idx_id", columnList = "id")
+})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id",scope = Product.class)
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @JsonManagedReference
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "size_id")
     private Size size;
+
+    @JsonManagedReference
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "color_id")
     private Color color;
     private int quantity;
     private Date date;
 
-    @OneToMany(mappedBy = "product" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<ProductsPacket> commands;
+    @JsonBackReference
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<ProductsPacket> productsPacket;
 
-    @OneToMany(mappedBy = "product" , cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<ProductHistory> productHistory;
-
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "model_id")
     private Model model;
 
+    @OneToMany(mappedBy = "product" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ProductHistory> productHistory;
+    private boolean deleted;
+
     public Product() {
+        deleted = false;
     }
 
     public Product(Long id) {
@@ -46,7 +58,7 @@ public class Product {
         this.color = color;
         this.quantity = quantity;
         this.date = date;
-        this.commands = commands;
+        this.productsPacket = productsPacket;
         this.model = model;
     }
 
@@ -101,12 +113,12 @@ public class Product {
         this.date = date;
     }
 
-    public List<ProductsPacket> getCommands() {
-        return commands;
+    public List<ProductsPacket> getProductsPacket() {
+        return productsPacket;
     }
 
-    public void setCommands(List<ProductsPacket> commands) {
-        this.commands = commands;
+    public void setProductsPacket(List<ProductsPacket> commands) {
+        this.productsPacket = commands;
     }
 
     public Model getModel() {
@@ -125,12 +137,33 @@ public class Product {
         this.productHistory = productHistory;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product product)) return false;
+        return quantity == product.quantity && deleted == product.deleted && id.equals(product.id) && size.equals(product.size) && color.equals(product.color) && date.equals(product.date) && model.equals(product.model);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, quantity, date, deleted);
+    }
+
     @Override
     public String toString() {
         return "Product{" +
                 "id=" + id +
                 ", quantity=" + quantity +
                 ", date=" + date +
+                ", deleted=" + deleted +
                 '}';
     }
 

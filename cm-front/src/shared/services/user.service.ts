@@ -8,8 +8,9 @@ import { baseUrl } from '../../assets/constants';
 export class UserService {
 
   private endPoint: string = "/user";
-  
-  constructor(private _http: HttpClient) { }
+
+  constructor(private _http: HttpClient) {
+   }
 
   findAllUsers() {
     return this._http.get(baseUrl + this.endPoint + '/findAll');

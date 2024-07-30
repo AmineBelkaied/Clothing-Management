@@ -74,9 +74,6 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
                 });
     }
 
-    public void updatePacketStockForRuptureStatus(){
-        packetService.updatePacketStockForRupture();
-    }
     public int startUpdateStatusCronTask(MasterTenant masterTenant) {
         LOG.info("--- UPDATE STATUS CRON STARTED FOR TENANT --- " + masterTenant.getTenantName());
         DBContextHolder.setCurrentDb(masterTenant.getDbName());
@@ -91,13 +88,17 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
                     this.packetService.getLastStatus(packet);
                     LOG.info("UPDATE STATUS FINISHED FOR PACKET >> " + packet.toString());
                 } catch (IOException | InterruptedException e) {
+                    System.out.println("e"+e);
                     e.printStackTrace();
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    System.out.println(e);
+                    throw new RuntimeException("e1"+e);
                 }
                 try {
+                    //System.out.println("sleep");
                     Thread.sleep(THREAD_SLEEP_INTERVAL);
                 } catch (InterruptedException e2) {
+                    System.out.println("e2"+e2);
                     e2.printStackTrace();
                 }
             }
@@ -114,6 +115,7 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
             modelStockHistoryService.saveDayHistory(countStock);
             LOG.info("--- COUNT STOCK CRON ENDED FOR TENANT --- " + masterTenant.getTenantName());
         } catch (Exception e) {
+            System.out.println("e3"+e);
             e.printStackTrace();
         }
     }

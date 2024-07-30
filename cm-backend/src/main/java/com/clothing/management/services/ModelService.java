@@ -1,5 +1,6 @@
 package com.clothing.management.services;
 
+import com.clothing.management.dto.ModelDTO;
 import com.clothing.management.entities.Model;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface ModelService {
     public Model generateModelProducts(Model model);
     public void deleteModelById(Long idModel);
     void deleteSelectedModels(List<Long> modelsId);
+
+    List<ModelDTO> getModels();
 }

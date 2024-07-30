@@ -15,11 +15,19 @@ export class ColorService {
   public colors: Color[] = [];
   public editMode = false;
   constructor(private http: HttpClient) {
+
+  }
+
+  loadColors(){
     this.findAllColors()
     .subscribe((colorList: any) => {
         this.colorsSubscriber.next(colorList);
         this.colors = colorList;
     });
+  }
+
+  getColorsSubscriber(): Observable<Color[]> {
+    return this.colorsSubscriber.asObservable();
   }
 
   findAllColors() {

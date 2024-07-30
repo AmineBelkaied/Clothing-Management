@@ -1,28 +1,34 @@
 package com.clothing.management.entities;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@Table(name="products_packet")
+@Table(name="products_packet", indexes = {
+        @Index(name = "idx_packet_id", columnList = "packet_id")
+})
 public class ProductsPacket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne
+
+    @JsonManagedReference
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     Product product;
-
-    @ManyToOne
-    @JoinColumn(name = "packet_id")
-    Packet packet;
-
-    @OneToOne(fetch = FetchType.EAGER)
+    @JsonManagedReference
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "offer_id")
     Offer offer;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "packet_id")
+    Packet packet;
 
     @Column(name = "packet_offer_id")
     Long packetOfferId;
@@ -31,6 +37,7 @@ public class ProductsPacket {
     double profits;
 
     public ProductsPacket() {
+        this.status = 0;
     }
 
     public ProductsPacket(Product product, Packet packet, Offer offer, Long packetOfferId, double profits) {
@@ -110,9 +117,9 @@ public class ProductsPacket {
     public String toString() {
         return "ProductsPacket{" +
                 "id=" + id +
-                ", product=" + product +
-                ", packet=" + packet +
-                ", offer=" + offer +
+                ", packet=" + packet.getId() +
+                ", product=" + product.getId() +
+                ", offer=" + offer.getId() +
                 ", packetOfferId=" + packetOfferId +
                 ", status=" + status +
                 ", profits=" + profits +
@@ -123,11 +130,11 @@ public class ProductsPacket {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ProductsPacket that)) return false;
-        return Double.compare(that.profits, profits) == 0 && product.equals(that.product) && packet.equals(that.packet) && offer.equals(that.offer) && packetOfferId.equals(that.packetOfferId) && Objects.equals(status, that.status);
+        return Double.compare(that.profits, profits) == 0 && product.getId().equals(that.product.getId()) && packet.getId().equals(that.packet.getId()) && offer.getId().equals(that.offer.getId()) && packetOfferId.equals(that.packetOfferId) && Objects.equals(status, that.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(product, packet, offer, packetOfferId, status, profits);
+        return Objects.hash(id, product.getId(), packet.getId(), offer.getId(), packetOfferId, status, profits);
     }
 }

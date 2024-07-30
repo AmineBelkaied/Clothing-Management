@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { baseUrl } from '../../assets/constants';
+import { Governorate } from '../models/Governorate';
 
 @Injectable({
   providedIn: 'root'

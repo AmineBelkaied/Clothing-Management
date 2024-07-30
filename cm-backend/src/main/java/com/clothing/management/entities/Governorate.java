@@ -9,7 +9,9 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 import java.util.List;
 
 @Entity
-@Table(name = "governorate")
+@Table(name = "governorate", indexes = {
+        @Index(name = "idx_id", columnList = "id")
+})
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Governorate {
 

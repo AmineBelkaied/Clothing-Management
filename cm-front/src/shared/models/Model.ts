@@ -1,13 +1,20 @@
+import { Color } from "./Color";
+import { Product } from "./Product";
+import { Size } from "./Size";
+
 export interface Model {
-    id?: any;
+    id?: number;
     name: string;
-    reference: string;
     description?: string;
     colors: any[];
     sizes: any[];
-    products?: any[];
-    image?: any;
-    bytes?: any[];
-    purchasePrice?: number;
-    earningCoefficient?:number;
+    products: any[],
+    purchasePrice: number;
+    earningCoefficient:number;
+    deleted: boolean;
+
+    selectedColor?:Color;
+    selectedSize?:Size;
+    selectedSizeReel?:Size;
+    selectedProduct?:Product;
 }

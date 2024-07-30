@@ -19,10 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -32,7 +30,7 @@ import java.util.stream.Collectors;
 import static com.clothing.management.enums.SystemStatus.*;
 import static com.clothing.management.enums.SystemStatus.LIVREE;
 import static java.util.stream.Collectors.groupingBy;
-
+@Transactional("tenantTransactionManager")
 @Service
 public class PacketServiceImpl implements PacketService {
 
@@ -44,8 +42,19 @@ public class PacketServiceImpl implements PacketService {
     private final DeliveryCompanyServiceFactory deliveryCompanyServiceFactory;
     private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
-    private final IFbPageRepository fbPageRepository;
     private final static List<String> ignoredDateStatusList = List.of(new String[]{ RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus()});
+
+    @Override
+    public Packet getPacketById(Long packetId) throws Exception {
+        return packetRepository.findById(packetId)
+                .orElseThrow(() -> new Exception("Packet not found!"));
+    }
+
+    @Override
+    public Packet getPacketByBarcode(String barCode) throws Exception {
+        return packetRepository.findByBarCode(barCode)
+                .orElseThrow(() -> new Exception("Packet not found!"));
+    }
 
     @Autowired
     public PacketServiceImpl(
@@ -65,7 +74,6 @@ public class PacketServiceImpl implements PacketService {
         this.deliveryCompanyServiceFactory = deliveryCompanyServiceFactory;
         this.globalConfRepository = globalConfRepository;
         this.sessionUtils = sessionUtils;
-        this.fbPageRepository = fbPageRepository;
     }
 
     @Override
@@ -77,7 +85,7 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    @Transactional("tenantTransactionManager")
+    @Transactional(readOnly = true, transactionManager = "tenantTransactionManager")
     public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status, boolean mandatoryDate) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -98,7 +106,8 @@ public class PacketServiceImpl implements PacketService {
                 return packetRepository.findAllPacketsByField(searchText, pageable);
             if (startDate != null && status != null)
             {
-                if (status.equals("Tous"))return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
+                if (status.equals("Tous"))
+                    return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
                 return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status),dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
             }
             if (status != null)
@@ -117,9 +126,10 @@ public class PacketServiceImpl implements PacketService {
     }
 
 
-    public List<Packet> findAllPacketsByDate(String startDate, String endDate) throws ParseException {
+    public List<PacketDTO> findAllPacketsByDate(String startDate, String endDate) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate));
+        List<Packet> packets = packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate));
+        return packets.stream().map(PacketDTO::new).collect(Collectors.toList());
     }
 
     @Override
@@ -137,33 +147,31 @@ public class PacketServiceImpl implements PacketService {
         return packetRepository.findAllDiggiePackets(status);
     }
 
+    private int getStock(List<ProductsPacket> productsPackets, String barcode){
+        return (barcode == null || barcode.equals(""))?productsPackets.stream()
+                .mapToInt(productsPacket -> productsPacket.getProduct().getQuantity()) // Assuming getQte() returns the quantity
+                .min()
+                .orElse(100):100;
+    }
+
     @Override
     public List<Packet> findAllPacketsByDate(Date date) {
         return packetRepository.findAllByDate(date);
     }
 
-    @Override
+    /*@Override
     public Optional<Packet> findPacketById(Long idPacket) {
         return packetRepository.findById(idPacket);
-    }
+    }*/
 
-    @Transactional("tenantTransactionManager")
     @Override
     public int deleteEmptyPacket() {
         return packetRepository.deleteEmptyPacket();
     }
-    @Transactional("tenantTransactionManager")
-    @Override
-    public void updatePacketStockForRupture(){
-        packetRepository.updatePacketStockForRuptureStatus();
-    }
-
 
     @Override
-    @Transactional("tenantTransactionManager")
-    public Packet addPacket() {
-        GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
-        System.out.println("global:"+globalConf);
+    public Packet addPacket() throws Exception {
+        GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElseThrow(() -> new Exception("globalConf not found"));;
         Packet packet =new Packet(globalConf.getDeliveryCompany());
 
         packetRepository.save(packet);
@@ -176,19 +184,25 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    @Transactional("tenantTransactionManager")
-    public Packet updatePacketValid(String barCode,String type) {
-        Optional<Packet> optionalPacket = packetRepository.findByBarCode(barCode);
-        if (type.equals(CONFIRMED.getStatus())){
-            optionalPacket.get().setValid(true);
-            return packetRepository.save(optionalPacket.get());
+    public PacketValidationDTO updatePacketValid(String barCode, String type) throws Exception {
+        Packet nonValidPacket = getPacketByBarcode(barCode);
+        Packet packet;
+        try{
+            if (type.equals(CONFIRMED.getStatus())){
+                nonValidPacket.setValid(true);
+                packet = packetRepository.save(nonValidPacket);
+            }
+            else packet = updatePacketStatus(nonValidPacket, RETURN_RECEIVED.getStatus());
+        } catch (Exception e ){
+            LOGGER.error("Error " + e);
+            return null;
         }
-        return updatePacketStatus(optionalPacket.get(), RETURN_RECEIVED.getStatus());
+
+        return new PacketValidationDTO(packet);
     }
 
     @Override
-    @Transactional("tenantTransactionManager")
-    public Packet patchPacket(Long idPacket, Map<String, Object> field) throws IOException {
+    public Packet patchPacket(Long idPacket, Map<String, Object> field) throws Exception {
         Packet packet = null;
             Optional<String> firstKeyOptional = field.keySet().stream().findFirst();
             if (firstKeyOptional.isPresent()) {
@@ -197,8 +211,7 @@ public class PacketServiceImpl implements PacketService {
                 String value = String.valueOf(field.get(firstKey));
                 fieldPacket.setAccessible(true);
                 if (firstKey.equals("status")) {
-                    Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
-                        packet = optionalPacket.get();
+                        packet = getPacketById(idPacket);
                         if (value.equals(CONFIRMED.getStatus()))
                             createBarCode(packet);
                     updatePacketStatus(packet, value);
@@ -206,107 +219,35 @@ public class PacketServiceImpl implements PacketService {
                         int existCount =0;
                         if(field.get(firstKey) != "" && field.get(firstKey) != null)
                             existCount = checkPhone(field.get(firstKey)+"");
-                        //packet.setOldClient(existCount);
                         packetRepository.savePhoneNumber(idPacket, value,existCount);
-                        System.out.println(firstKey);
                 }else if(firstKey.equals("fbPage")){
                         packetRepository.saveFbPage(idPacket, Long.valueOf(value));
-                        /*Object fbPage = field.get(firstKey);
-                        System.out.println(fieldPacket+"-"+field.get(firstKey)+"-"+ fbPage);
-                        packet.setFbPage(this.getFbPageFromObject(fbPage));*/
-                        System.out.println(firstKey);
                 } else if(firstKey.equals("city")){
                         packetRepository.saveCity(idPacket, Long.valueOf(value));
-                        /*Object city = field.get(firstKey);
-                        System.out.println(fieldPacket+"-"+field.get(firstKey)+"-"+ city);
-                        packet.setFbPage(this.getFbPageFromObject(city));*/
-                        System.out.println(firstKey);
                 }else if (firstKey.equals("customerName")){
                         packetRepository.saveCustomerName(idPacket, value);
-                        System.out.println(firstKey);
                 }else if (firstKey.equals("address")){
-                        packetRepository.saveAddress(idPacket, value);
-                        System.out.println(firstKey);
-                }else{
+                    packetRepository.saveAddress(idPacket, value);
+                }else if (firstKey.equals("date")){
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+                    packetRepository.saveDate(idPacket, dateFormat.parse(value));
+                }else if (firstKey.equals("barcode")){
+                    packetRepository.saveBarcode(idPacket, value);
+                }
+                else{
                         ReflectionUtils.setField(fieldPacket, packet, field.get(firstKey));
                         System.out.println("no"+firstKey);
-                        updatePacket(packet);
+                        packetRepository.save(packet);
                 }
                 packet = packetRepository.findById(idPacket).get();
             }
         return packet;
     }
-    public FbPage getFbPageFromObject(Object fbPageField){
-
-        if (fbPageField instanceof Map) {
-            Map<String, Object> fbPageMap = (Map<String, Object>) fbPageField;
-            Object idValue = fbPageMap.get("id");
-            if (idValue != null) {
-                Long fbPageId = ((Number) idValue).longValue();
-                Optional<FbPage> fbPageOptional = fbPageRepository.findById(fbPageId);
-                if (fbPageOptional.isPresent()) {
-                    return fbPageOptional.get();
-                } else {
-                    throw new IllegalArgumentException("FbPage with ID " + fbPageId + " not found");
-                }
-            } else {
-                throw new IllegalArgumentException("FbPage ID is missing in the field map");
-            }
-        } else {
-            throw new IllegalArgumentException("fbPage field is not a valid Map");
-        }
-    }
-
-    @Override
-    @Transactional("tenantTransactionManager")
-    public Packet addProductsToPacket(SelectedProductsDTO selectedProductsDTO, Integer stock) {
-        String noStockStatus = selectedProductsDTO.getStatus();
-        List<ProductOfferDTO> productsOffers = selectedProductsDTO.getProductsOffers();
-        Optional<Packet> optionalPacket = packetRepository.findById(selectedProductsDTO.getIdPacket());
-
-        if (optionalPacket.isPresent()) {
-            Packet existingPacket = optionalPacket.get();
-            existingPacket.setPrice(selectedProductsDTO.getTotalPrice());
-            existingPacket.setDeliveryPrice(selectedProductsDTO.getDeliveryPrice());
-            existingPacket.setDiscount(selectedProductsDTO.getDiscount());
-            existingPacket.setProductCount(selectedProductsDTO.getProductCount());
-
-            if (noStockStatus != null && noStockStatus.equals(OOS.getStatus()) &&
-                    (existingPacket.getStatus().equals(NOT_CONFIRMED.getStatus()) ||
-                            existingPacket.getStatus().equals(NOTSERIOUS.getStatus()) ||
-                            existingPacket.getStatus().equals(CANCELED.getStatus()) ||
-                            existingPacket.getStatus().equals(UNREACHABLE.getStatus()))) {
-                existingPacket.setStatus(OOS.getStatus());
-            }
-
-            if (noStockStatus != null && (noStockStatus.equals(NOT_CONFIRMED.getStatus()) || noStockStatus.equals(CANCELED.getStatus()))) {
-                existingPacket.setStatus(noStockStatus);
-            }
-
-            List<ProductsPacket> existingProductsPacket = productsPacketRepository.findByPacketId(existingPacket.getId());
-            if (!existingProductsPacket.isEmpty()) {
-                productsPacketRepository.deleteAllInBatch(existingProductsPacket);
-            }
-
-            List<ProductsPacket> newProductsPacket = new ArrayList<>();
-            for (ProductOfferDTO productOfferDTO : productsOffers) {
-                newProductsPacket.add(new ProductsPacket(new Product(productOfferDTO.getProductId()), existingPacket,
-                        new Offer(productOfferDTO.getOfferId()), productOfferDTO.getPacketOfferIndex(),
-                        productOfferDTO.getProfits()));
-            }
-
-            productsPacketRepository.saveAll(newProductsPacket);
-            existingPacket.setPacketDescription(selectedProductsDTO.getPacketDescription());
-            existingPacket.setStock(stock);
-
-            return updatePacket(existingPacket);
-        }
-        return optionalPacket.orElse(null);
-    }
 
 
-    @Override
-    @Transactional("tenantTransactionManager")
+
+
+    /*@Override
     public List<Packet> checkPacketProductsValidity(Long packetId) {
         System.out.println("checkPacketProductsValidity");
         List<ProductsPacket> existingProductsPacket = productsPacketRepository.findByPacketId(packetId);
@@ -331,9 +272,8 @@ public class PacketServiceImpl implements PacketService {
         List<Long> updatedPacketList = new ArrayList<>();
         if (qte < 10) updatedPacketList = updateUnConfirmedStock(lowestProductQte, qte);
         return packetRepository.findAllById(updatedPacketList);
-    }
+    }*/
 
-    @Transactional("tenantTransactionManager")
     public List<Long> updateUnConfirmedStock(Long productId, Integer stock) {
         List<Long> productIds = productsPacketRepository.getUnconfirmedPacketStock_By_ProductId(productId);
         int count = 0;
@@ -345,35 +285,39 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Transactional("tenantTransactionManager")
-    public PacketDTO findPacketRelatedProducts(Long idPacket) {
-        PacketDTO packetDTO = new PacketDTO();
-        List<OfferUpdateDTO> offerUpdateDTOList = new ArrayList<>();
-        Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
-        if(optionalPacket.isPresent()) {
-            packetDTO.setTotalPrice(optionalPacket.get().getPrice());
-            packetDTO.setDeliveryPrice(optionalPacket.get().getDeliveryPrice());
-            packetDTO.setDiscount(optionalPacket.get().getDiscount());
-            List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(optionalPacket.get().getId());
-            if(productsPackets.size() > 0) {
-                Map<Long, List<ProductsPacket>> offerListMap = productsPackets.stream()
-                        .collect(groupingBy(ProductsPacket::getPacketOfferId));
-                offerListMap.forEach((offer, productsPacket) -> {
-                    Offer firstOffer = productsPacket.get(0).getOffer();
-                    OfferUpdateDTO offerUpdateDTO = new OfferUpdateDTO(firstOffer.getId(), firstOffer.getName(), firstOffer.getPrice(), firstOffer.isEnabled(), productsPacket.stream().map(productPacket -> {
-                        try {
-                            return mapToProduct(productPacket.getProduct());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }).collect(Collectors.toList()));
-                    offerUpdateDTOList.add(offerUpdateDTO);
-                });
-            }
-            packetDTO.setOfferUpdateDTOList(offerUpdateDTOList);
-        }
-        return packetDTO;
+    public List<ProductsPacketDTO> findPacketRelatedProducts(Long packetId) {
+        List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packetId);
+        return groupProductsPackets(productsPackets);
+        /*return productsPackets.stream()
+                .map(productsPacket -> new ProductsPacketDTO(productsPacket))
+                .collect(Collectors.toList());*/
     }
 
+    private List<ProductsPacketDTO> groupProductsPackets(List<ProductsPacket> productsPackets) {
+        Map<Long, List<ProductsPacket>> groupedByOfferId = productsPackets.stream()
+                .collect(Collectors.groupingBy(ProductsPacket::getPacketOfferId));
+
+        List<ProductsPacketDTO> productsPacketDTOs = new ArrayList<>();
+
+        for (Map.Entry<Long, List<ProductsPacket>> entry : groupedByOfferId.entrySet()) {
+            Long packetOfferId = entry.getKey();
+            List<ProductsPacket> groupedPackets = entry.getValue();
+            Long offerId = groupedPackets.get(0).getOffer().getId();
+
+            List<ProductDTO> products = groupedPackets.stream()
+                    .map(pp-> new ProductDTO(pp.getProduct()))
+                    .collect(Collectors.toList());
+
+            ProductsPacketDTO dto = new ProductsPacketDTO(
+                    offerId,
+                    packetOfferId,
+                    products
+            );
+            productsPacketDTOs.add(dto);
+        }
+
+        return productsPacketDTOs;
+    }
     private Product mapToProduct(Product product) throws IOException {
         Product newProduct = new Product();
         newProduct.setId(product.getId());
@@ -392,69 +336,31 @@ public class PacketServiceImpl implements PacketService {
         newModel.setSizes(model.getSizes());
         newModel.setDescription(model.getDescription());
         newModel.setName(model.getName());
-        newModel.setReference(model.getReference());
         newModel.setPurchasePrice(model.getPurchasePrice());
         newModel.setEarningCoefficient(model.getEarningCoefficient());
-        if(model.getImage() != null)
-            newModel.setBytes(Files.readAllBytes(new File(model.getImage().getImagePath()).toPath()));
+        newModel.setDeleted(model.isDeleted());
+        /*if(model.getImage() != null)
+            newModel.setBytes(Files.readAllBytes(new File(model.getImage().getImagePath()).toPath()));*/
         return newModel;
     }
 
-    @Override
-    public void deletePacketById(Long idPacket) {
-        Optional<Packet> optionalPacket = packetRepository.findById(idPacket);
-        optionalPacket.ifPresent(packet -> updatePacketStatusAndSaveToHistory(packet, DELETED.getStatus()));
-    }
-
-    /**
-     * Delete selected packets by id
-     *
-     * @param packetsId
-     */
-    @Override
-    @Transactional("tenantTransactionManager")
-    public void deleteSelectedPackets(List<Long> packetsId) {
-        for (Long packetId : packetsId) {
-
-            // Retrieve the packet with the given ID (Assuming you have a method to fetch the packet by ID)
-            Optional<Packet> optionalPacket = packetRepository.findById(packetId);
-            Packet packet = null;
-            if (optionalPacket.isPresent()) {
-                packet= optionalPacket.get();
-                if(packet.getCustomerPhoneNb() == null || packet.getCustomerPhoneNb().equals(""))
-                    packetRepository.deleteById(packetId);
-                else {
-                    updatePacketStatusAndSaveToHistory(packet, DELETED.getStatus());
-                }
-            }
-        }
-    }
 
     @Override
-    @Transactional("tenantTransactionManager")
     public int checkPhone(String phoneNumber) {
         return packetRepository.findAllPacketsByPhone_number(phoneNumber);
     }
 
-    /*@Override
-    public List<DashboardCard> createDashboard() {
-        return packetRepository.createDashboard();
-    }*/
-
     @Override
-    @Transactional("tenantTransactionManager")
     public List<DashboardCard> syncNotification(String startDate, String endDate) {
         return packetRepository.createNotification(startDate,endDate);
     }
     @Override
-    @Transactional("tenantTransactionManager")
     public List<PacketStatus> findPacketTimeLineById(Long idPacket) throws Exception {
         Packet packet = packetRepository.findById(idPacket)
                 .orElseThrow(() -> new Exception("Packet not found!"));
         return packet.getPacketStatus();
     }
     @Override
-    @Transactional("tenantTransactionManager")
     public DeliveryResponse createBarCode(Packet packet) throws IOException {
         DeliveryCompanyName deliveryCompanyName = DeliveryCompanyName.fromString(packet.getDeliveryCompany().getName());
         DeliveryCompanyService deliveryCompanyService = deliveryCompanyServiceFactory.getDeliveryCompanyService(deliveryCompanyName);
@@ -466,7 +372,7 @@ public class PacketServiceImpl implements PacketService {
                     packet.setPrintLink(deliveryResponse.getLink());
                     packet.setBarcode(deliveryResponse.getBarCode());
                     packet.setDate(new Date());
-                    updatePacket(packet);
+                    packetRepository.save(packet);
                 //}
                 return deliveryResponse;
             }
@@ -474,8 +380,14 @@ public class PacketServiceImpl implements PacketService {
         return null;
     }
 
+
+
     @Override
-    @Transactional("tenantTransactionManager")
+    public PacketDTO getLastStatus(long packetId) throws Exception {
+        Packet packet = packetRepository.findById(packetId).orElseThrow( () -> new Exception("Packet not found with ID: " + packetId));
+        return new PacketDTO(getLastStatus(packet));
+    }
+    @Override
     public Packet getLastStatus(Packet packet) {
         try {
             DeliveryCompanyName deliveryCompanyName = DeliveryCompanyName.fromString(packet.getDeliveryCompany().getName());
@@ -492,14 +404,14 @@ public class PacketServiceImpl implements PacketService {
                 }else if (deliveryResponse.getStatus()>199 && deliveryState != null) {
                     //Convert input from first to System Status
                     savePacketStatusToHistory(packet,deliveryCompanyName+":"+deliveryState);
-                    systemNewStatus = mapDeliveryToSystemStatus(deliveryState,deliveryCompanyName);
-                    packet.setLastDeliveryStatus(deliveryState);
-                    //System.out.println("deliveryResponse.getState():"+deliveryState);
+                    DeliveryCompanyStatus dcStatus = DeliveryCompanyStatus.fromString(deliveryState, deliveryCompanyName);
 
-                    if (DeliveryCompanyStatus.fromString(deliveryState, deliveryCompanyName) == DeliveryCompanyStatus.WAITING
-                            || DeliveryCompanyStatus.fromString(deliveryState, deliveryCompanyName) == DeliveryCompanyStatus.RETOUR_DEPOT
-                            || (DeliveryCompanyStatus.fromString(deliveryState, deliveryCompanyName) == DeliveryCompanyStatus.AU_MAGASIN
-                            && packetStatus.equals(IN_PROGRESS_1.getStatus()))) {
+                    systemNewStatus = mapDeliveryToSystemStatus(dcStatus);
+                    packet.setLastDeliveryStatus(deliveryState);
+                    if (dcStatus == DeliveryCompanyStatus.WAITING
+                            || dcStatus == DeliveryCompanyStatus.RETOUR_DEPOT
+                            || (dcStatus == DeliveryCompanyStatus.AU_MAGASIN
+                                && packetStatus.equals(IN_PROGRESS_1.getStatus()))) {
                         return packet;
                     }
 
@@ -518,28 +430,10 @@ public class PacketServiceImpl implements PacketService {
         return null;
     }
 
-    @Override
-    public Packet addAttempt(Long packetId, String note) throws ParseException {
-        Packet packet = packetRepository.findById(packetId).get();
-        packet.setAttempt(packet.getAttempt() + 1);
-        Date noteDate = new Date();
-
-        // Formatting the note date to "dd hh:mm" format
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-HH:mm");
-        String noteWithDate = "-Le "+sdf.format(noteDate) + " " + note;
-        if(packet.getNote().equals("")){packet.setNote(noteWithDate);}
-        else packet.setNote(String.format("%s\n%s", packet.getNote(), noteWithDate));
-        //if(!packet.getStatus().equals(INJOIGNABLE) || packet.getStatus().equals(CANCELED))
-
-        savePacketStatusToHistory(packet, "tentative: " + packet.getAttempt() + " " + note);
-        return updatePacket(packet);
-    }
-
-    private String mapDeliveryToSystemStatus(String status,DeliveryCompanyName deliveryCompanyName) {
+    private String mapDeliveryToSystemStatus(DeliveryCompanyStatus status) {
         if (status == null || status.equals(""))
             return TO_VERIFY.getStatus();
-        DeliveryCompanyStatus deliveryCompanyStatus = DeliveryCompanyStatus.fromString(status,deliveryCompanyName);
-        return switch (deliveryCompanyStatus) {
+        return switch (status) {
             case LIVREE, EXCHANGE -> LIVREE.getStatus();
             case RETOUR_EXPEDITEUR ,
                     RETOUR_DEFINITIF, RETOUR_CLIENT_AGENCE,
@@ -562,7 +456,7 @@ public class PacketServiceImpl implements PacketService {
             case IN_PROGRESS_3:
                 return TO_VERIFY.getStatus();
             case TO_VERIFY:
-                return mapDeliveryToSystemStatus(packet.getLastDeliveryStatus(),deliveryCompanyName);
+                return mapDeliveryToSystemStatus(DeliveryCompanyStatus.fromString(packet.getLastDeliveryStatus(), deliveryCompanyName));
             default:
                 return IN_PROGRESS_1.getStatus();
         }
@@ -581,12 +475,10 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Transactional("tenantTransactionManager")
-    public Packet duplicatePacket(Long idPacket) {
+    public PacketDTO duplicatePacket(Long idPacket) throws Exception {
         GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
         Packet packet = packetRepository.findById(idPacket).get();
-
         Packet newPacket = new Packet();
-
             newPacket.setCustomerName(packet.getCustomerName() + "   echange id: " + packet.getId());
             newPacket.setCustomerPhoneNb(packet.getCustomerPhoneNb());
             newPacket.setAddress(packet.getAddress());
@@ -598,40 +490,40 @@ public class PacketServiceImpl implements PacketService {
             newPacket.setCity(packet.getCity());
             newPacket.setDeliveryPrice(packet.getDeliveryPrice());
             newPacket.setValid(false);
-            newPacket.setStock(packet.getStock());
             newPacket.setDeliveryCompany(globalConf.getDeliveryCompany());
             newPacket.setExchangeId(packet.getId());
             newPacket.setHaveExchange(false);
-
         Packet response = packetRepository.save(newPacket);
-        List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
+
+        List<ProductsPacket> productsPackets = packet.getProductsPackets();//productsPacketRepository.findByPacketId(packet.getId());
+        List<ProductsPacket> newProductsPackets = new ArrayList<>();
         if(productsPackets.size()>0) {
             productsPackets.stream().forEach(productsPacket -> {
-                ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response, productsPacket.getOffer(), productsPacket.getPacketOfferId(),productsPacket.getProfits());
-                productsPacketRepository.save(newProductsPacket);
+                productsPacket.setPacket(response);
+                newProductsPackets.add(productsPacket);
+                //ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response, productsPacket.getOffer(), productsPacket.getPacketOfferId(),productsPacket.getProfits());
+
             });
+            productsPacketRepository.saveAll(productsPackets);
         }
         savePacketStatusToHistory(newPacket,CREATION.getStatus());
         packet.setHaveExchange(true);
         packetRepository.save(packet);
-        return response;
+        Packet fullPacket = packetRepository.findById(response.getId()).orElseThrow(() -> new Exception("Packet not found with ID: " + response.getId()));
+        return new PacketDTO(fullPacket);
     }
 
-    @Transactional("tenantTransactionManager")
     public List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO) {
         List<String> errors = new ArrayList<>();
-        //System.out.println(barCodeStatusDTO);
         String newState = barCodeStatusDTO.getStatus();
         barCodeStatusDTO.getBarCodes().forEach(barCode -> {
             try {
-                Optional<Packet> optionalPacket = packetRepository.findByBarCode(barCode);
-                if(optionalPacket.isPresent()) {
-                    if (!optionalPacket.get().getStatus().equals(RETURN_RECEIVED.getStatus())) {
-                            updatePacketStatus(optionalPacket.get(), newState);
+                Packet packet = getPacketByBarcode(barCode);
+                    if (!packet.getStatus().equals(RETURN_RECEIVED.getStatus())) {
+                            updatePacketStatus(packet, newState);
                     } else {
                         errors.add(barCode + " déja récu");
                     }
-                }else { errors.add(barCode + " n'existe pas"); }
             } catch(Exception e){
                 errors.add(barCode+ " erreur");
                 e.printStackTrace();
@@ -640,8 +532,7 @@ public class PacketServiceImpl implements PacketService {
         return errors;
     }
 
-    @Transactional("tenantTransactionManager")
-    public Packet updatePacketStatus(Packet packet,String status){
+    public Packet updatePacketStatus(Packet packet,String status) throws Exception {
         if(packet.getExchangeId() != null){
             if (status.equals(PAID.getStatus())||status.equals(LIVREE.getStatus()))
                 return updateExchangePacketStatusToPaid(packet,status);
@@ -652,34 +543,30 @@ public class PacketServiceImpl implements PacketService {
         return updatePacketStatusAndSaveToHistory(packet, status);
     }
 
-    @Transactional("tenantTransactionManager")
-    public Packet updateExchangePacketStatusToReturnReceived(Packet packet){
-        //Long id = getExchangeId(packet);
+    public Packet updateExchangePacketStatusToReturnReceived(Packet packet) throws Exception {
         Long id = packet.getExchangeId();
-        Optional<Packet> optionalPacket = packetRepository.findById(id);
+        Packet exchangePacket = getPacketById(id);
         if(packet.getStatus().equals(LIVREE.getStatus())
                 ||packet.getStatus().equals(PAID.getStatus())
-                ||optionalPacket.get().getStatus().equals(RETURN.getStatus()))
-        return updatePacketStatusAndSaveToHistory(optionalPacket.get(), RETURN_RECEIVED.getStatus());
+                ||exchangePacket.getStatus().equals(RETURN.getStatus()))
+        return updatePacketStatusAndSaveToHistory(exchangePacket, RETURN_RECEIVED.getStatus());
         else return updatePacketStatusAndSaveToHistory(packet, RETURN_RECEIVED.getStatus());
     }
 
-    @Transactional("tenantTransactionManager")
-    public Packet updateExchangePacketStatusToPaid(Packet packet,String status){
-        //Long id = getExchangeId(packet);
+    public Packet updateExchangePacketStatusToPaid(Packet packet,String status) throws Exception {
         Long id = packet.getExchangeId();
-        Optional<Packet> optionalPacket = packetRepository.findById(id);
-        packet.setPrice(optionalPacket.get().getPrice()-optionalPacket.get().getDiscount()+packet.getPrice()-packet.getDiscount());
-        if(!optionalPacket.get().getStatus().equals(RETURN_RECEIVED.getStatus()))
-            updatePacketStatusAndSaveToHistory(optionalPacket.get(), RETURN.getStatus());
+        Packet exchangePacket = getPacketById(id);
+        packet.setPrice(exchangePacket.getPrice()-exchangePacket.getDiscount()+packet.getPrice()-packet.getDiscount());
+        if(!exchangePacket.getStatus().equals(RETURN_RECEIVED.getStatus()))
+            updatePacketStatusAndSaveToHistory(exchangePacket, RETURN.getStatus());
         return updatePacketStatusAndSaveToHistory(packet, status);
     }
 
-    @Transactional("tenantTransactionManager")
     public Packet updatePacketStatusAndSaveToHistory(Packet packet, String status) {
         if (packet.getStatus() == null) {
             packet.setStatus(NOT_CONFIRMED.getStatus());
         }
+
         if (
             !packet.getStatus().equals(status)&&
             !(
@@ -695,25 +582,9 @@ public class PacketServiceImpl implements PacketService {
             savePacketStatusToHistory(packet,status);
             return  savePacketStatus(packet, status);
         }
-        return updatePacket(packet);
-    }
-    @Transactional("tenantTransactionManager")
-    public Packet savePacketStatus(Packet packet, String status) {
-        packet.setStatus(status);
-        packet.setLastUpdateDate(new Date());
-        return updatePacket(packet);
+        return packetRepository.save(packet);
     }
 
-    @Transactional("tenantTransactionManager")
-    public void savePacketStatusToHistory(Packet packet, String status) {
-        PacketStatus packetStatus = new PacketStatus();
-        packetStatus.setPacket(packet);
-        packetStatus.setStatus(status);
-        packetStatus.setDate(new Date());
-        packetStatus.setUser(sessionUtils.getCurrentUser());
-        packetStatusRepository.save(packetStatus);
-    }
-    @Transactional("tenantTransactionManager")
     public void updateProducts_Status(Packet packet,String status){
         if(status.equals(LIVREE.getStatus())
                 ||status.equals(PAID.getStatus())
@@ -721,16 +592,15 @@ public class PacketServiceImpl implements PacketService {
                 ||status.equals(RETURN_RECEIVED.getStatus())
                 ||status.equals(CANCELED.getStatus()))
             updateProductsPacket_Status_ByPacketId(packet,status);
-
     }
-    @Transactional("tenantTransactionManager")
+
     public void updateProducts_Quantity(Packet packet,String status){
         if (status.equals(RETURN_RECEIVED.getStatus())
                 ||status.equals(CONFIRMED.getStatus())
                 ||status.equals(CANCELED.getStatus()))
             updateProductsQuantity(packet,status);
     }
-    @Transactional("tenantTransactionManager")
+
     public void updateProductsPacket_Status_ByPacketId(Packet packet,String status) {
         int x = -1;
         if (status.equals(RETURN_RECEIVED.getStatus()) || status.equals(CANCELED.getStatus())) x = 0;
@@ -745,7 +615,7 @@ public class PacketServiceImpl implements PacketService {
             }
         }
     }
-    @Transactional("tenantTransactionManager")
+
     public void updateProductsQuantity(Packet packet,String status) {
         int quantity = 0;
         if (status.equals(RETURN_RECEIVED.getStatus()) || status.equals(CANCELED.getStatus())) quantity = 1;
@@ -761,10 +631,103 @@ public class PacketServiceImpl implements PacketService {
         }
     }
 
-    @Transactional("tenantTransactionManager")
     public void updateProductQuantity(Product product, int quantityChange) {
         product.setQuantity(product.getQuantity() + quantityChange);
         product.setDate(new Date());
         productRepository.save(product);
+    }
+
+    public Packet savePacketStatus(Packet packet, String status) {
+        packet.setStatus(status);
+        packet.setLastUpdateDate(new Date());
+
+        //packetRepository.savePacketStatus(packet.getId(),status,packet.getLastDeliveryStatus());
+        return packetRepository.save(packet);
+    }
+
+    public void savePacketStatusToHistory(Packet packet, String status) {
+        PacketStatus packetStatus = new PacketStatus();
+        packetStatus.setPacket(packet);
+        packetStatus.setStatus(status);
+        packetStatus.setDate(new Date());
+        packetStatus.setUser(sessionUtils.getCurrentUser());
+        packetStatusRepository.save(packetStatus);
+    }
+
+    @Override
+    public PacketDTO addProductsToPacket(SelectedProductsDTO selectedProductsDTO) throws Exception {
+        String noStockStatus = selectedProductsDTO.getStatus();
+        List<ProductOfferDTO> productsOffers = selectedProductsDTO.getProductsOffers();
+        Packet packet = getPacketById(selectedProductsDTO.getIdPacket());
+
+        if (noStockStatus != null && noStockStatus.equals(OOS.getStatus()) &&
+                (packet.getStatus().equals(NOT_CONFIRMED.getStatus()) ||
+                        packet.getStatus().equals(NOTSERIOUS.getStatus()) ||
+                        packet.getStatus().equals(CANCELED.getStatus()) ||
+                        packet.getStatus().equals(UNREACHABLE.getStatus()))) {
+            packet.setStatus(OOS.getStatus());
+        }
+
+        if (noStockStatus != null && (noStockStatus.equals(NOT_CONFIRMED.getStatus()) || noStockStatus.equals(CANCELED.getStatus()))) {
+            packet.setStatus(noStockStatus);
+        }
+
+        List<ProductsPacket> newProductsPacket = productsOffers.stream()
+                .map(productOffer -> addProductPacket(packet, productOffer))
+                .toList();
+
+        packet.addProductsToPacket(newProductsPacket);
+        packet.setPacketDescription(selectedProductsDTO.getPacketDescription());
+        packet.setPrice(selectedProductsDTO.getTotalPrice());
+        packet.setDeliveryPrice(selectedProductsDTO.getDeliveryPrice());
+        packet.setDiscount(selectedProductsDTO.getDiscount());
+        packet.setProductCount(selectedProductsDTO.getProductCount());
+        return new PacketDTO(packetRepository.save(packet));
+    }
+
+    private ProductsPacket addProductPacket(Packet packet,ProductOfferDTO productsPacket){
+        return new ProductsPacket(
+                new Product(productsPacket.getProductId()),
+                packet,
+                new Offer(productsPacket.getOfferId()),
+                productsPacket.getPacketOfferIndex(),
+                productsPacket.getProfits()
+        );
+    }
+
+    @Override
+    public Packet addAttempt(Long packetId, String note) {
+        Packet packet = packetRepository.findById(packetId).get();
+        packet.setAttempt(packet.getAttempt() + 1);
+        Date noteDate = new Date();
+        // Formatting the note date to "dd hh:mm" format
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-HH:mm");
+        String noteWithDate = "-Le "+sdf.format(noteDate) + " " + note;
+        if(packet.getNote().equals("")){packet.setNote(noteWithDate);}
+        else packet.setNote(String.format("%s\n%s", packet.getNote(), noteWithDate));
+        savePacketStatusToHistory(packet, "tentative: " + packet.getAttempt() + " " + note);
+        return packetRepository.save(packet);
+    }
+    @Override
+    public void deletePacketById(Long idPacket) throws Exception {
+        Packet packet = getPacketById(idPacket);
+        updatePacketStatusAndSaveToHistory(packet, DELETED.getStatus());
+    }
+
+    /**
+     * Delete selected packets by id
+     *
+     * @param packetsId
+     */
+    @Override
+    public void deleteSelectedPackets(List<Long> packetsId) throws Exception {
+        for (Long packetId : packetsId) {
+            Packet packet = getPacketById(packetId);
+            if(packet.getCustomerPhoneNb() == null || packet.getCustomerPhoneNb().equals(""))
+                packetRepository.deleteById(packetId);
+            else {
+                updatePacketStatusAndSaveToHistory(packet, DELETED.getStatus());
+            }
+        }
     }
 }

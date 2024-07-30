@@ -6,22 +6,22 @@ import java.util.List;
 import java.util.Set;
 
 public class StockDTO {
-    List<List<Object>> productsByColor;
+    List<List<ProductDTO>> productsByColor;
     List<Size> sizes;
 
     public StockDTO() {
     }
 
-    public StockDTO(List<List<Object>> productsByColor, List<Size> sizes) {
+    public StockDTO(List<List<ProductDTO>> productsByColor, List<Size> sizes) {
         this.productsByColor = productsByColor;
         this.sizes = sizes;
     }
 
-    public List<List<Object>> getProductsByColor() {
+    public List<List<ProductDTO>> getProductsByColor() {
         return productsByColor;
     }
 
-    public void setProductsByColor(List<List<Object>> productsByColor) {
+    public void setProductsByColor(List<List<ProductDTO>> productsByColor) {
         this.productsByColor = productsByColor;
     }
 

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { Subject, takeUntil } from 'rxjs';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
 
@@ -10,14 +11,15 @@ import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
   templateUrl: './add-ste-livraison.component.html',
   styleUrls: ['./add-ste-livraison.component.scss']
 })
-export class AddSteLivraisonComponent implements OnInit {
+export class AddSteLivraisonComponent implements OnInit,OnDestroy {
 
   deliveryCompany!: DeliveryCompany;
   editMode!: boolean;
+  $unsubscribe: Subject<void> = new Subject();
   constructor(public steLivraisonService: SteLivraisonService, private messageService: MessageService) { }
 
   ngOnInit(): void {
-    this.steLivraisonService.deliveryCompany.subscribe(deliveryCompany => {
+    this.steLivraisonService.deliveryCompany.pipe(takeUntil(this.$unsubscribe)).subscribe(deliveryCompany => {
       this.deliveryCompany = deliveryCompany
     });
   }
@@ -29,7 +31,7 @@ export class AddSteLivraisonComponent implements OnInit {
       this.deliveryCompany.barreCodeUrl = form.value.barreCodeUrl;
       this.deliveryCompany.apiName = form.value.apiName;
       this.deliveryCompany.additionalName = form.value.additionalName;
-      this.steLivraisonService.updateSte(this.deliveryCompany)
+      this.steLivraisonService.updateSte(this.deliveryCompany).pipe(takeUntil(this.$unsubscribe))
       .subscribe((updatedDC: any) => {
         console.log(updatedDC)
         this.steLivraisonService.spliceSte(updatedDC);
@@ -38,7 +40,7 @@ export class AddSteLivraisonComponent implements OnInit {
         this.steLivraisonService.editMode = false;
       });
     } else {
-      this.steLivraisonService.addSte(form.value)
+      this.steLivraisonService.addSte(form.value).pipe(takeUntil(this.$unsubscribe))
       .subscribe((addedDC: any) => {
         this.steLivraisonService.deliveryCompanyList.push(addedDC);
         this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été crée avec succés", life: 1000 });
@@ -50,6 +52,11 @@ export class AddSteLivraisonComponent implements OnInit {
   reset(ngForm: NgForm){
     ngForm.reset();
     this.steLivraisonService.editMode = false;
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+this.$unsubscribe.complete();
   }
 
 }

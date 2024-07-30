@@ -369,8 +369,11 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
-    public Map<String, List<?>> statAllPacketsChart(String beginDate, String endDate) {
-        List<PacketsStatCountDTO> existingPackets = productsPacketRepository.statAllPackets(beginDate, endDate);
+    public Map<String, List<?>> statAllPacketsChart(String beginDate, String endDate, String deliveryCompanyName) {
+        List<PacketsStatCountDTO> existingPackets;
+        if(deliveryCompanyName.equals("ALL"))
+            existingPackets = productsPacketRepository.statAllPackets(beginDate, endDate);
+        else existingPackets = productsPacketRepository.statAllPackets(beginDate, endDate,deliveryCompanyName);
         List<Date> uniqueDates = getUniqueDates(existingPackets);
 
         List<List<Long>> statusCountLists = createStatusCountLists(existingPackets);

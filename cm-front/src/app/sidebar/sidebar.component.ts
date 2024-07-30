@@ -39,10 +39,11 @@ export class SidebarComponent implements OnInit {
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
       this.activeClass = true;
       if(this.isLoggedIn) {
-        this.globalConfService.getGlobalConf().subscribe((globalConf: GlobalConf) => {
-          if(globalConf)
-            this.globalConf = {...globalConf};
-        });
+        this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+          (globalConf: GlobalConf) => {
+            this.globalConf = globalConf;
+          }
+        );
       }
     });
   }

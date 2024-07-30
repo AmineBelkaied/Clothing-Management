@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
-@Table(name = "model")
+@Table(name = "model", indexes = {
+        @Index(name = "idx_id", columnList = "id")
+})
 @JsonIgnoreProperties({
         "hibernateLazyInitializer", "handler" })
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id",scope = Model.class)
@@ -15,15 +17,23 @@ public class Model {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String  name;
-    @OneToMany(mappedBy = "model" , cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "model", fetch = FetchType.LAZY)
+    private Set<OfferModel> modelOffers = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "model" , cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     List<Product> products;
-    private String reference;
+
     private String description;
     @Column(name="purchase_price")
     private float purchasePrice;
 
     @Column(name="earning_coefficient")
     private double earningCoefficient;
+
+    private boolean deleted;
 
     @ManyToMany(cascade = { CascadeType.MERGE } , fetch = FetchType.EAGER)
     @JoinTable(
@@ -39,37 +49,46 @@ public class Model {
             inverseJoinColumns = { @JoinColumn(name = "size_id") }
     )
     private List<Size> sizes = new ArrayList<>();
-    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<OfferModel> modelOffers = new HashSet<>();
 
-    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
     @JsonIgnore
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductHistory> productHistories;
 
-    @OneToOne(mappedBy = "model", cascade = CascadeType.ALL)
-    private ModelImage image;
-    @Transient
-    private byte[] bytes;
     public Model() {
+        this.deleted = false;
+        this.earningCoefficient = 1.5;
+        this.purchasePrice = 15;
     }
 
     public Model(Long id) {
         this.id = id;
     }
-
-    public Model(String name, List<Product> products, String reference, String description, List<Color> colors, List<Size> sizes, Set<OfferModel> modelOffers, List<ProductHistory> productHistories, ModelImage image, float purchasePrice,double earningCoefficient) {
+    public Model(Model model) {
+        this.name = model.getName();
+        this.description = model.getDescription();
+        this.purchasePrice = model.getPurchasePrice();
+        this.earningCoefficient = model.getEarningCoefficient();
+        this.deleted = model.isDeleted();
+    }
+    public Model(String name,
+                 List<Product> products,
+                 String description,
+                 List<Color> colors,
+                 List<Size> sizes,
+                 Set<OfferModel> modelOffers,
+                 List<ProductHistory> productHistories,
+                 float purchasePrice,
+                 double earningCoefficient,boolean deleted) {
         this.name = name;
         this.products = products;
-        this.reference = reference;
         this.description = description;
         this.colors = colors;
         this.sizes = sizes;
         this.modelOffers = modelOffers;
         this.productHistories = productHistories;
-        this.image = image;
         this.purchasePrice = purchasePrice;
         this.earningCoefficient = earningCoefficient;
+        this.deleted = deleted;
     }
 
     public Long getId() {
@@ -86,14 +105,6 @@ public class Model {
 
     public void setProducts(List<Product> products) {
         this.products = products;
-    }
-
-    public String getReference() {
-        return reference;
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
     }
 
     public List<Color> getColors() {
@@ -132,22 +143,6 @@ public class Model {
         this.sizes = sizes;
     }
 
-    public ModelImage getImage() {
-        return image;
-    }
-
-    public void setImage(ModelImage image) {
-        this.image = image;
-    }
-
-    public byte[] getBytes() {
-        return bytes;
-    }
-
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
-    }
-
     public float getPurchasePrice() {
         return purchasePrice;
     }
@@ -164,19 +159,28 @@ public class Model {
         this.earningCoefficient = gainCoefficient;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Model model)) return false;
-        return Float.compare(model.purchasePrice, purchasePrice) == 0 && Double.compare(model.earningCoefficient, earningCoefficient) == 0 && Objects.equals(id, model.id) && Objects.equals(name, model.name) && Objects.equals(products, model.products) && Objects.equals(reference, model.reference) && Objects.equals(description, model.description) && Objects.equals(colors, model.colors) && Objects.equals(sizes, model.sizes) && Objects.equals(modelOffers, model.modelOffers) && Objects.equals(productHistories, model.productHistories) && Objects.equals(image, model.image) && Arrays.equals(bytes, model.bytes);
+        return Float.compare(model.purchasePrice, purchasePrice) == 0 &&
+                Double.compare(model.earningCoefficient, earningCoefficient) == 0 &&
+                Objects.equals(id, model.id) &&
+                Objects.equals(name, model.name) &&
+                Objects.equals(description, model.description);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, name, products, reference, description, purchasePrice, earningCoefficient, colors, sizes, modelOffers, productHistories, image);
-        result = 31 * result + Arrays.hashCode(bytes);
-        return result;
+        return Objects.hash(id, name, description, purchasePrice, earningCoefficient);
     }
 
     @Override
@@ -184,12 +188,10 @@ public class Model {
         return "Model{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", reference='" + reference + '\'' +
                 ", description='" + description + '\'' +
-                ", colors=" + colors +
-                ", sizes=" + sizes +
                 ", purchasePrice=" + purchasePrice +
                 ", gainCoefficient=" + earningCoefficient +
+                ", deleted=" + deleted +
                 '}';
     }
 }
