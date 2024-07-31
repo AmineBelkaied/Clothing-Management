@@ -5,7 +5,7 @@ import { Observable, Subject, catchError, takeUntil } from 'rxjs';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
-import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
+import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
 
 @Component({
   selector: 'app-global-conf',
@@ -22,7 +22,7 @@ export class GlobalConfComponent implements OnInit, OnDestroy {
   deliveryCompanies: DeliveryCompany[];
   $unsubscribe: Subject<void> = new Subject();
 
-  constructor(public globalConfService: GlobalConfService, private deliveryCompanyService: SteLivraisonService, private messageService: MessageService) {}
+  constructor(public globalConfService: GlobalConfService, private deliveryCompanyService: DeliveryCompanyService, private messageService: MessageService) {}
 
   ngOnInit(): void {
 
@@ -33,7 +33,7 @@ export class GlobalConfComponent implements OnInit, OnDestroy {
       this.globalConf = globalConf
       console.log(this.globalConf);})
 
-    this.deliveryCompanyService.findAllStes()
+    this.deliveryCompanyService.findAllDeliveryCompanies()
     .subscribe((deliveryCompanies: any) => this.deliveryCompanies = deliveryCompanies)
   }
 

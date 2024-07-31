@@ -15,23 +15,13 @@ export class DashboardComponent implements OnInit {
   $unsubscribe: Subject<void> = new Subject();
   cards : DashboardCard[] = [];
 
-  constructor(private productHistoryService: ProductHistoryService, private packetService: PacketService,) { }
+  constructor(private packetService: PacketService) { }
 
   ngOnInit(): void {
     this.createDashboard();
   }
 
   createDashboard(): void {
-    this.packetService.createDashboard()
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe({
-        next: (response: DashboardCard[]) => {
-          this.cards = response;
-        },
-        error: (error: Error) => {
-          console.log('Error:', error);
-        }
-      });
   }
 
   count(index : number){

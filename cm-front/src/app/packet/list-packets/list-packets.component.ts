@@ -701,7 +701,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     updatedField = { [this.selectedField]: packet[this.selectedField] };
     console.dir(updatedField);
     let status = packet.status;
-    this.packetService.patchPacket(packet.id, updatedField)
+    this.packetService.patchPacket(packet.id!, updatedField)
       .pipe(
         catchError((err: any, caught: Observable<any>): Observable<any> => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating packet ' + err.error.message });
@@ -873,11 +873,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
        }*/
     switch (this.noteActionStatus) {
       case 'DELETED': {
-        let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id);
+        let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id!);
         this.packetService
           .deleteSelectedPackets(selectedPacketsByIds)
           .subscribe(() => {
-            this.packets = this.packets.filter((packet: Packet) => selectedPacketsByIds.indexOf(packet.id) == -1);
+            this.packets = this.packets.filter((packet: Packet) => selectedPacketsByIds.indexOf(packet.id!) == -1);
             this.selectedPackets = [];
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000 });
           });
@@ -939,7 +939,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   showTimeLineDialog(packet: Packet): void {
     try {
-      this.packetService.getPacketTimeLine(packet.id).subscribe((response: any) => {
+      this.packetService.getPacketTimeLine(packet.id!).subscribe((response: any) => {
         this.statusEvents = [];
         this.suiviHeader = "Suivi Historique - Commande N° " + packet.id;
         if (response != null && response.length > 0) {
@@ -976,7 +976,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   duplicatePacket(packet: Packet): void {
     this.packetService
-      .duplicatePacket(packet.id)
+      .duplicatePacket(packet.id!)
       .subscribe((response: Packet) => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est dupliqué avec succés', life: 1000 });
         this.packets.unshift(response);
@@ -1099,7 +1099,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     }
     console.log("createRangeDate startDate: ", this.startDate);
   }
-
 
   onPageChange($event: any): void {
     this.currentPage = $event.page;

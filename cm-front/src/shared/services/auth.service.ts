@@ -15,9 +15,8 @@ export class AuthService {
 
   baseUrl: string = environment.baseUrl;
 
-  private authUrl: string = '/api/auth';
+  private authUrl: string = '/auth';
   login(form: any): Observable<any> {
-    console.log(this.baseUrl + this.authUrl +'/login');
     
     return this.http.post(
       this.baseUrl + this.authUrl +'/login',

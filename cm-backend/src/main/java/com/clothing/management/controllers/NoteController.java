@@ -3,48 +3,60 @@ package com.clothing.management.controllers;
 import com.clothing.management.entities.Note;
 import com.clothing.management.services.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
+@RequestMapping("${api.prefix}/notes")
 @CrossOrigin
-@RequestMapping("note")
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class NoteController {
-    
+
+    private final NoteService noteService;
+
     @Autowired
-    NoteService noteService;
-
-    @GetMapping(path = "/findAllNotes")
-    public List<Note> findAllNotes() {
-        return noteService.findAllNotes();
+    public NoteController(NoteService noteService) {
+        this.noteService = noteService;
     }
 
-    @GetMapping(path = "/findAllNotesByPacketId/{packetId}")
-    public List<Note> findAllNotesByPacketId(@PathVariable Long packetId) {
-        return noteService.findAllNotesByPacketId(packetId);
+    @GetMapping
+    public ResponseEntity<List<Note>> getAllNotes() {
+        List<Note> notes = noteService.findAllNotes();
+        return ResponseEntity.ok(notes);
     }
 
-    @GetMapping(path = "/findNoteById/{noteId}")
-    public Optional<Note> findNoteById(@PathVariable Long noteId) {
-        return noteService.findNoteById(noteId);
+    @GetMapping("/packet/{packetId}")
+    public ResponseEntity<List<Note>> getNotesByPacketId(@PathVariable Long packetId) {
+        List<Note> notes = noteService.findAllNotesByPacketId(packetId);
+        return ResponseEntity.ok(notes);
     }
 
-    @PostMapping(value = "/addNote" , produces = "application/json")
-    public Note addNote(@RequestBody  Note Note) {
-        return noteService.addNote(Note);
+    @GetMapping("/{noteId}")
+    public ResponseEntity<Note> getNoteById(@PathVariable Long noteId) {
+        return noteService.findNoteById(noteId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PutMapping(value = "/updateNote" , produces = "application/json")
-    public Note updateNote(@RequestBody Note Note) {
-        return noteService.updateNote(Note);
+    @PostMapping
+    public ResponseEntity<Note> createNote(@RequestBody Note note) {
+        Note createdNote = noteService.addNote(note);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdNote);
     }
 
-    @DeleteMapping(value = "/deleteNoteById/{noteId}")
-    public void deleteNoteById(@PathVariable Long noteId) {
+    @PutMapping
+    public ResponseEntity<Note> updateNote(@RequestBody Note note) {
+        Note updatedNote = noteService.updateNote(note);
+        return ResponseEntity.ok(updatedNote);
+    }
+
+    @DeleteMapping("/{noteId}")
+    public ResponseEntity<Void> deleteNoteById(@PathVariable Long noteId) {
         noteService.deleteNoteById(noteId);
+        return ResponseEntity.noContent().build();
     }
 }

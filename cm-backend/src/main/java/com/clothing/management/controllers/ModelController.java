@@ -3,47 +3,58 @@ package com.clothing.management.controllers;
 import com.clothing.management.entities.Model;
 import com.clothing.management.services.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("model")
+@RequestMapping("${api.prefix}/models")
 @CrossOrigin
-@Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ModelController {
 
+    private final ModelService modelService;
+
     @Autowired
-    ModelService modelService;
-
-    @GetMapping(path = "/findAll")
-    public List<Model> findAllModels() {
-        return modelService.findAllModels();
+    public ModelController(ModelService modelService) {
+        this.modelService = modelService;
     }
 
-    @GetMapping(path = "/findById/{id}")
-    public Optional<Model> findByIdModel(@PathVariable Long idModel) {
-        return modelService.findModelById(idModel);
+    @GetMapping
+    public ResponseEntity<List<Model>> getAllModels() {
+        List<Model> models = modelService.findAllModels();
+        return new ResponseEntity<>(models, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public Model addModel(@RequestBody  Model model) {
-        return modelService.addModel(model);
+    @GetMapping("/{id}")
+    public ResponseEntity<Model> getModelById(@PathVariable Long id) {
+        return modelService.findModelById(id)
+                .map(model -> new ResponseEntity<>(model, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PutMapping(value = "/update" , produces = "application/json")
-    public Model updateModel(@RequestBody Model model) {
-        return modelService.updateModel(model);
+    @PostMapping
+    public ResponseEntity<Model> createModel(@RequestBody Model model) {
+        Model createdModel = modelService.addModel(model);
+        return new ResponseEntity<>(createdModel, HttpStatus.CREATED);
     }
 
-    @DeleteMapping(value = "/deleteById/{idModel}")
-    public void deleteModelById(@PathVariable Long idModel) {
-        modelService.deleteModelById(idModel);
+    @PutMapping
+    public ResponseEntity<Model> updateModel(@RequestBody Model model) {
+        Model updatedModel = modelService.updateModel(model);
+        return new ResponseEntity<>(updatedModel, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/deleteSelectedModels/{modelsId}" , produces = "application/json")
-    public void deleteSelectedModels(@PathVariable List<Long> modelsId) { modelService.deleteSelectedModels(modelsId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteModelById(@PathVariable Long id) {
+        modelService.deleteModelById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/batch-delete")
+    public ResponseEntity<Void> deleteSelectedModels(@RequestBody List<Long> modelIds) {
+        modelService.deleteSelectedModels(modelIds);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

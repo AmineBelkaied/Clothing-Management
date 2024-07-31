@@ -3,48 +3,58 @@ package com.clothing.management.controllers;
 import com.clothing.management.entities.Governorate;
 import com.clothing.management.services.GovernorateService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("governorate")
+@RequestMapping("${api.prefix}/governorates")
 @CrossOrigin
-@Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class GovernorateController {
 
+    private final GovernorateService governorateService;
+
     @Autowired
-    GovernorateService governorateService;
-
-    @GetMapping(path = "/findAll")
-    public List<Governorate> findAllGovernorates() {
-        return governorateService.findAllGovernorates();
+    public GovernorateController(GovernorateService governorateService) {
+        this.governorateService = governorateService;
     }
 
-    @GetMapping(path = "/findById/{id}")
-    public Optional<Governorate> findByIdGovernorate(@PathVariable Long idGovernorate) {
-        return governorateService.findGovernorateById(idGovernorate);
+    @GetMapping
+    public ResponseEntity<List<Governorate>> getAllGovernorates() {
+        List<Governorate> governorates = governorateService.findAllGovernorates();
+        return new ResponseEntity<>(governorates, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public Governorate addGovernorate(@RequestBody  Governorate governorate) {
-        return governorateService.addGovernorate(governorate);
+    @GetMapping("/{id}")
+    public ResponseEntity<Governorate> getGovernorateById(@PathVariable Long id) {
+        return governorateService.findGovernorateById(id)
+                .map(governorate -> new ResponseEntity<>(governorate, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PutMapping(value = "/update" , produces = "application/json")
-    public Governorate updateGovernorate(@RequestBody Governorate governorate) {
-        return governorateService.updateGovernorate(governorate);
+    @PostMapping
+    public ResponseEntity<Governorate> createGovernorate(@RequestBody Governorate governorate) {
+        Governorate createdGovernorate = governorateService.addGovernorate(governorate);
+        return new ResponseEntity<>(createdGovernorate, HttpStatus.CREATED);
     }
 
-    @DeleteMapping(value = "/delete" , produces = "application/json")
-    public void deleteGovernorate(@RequestBody Governorate governorate) {
-        governorateService.deleteGovernorate(governorate);
+    @PutMapping
+    public ResponseEntity<Governorate> updateGovernorate(@RequestBody Governorate governorate) {
+        Governorate updatedGovernorate = governorateService.updateGovernorate(governorate);
+        return new ResponseEntity<>(updatedGovernorate, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/deleteSelectedGovernorates/{governoratesId}" , produces = "application/json")
-    public void deleteSelectedGovernorates(@PathVariable List<Long> governoratesId) {
-        governorateService.deleteSelectedGovernorates(governoratesId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteGovernorateById(@PathVariable Long id) {
+        governorateService.deleteGovernorateById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/batch-delete")
+    public ResponseEntity<Void> deleteSelectedGovernorates(@RequestBody List<Long> governorateIds) {
+        governorateService.deleteSelectedGovernorates(governorateIds);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

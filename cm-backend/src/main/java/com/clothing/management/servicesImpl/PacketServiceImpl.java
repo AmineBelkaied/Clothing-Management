@@ -101,8 +101,9 @@ public class PacketServiceImpl implements PacketService {
                 return packetRepository.findAllPacketsByField(searchText, pageable);
             if (startDate != null && status != null)
             {
-                if (status.equals("Tous"))return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
-                return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status),dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
+                if (status.equals("Tous"))
+                    return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
+                return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status), dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
             }
             if (status != null)
             {
@@ -267,7 +268,7 @@ public class PacketServiceImpl implements PacketService {
             existingPacket.setPrice(selectedProductsDTO.getTotalPrice());
             existingPacket.setDeliveryPrice(selectedProductsDTO.getDeliveryPrice());
             existingPacket.setDiscount(selectedProductsDTO.getDiscount());
-            existingPacket.setProductCount(selectedProductsDTO.getProductCount());
+           // existingPacket.setProductCount(selectedProductsDTO.getProductCount());
 
             if (noStockStatus != null && noStockStatus.equals(OOS.getStatus()) &&
                     (existingPacket.getStatus().equals(NOT_CONFIRMED.getStatus()) ||
@@ -600,8 +601,8 @@ public class PacketServiceImpl implements PacketService {
 
         Packet response = packetRepository.save(newPacket);
         List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
-        if(productsPackets.size()>0) {
-            productsPackets.stream().forEach(productsPacket -> {
+        if(!productsPackets.isEmpty()) {
+            productsPackets.forEach(productsPacket -> {
                 ProductsPacket newProductsPacket = new ProductsPacket(productsPacket.getProduct(), response, productsPacket.getOffer(), productsPacket.getPacketOfferId(),productsPacket.getProfits());
                 productsPacketRepository.save(newProductsPacket);
             });

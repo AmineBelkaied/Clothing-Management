@@ -1,169 +1,141 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
 import { environment } from '../../environments/environment';
 import { CONFIRMED, VALIDATION } from '../utils/status-list';
 import { Note } from '../models/Note';
+import { PACKET_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PacketService {
 
-  private baseUrl: string = environment.baseUrl + '/packet';
+  private baseUrl: string = environment.baseUrl + `${PACKET_ENDPOINTS.BASE}`;
   public packetsRequest?: Observable<any>;
-  //public todaysPacketsRequest?: Observable<any>;
   public allPackets: Packet[] = [];
   public allPacketsReadySubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   allPacketsReady$ = this.allPacketsReadySubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  public updateStatus(extractedBarcodes: string[], type: string){
-    let updateStock = {'barCodes': extractedBarcodes,'status':type}
-    return this.http.post(this.baseUrl + "/updatePacketsByBarCode", updateStock);
+  public updateStatus(extractedBarcodes: string[], type: string) {
+    let updateStock = { 'barCodes': extractedBarcodes, 'status': type }
+    return this.http.post(`${this.baseUrl}${PACKET_ENDPOINTS.BARCODE_STATUS}`, updateStock);
   }
 
-  public syncAllPackets(tenantName: string) : Observable<any> {
-    let path = '/syncAllPacketsStatus?tenantName=' + tenantName;
-    //let path = '/syncRupture';
-
-    return this.http.get(this.baseUrl + path);
+  public syncAllPackets(tenantName: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.STATUS_SYNC}?tenantName=${tenantName}`);
   }
-  // Call this method whenever you want to access the "cached" request
+
   public findAllPackets(params: any): Observable<any> {
-    // only create a new request if you don't already have one stored
-    // save your request
-    let path = '/findAllPaginatedPackets?page=' + params.page + "&size=" + params.size;
-    if(params.searchText != undefined && params.searchText != null)
-      path += "&searchText=" + params.searchText;
-    if(params.startDate != undefined)
-      path += "&startDate=" + params.startDate;
-    if(params.startDate != undefined && params.endDate != undefined)
-      path += "&endDate=" + params.endDate;
-    if(params.status != undefined && params.status != null)
-      path += "&status=" + params.status;
-    if(params.mandatoryDate != undefined && params.mandatoryDate != null)
-      path += "&mandatoryDate=" + params.mandatoryDate;
-    return this.http.get(this.baseUrl + path);
+    let httpParams = new HttpParams()
+      .set('page', params.page)
+      .set('size', params.size);
+
+    if (params.searchText) {
+      httpParams = httpParams.set('searchText', params.searchText);
+    }
+    if (params.startDate) {
+      httpParams = httpParams.set('startDate', params.startDate);
+    }
+    if (params.startDate && params.endDate) {
+      httpParams = httpParams.set('endDate', params.endDate);
+    }
+    if (params.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    if (params.mandatoryDate) {
+      httpParams = httpParams.set('mandatoryDate', params.mandatoryDate);
+    }
+
+    const path = `${this.baseUrl}${PACKET_ENDPOINTS.PAGINATED}`;
+    return this.http.get(path, { params: httpParams });
   }
 
-  public createDashboard(): Observable<any> {
-    // only create a new request if you don't already have one stored
-    // save your request
-    let path = '/createDashboard';
-    return this.http.get(this.baseUrl+path);
+  public syncNotification(beginDate: string, endDate: string): Observable<any> {
+    let params = new HttpParams()
+      .set('beginDate', beginDate)
+      .set('endDate', endDate);
+
+    return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.NOTIFICATIONS_SYNC}`, { params });
   }
 
-  public syncNotification(startDate: String,endDate:String): Observable<any> {
-    // only create a new request if you don't already have one stored
-    // save your request
-    let path = '/syncNotification?startDate=' + startDate + "&endDate=" + endDate;
-    return this.http.get(this.baseUrl+path);
+  public findAllPacketsByDate(beginDate: string, endDate: string): Observable<any> {
+    let params = new HttpParams()
+    .set('beginDate', beginDate)
+    .set('endDate', endDate);
+
+    return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.BY_DATE_RANGE}`, { params });
+  }
+
+  public findPacketById(id: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${id}`);
+  }
+
+  public findPacketRelatedProducts(id: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${id}${PACKET_ENDPOINTS.RELATED_PRODUCTS}`);
+  }
+
+  public addPacket(): Observable<any> {
+    return this.http.post(`${this.baseUrl}`, {});
+  }
+
+  public updatePacket(packet: Packet): Observable<any> {
+    return this.http.put(`${this.baseUrl}`, packet, { headers: { 'content-type': 'application/json' } });
+  }
+
+  public patchPacket(id: number, packet: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/${id}`, packet, {
+      headers: { 'content-type': 'application/json' }
+    });
+  }
+
+  public addProductsToPacket(selectedProducts: any, stock: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}${PACKET_ENDPOINTS.ADD_PRODUCTS}?stock=${stock}`, selectedProducts, {
+      headers: { 'content-type': 'application/json' }
+    });
+  }
+
+  deletePacketById(id: number) {
+    return this.http.delete(`${this.baseUrl}/${id}`);
+  }
+
+  deleteSelectedPackets(packetsId: number[]) {
+    return this.http.delete(`${this.baseUrl}/${PACKET_ENDPOINTS.BATCH_DELETE}/${packetsId}`);
   }
 
 
-  public findAllPacketsByDate(startDate: String,endDate:String): Observable<any> {
-    // only create a new request if you don't already have one stored
-    // save your request
-    let path = '/findAllPacketsByDate?startDate=' + startDate + "&endDate=" + endDate;
-    return this.http.get(this.baseUrl+path);
-  }
-
- /* public findAllPacketsByDateAndModels(startDate: String,endDate:String,models:number[]): Observable<any> {
-    // only create a new request if you don't already have one stored
-    // save your request
-    let path = '/findAllPacketsByDateAndModels?startDate=' + startDate + "&endDate=" + endDate + "&models=" + models;
-    return this.http.get(this.baseUrl+path);
-  }*/
-
-  // Call this method whenever you want to access the "cached" request
-  /*public findAllTodaysPackets(): Observable<any> {
-    // return the saved request
-    return this.http.get(this.baseUrl + '/findAllTodaysPackets');
-  }*/
-
-  findPacketById(id: number): Observable<any> {
-    return this.http.get(this.baseUrl + '/findById/' + id);
-  }
-
-  findPacketRelatedProducts(id: number): Observable<any> {
-    return this.http.get(this.baseUrl + '/findPacketRelatedProducts/' + id);
-  }
-
-
-  addPacket(): Observable<any> {
-    //console.log('packet front before submit', packet);
-    return this.http.get(this.baseUrl + '/add');
-  }
-
-  updatePacket(packet: Packet): Observable<any> {
-    //console.log('new packetbefore update', packet);
-    return this.http.put(this.baseUrl + '/update', packet, {
+  validatePacket(barCode: string, state: string): Observable<any> {
+    if (state == VALIDATION)
+      state = CONFIRMED;
+    return this.http.post(`${this.baseUrl}${PACKET_ENDPOINTS.VALIDATE}/${barCode}`, state, {
       headers: { 'content-type': 'application/json' },
     });
   }
 
-  patchPacket(idPacket: any, packet: any): Observable<any> {
-    //console.log('new packetbefore patch', packet);
-    return this.http.put(this.baseUrl + '/patch/' + idPacket, packet, {
-      headers: { 'content-type': 'application/json' },
-    });
+  duplicatePacket(id: number) {
+    return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.DUPLICATE}/${id}`);
   }
 
-  addProductsToPacket(selectedProducts: any,stock:number): Observable<any> {
-    //console.log('selectedProducts', selectedProducts);
-    return this.http.post(this.baseUrl + '/addProducts?stock='+stock, selectedProducts, {
-      headers: { 'content-type': 'application/json' },
-    });
+  getLastStock(packetId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${packetId}/${PACKET_ENDPOINTS.CHECK_VALIDITY}`);
   }
 
-  deletePacketById(idPacket: any) {
-    //console.log(this.baseUrl + '/deleteById/' + idPacket);
-    return this.http.delete(this.baseUrl + '/deleteById/' + idPacket);
-  }
-
-  deleteSelectedPackets(packetsId: any[]) {
-    return this.http.delete(
-      this.baseUrl + '/deleteSelectedPackets/' + packetsId
-    );
-  }
-
-
-  validatePacket(barCode: any,state: string): Observable<any> {
-    let path ='/valid/' + barCode;
-    if(state == VALIDATION)
-      state=CONFIRMED;
-    return this.http.post(this.baseUrl + path, state, {
-      headers: { 'content-type': 'application/json' },
-    });
-  }
-
-  duplicatePacket(idPacket: any) {
-    return this.http.get(this.baseUrl + '/duplicatePacket/' + idPacket);
-  }
-
-  getLastStock(packetId: number):Observable<any> {
-    console.log("getLastStock"+packetId);
-    return this.http.get(this.baseUrl +'/checkPacketProductsValidity/'+packetId);
-  }
-
-  getPacketTimeLine(idPacket: any) {
-    return this.http.get(this.baseUrl + '/getPacketTimeLine/' + idPacket);
+  getPacketTimeLine(packetId: number) {
+    return this.http.get(`${this.baseUrl}/${packetId}/${PACKET_ENDPOINTS.TIMELINE}`);
   }
 
   getLastStatus(packet: Packet) {
     return this.http.post(
-      this.baseUrl + '/getLastStatus', packet
+      `${this.baseUrl}${PACKET_ENDPOINTS.STATUS}`, packet
     );
   }
 
-
-  addAttempt(note: Note, idPacket: number) {
-    //packet.note = note;
+  addAttempt(note: Note, packetId: number) {
     return this.http.post(
-      this.baseUrl + '/addAttempt/' + idPacket, note
+      `${this.baseUrl}/${packetId}/${PACKET_ENDPOINTS.ATTEMPT}`, note
     );
   }
 

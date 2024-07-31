@@ -321,6 +321,22 @@ public class Packet {
         this.notes = notes;
     }
 
+    public Integer getProductCount() {
+        return productCount;
+    }
+
+    public void setProductCount(Integer productCount) {
+        this.productCount = productCount;
+    }
+
+    public boolean isHaveExchange() {
+        return haveExchange;
+    }
+
+    public void setHaveExchange(boolean haveExchange) {
+        this.haveExchange = haveExchange;
+    }
+
     @Override
     public String toString() {
         return "Packet{" +

@@ -5,59 +5,73 @@ import com.clothing.management.dto.OfferModelsDTO;
 import com.clothing.management.entities.Offer;
 import com.clothing.management.services.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("offer")
+@RequestMapping("${api.prefix}/offers")
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class OfferController {
 
+    private final OfferService offerService;
+
     @Autowired
-    OfferService offerService;
-
-    @GetMapping(path = "/findAll")
-    public List<OfferModelsDTO> findAllOffers() throws IOException {
-        return offerService.findAllOffers();
+    public OfferController(OfferService offerService) {
+        this.offerService = offerService;
     }
 
-    @GetMapping(path = "/findAllOffersModelQuantities")
-    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() throws IOException {
-        return offerService.findAllOffersModelQuantities();
+    @GetMapping
+    public ResponseEntity<List<OfferModelsDTO>> getAllOffers() throws IOException {
+        List<OfferModelsDTO> offers = offerService.findAllOffers();
+        return ResponseEntity.ok(offers);
     }
 
-    @GetMapping(path = "/findById/{id}")
-    public Optional<Offer> findOfferById(@PathVariable Long idOffer) {
-        return offerService.findOfferById(idOffer);
+    @GetMapping("/model-quantities")
+    public ResponseEntity<List<OfferModelQuantitiesDTO>> getAllOffersModelQuantities() throws IOException {
+        List<OfferModelQuantitiesDTO> offerQuantities = offerService.findAllOffersModelQuantities();
+        return ResponseEntity.ok(offerQuantities);
     }
 
-    @GetMapping(path = "/findByFBPage/{fbPageId}")
-    public List<OfferModelsDTO> findByFbPageId(@PathVariable Long fbPageId) throws IOException {
-        return offerService.findOfferByFbPageId(fbPageId);
+    @GetMapping("/{id}")
+    public ResponseEntity<Offer> getOfferById(@PathVariable Long id) {
+        return offerService.findOfferById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public OfferModelQuantitiesDTO addOffer(@RequestBody  OfferModelQuantitiesDTO offerModelDTO) {
-        return offerService.addOffer(offerModelDTO);
+    @GetMapping("/fb-page/{fbPageId}")
+    public ResponseEntity<List<OfferModelsDTO>> getOffersByFbPageId(@PathVariable("fbPageId") Long fbPageId) throws IOException {
+        List<OfferModelsDTO> offers = offerService.findOfferByFbPageId(fbPageId);
+        return ResponseEntity.ok(offers);
     }
 
-    @PutMapping(value = "/update" , produces = "application/json")
-    public OfferModelQuantitiesDTO updateOffer(@RequestBody OfferModelQuantitiesDTO offerModelDTO) {
-        return offerService.updateOffer(offerModelDTO);
+    @PostMapping
+    public ResponseEntity<OfferModelQuantitiesDTO> addOffer(@RequestBody OfferModelQuantitiesDTO offerModelDTO) {
+        OfferModelQuantitiesDTO createdOffer = offerService.addOffer(offerModelDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdOffer);
     }
 
-    @DeleteMapping(value = "/delete" , produces = "application/json")
-    public void deleteOffer(@RequestBody Offer offer) {
-        offerService.deleteOffer(offer);
+    @PutMapping
+    public ResponseEntity<OfferModelQuantitiesDTO> updateOffer(@RequestBody OfferModelQuantitiesDTO offerModelDTO) {
+        OfferModelQuantitiesDTO updatedOffer = offerService.updateOffer(offerModelDTO);
+        return ResponseEntity.ok(updatedOffer);
     }
 
-    @DeleteMapping(value = "/deleteSelectedOffers/{offersId}" , produces = "application/json")
-    public void deleteSelectedOffers(@PathVariable List<Long> offersId) {
-        offerService.deleteSelectedOffers(offersId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOffer(@PathVariable Long id) {
+        offerService.deleteOffer(new Offer(id));
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/batch-delete/{offerIds}")
+    public ResponseEntity<Void> deleteSelectedOffers(@PathVariable List<Long> offerIds) {
+        offerService.deleteSelectedOffers(offerIds);
+        return ResponseEntity.noContent().build();
     }
 }

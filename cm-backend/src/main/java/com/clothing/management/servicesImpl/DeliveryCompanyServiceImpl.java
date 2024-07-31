@@ -13,35 +13,35 @@ import java.util.Optional;
 public class DeliveryCompanyServiceImpl implements DeliveryCompanyService {
 
     @Autowired
-    IDeliveryCompanyRepository steLivraisonRepository;
+    IDeliveryCompanyRepository deliveryCompanyRepository;
 
     @Override
-    public List<DeliveryCompany> findAllStesLivraison() {
-        return steLivraisonRepository.findAll();
+    public List<DeliveryCompany> findAllDeliveryCompanies() {
+        return deliveryCompanyRepository.findAll();
     }
 
     @Override
-    public Optional<DeliveryCompany> findSteById(Long idSte) {
-        return steLivraisonRepository.findById(idSte);
+    public Optional<DeliveryCompany> findDeliveryCompanyById(Long id) {
+        return deliveryCompanyRepository.findById(id);
     }
 
     @Override
-    public DeliveryCompany addSte(DeliveryCompany ste) {
-        return steLivraisonRepository.save(ste);
+    public DeliveryCompany addDeliveryCompany(DeliveryCompany deliveryCompany) {
+        return deliveryCompanyRepository.save(deliveryCompany);
     }
 
     @Override
-    public DeliveryCompany updateSte(DeliveryCompany ste) {
-        return steLivraisonRepository.save(ste);
+    public DeliveryCompany updateDeliveryCompany(DeliveryCompany deliveryCompany) {
+        return deliveryCompanyRepository.save(deliveryCompany);
     }
 
     @Override
-    public void deleteSte(DeliveryCompany ste) {
-        steLivraisonRepository.delete(ste);
+    public void deleteDeliveryCompany(DeliveryCompany deliveryCompany) {
+        deliveryCompanyRepository.delete(deliveryCompany);
     }
 
     @Override
-    public void deleteSteById(Long idSte) {
-        steLivraisonRepository.deleteById(idSte);
+    public void deleteDeliveryCompanyById(Long id) {
+        deliveryCompanyRepository.deleteById(id);
     }
 }

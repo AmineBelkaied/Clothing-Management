@@ -3,13 +3,14 @@ import { Injectable } from '@angular/core';
 import { SelectItemGroup } from 'primeng/api';
 import { City } from 'src/shared/models/City';
 import { environment } from '../../environments/environment';
+import { CITY_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CityService {
 
-  private baseUrl: string = environment.baseUrl + "/city";
+  private baseUrl: string = environment.baseUrl + `${CITY_ENDPOINTS.BASE}`;;
   public citys: City[] = [];
   private groupedCities: SelectItemGroup[] = [];
   public editMode = false;
@@ -17,31 +18,31 @@ export class CityService {
   }
 
   findAllCitys() {
-    return this.http.get(this.baseUrl + "/findAll");
+    return this.http.get(`${this.baseUrl}`);
   }
 
   findAllGroupedCities() {
-    return this.http.get(this.baseUrl + "/findGroupedCities");
+    return this.http.get(`${this.baseUrl}${CITY_ENDPOINTS.GROUPED_BY_GOVERNORATE}`);
   }
 
   findCityById(id: number) {
-    return this.http.get(this.baseUrl + "/findById/" + id);
+    return this.http.get(`${this.baseUrl}/${id}`);
   }
 
   addCity(city: City) {
-    return this.http.post(this.baseUrl + "/add" , city , {observe: 'body'})
+    return this.http.post(`${this.baseUrl}`, city , {observe: 'body'});
   }
 
   updateCity(city: City) {
-    return this.http.put(this.baseUrl + "/update" , city , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(`${this.baseUrl}`, city , {headers : { 'content-type': 'application/json'}});
   }
 
-  deleteCityById(idCity: any) {
-    return this.http.delete(this.baseUrl + "/deleteById/" + idCity)
+  deleteCityById(id: number) {
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
   deleteSelectedCities(citiesId: any[]) {
-    return this.http.delete(this.baseUrl + "/deleteSelectedCities/" + citiesId);
+    return this.http.delete(`${this.baseUrl}/${CITY_ENDPOINTS.BATCH_DELETE}/${citiesId}`);
   }
 
   adaptListToDropDown(groupedCities: any[]) {

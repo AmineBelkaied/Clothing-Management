@@ -1,5 +1,6 @@
 package com.clothing.management.tenant;
 
+import com.clothing.management.auth.constant.UserStatus;
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -53,7 +54,9 @@ public class TenantDatabaseManager {
     }
 
     public void updateAllTenantDatabases() {
-        List<MasterTenant> masterTenants = masterTenantService.findAllMasterTenants();
+        List<MasterTenant> masterTenants = masterTenantService.findAllMasterTenants()
+                .stream()
+                .filter(masterTenant -> UserStatus.ACTIVE.equals(masterTenant.getStatus())).toList();
         try {
             for (MasterTenant masterTenant : masterTenants) {
                 LOG.info("--- STARTING UPDATING DATABASE --- " + masterTenant.getDbName() + " FOR TENANT >> " + masterTenant.getTenantName());

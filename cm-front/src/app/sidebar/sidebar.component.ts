@@ -73,7 +73,7 @@ export class SidebarComponent implements OnInit {
 
     logout() {
       this.storageService.isLoggedIn.next(false);
-      this.isSuperAdmin ? this.router.navigate(["/auth/login/"]) : this.router.navigate(["/auth/login/" + this.storageService.getTenantName()]);
+      this.isSuperAdmin ? this.router.navigate(["/login"]) : this.router.navigate(["/login/" + this.storageService.getTenantName()]);
       this.storageService.removeUser();
     }
 

@@ -82,20 +82,87 @@
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-boot-starter</artifactId>
+			<version>3.0.0</version>
+		</dependency>
 	</dependencies>
 	<build>
+		<finalName>${artifactId}</finalName>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>1.11.0</version>
 				<configuration>
-					<excludes>
-						<exclude>
-							<artifactId>spring-boot-starter-tomcat</artifactId>
-						</exclude>
-					</excludes>
+					<nodeVersion>v20.15.0</nodeVersion>
+					<npmVersion>10.7.0</npmVersion>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>install-node-and-npm</goal>
+							<goal>npm</goal>
+						</goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<workingDirectory>${project.basedir}/../cm-front</workingDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm-build</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<workingDirectory>${project.basedir}/../cm-front</workingDirectory>
+							<arguments>run build</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/../cm-front/dist/clothing-management-frontend/</directory>
+									<includes>
+										<include>**/*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<environment>development</environment>
+			</properties>
+			<!-- other configuration specific to 'dev' profile -->
+		</profile>
+		<profile>
+			<id>prod</id>
+			<properties>
+				<environment>production</environment>
+			</properties>
+			<!-- other configuration specific to 'prod' profile -->
+		</profile>
+	</profiles>
 </project>

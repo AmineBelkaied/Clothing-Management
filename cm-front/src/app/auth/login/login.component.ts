@@ -99,7 +99,7 @@ export class LoginComponent {
             this.isLoggedIn = true;
             this.storageService.isLoggedIn.next(true);
             this.roles = this.storageService.getUser().roles;
-            this.router.navigate(["/auth/tenant"])
+            this.router.navigate(["/login/tenant"])
           },
           error: (err: any) => {
             console.log(err);

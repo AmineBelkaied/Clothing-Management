@@ -1,49 +1,48 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Offer } from 'src/shared/models/Offer';
 import { OfferModelDTO } from 'src/shared/models/OfferModelDTO';
 import { environment } from '../../environments/environment';
+import { OFFER_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OfferService {
 
-  private baseUrl: string = environment.baseUrl + "/offer";
+  private baseUrl: string = environment.baseUrl + `${OFFER_ENDPOINTS.BASE}`;
   public offers: OfferModelDTO[] = [];
 
   constructor(private http: HttpClient) { }
 
   findAllOffers() {
-    return this.http.get(this.baseUrl + "/findAll");
+    return this.http.get(`${this.baseUrl}`);
   }
 
   findOffersByFbPageId(id: number) {
-    return this.http.get(this.baseUrl + "/findByFBPage/"+id);
+    return this.http.get(`${this.baseUrl}${OFFER_ENDPOINTS.BY_FB_PAGE}/${id}`);
   }
 
   findAllOffersModelQuantities() {
-    return this.http.get(this.baseUrl + "/findAllOffersModelQuantities");
+    return this.http.get(`${this.baseUrl}${OFFER_ENDPOINTS.MODEL_QUANTITIES}`);
   }
 
   findOfferById(id: number) {
-    return this.http.get(this.baseUrl + "/findById/" + id);
+    return this.http.get(`${this.baseUrl}/${id}`);
   }
 
-  addOffer(OfferModelDTO: OfferModelDTO) {
-    return this.http.post(this.baseUrl + "/add" , OfferModelDTO , {observe: 'body'})
+  addOffer(offerModelDTO: OfferModelDTO) {
+    return this.http.post(`${this.baseUrl}`, offerModelDTO, { observe: 'body' });
   }
 
-  updateOffer(OfferModelDTO: OfferModelDTO) {
-    return this.http.put(this.baseUrl + "/update" , OfferModelDTO , {headers : { 'content-type': 'application/json'}})
+  updateOffer(offerModelDTO: OfferModelDTO) {
+    return this.http.put(`${this.baseUrl}`, offerModelDTO, { headers: { 'content-type': 'application/json' }});
   }
 
-  deleteOfferById(idOffer: any) {
-    console.log(this.baseUrl + "/deleteById/" + idOffer)
-    return this.http.delete(this.baseUrl + "/deleteById/" + idOffer)
+  deleteOfferById(id: number) {
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
-  deleteSelectedOffers(offersId: any[]) {
-    return this.http.delete(this.baseUrl + "/deleteSelectedOffers/" + offersId);
+  deleteSelectedOffers(offersId: number[]) {
+    return this.http.delete(`${this.baseUrl}/${OFFER_ENDPOINTS.BATCH_DELETE}/${offersId}`);
   }
 }

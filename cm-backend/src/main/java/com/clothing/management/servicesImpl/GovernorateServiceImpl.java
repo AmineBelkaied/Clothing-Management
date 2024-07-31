@@ -42,4 +42,9 @@ public class GovernorateServiceImpl implements GovernorateService {
 
     @Override
     public void deleteSelectedGovernorates(List<Long> governoratesId) { governorateRepository.deleteAllById(governoratesId); }
+
+    @Override
+    public void deleteGovernorateById(Long id) {
+        governorateRepository.deleteById(id);
+    }
 }

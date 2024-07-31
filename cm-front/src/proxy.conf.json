@@ -3,5 +3,11 @@
     "target": "https://www.firstdeliverygroup.com/api/gostyle-GH54G54FGI7JHFGZPO1CBRDS/v1/post.php",
     "secure": false,
     "changeOrigin": true
+  },
+  "/api": {
+    "target": "http://localhost:8080/cm",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
 }

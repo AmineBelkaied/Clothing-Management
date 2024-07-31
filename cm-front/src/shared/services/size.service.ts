@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Size } from 'src/shared/models/Size';
 import { environment } from '../../environments/environment';
+import { SIZE_ENDPOINTS } from '../constants/api-endpoints';
 
 
 @Injectable({
@@ -10,7 +11,7 @@ import { environment } from '../../environments/environment';
 })
 export class SizeService {
 
-  private baseUrl: string = environment.baseUrl + "/size";
+  private baseUrl: string = environment.baseUrl + `${SIZE_ENDPOINTS.BASE}`;
   public sizesSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public size: BehaviorSubject<any> = new BehaviorSubject([]);
   public sizes: Size[] = [];
@@ -25,23 +26,23 @@ export class SizeService {
   }
 
   findAllSizes() {
-    return this.http.get(this.baseUrl + "/findAll");
+    return this.http.get(`${this.baseUrl}`);
   }
 
   findSizeById(id: number) {
-    return this.http.get(this.baseUrl + "/findById/" + id);
+    return this.http.get(`${this.baseUrl}/${id}`);
   }
 
   addSize(size: Size) {
-    return this.http.post(this.baseUrl + "/add" , size , {observe: 'body'})
+    return this.http.post(`${this.baseUrl}`, size , {observe: 'body'});
   }
 
   updateSize(size: Size) {
-    return this.http.put(this.baseUrl + "/update" , size , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(`${this.baseUrl}`, size , {headers : { 'content-type': 'application/json'}});
   }
 
-  deleteSizeById(idSize: any) {
-    return this.http.delete(this.baseUrl + "/deleteById/" + idSize)
+  deleteSizeById(id: number) {
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
   pushSize(size: Size){

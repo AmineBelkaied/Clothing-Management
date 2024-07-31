@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
-import { GlobalConfService } from 'src/shared/services/global-conf.service';
-import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
+import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
 
 
 @Component({
@@ -12,53 +11,44 @@ import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
 })
 export class ListSteLivraisonComponent implements OnInit {
 
-
   deliveryCompanyList: DeliveryCompany[] = [];
 
-  constructor(private globalConfService: GlobalConfService,
-              private steLivraisonService: SteLivraisonService,
+  constructor(private deliveryCompanyService: DeliveryCompanyService,
               private messageService: MessageService,
               private confirmationService: ConfirmationService) { }
   config: any = {};
 
   ngOnInit(): void {
-    this.steLivraisonService.deliveryCompanySubscriber
-    .subscribe((stesList: any) => {
-      this.deliveryCompanyList = stesList;
-      //console.log("this.stes",this.deliveryCompanyList);
+    this.deliveryCompanyService.deliveryCompanySubscriber
+    .subscribe((deliveryCompanyList: any) => {
+      this.deliveryCompanyList = deliveryCompanyList;
     });
   }
 
-  editSte(ste: any){
-    this.steLivraisonService.editSte({...ste});
-    this.steLivraisonService.editMode = true;
+  editDeliveryCompany(deliveryCompany: any){
+    this.deliveryCompanyService.editDeliveryCompany({...deliveryCompany});
+    this.deliveryCompanyService.editMode = true;
   }
 
-  deleteSte(ste: any)  {
+  deleteDeliveryCompany(deliveryCompany: any)  {
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer la societe de livraison séléctionnée ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.steLivraisonService.deleteSteById(ste.id)
+        this.deliveryCompanyService.deleteDeliveryCompanyById(deliveryCompany.id)
           .subscribe(result => {
-            this.deliveryCompanyList = this.deliveryCompanyList.filter(val => val.id !== ste.id);
-            this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La societe de livraison a été supprimée avec succés", life: 1000 });
+            this.deliveryCompanyList = this.deliveryCompanyList.filter(val => val.id !== deliveryCompany.id);
+            this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La société de livraison a été supprimée avec succés", life: 1000 });
           })
       }
     });
   }
 
-  enableSte(ste: any)  {
-    //console.log("ste: " + ste.enabled);
-
-    this.steLivraisonService.updateSte(ste)
-    .subscribe((updatedSte: any) => {
-      console.log(updatedSte);
-      this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La societe de livraison a été modifiée avec succés", life: 1000 });
+  enableDeliveryCompany(deliveryCompany: any)  {
+    this.deliveryCompanyService.updateDeliveryCompany(deliveryCompany)
+    .subscribe((updatedDeliveryCompany: any) => {
+      this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La société de livraison a été modifiée avec succés", life: 1000 });
     });
   }
-
-
-
 }

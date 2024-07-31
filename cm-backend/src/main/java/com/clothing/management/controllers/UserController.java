@@ -3,48 +3,59 @@ package com.clothing.management.controllers;
 import com.clothing.management.entities.User;
 import com.clothing.management.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("${api.prefix}/users")
 @CrossOrigin
 @Secured("ROLE_ADMIN")
 public class UserController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
-    @GetMapping(path = "/findAll")
-    public List<User> findAllUsers() {
-        return userService.findAllUsers();
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        try {
+            List<User> users = userService.findAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @PostMapping(path = "/add")
-    public User addUser(@RequestBody User user) {
-        return userService.addUser(user);
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        try {
+            User createdUser = userService.addUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @PutMapping(path = "/update")
-    public User updateUser(@RequestBody User user) {
-        return userService.updateUser(user);
+    @PutMapping
+    public ResponseEntity<User> updateUser(@RequestBody User user) {
+        try {
+            User updatedUser = userService.updateUser(user);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @DeleteMapping(path = "/deleteAllById/{usersId}")
-    public void deleteAllCustomersById(@PathVariable List<Integer> usersId) {
-        userService.deleteAllUsersById(usersId);
+    @DeleteMapping("/batch-delete")
+    public ResponseEntity<Void> deleteUsersByIds(@RequestParam List<Integer> usersId) {
+        try {
+            userService.deleteAllUsersById(usersId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
-
-/*    @DeleteMapping(path = "/delete")
-    public void deleteUser(@RequestBody User user) {
-        userService.deleteUser(user);
-    }
-
-    @DeleteMapping(path = "/deleteById/{userId}")
-    public void deleteUserById(@PathVariable Integer userId) {
-        userService.deleteUserById(userId);
-    }*/
-
 }

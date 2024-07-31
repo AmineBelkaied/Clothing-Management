@@ -3,6 +3,8 @@ package com.clothing.management.controllers;
 import com.clothing.management.entities.FbPage;
 import com.clothing.management.services.FbPageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("fbPage")
+@RequestMapping("${api.prefix}/fb-pages")
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class FbPageController {
@@ -18,33 +20,34 @@ public class FbPageController {
     @Autowired
     FbPageService fbPageService;
 
-    @GetMapping(path = "/findAll")
-    public List<FbPage> findAllFbPages() {
-        return fbPageService.findAllFbPages();
+    @GetMapping
+    public ResponseEntity<List<FbPage>> getAllFbPages() {
+        List<FbPage> fbPages = fbPageService.findAllFbPages();
+        return new ResponseEntity<>(fbPages, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/findById/{id}")
-    public Optional<FbPage> findByIdFbPage(@PathVariable Long idFbPage) {
-        return fbPageService.findFbPageById(idFbPage);
+    @GetMapping("/{id}")
+    public ResponseEntity<FbPage> getFbPageById(@PathVariable Long id) {
+        Optional<FbPage> fbPage = fbPageService.findFbPageById(id);
+        return fbPage.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public FbPage addFbPage(@RequestBody  FbPage FbPage) {
-        return fbPageService.addFbPage(FbPage);
+    @PostMapping
+    public ResponseEntity<FbPage> createFbPage(@RequestBody FbPage fbPage) {
+        FbPage createdFbPage = fbPageService.addFbPage(fbPage);
+        return new ResponseEntity<>(createdFbPage, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/update" , produces = "application/json")
-    public FbPage updateFbPage(@RequestBody FbPage FbPage) {
-        return fbPageService.updateFbPage(FbPage);
+    @PutMapping
+    public ResponseEntity<FbPage> updateFbPage(@RequestBody FbPage fbPage) {
+        FbPage updatedFbPage = fbPageService.updateFbPage(fbPage);
+        return new ResponseEntity<>(updatedFbPage, HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/delete" , produces = "application/json")
-    public void deleteFbPage(@RequestBody FbPage FbPage) {
-        fbPageService.deleteFbPage(FbPage);
-    }
-
-    @DeleteMapping(value = "/deleteById/{idFbPage}")
-    public void deleteSizeById(@PathVariable Long idFbPage) {
-        fbPageService.deleteFbPageById(idFbPage);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFbPageById(@PathVariable Long id) {
+        fbPageService.deleteFbPageById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

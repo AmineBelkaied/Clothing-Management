@@ -3,13 +3,14 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Color } from '../models/Color';
 import { environment } from '../../environments/environment';
+import { COLOR_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ColorService {
 
-  private baseUrl: string = environment.baseUrl + "/color";
+  private baseUrl: string = environment.baseUrl + `${COLOR_ENDPOINTS.BASE}`;
   public colorsSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public color: BehaviorSubject<any> = new BehaviorSubject([]);
   public colors: Color[] = [];
@@ -24,23 +25,23 @@ export class ColorService {
   }
 
   findAllColors() {
-    return this.http.get(this.baseUrl + "/findAll");
+    return this.http.get(`${this.baseUrl}`);
   }
 
   findColorById(id: number) {
-    return this.http.get(this.baseUrl + "/findById/" + id);
+    return this.http.get(`${this.baseUrl}/${id}`);
   }
 
   addColor(color: Color) {
-    return this.http.post(this.baseUrl + "/add" , color , {observe: 'body'})
+    return this.http.post(`${this.baseUrl}`, color , {observe: 'body'});
   }
 
   updateColor(color: Color) {
-    return this.http.put(this.baseUrl + "/update" , color , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(`${this.baseUrl}`, color , {headers : { 'content-type': 'application/json'}});
   }
 
-  deleteColorById(idColor: any) {
-    return this.http.delete(this.baseUrl + "/deleteById/" + idColor)
+  deleteColorById(id: number) {
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
   pushColor(color: Color){

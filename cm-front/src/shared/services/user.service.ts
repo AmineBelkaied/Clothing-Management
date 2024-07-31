@@ -1,30 +1,31 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { USER_ENDPOINTS } from '../constants/api-endpoints';
+import { User } from '../models/User';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  private baseUrl: string = environment.baseUrl + "/user";
+  private baseUrl: string = environment.baseUrl + `${USER_ENDPOINTS.BASE}`;
   
-  constructor(private _http: HttpClient) { }
+  constructor(private http: HttpClient) { }
 
   findAllUsers() {
-    return this._http.get(this.baseUrl + '/findAll');
+    return this.http.get(`${this.baseUrl}`);
   }
 
-  addUser(user: any) {
-    return this._http.post(this.baseUrl + '/add' , user);
+  addUser(user: User) {
+    return this.http.post(`${this.baseUrl}`, user , {observe: 'body'});
   }
 
-  updateUser(user: any) {
-    return this._http.put(this.baseUrl + '/update' , user);
+  updateUser(user: User) {
+    return this.http.put(`${this.baseUrl}`, user , {headers : { 'content-type': 'application/json'}});
   }
 
-
-  deleteAllUsersById(usersId: string[]) {
-    return this._http.delete(this.baseUrl + '/deleteAllById/' + usersId);
+  deleteAllUsersById(usersId: number[]) {
+    return this.http.delete(`${this.baseUrl}/${USER_ENDPOINTS.BATCH_DELETE}/${usersId}`);
   }
 }

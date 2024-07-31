@@ -3,13 +3,14 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { FbPage } from 'src/shared/models/FbPage';
 import { environment } from '../../environments/environment';
+import { FB_PAGE_ENDPOINTS } from '../constants/api-endpoints';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FbPageService {
 
-  private baseUrl: string = environment.baseUrl + "/fbPage";
+  private baseUrl: string = environment.baseUrl + `${FB_PAGE_ENDPOINTS.BASE}`;
   public fbPageSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public fbPage: BehaviorSubject<any> = new BehaviorSubject([]);
   public fbPages: FbPage[] = [];
@@ -24,23 +25,23 @@ export class FbPageService {
   }
 
   findAllFbPages() : Observable<any> {
-    return this.http.get(this.baseUrl + "/findAll");
+    return this.http.get(`${this.baseUrl}`);
   }
 
   findFbPageById(id: number) {
-    return this.http.get(this.baseUrl + "/findById/" + id);
+    return this.http.get(`${this.baseUrl}/${id}`);
   }
 
   addFbPage(fbPage: FbPage) {
-    return this.http.post(this.baseUrl + "/add" , fbPage , {observe: 'body'})
+    return this.http.post(`${this.baseUrl}`, fbPage , {observe: 'body'});;
   }
 
   updateFbPage(fbPage: FbPage) {
-    return this.http.put(this.baseUrl + "/update" , fbPage , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(`${this.baseUrl}`, fbPage , {headers : { 'content-type': 'application/json'}});
   }
 
-  deleteFbPageById(idFbPage: any) {
-    return this.http.delete(this.baseUrl + "/deleteById/" + idFbPage)
+  deleteFbPageById(id: any) {
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
   pushFbPage(fbPage: FbPage){

@@ -13,4 +13,5 @@ public interface GovernorateService {
     public Governorate updateGovernorate(Governorate governorate);
     public void deleteGovernorate(Governorate governorate);
     public void deleteSelectedGovernorates(List<Long> governoratesId);
+    void deleteGovernorateById(Long id);
 }
