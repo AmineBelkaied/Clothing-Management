@@ -10,7 +10,7 @@ public class ProductsDayCountDTO {
 
     private Date packetDate;
     private Long productId;
-    private Offer offer;
+    private OfferDTO offer;
     private Long modelId;
     private String modelName;
     private Color color;
@@ -33,7 +33,7 @@ public class ProductsDayCountDTO {
     ) {
         this.packetDate = packetDate;
         this.productId = productId;
-        this.offer = offer;
+        this.offer = new OfferDTO(offer);
         this.modelId = modelId;
         this.modelName = modelName;
         this.color = color;
@@ -53,7 +53,7 @@ public class ProductsDayCountDTO {
     ) {
         this.packetDate = packetDate;
         this.modelId = packetId;
-        this.offer = offer;
+        this.offer = new OfferDTO(offer);
         this.productId = packetOfferId;
         this.countPayed = countPayed;
         this.countProgress = countProgress;
@@ -69,7 +69,7 @@ public class ProductsDayCountDTO {
     ) {
         this.packetDate = packetDate;
         this.productId = productId;
-        this.offer = offer;
+        this.offer = new OfferDTO(offer);
         this.modelId = modelId;
         this.modelName = modelName;
         this.color = color;
@@ -87,7 +87,7 @@ public class ProductsDayCountDTO {
             long countPayed, long countProgress, long countReturn
     ) {
         this.packetDate = packetDate;
-        this.offer = offer;
+        this.offer = new OfferDTO(offer);
         this.countExchange = 0;
         this.countOos = 0;
         this.countPayed = countPayed;
@@ -151,11 +151,11 @@ public class ProductsDayCountDTO {
         this.countProgress = countProgress;
     }
 
-    public Offer getOffer() {
+    public OfferDTO getOffer() {
         return offer;
     }
 
-    public void setOffer(Offer offer) {
+    public void setOffer(OfferDTO offer) {
         this.offer = offer;
     }
 

@@ -5,4 +5,6 @@ export interface DeliveryCompany {
     apiName?: string;
     barreCodeUrl?: string;
     additionalName?: string;
+    deleted?: boolean;
 }
+

@@ -201,27 +201,10 @@ import { GlobalConf } from 'src/shared/models/GlobalConf';
 
 export class AppModule { }
 
-export function initializeApp(globalConfService: GlobalConfService,offerService:OfferService): () => void {
+export function initializeApp(globalConfService: GlobalConfService): () => void {
   return () => {
     console.log("initializeApp");
-
-    globalConfService.getGlobalConf().pipe(
-      tap((globalConf: GlobalConf) => {
-        console.log("return getGlobalConf");
-
-        // Emit the new global configuration through the subscriber
-        globalConfService.globalConfSubscriber.next(globalConf);
-        // Update the local state
-        globalConfService.globalConf = globalConf;
-        console.log("loadOffers");
-        offerService.loadOffers();
-      }),
-      catchError((error) => {
-        // Handle the error here
-        console.error('Error loading global configuration:', error);
-        return throwError(() => error);
-      })
-    ).subscribe();
+    globalConfService.loadGlobalConf();
   }
 }
 

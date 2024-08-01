@@ -1,6 +1,6 @@
 package com.clothing.management.servicesImpl.api;
 
-import com.clothing.management.dto.DeliveryResponseJax;
+import com.clothing.management.dto.DeliveryCompanyDTOs.DeliveryResponseJax;
 import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.IGlobalConfRepository;

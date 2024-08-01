@@ -4,29 +4,29 @@ import com.clothing.management.entities.Offer;
 
 public class StatOfferTableDTO extends StatTableDTO{
 
-    private Offer offer;
+    private OfferDTO offer;
     private Double purchasePrice;
     private Double sellingPrice;
 
-    public StatOfferTableDTO(Offer offer, Integer min, Integer max, Long avg, Long payed, Long progress, Long retour, Offer offer1, Double purchasePrice, Double sellingPrice, double profits) {
+    public StatOfferTableDTO(Offer offer, Integer min, Integer max, Long avg, Long payed, Long progress, Long retour, OfferDTO offer1, Double purchasePrice, Double sellingPrice, double profits) {
         super(offer.getName(), min, max, avg, payed, progress, retour,profits);
         this.offer = offer1;
         this.purchasePrice = purchasePrice;
         this.sellingPrice = sellingPrice;
     }
 
-    public StatOfferTableDTO(Offer offer) {
+    public StatOfferTableDTO(OfferDTO offer) {
         super(offer.getName());
         this.offer = offer;
         this.purchasePrice = 0.0;
         this.sellingPrice = 0.0;
     }
 
-    public Offer getOffer() {
+    public OfferDTO getOffer() {
         return offer;
     }
 
-    public void setOffer(Offer offer) {
+    public void setOffer(OfferDTO offer) {
         this.offer = offer;
     }
 

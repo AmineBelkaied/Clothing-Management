@@ -1,6 +1,6 @@
 
 
-package com.clothing.management.dto;
+package com.clothing.management.dto.DeliveryCompanyDTOs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.minidev.json.annotate.JsonIgnore;

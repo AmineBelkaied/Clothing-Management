@@ -13,7 +13,8 @@ export class FbPageService {
 
 
   private baseUrl: string = baseUrl+"/fbPage";
-  public fbPageSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
+  public fbPagesSubscriber: BehaviorSubject<FbPage[]> = new BehaviorSubject<FbPage[]>([]);
+
   public fbPage: BehaviorSubject<any> = new BehaviorSubject([]);
   public fbPages: FbPage[] = [];
   public editMode = false;
@@ -21,12 +22,26 @@ export class FbPageService {
   constructor(private http: HttpClient, private messageService: MessageService) {
 
   }
-  loadFbPages(){
+
+  loadFbPages() : void{
     this.findAllFbPages()
-    .subscribe((fbPagesList: any) => {
+    .subscribe({
+      next: (fbPagesList: FbPage[]) => {
         this.fbPages = fbPagesList;
-        this.fbPageSubscriber.next(fbPagesList);
+        this.fbPagesSubscriber.next(fbPagesList);},
+      error: (error) => {
+        console.error('Error fetching fb pages', error);
+      }
     });
+  }
+  getFbPagesSubscriber(): Observable<FbPage[]> {
+    if (this.fbPagesSubscriber.value.length === 0) {
+      this.loadFbPages();
+    }
+    return this.fbPagesSubscriber.asObservable();
+  }
+  findAllFbPages() : Observable<FbPage[]> {
+    return this.http.get<FbPage[]>(this.baseUrl + "/findAll");
   }
 
   setFbPagesConfSubscriber(fbPage:FbPage){
@@ -46,12 +61,7 @@ export class FbPageService {
       });
   }
 
-  getFbPagesSubscriber(): Observable<FbPage[]> {
-    return this.fbPageSubscriber.asObservable();
-  }
-  findAllFbPages() : Observable<any> {
-    return this.http.get(this.baseUrl + "/findAll");
-  }
+
 
   findFbPageById(id: number) {
     return this.http.get(this.baseUrl + "/findById/" + id);
@@ -71,13 +81,13 @@ export class FbPageService {
 
   pushFbPage(fbPage: FbPage){
     this.fbPages.push(fbPage);
-    this.fbPageSubscriber.next(this.fbPages);
+    this.fbPagesSubscriber.next(this.fbPages);
   }
 
   spliceFbPage(updatedFbPage: any){
     let index = this.fbPages.findIndex(fbPage => fbPage.id == updatedFbPage.id);
     this.fbPages.splice(index , 1 , updatedFbPage);
-    this.fbPageSubscriber.next(this.fbPages);
+    this.fbPagesSubscriber.next(this.fbPages);
   }
 
   editFbPage(fbPage: FbPage) {

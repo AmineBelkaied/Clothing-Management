@@ -1,12 +1,11 @@
 package com.clothing.management.servicesImpl.api;
 
-import com.clothing.management.dto.DeliveryResponseNavex;
+import com.clothing.management.dto.DeliveryCompanyDTOs.DeliveryResponseNavex;
 import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.IGlobalConfRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 

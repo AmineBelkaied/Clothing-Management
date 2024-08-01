@@ -31,14 +31,9 @@ public class ModelController {
         return modelService.findModelById(idModel);
     }
 
-    @PostMapping(value = "/add" , produces = "application/json")
-    public Model addModel(@RequestBody  Model model) {
-        return modelService.addModel(model);
-    }
-
-    @PutMapping(value = "/update" , produces = "application/json")
+    @PostMapping(value = "/save" , produces = "application/json")
     public Model updateModel(@RequestBody Model model) {
-        return modelService.updateModel(model);
+        return modelService.saveModel(model);
     }
 
     @DeleteMapping(value = "/deleteById/{idModel}")

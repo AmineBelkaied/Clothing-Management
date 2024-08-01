@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Size } from 'src/shared/models/Size';
 import { baseUrl } from '../../assets/constants';
 
@@ -20,17 +20,27 @@ export class SizeService {
     //this.loadSizes();
   }
 
-  loadSizes(): void {
-    this.findAllSizes().subscribe(
-      (sizeList: Size[]) => {
+  loadSizes(): Observable<Size[]> {
+    return this.findAllSizes().pipe(
+      tap((sizeList: Size[]) => {
         this.sizes = sizeList;
         this.sizesSubscriber.next(this.sizes);
-      },
-      (error) => {
-        console.error('Error fetching sizes:', error);
-      }
+      }),
+      catchError((error) => {
+        // Handle the error here
+        console.error('Error fetching sizes', error);
+        return throwError(() => error);
+      })
     );
   }
+
+  getSizesSubscriber(): Observable<Size[]> {
+    if (this.sizesSubscriber.value.length === 0) {
+      this.loadSizes().subscribe();
+    }
+    return this.sizesSubscriber.asObservable();
+  }
+
 
   findAllSizes(): Observable<Size[]> {
     return this.http.get<Size[]>(this.baseUrl + "/findAll").pipe(
@@ -78,10 +88,6 @@ export class SizeService {
 
   editSize(size: Size): void {
     this.size.next(size);
-  }
-
-  getSizesSubscriber(): Observable<Size[]> {
-    return this.sizesSubscriber.asObservable();
   }
 
   private handleError<T>(operation = 'operation', result?: T) {

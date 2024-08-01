@@ -16,6 +16,10 @@ public class OfferDTO {
     private boolean enabled;
 
     public OfferDTO(){}
+    public OfferDTO(String name){
+        this.name = name;
+    }
+
     public OfferDTO(Offer offer){
         this.id = offer.getId();
         this.name = offer.getName();

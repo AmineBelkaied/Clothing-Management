@@ -10,26 +10,35 @@ import { DeliveryCompany } from '../models/DeliveryCompany';
 export class SteLivraisonService {
 
   private baseUrl: string = baseUrl+"/deliveryCompany";
-  public deliveryCompanySubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
+  public deliveryCompanySubscriber: BehaviorSubject<DeliveryCompany[]> = new BehaviorSubject<DeliveryCompany[]>([]);
   public deliveryCompany: BehaviorSubject<any> = new BehaviorSubject([]);
   public deliveryCompanyList: DeliveryCompany[] = [];
   public editMode = false;
   constructor(private http: HttpClient) {
 
   }
-  loadDeliveryCompanies(){
-    this.findAllStes()
-    .subscribe((deliveryCompanyList: any) => {
+  loadDeliveryCompanies(): void {
+    this.findAllStes().subscribe({
+      next: (deliveryCompanyList: DeliveryCompany[]) => {
         this.deliveryCompanySubscriber.next(deliveryCompanyList);
-        this.deliveryCompanyList = deliveryCompanyList.filter((deliveryCompany: any) => deliveryCompany.enabled);
+        this.deliveryCompanyList = deliveryCompanyList.filter((deliveryCompany: DeliveryCompany) => deliveryCompany.deleted);
+      },
+      error: (error) => {
+        console.error('Error fetching delivery companies', error);
+      }
     });
   }
+
   getDCSubscriber(): Observable<DeliveryCompany[]> {
+    // Ensure the data is loaded if not already
+    if (this.deliveryCompanySubscriber.value.length === 0) {
+      this.loadDeliveryCompanies();
+    }
     return this.deliveryCompanySubscriber.asObservable();
   }
 
-  findAllStes() {
-    return this.http.get(this.baseUrl + "/findAll");
+  findAllStes() : Observable<DeliveryCompany[]>{
+    return this.http.get<DeliveryCompany[]>(this.baseUrl + "/findAll");
   }
 
   findSteById(id: number) {

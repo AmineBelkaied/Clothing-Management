@@ -42,18 +42,14 @@ export class AddModelComponent implements OnInit,OnDestroy{
   }
 
   ngOnInit(): void {
-    this.modelService.getmodelSubscriber()
+
+    this.modelService.getModelSubscriber()
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe((model: Model) => {
       this.model = model;
+      console.log(this.model);
       this.salePrice = this.calculateSalePrice(this.model);
     });
-    /*this.offersService.getOffersSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(offersList => {
-      this.allOffersList = offersList;
-      //this.models.find((model:Model)=>model.id == model)
-    });*/
-
-    console.log("ngOnInit",this.model);
 
     this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
     .subscribe((colorList: Color[]) => {

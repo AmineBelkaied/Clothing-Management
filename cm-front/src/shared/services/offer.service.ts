@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { baseUrl } from '../../assets/constants';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Offer } from '../models/Offer';
 import { OfferModelsDTO } from '../models/OfferModelsDTO';
 import { FbPage } from '../models/FbPage';
@@ -10,7 +10,7 @@ import { FbPage } from '../models/FbPage';
   providedIn: 'root'
 })
 export class OfferService {
-  public offersSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
+  public offersSubscriber: BehaviorSubject<any> = new BehaviorSubject<Offer[]>([]);
   public offerSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public offers: Offer[] = [];
   public offer: Offer;
@@ -19,41 +19,42 @@ export class OfferService {
 
   constructor(private http: HttpClient) { }
 
-  loadOffers(){
-    this.findAllOffersDTO().subscribe((offers: any) => {
-      this.offers = offers;
-      this.offersSubscriber.next(this.offers);
-    });
+  loadOffers() : Observable<Offer[]> {
+    return this.findAllOffersDTO().pipe(
+      tap((offers: Offer[]) => {
+        this.offers = offers;
+        this.offersSubscriber.next(this.offers);
+      }),
+      catchError((error) => {
+        // Handle the error here
+        console.error('Error fetching offers', error);
+        return throwError(() => error);
+      })
+    )
+  }
+  findAllOffersDTO() : Observable<Offer[]>{
+    return this.http.get<Offer[]>(this.baseUrl + "/offersDTO");
   }
 
-/*   loadOffers(){
-    this.findAllOffersDTO()
-    .pipe(map(
-    (offers: any) => {
-      this.offers = offers.filter((offer: Offer) => offer.enabled);
-     // this.offersSubscriber.next(this.offers);
-    }), shareReplay(1));
-  } */
+  getOffersSubscriber(): Observable<Offer[]> {
+    if (this.offersSubscriber.value.length === 0) {
+      this.loadOffers().subscribe();
+    }
+    return this.offersSubscriber.asObservable();
+  }
 
-  setOffer(offer:any){
+  setOffer(offer:any): void {
     this.offer = offer;
     this.offerSubscriber.next(offer);
   }
 
-
-  getOffersSubscriber(): Observable<Offer[]> {
-    return this.offersSubscriber.asObservable();
-  }
   findAllOffers() {
     return this.http.get(this.baseUrl + "/findAll");
   }
 
-  findAllOffersDTO() {
-    return this.http.get(this.baseUrl + "/offersDTO");
-  }
 
-  findOffersByFbPageId(id: number) {
-    return this.http.get(this.baseUrl + "/findByFBPage/"+id);
+  findOffersByFbPageId(id: number) : Observable<Offer[]>{
+    return this.http.get<Offer[]>(this.baseUrl + "/findByFBPage/"+id);
   }
 
   findAllOffersModelQuantities() {

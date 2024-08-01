@@ -1,9 +1,6 @@
 package com.clothing.management.servicesImpl;
 
-import com.clothing.management.dto.PacketsStatCountDTO;
-import com.clothing.management.dto.ProductsDayCountDTO;
-import com.clothing.management.dto.StatOfferTableDTO;
-import com.clothing.management.dto.StatTableDTO;
+import com.clothing.management.dto.*;
 import com.clothing.management.entities.*;
 import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.repository.IModelStockHistoryRepository;
@@ -206,13 +203,13 @@ public class StatServiceImpl implements StatService {
         List<ProductsDayCountDTO> existingOffersPacket = productsPacketRepository.offersCountByDate(beginDate,endDate);
         Map<String, List<?>> uniqueValues = getUnique((existingOffersPacket),true);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
-        List<Offer> uniqueOffers = (List<Offer>) uniqueValues.get("uniqueOffers");
+        List<OfferDTO> uniqueOffers = (List<OfferDTO>) uniqueValues.get("uniqueOffers");
 
         //stat models chart
         List<List<Integer>> listOffersCount= new ArrayList<>() ;
         List<StatOfferTableDTO> offersRecapCount= new ArrayList<>() ;
         StatOfferTableDTO offerRecap =null;
-        for (Offer uniqueoffer : uniqueOffers) {
+        for (OfferDTO uniqueoffer : uniqueOffers) {
             countOffersList = new ArrayList<>();
             offerRecap= new StatOfferTableDTO(uniqueoffer);
 
@@ -270,7 +267,7 @@ public class StatServiceImpl implements StatService {
         //create table
         StatOfferTableDTO offerTotalRecap = createOfferTableTotalRecap(offersRecapCount);
         offersRecapCount.add(offerTotalRecap);
-        uniqueOffers.add(new Offer("Total"));
+        uniqueOffers.add(new OfferDTO("Total"));
 
         Map <String , List<?>> data =new HashMap<>();
         data.put("dates",uniqueDates);
@@ -280,7 +277,7 @@ public class StatServiceImpl implements StatService {
         return data;
     }
     public StatOfferTableDTO createOfferTableTotalRecap(List<StatOfferTableDTO> recapCount){
-        StatOfferTableDTO totalRecap= new StatOfferTableDTO(new Offer("Total"));
+        StatOfferTableDTO totalRecap= new StatOfferTableDTO(new OfferDTO("Total"));
         totalRecap.setMin(0L);
         for (StatOfferTableDTO uniqueRecapCount : recapCount) {
             totalRecap.setAvg(totalRecap.getAvg()+uniqueRecapCount.getAvg());
@@ -295,10 +292,10 @@ public class StatServiceImpl implements StatService {
         return totalRecap;
     }
 
-    private Double calculateOfferPurshasePrice(Offer offer) {
+    private Double calculateOfferPurshasePrice(OfferDTO offer) {
         double purshasePrice = 0;
-        Set<OfferModel> offerModels= offer.getOfferModels();
-        for (OfferModel uniqueOfferModel : offerModels) {
+        Set<OfferModelsDTO> offerModels= offer.getOfferModels();
+        for (OfferModelsDTO uniqueOfferModel : offerModels) {
             purshasePrice +=uniqueOfferModel.getQuantity()*uniqueOfferModel.getModel().getPurchasePrice();
         }
         return purshasePrice;
@@ -467,7 +464,7 @@ public class StatServiceImpl implements StatService {
         List< String > uniqueProductRefs = new ArrayList<>();
         List< String > uniqueModelNames = new ArrayList<>();
         List< Long > uniqueModelIds = new ArrayList<>();
-        List< Offer > uniqueOffers = new ArrayList<>();
+        List< OfferDTO > uniqueOffers = new ArrayList<>();
         List< Long > uniqueOffersIds = new ArrayList<>();
         List< Long > uniqueProductsIds = new ArrayList<>();
 
@@ -505,18 +502,13 @@ public class StatServiceImpl implements StatService {
                     }
                 }
             }
-
-
-
-            Offer offer = product.getOffer();
+            OfferDTO offer = product.getOffer();
             //System.out.println("looking for offer");
             if (!uniqueOffersIds.contains(offer.getId())) {
                 uniqueOffers.add(offer);
                 uniqueOffersIds.add(offer.getId());
                 //System.out.println("new offer"+offer);
             }
-
-
         }
 
         uniqueAttributes.put("uniqueDates", uniqueDates);

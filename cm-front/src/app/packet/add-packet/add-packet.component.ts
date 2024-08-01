@@ -128,11 +128,11 @@ export class AddPacketComponent implements OnInit {
 
     this.setControlValue(modelControl, 'name', selectedModel.name);
 
-    this.noChoiceColor = selectedModel.colors.find((color: Color) => color.reference === "?");
+    this.noChoiceColor = selectedModel.colors.find((color: Color) => color.reference === "?")!;
     let colors : Color[] = selectedModel.colors.filter((color: Color) => color.reference != "?");
     this.setControlValue(modelControl, 'colors', colors);
 
-    this.noChoiceSize = selectedModel.sizes.find((size: Size) => size.reference === "?");
+    this.noChoiceSize = selectedModel.sizes.find((size: Size) => size.reference === "?")!;
     let sizes : Size[] = selectedModel.sizes.filter((size: Size) => size.reference != "?");
     this.setControlValue(modelControl, 'sizes', sizes);
 

@@ -61,10 +61,9 @@ export class ListOffersComponent implements OnInit {
         }
       });
 
-    this.modelService.findAllModels().pipe(takeUntil(this.$unsubscribe)).subscribe((modelList: any) => {
+    this.modelService.loadModels().pipe(takeUntil(this.$unsubscribe)).subscribe((modelList: any) => {
       this.models = modelList;
     });
-    this.fbPageService.loadFbPages();
   }
 
   openNew() {

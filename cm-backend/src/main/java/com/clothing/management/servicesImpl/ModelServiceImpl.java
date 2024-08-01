@@ -42,7 +42,7 @@ public class ModelServiceImpl implements ModelService {
     }
 
     @Override
-    public Model addModel(Model model) {
+    public Model saveModel(Model model) {
             model  = modelRepository.save(model);
             model  = addUnknownColorsAndSizes(model);
             // Generate products
@@ -116,12 +116,6 @@ public class ModelServiceImpl implements ModelService {
             }
         }
         return modelRepository.save(model);
-    }
-
-    @Override
-    public Model updateModel(Model model) {
-        //deleteUnusedProducts(model);
-        return addModel(model);
     }
 
     @Override

@@ -24,7 +24,8 @@ export class ListFbpagesComponent implements OnInit,OnDestroy {
 
   ngOnInit(): void {
     //this.fbPageService.loadFbPages();
-    this.fbPageService.findAllFbPages().pipe(takeUntil(this.$unsubscribe)).subscribe(
+
+    this.fbPageService.getFbPagesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
       (fbPages: FbPage[]) => {
         this.fbPages = fbPages;
       }

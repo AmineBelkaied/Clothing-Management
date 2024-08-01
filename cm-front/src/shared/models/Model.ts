@@ -6,8 +6,8 @@ export interface Model {
     id?: number;
     name: string;
     description?: string;
-    colors: any[];
-    sizes: any[];
+    colors: Color[];
+    sizes: Size[];
     products: any[],
     purchasePrice: number;
     earningCoefficient:number;

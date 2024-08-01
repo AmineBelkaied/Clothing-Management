@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Color } from '../models/Color';
 import { baseUrl } from '../../assets/constants';
 
@@ -10,7 +10,7 @@ import { baseUrl } from '../../assets/constants';
 export class ColorService {
 
   private baseUrl: string = baseUrl+"/color";
-  public colorsSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
+  public colorsSubscriber: BehaviorSubject<Color[]> = new BehaviorSubject<Color[]>([]);
   public color: BehaviorSubject<any> = new BehaviorSubject([]);
   public colors: Color[] = [];
   public editMode = false;
@@ -18,20 +18,30 @@ export class ColorService {
 
   }
 
-  loadColors(){
-    this.findAllColors()
-    .subscribe((colorList: any) => {
-        this.colorsSubscriber.next(colorList);
-        this.colors = colorList;
-    });
+  loadColors(): Observable<Color[]>{
+    return this.findAllColors().pipe(
+      tap((colorList: Color[]) =>
+        {
+          this.colorsSubscriber.next(colorList);
+          this.colors = colorList;
+        }
+      ),
+      catchError((error) => {
+        // Handle the error here
+        console.error('Error fetching colors', error);
+        return throwError(() => error);
+      }))
   }
 
   getColorsSubscriber(): Observable<Color[]> {
+    if (this.colorsSubscriber.value.length === 0) {
+      this.loadColors().subscribe();
+    }
     return this.colorsSubscriber.asObservable();
   }
 
-  findAllColors() {
-    return this.http.get(this.baseUrl + "/findAll");
+  findAllColors() : Observable<Color[]> {
+    return this.http.get<Color[]>(this.baseUrl + "/findAll");
   }
 
   findColorById(id: number) {

@@ -1,6 +1,8 @@
 package com.clothing.management.services;
 
 import com.clothing.management.dto.*;
+import com.clothing.management.dto.DeliveryCompanyDTOs.BarCodeStatusDTO;
+import com.clothing.management.dto.DeliveryCompanyDTOs.DeliveryResponse;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.PacketStatus;
 import com.clothing.management.models.DashboardCard;

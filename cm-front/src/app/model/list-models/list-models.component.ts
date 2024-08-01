@@ -1,7 +1,7 @@
 import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { Subject, takeUntil } from 'rxjs';
+import { catchError, Subject, switchMap, take, takeUntil, tap, throwError } from 'rxjs';
 import { Color } from 'src/shared/models/Color';
 import { Model } from 'src/shared/models/Model';
 import { Size } from 'src/shared/models/Size';
@@ -12,14 +12,15 @@ import { SizeService } from 'src/shared/services/size.service';
 @Component({
   selector: 'app-list-models',
   templateUrl: './list-models.component.html',
-  styleUrls: ['./list-models.component.css']
+  styleUrls: ['./list-models.component.css'],
 })
 export class ListModelsComponent implements OnInit {
   modelDialog!: boolean;
+  msg ='Erreur de connexion';
 
   models: any[] = [];
 
-  model: Model;/*  = {
+  model: Model; /*  = {
     "id":"",
     "name": "",
     "description": "",
@@ -40,76 +41,148 @@ export class ListModelsComponent implements OnInit {
   selectedFile: any;
   $unsubscribe: Subject<void> = new Subject();
 
-  constructor(private modelService: ModelService, private messageService: MessageService,
-     private confirmationService: ConfirmationService,private sizeService : SizeService,private colorService : ColorService) {
-  }
+  constructor(
+    private modelService: ModelService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
+    private sizeService: SizeService,
+    private colorService: ColorService
+  ) {}
 
   ngOnInit() {
-    this.sizeService.loadSizes();
-    this.colorService.loadColors();
+    this.modelService
+      .findAllModelsDTO()
+      .pipe(takeUntil(this.$unsubscribe))
+      .pipe(
+        tap((data: any) => {
+          this.models = data;
+        }),
+        switchMap(()=>this.sizeService.loadSizes()),
+        switchMap(()=>this.colorService.loadColors()),
+        )
+      .subscribe();
+  }
 
-    this.modelService.findAllModelsDTO().pipe(takeUntil(this.$unsubscribe)).subscribe((data: any) => {
-      this.models = data;
+  saveModel() {
+    this.submitted = true;
+
+    // Get the current model from the subscriber
+    this.modelService.getModelSubscriber().pipe(
+      take(1),  // Ensure we take only the first emission and then complete
+      switchMap((model: Model) => {
+        this.model = model;
+        console.log('this.model', this.model);
+
+        // Save the model
+        return this.modelService.saveModel(this.model).pipe(
+          tap((response: Model) => {
+            console.log(response);
+            this.modelService.updateModelsSubscriber(response);
+            if (this.editMode) {
+              this.msg = 'Le modèle a été mise a jour avec succés';
+            } else {
+              this.models.push(response);
+              this.msg = 'Le modèle a été crée avec succés';
+            }
+
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Succés',
+              detail: this.msg,
+              life: 3000,
+            });
+          }),
+          catchError((error) => {
+            console.error('There was an error when saving model!', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'There was an error when saving the model!',
+              life: 3000,
+            });
+            return throwError(() => error);
+          })
+        );
+      })
+    ).subscribe({
+      complete: () => {
+        this.modelDialog = false;
+        this.model = Object.assign({}, this.modelService.defaultModel);  // Reset model to default
+      }
     });
   }
 
+
   openNew() {
-    this.model = {
-      name: "",
-      description: "",
-      colors: [],
-      sizes: [],
-      products:[],
-      earningCoefficient:1,
-      purchasePrice:15,
-      deleted:false
-    }
     this.submitted = false;
     this.modelDialog = true;
     this.editMode = false;
   }
 
   deleteSelectedModels() {
-    let selectedModelsId = this.selectedModels.map((selectedModel: any) => selectedModel.id);
+    let selectedModelsId = this.selectedModels.map(
+      (selectedModel: any) => selectedModel.id
+    );
     console.log(selectedModelsId);
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer les modèles séléctionnés ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.modelService.deleteSelectedModels(selectedModelsId).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(result => {
-            this.models = this.models.filter(val => !this.selectedModels.includes(val));
+        this.modelService
+          .deleteSelectedModels(selectedModelsId)
+          .pipe(takeUntil(this.$unsubscribe))
+          .subscribe((result) => {
+            this.models = this.models.filter(
+              (val) => !this.selectedModels.includes(val)
+            );
             this.selectedModels = [];
-            this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les modèles séléctionnés ont été supprimé avec succés', life: 1000 });
-          })
-      }
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Succés',
+              detail: 'Les modèles séléctionnés ont été supprimé avec succés',
+              life: 1000,
+            });
+          });
+      },
     });
   }
 
   editModel(model: Model) {
-    console.log("editModel",model)
+    console.log('editModel', model);
     this.model = { ...model };
-    this.model.colors = this.model.colors?.filter((color: Color) => color.reference != "?");
-    this.model.sizes = this.model.sizes?.filter((size: Size) => size.reference != "?");
+    this.model.colors = this.model.colors?.filter(
+      (color: Color) => color.reference != '?'
+    );
+    this.model.sizes = this.model.sizes?.filter(
+      (size: Size) => size.reference != '?'
+    );
     this.modelService.setModel(model);
     this.modelDialog = true;
     this.editMode = true;
   }
 
   deleteModel(model: Model) {
-    console.log(model.id)
+    console.log(model.id);
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete ' + this.model.name + '?',
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.modelService.deleteModelById(model.id).pipe(takeUntil(this.$unsubscribe)).subscribe((response: any) => {
-          this.models = this.models.filter(val => val.id !== model.id);
-          this.model = Object.assign({}, this.model);
-          this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'model Deleted', life: 3000 });
-        })
-      }
+        this.modelService
+          .deleteModelById(model.id)
+          .pipe(takeUntil(this.$unsubscribe))
+          .subscribe((response: any) => {
+            this.models = this.models.filter((val) => val.id !== model.id);
+            this.model = Object.assign({}, this.model);
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Successful',
+              detail: 'model Deleted',
+              life: 3000,
+            });
+          });
+      },
     });
   }
 
@@ -118,54 +191,7 @@ export class ListModelsComponent implements OnInit {
     this.submitted = false;
   }
 
-  saveModel() {
-    this.submitted = true;
 
-    if (this.model.name.trim()) {
-      let id = this.model.id;
-
-      if (id !== undefined) {
-        console.log("update model:",this.model);
-
-        this.modelService.updateModel(this.model)
-          .subscribe({
-            next: (response: any) => {
-              console.log(response);
-              const index = this.findIndexById(id!);
-              if (index !== -1) {
-                this.models[index] = this.model;
-                this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Le modèle a été mis à jour avec succés', life: 3000 });
-              }else {
-                this.messageService.add({
-                  severity: 'error',
-                  summary: 'Erreur',
-                  detail: 'Modèle introuvable',
-                  life: 3000
-                });
-              }
-            }
-          });
-      }
-      else {
-        console.log(this.model.colors)
-        this.modelService.addModel(this.model)
-          .subscribe({
-            next: (response: any) => {
-              console.log(response);
-              this.models.push(response);
-              this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Le modèle a été crée avec succés', life: 3000 });
-            },
-            error: error => {
-
-              console.error('There was an error!', error);
-            }
-          })
-      }
-      this.models = [...this.models];
-      this.modelDialog = false;
-      this.model = Object.assign({}, this.model);
-    }
-  }
 
   findIndexById(id: number): number {
     let index = -1;
@@ -179,26 +205,22 @@ export class ListModelsComponent implements OnInit {
   }
 
   modelColorsDisplay(colors: any[]) {
-    let colorDisplay = "";
-    colors = [...colors.filter(color => color.name != "?")]
+    let colorDisplay = '';
+    colors = [...colors.filter((color) => color.name != '?')];
     colors.forEach((color, index) => {
       colorDisplay += color.name;
-      if (index < colors.length - 1)
-        colorDisplay += ",";
+      if (index < colors.length - 1) colorDisplay += ',';
     });
     return colorDisplay;
   }
 
   modelSizesDisplay(sizes: any[]) {
-    let sizeDisplay = "";
-    sizes = [...sizes.filter(size => size.reference != "?")]
+    let sizeDisplay = '';
+    sizes = [...sizes.filter((size) => size.reference != '?')];
     sizes.forEach((size, index) => {
       sizeDisplay += size.reference;
-      if (index < sizes.length - 1)
-        sizeDisplay += "-";
+      if (index < sizes.length - 1) sizeDisplay += '-';
     });
     return sizeDisplay;
   }
-
-
 }

@@ -87,11 +87,6 @@ public class OfferModel {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id, offer, model,quantity);
-    }
-
-    @Override
     public String toString() {
         String qte = quantity>1?" * "+quantity:"";
         return model.getName() + qte;

@@ -13,6 +13,7 @@ import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { SteLivraisonService } from 'src/shared/services/ste-livraison.service';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
+import { Offer } from 'src/shared/models/Offer';
 
 @Component({
   selector: 'app-statistique',
@@ -143,9 +144,10 @@ export class StatistiqueComponent implements OnInit {
   PagesOptions: any;
 
   ngOnInit() {
-    this.steLivraisonService.deliveryCompanySubscriber
-    .subscribe((stesList: any) => {
-      //this.deliveryCompanyList = stesList;
+
+    this.steLivraisonService.getDCSubscriber()
+    .subscribe((stesList: DeliveryCompany[]) => {
+      this.deliveryCompanyList = stesList;
       //console.log("this.stes",this.deliveryCompanyList);
       const uniqueCompanies = new Map();
         stesList.forEach((company: DeliveryCompany) => {
@@ -158,254 +160,13 @@ export class StatistiqueComponent implements OnInit {
     });
     this.selectedModels.setValue([]);
     //this.rangeDates[0] = new Date();
-    const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue('--text-color');
-    const textColorSecondary = documentStyle.getPropertyValue(
-      '--text-color-secondary'
-    );
-    const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
 
-    this.StatesOptions = {
-      maintainAspectRatio: false,
-      aspectRatio: 0.8,
-      plugins: {
-        tooltips: {
-          mode: 'index',
-          intersect: false,
-        },
-        legend: {
-          labels: {
-            color: textColor,
-          },
-        },
-      },
-      scales: {
-        x: {
-          stacked: true,
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-        y: {
-          stacked: true,
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-      },
-    };
-
-    this.PagesOptions = {
-      maintainAspectRatio: false,
-      aspectRatio: 0.6,
-      plugins: {
-        legend: {
-          labels: {
-            usePointStyle: true,
-            color: textColor,
-          },
-        },
-      },
-    };
-
-    this.modelsOptions = {
-      maintainAspectRatio: false,
-      aspectRatio: 0.6,
-      plugins: {
-        legend: {
-          labels: {
-            color: textColor,
-          },
-        },
-      },
-      scales: {
-        x: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-        y: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-      },
-    };
-
-    this.colorsOptions = {
-      maintainAspectRatio: false,
-      aspectRatio: 0.6,
-      plugins: {
-        legend: {
-          labels: {
-            color: textColor,
-          },
-        },
-      },
-      scales: {
-        x: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-        y: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-      },
-    };
-    this.offersOptions = {
-      maintainAspectRatio: false,
-      aspectRatio: 0.6,
-      plugins: {
-        legend: {
-          labels: {
-            color: textColor,
-          },
-        },
-      },
-      scales: {
-        x: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-        y: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-      },
-    };
-
-    this.packetsOptions = {
-      maintainAspectRatio: false,
-      aspectRatio: 0.6,
-      plugins: {
-        legend: {
-          labels: {
-            color: textColor,
-          },
-        },
-      },
-      scales: {
-        x: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-        y: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-      },
-    };
-
-    this.stockOptions = {
-      maintainAspectRatio: false,
-      aspectRatio: 0.6,
-      plugins: {
-        legend: {
-          labels: {
-            color: textColor,
-          },
-        },
-      },
-      scales: {
-        x: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-        y: {
-          ticks: {
-            color: textColorSecondary,
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false,
-          },
-        },
-      },
-    };
-
-    this.daysChart = ['all'];
-    this.basicData = {
-      labels: [],
-      datasets: [],
-    };
-
-    this.modelsData = {
-      labels: [],
-      datasets: [],
-    };
-
-    this.colorsData = {
-      labels: [],
-      datasets: [],
-    };
-    this.offersData = {
-      labels: [],
-      datasets: [],
-    };
-    this.packetsData = {
-      labels: [],
-      datasets: [],
-    };
-
-    this.stockData = {
-      labels: [],
-      datasets: [],
-    };
+    this.intitiateLists();
     this.getAllModels();
     this.findAllPackets();
   }
+
+
 
   findAllPackets(): void {
     this.setCalendar();
@@ -727,6 +488,7 @@ export class StatistiqueComponent implements OnInit {
       datasets: this.offersDataSetArray,
     };
   }
+
   createPageStatChart(dataCount: CountPages) {
     const pagesData: number[] = Object.values(dataCount).flatMap(
       (obj) => obj.count
@@ -962,6 +724,254 @@ export class StatistiqueComponent implements OnInit {
         return value.toFixed(2);
       }
       return '0.00';
+  }
+
+  intitiateLists() {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+    const textColorSecondary = documentStyle.getPropertyValue(
+      '--text-color-secondary'
+    );
+    const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+    this.StatesOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.8,
+      plugins: {
+        tooltips: {
+          mode: 'index',
+          intersect: false,
+        },
+        legend: {
+          labels: {
+            color: textColor,
+          },
+        },
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+        y: {
+          stacked: true,
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+      },
+    };
+
+    this.PagesOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
+      plugins: {
+        legend: {
+          labels: {
+            usePointStyle: true,
+            color: textColor,
+          },
+        },
+      },
+    };
+
+    this.modelsOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+        y: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+      },
+    };
+
+    this.colorsOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+        y: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+      },
+    };
+    this.offersOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+        y: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+      },
+    };
+
+    this.packetsOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+        y: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+      },
+    };
+
+    this.stockOptions = {
+      maintainAspectRatio: false,
+      aspectRatio: 0.6,
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+        y: {
+          ticks: {
+            color: textColorSecondary,
+          },
+          grid: {
+            color: surfaceBorder,
+            drawBorder: false,
+          },
+        },
+      },
+    };
+
+    this.daysChart = ['all'];
+    this.basicData = {
+      labels: [],
+      datasets: [],
+    };
+
+    this.modelsData = {
+      labels: [],
+      datasets: [],
+    };
+
+    this.colorsData = {
+      labels: [],
+      datasets: [],
+    };
+    this.offersData = {
+      labels: [],
+      datasets: [],
+    };
+    this.packetsData = {
+      labels: [],
+      datasets: [],
+    };
+
+    this.stockData = {
+      labels: [],
+      datasets: [],
+    };
+
   }
 }
 

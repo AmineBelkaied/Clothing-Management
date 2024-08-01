@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, shareReplay,tap,map, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, shareReplay,tap,map, throwError, switchMap } from 'rxjs';
 import { baseUrl } from 'src/assets/constants';
 import { GlobalConf } from '../models/GlobalConf';
 import { MessageService } from 'primeng/api';
+import { OfferService } from './offer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +17,29 @@ export class GlobalConfService {
   public globalConfSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public globalConf: GlobalConf;
 
-  constructor(private http: HttpClient, private messageService: MessageService) {}
+  constructor(private http: HttpClient, private messageService: MessageService,private offerService : OfferService) {}
 
 
-  loadGlobalConf(): Observable<GlobalConf> {
-    return this.getGlobalConf();
+  loadGlobalConf() : void {
+    this.getGlobalConf().pipe(
+      tap((globalConf: GlobalConf) => {
+        console.log("return getGlobalConf");
+
+        // Emit the new global configuration through the subscriber
+        this.globalConfSubscriber.next(globalConf);
+        // Update the local state
+        this.globalConf = globalConf;
+        console.log("loadOffers");
+      }), switchMap( () =>
+        {
+          return this.offerService.loadOffers();
+        }),
+      catchError((error) => {
+        // Handle the error here
+        console.error('Error loading global configuration:', error);
+        return throwError(() => error);
+      })
+    ).subscribe();
   }
 
   getGlobalConf():Observable<any> {

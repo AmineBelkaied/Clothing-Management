@@ -1,6 +1,6 @@
 
 
-package com.clothing.management.dto;
+package com.clothing.management.dto.DeliveryCompanyDTOs;
 
 import net.minidev.json.annotate.JsonIgnore;
 
