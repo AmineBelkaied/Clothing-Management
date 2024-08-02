@@ -64,8 +64,8 @@ public class OfferController {
         return offerService.updateOffer(offer);
     }
     @PutMapping(value = "/updateData" , produces = "application/json")
-    public OfferDTO updateOffer(@RequestParam long id,@RequestParam String name,@RequestParam double price,@RequestParam boolean enabled) throws Exception {
-        return offerService.updateOfferData(id, name, price, enabled);
+    public OfferDTO updateOffer(@RequestParam long id,@RequestParam String name,@RequestParam double price2,@RequestParam boolean enabled) throws Exception {
+        return offerService.updateOfferData(id, name, price2, enabled);
     }
     @PutMapping(value = "/updateOfferFbPages" , produces = "application/json")
     public OfferDTO updateOfferFbPages(@RequestParam("offerId") long offerId,@RequestBody Set<FbPage> fbPages) throws Exception {
