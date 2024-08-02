@@ -73,15 +73,15 @@ export class OfferService {
   }
 
   updateOffer(offer: Offer) {
-    return this.http.post(this.baseUrl + "/updateData?id="+offer.id+"&name="+offer.name+"&price="+offer.price+"&enabled="+offer.enabled , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(this.baseUrl + "/updateData?id="+offer.id+"&name="+offer.name+"&price="+offer.price+"&enabled="+offer.enabled , {headers : { 'content-type': 'application/json'}})
   }
 
   updateOfferFbPages(offerId: number, fbPages: FbPage[]) {
-    return this.http.post(this.baseUrl + "/updateOfferFbPages?offerId="+offerId , fbPages , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(this.baseUrl + "/updateOfferFbPages?offerId="+offerId , fbPages , {headers : { 'content-type': 'application/json'}})
   }
 
   updateOfferModels(offerId: number,OfferModelsDTO: OfferModelsDTO[]) : Observable<any> {
-    return this.http.post(this.baseUrl + "/updateOfferModels?offerId="+offerId , OfferModelsDTO , {headers : { 'content-type': 'application/json'}})
+    return this.http.put(this.baseUrl + "/updateOfferModels?offerId="+offerId , OfferModelsDTO , {headers : { 'content-type': 'application/json'}})
   }
 
   deleteOfferById(idOffer: any) {

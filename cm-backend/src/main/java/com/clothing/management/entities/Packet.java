@@ -105,7 +105,7 @@ public class Packet {
         this.deliveryPrice = 0;
         this.discount = 0;
         this.date=new Date();
-        this.status = null;
+        this.status = "Non confirmée";
         this.lastUpdateDate = null;
         this.valid= false;
         this.printLink = null;

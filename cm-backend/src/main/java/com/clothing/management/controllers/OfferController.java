@@ -63,16 +63,16 @@ public class OfferController {
     public OfferDTO updateOffer(@RequestBody Offer offer) throws Exception {
         return offerService.updateOffer(offer);
     }
-    @PostMapping(value = "/updateData" , produces = "application/json")
+    @PutMapping(value = "/updateData" , produces = "application/json")
     public OfferDTO updateOffer(@RequestParam long id,@RequestParam String name,@RequestParam double price,@RequestParam boolean enabled) throws Exception {
         return offerService.updateOfferData(id, name, price, enabled);
     }
-    @PostMapping(value = "/updateOfferFbPages" , produces = "application/json")
+    @PutMapping(value = "/updateOfferFbPages" , produces = "application/json")
     public OfferDTO updateOfferFbPages(@RequestParam("offerId") long offerId,@RequestBody Set<FbPage> fbPages) throws Exception {
         return offerService.updateOfferFbPages(offerId,fbPages);
     }
 
-    @PostMapping(value = "/updateOfferModels" , produces = "application/json")
+    @PutMapping(value = "/updateOfferModels" , produces = "application/json")
     public OfferDTO updateOfferModels(@RequestParam("offerId") long offerId,@RequestBody Set<OfferModelsDTO> offerModelsDTO) throws Exception {
         return offerService.updateOfferModels(offerId,offerModelsDTO);
     }

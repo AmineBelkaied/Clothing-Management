@@ -23,13 +23,10 @@ export class GlobalConfService {
   loadGlobalConf() : void {
     this.getGlobalConf().pipe(
       tap((globalConf: GlobalConf) => {
-        console.log("return getGlobalConf");
-
         // Emit the new global configuration through the subscriber
         this.globalConfSubscriber.next(globalConf);
         // Update the local state
         this.globalConf = globalConf;
-        console.log("loadOffers");
       }), switchMap( () =>
         {
           return this.offerService.loadOffers();

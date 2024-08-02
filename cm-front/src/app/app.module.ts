@@ -6,7 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
@@ -186,6 +186,7 @@ import { GlobalConf } from 'src/shared/models/GlobalConf';
     AuthGuard,
     GlobalConfService,
     OfferService,
+    DecimalPipe,
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,

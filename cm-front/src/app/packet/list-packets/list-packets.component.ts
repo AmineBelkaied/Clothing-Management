@@ -1146,7 +1146,7 @@ onRowSelect($event: TableRowSelectEvent) {
         {
           label: 'Duplicate',
           icon: 'pi pi-refresh',
-          disabled:!this.checkCodeABarreExist(packet),
+          disabled:!(this.checkCodeABarreExist(packet) && packet.status !="Livrée" && packet.status !="Payée" ),
           command: () => {
             this.duplicatePacket(packet)
           }

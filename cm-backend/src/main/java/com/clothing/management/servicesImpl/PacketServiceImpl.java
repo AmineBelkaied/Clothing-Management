@@ -550,7 +550,8 @@ public class PacketServiceImpl implements PacketService {
         Packet exchangePacket = getPacketById(id);
         if(packet.getStatus().equals(LIVREE.getStatus())
                 ||packet.getStatus().equals(PAID.getStatus())
-                ||exchangePacket.getStatus().equals(RETURN.getStatus()))
+                ||exchangePacket.getStatus().equals(RETURN.getStatus())
+                ||exchangePacket.getStatus().equals(RETURN_RECEIVED.getStatus()))
         return updatePacketStatusAndSaveToHistory(exchangePacket, RETURN_RECEIVED.getStatus());
         else return updatePacketStatusAndSaveToHistory(packet, RETURN_RECEIVED.getStatus());
     }
