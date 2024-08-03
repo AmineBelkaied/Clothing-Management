@@ -57,7 +57,7 @@ public class ModelServiceImpl implements ModelService {
         try {
             // Generate products
             if(model.getColors().size() > 0) {
-                System.out.println("model colors:"+model.getColors());
+                //System.out.println("model colors:"+model.getColors());
                 for(Color color : model.getColors()) {
                     if(model.getSizes().size() > 0) {
                         for(Size size : model.getSizes()) {

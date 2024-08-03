@@ -60,16 +60,22 @@ export class ModelService {
     this.model = model;
     this.modelSubscriber.next(model);
   }
+  cleanModel() {
+    console.log("cleanModel");
+    this.model = this.defaultModel;
+    this.modelSubscriber.next(this.defaultModel);
+  }
   updateModelsSubscriber(model: Model) {
     const index = this.findModelIndexById(model.id!);
+    console.log("updateModelsSubscriber",index);
     if (index !== -1) {
       this.models[index] = this.model;
-      this.modelSubscriber.next(this.defaultModel);
     } else {
       this.models.push(this.model);
     }
     this.modelsSubscriber.next(this.models);
   }
+
   findModelIndexById(modelId: number): number {
     let index = -1;
     for (let i = 0; i < this.models.length; i++) {

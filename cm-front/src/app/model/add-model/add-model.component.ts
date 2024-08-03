@@ -78,6 +78,7 @@ export class AddModelComponent implements OnInit,OnDestroy{
   }
 
   ngOnDestroy(): void {
+    this.modelService.cleanModel();
     this.$unsubscribe.next();
     this.$unsubscribe.complete();
   }

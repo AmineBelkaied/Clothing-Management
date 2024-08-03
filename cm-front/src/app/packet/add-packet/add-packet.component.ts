@@ -116,10 +116,7 @@ export class AddPacketComponent implements OnInit {
     this.packetService
       .findPacketRelatedProducts(this.packet.id)
       .subscribe((offers: any) => {
-        //console.log("offers",offers);
         offers.forEach((offer: any) => {
-          //console.log("offer",offer);
-          //for (var offerIndex = 0; offerIndex < offers.length; offerIndex++) {
           let index = offer.packetOfferId;
           let products: Product[] = offer.products;
           let offerX: Offer = this.allOffersList.find(
@@ -629,7 +626,6 @@ export class AddPacketComponent implements OnInit {
 
   ngOnDestroy(): void {
     console.log('$unsubscribe');
-
     this.$unsubscribe.next();
     this.$unsubscribe.complete();
   }

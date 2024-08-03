@@ -142,7 +142,8 @@ export class AddOfferComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
+    this.offerService.cleanOffre();
     this.$unsubscribe.next();
-this.$unsubscribe.complete();
+    this.$unsubscribe.complete();
   }
 }

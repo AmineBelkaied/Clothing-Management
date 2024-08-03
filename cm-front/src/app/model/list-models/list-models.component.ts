@@ -16,7 +16,7 @@ import { SizeService } from 'src/shared/services/size.service';
 })
 export class ListModelsComponent implements OnInit {
   modelDialog!: boolean;
-  msg ='Erreur de connexion';
+  msg :String = 'Erreur de connexion';
 
   models: any[] = [];
 
@@ -76,30 +76,27 @@ export class ListModelsComponent implements OnInit {
         // Save the model
         return this.modelService.saveModel(this.model).pipe(
           tap((response: Model) => {
-            console.log(response);
+            //console.log(response);
             this.modelService.updateModelsSubscriber(response);
             if (this.editMode) {
-              this.msg = 'Le modèle a été mise a jour avec succés';
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Succés',
+                detail: 'Le modèle a été mise a jour avec succés',
+                life: 3000,
+              });
             } else {
               this.models.push(response);
-              this.msg = 'Le modèle a été crée avec succés';
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Succés',
+                detail: 'Le modèle a été crée avec succés',
+                life: 3000,
+              });
             }
-
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Succés',
-              detail: this.msg,
-              life: 3000,
-            });
           }),
-          catchError((error) => {
+          catchError((error) => {//Correction a verifier
             console.error('There was an error when saving model!', error);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'There was an error when saving the model!',
-              life: 3000,
-            });
             return throwError(() => error);
           })
         );

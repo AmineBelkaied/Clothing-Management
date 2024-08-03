@@ -42,7 +42,10 @@ export class OfferService {
     }
     return this.offersSubscriber.asObservable();
   }
-
+  cleanOffre() {
+   // this.offer = this.defaultModel;
+    this.offerSubscriber=  new BehaviorSubject([]);
+  }
   setOffer(offer:any): void {
     this.offer = offer;
     this.offerSubscriber.next(offer);
