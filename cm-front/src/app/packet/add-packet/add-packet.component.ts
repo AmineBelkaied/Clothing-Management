@@ -102,7 +102,7 @@ export class AddPacketComponent implements OnInit {
                   .map((fbpage) => fbpage.id)
                   .includes(this.packet.fbPage.id)
             );
-            this.getOffers();
+            this.getOffersSwitch();
             this.editMode ? this.getSelectedProducts() : this.addOffer();
           }
         })
@@ -156,7 +156,6 @@ export class AddPacketComponent implements OnInit {
   removeOffer(offer: any, i: number): void {
     this.offers().removeAt(i);
     this.calculateProductsPrice();
-    this.createPacketDescription();
   }
   // end control block
 
@@ -168,12 +167,12 @@ export class AddPacketComponent implements OnInit {
         console.log('products['+j+']', products[j]);
         if (products[j].id != null && products[j].model?.id != null) {
           let selectedModel: Model = products[j].model!;
-          let selectedProduct: Product = this.allProducts.find(
+         /* let selectedProduct: Product = this.allProducts.find(
             (product: Product) => product.id == products[j].id
           )!;
-          if (selectedProduct) {
-            this.pushModelToOffer(offerIndex,j,selectedModel,selectedProduct);
-          } else console.log('selectedProduct', products[j].id + ' =null');
+          if (selectedProduct) {*/
+            this.pushModelToOffer(offerIndex,selectedModel,products[j]);
+          //} else console.log('selectedProduct', products[j].id + ' =null');
         } else console.log('product', products[j].id + ' introuvable');
       }
     else console.log('products est vide');
@@ -186,24 +185,17 @@ export class AddPacketComponent implements OnInit {
       let selectedModel: Model = offer.offerModels[i].model;
       for (var j = 0; j < offer.offerModels[i].quantity; j++) {
         let selectedProduct: Product = this.getNoChoiceColorSizeProduct(selectedModel);
-        this.pushModelToOffer(offerIndex, pos, selectedModel, selectedProduct);
+        this.pushModelToOffer(offerIndex, selectedModel, selectedProduct);
         pos++;
       }
     }
   }
   pushModelToOffer(
     offerIndex: number,
-    modelIndex: number,
     model: Model,
     selectedProduct: Product
   ) {
     this.addModel(offerIndex,model,selectedProduct);
-
-    this.addProductToPacketDescription(
-      selectedProduct?.model?.name,
-      selectedProduct?.color.name,
-      selectedProduct?.size.reference
-    );
   }
 
   onOfferChange(offerId: number, index: number): void {
@@ -263,7 +255,6 @@ export class AddPacketComponent implements OnInit {
       if (selectedProduct) {
         console.log('selectedProduct', selectedProduct);
         selectedModel.get('selectedProduct')?.setValue(selectedProduct);
-        this.createPacketDescription();
       }
     }
   }
@@ -304,21 +295,12 @@ export class AddPacketComponent implements OnInit {
     let packetPurshasePrice = 0;
     let packetEarningCoefficient = 0;
     let packet = this.packetForm.value;
-    /* packet.deliveryPrice = this.packetForm.controls['deliveryPrice'].value;
-    packet.discount = this.packetForm.controls['discount'].value;
-    console.log('this.packetForm.controls', this.packetForm.controls);
-    console.log("this.productsPrice",this.productsPrice); */
-
-    //console.log('packet1', packet);
     for (var i = 0; i < packet.offers.length; i++) {
       let offer: Offer = packet.offers[i];
       if (offer.id != null && offer.id != undefined) {
         if (offer.offerModels != null && offer.offerModels.length > 0) {
-          console.log('offer', offer);
-
           offer.offerModels.forEach((model: Model) => {
             if (model) {
-              console.log('model', model);
               packetGainCoefficient += model.earningCoefficient;
               packetPurshasePrice += model.purchasePrice;
             }
@@ -326,45 +308,17 @@ export class AddPacketComponent implements OnInit {
         }
       }
     }
-    console.log('packetGainCoefficientFinal', packetGainCoefficient);
-    console.log('packetPurshasePriceFinal', packetPurshasePrice);
-    // Ensure packetGainCoefficient is not zero to avoid NaN
     if (packetGainCoefficient === 0) {
       console.error(
         'packetGainCoefficient is zero, cannot calculate packetEarningCoefficient'
       );
     }
-
-    //this.packetEarningCoefficient = packet.totalPrice - packet.deliveryPrice -packet.discount -packetPurshasePrice;
     let gain = this.productsPrice - packet.discount - packetPurshasePrice;
-    console.log("gain",gain);
-
     packetEarningCoefficient = gain / packetGainCoefficient;
-    console.log("packetEarningCoefficient",packetEarningCoefficient);
-
-    console.log('packet', packet);
-
-    console.log(
-      packetEarningCoefficient +
-        ' = ( ' +
-        this.productsPrice +
-        ' - ' +
-        packet.discount +
-        ' - ' +
-        packet.deliveryPrice +
-        ' - ' +
-        packetPurshasePrice +
-        ')/' +
-        packetGainCoefficient
-    );
-
     let productsOffers: ProductsPacket[] = this.prepareProductsOffers(
       packet,
       packetEarningCoefficient
     );
-    console.log('productsOffers', productsOffers);
-
-    console.log('this.stockAvailable:', this.stockAvailable);
     if (this.stockAvailable < 1) {
       this.enableFakeSize = true;
       this.confirmationService.confirm({
@@ -444,6 +398,14 @@ export class AddPacketComponent implements OnInit {
         if (offer.offerModels != null && offer.offerModels.length > 0) {
           for (var j = 0; j < offer.offerModels.length; j++) {
             let model: Model = offer.offerModels[j];
+            //create packet description
+            this.addProductToPacketDescription(
+              offer.offerModels[j].name,
+              this.getElement(model, 'selectedColor', 'name'),
+              this.getElement(model, 'selectedSize', 'reference'),
+              this.getElement(model, 'selectedSizeReel', 'reference')
+            );
+
             console.log('model-' + j + ':', model);
             let selectedProduct = model.selectedProduct;
             if (selectedProduct !== undefined) {
@@ -452,18 +414,11 @@ export class AddPacketComponent implements OnInit {
                 offer.offerModels[j].selectedSize?.reference == '?' ||
                 offer.offerModels[j].selectedColor?.name == '?';
               let x: number = colorSizeFalse ? -1 : qte < 1 ? 0 : qte ?? 0;
-              this.stockAvailable =
-                x < this.stockAvailable ? x : this.stockAvailable;
-              //console.log("this.stockAvailable:"+j,this.stockAvailable);
+              this.stockAvailable = x < this.stockAvailable ? x : this.stockAvailable;
               this.productCount += 1;
 
-              const profits =
-                packetEarningCoefficient * model.earningCoefficient;
-              const formatteProfits = this.decimalPipe.transform(
-                profits,
-                '1.2-2'
-              );
-              console.log('profits: ', profits);
+              const profits = packetEarningCoefficient * model.earningCoefficient;
+              const formatteProfits = this.decimalPipe.transform( profits, '1.2-2' );
 
               productsOffers.push({
                 productId: selectedProduct.id,
@@ -471,54 +426,17 @@ export class AddPacketComponent implements OnInit {
                 packetOfferIndex: i,
                 profits: formatteProfits,
               });
-
-              this.addProductToPacketDescription(
-                model.name,
-                this.getElement(offer.offerModels[j], 'selectedColor', 'name'),
-                this.getElement(
-                  offer.offerModels[j],
-                  'selectedSize',
-                  'reference'
-                ),
-                this.getElement(
-                  offer.offerModels[j],
-                  'selectedSizeReel',
-                  'reference'
-                )
-              );
             }
           }
         }
       }
     }
-    console.log('end prepare');
     return productsOffers;
   }
   // end submit block
-  createPacketDescription() {
-    this.packetDescription = '';
-    let packet = this.packetForm.value;
-    for (var i = 0; i < packet.offers.length; i++) {
-      let offer: Offer = packet.offers[i];
 
-      if (offer.id != null && offer.id != undefined) {
-        if (offer.offerModels != null && offer.offerModels.length > 0) {
-          for (var j = 0; j < offer.offerModels.length; j++) {
-            let model: Model = offer.offerModels[j];
-            this.addProductToPacketDescription(
-              offer.offerModels[j].name,
-              this.getElement(model, 'selectedColor', 'name'),
-              this.getElement(model, 'selectedSize', 'reference'),
-              this.getElement(model, 'selectedSizeReel', 'reference')
-            );
-          }
-        }
-      }
-    }
-    console.log('createPacketDescription', this.packetDescription);
-  }
 
-  getOffers() {
+  getOffersSwitch() {
     this.offersSelected = this.enableAllOffer
       ? this.allOffersListEnabled
       : this.offersIdsListByFbPage;
@@ -579,8 +497,8 @@ export class AddPacketComponent implements OnInit {
 
   newModel(model: Model,selectedProduct:Product): FormGroup {
     return this.fb.group({name: [model.name],
-      colors: this.fb.array(model.colors ? model.colors.map(color => this.fb.control(color)) : []),
-      sizes: this.fb.array(model.sizes ? model.sizes.map(size => this.fb.control(size)) : []),
+      colors: this.fb.array(model.colors ? model.colors.filter((color: Color) => color.reference != "?").map(color => this.fb.control(color)) : []),
+      sizes: this.fb.array(model.sizes ? model.sizes.filter((size: any) => size.reference != "?").map(size => this.fb.control(size)) : []),
       purchasePrice: [model.purchasePrice],
       earningCoefficient: [model.earningCoefficient],
       selectedColor: [selectedProduct.color],
@@ -631,6 +549,28 @@ export class AddPacketComponent implements OnInit {
   }
 }
 /*
+
+  createPacketDescription() {
+    this.packetDescription = '';
+    let packet = this.packetForm.value;
+    for (var i = 0; i < packet.offers.length; i++) {
+      let offer: Offer = packet.offers[i];
+
+      if (offer.id != null && offer.id != undefined) {
+        if (offer.offerModels != null && offer.offerModels.length > 0) {
+          for (var j = 0; j < offer.offerModels.length; j++) {
+            let model: Model = offer.offerModels[j];
+            this.addProductToPacketDescription(
+              offer.offerModels[j].name,
+              this.getElement(model, 'selectedColor', 'name'),
+              this.getElement(model, 'selectedSize', 'reference'),
+              this.getElement(model, 'selectedSizeReel', 'reference')
+            );
+          }
+        }
+      }
+    }
+  }
   setModelControlValues(
     offerIndex: number,
     modelIndex:number,

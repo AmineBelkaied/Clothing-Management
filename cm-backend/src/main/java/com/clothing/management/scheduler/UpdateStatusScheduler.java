@@ -4,9 +4,11 @@ import com.clothing.management.auth.constant.AppConstants;
 import com.clothing.management.auth.mastertenant.config.DBContextHolder;
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
+import com.clothing.management.auth.util.SessionUtils;
 import com.clothing.management.entities.GlobalConf;
 import com.clothing.management.entities.ModelStockHistory;
 import com.clothing.management.entities.Packet;
+import com.clothing.management.entities.User;
 import com.clothing.management.services.GlobalConfService;
 import com.clothing.management.services.ModelStockHistoryService;
 import com.clothing.management.services.PacketService;
@@ -31,6 +33,8 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
     private final ProductService productService;
     private final MasterTenantService masterTenantService;
     private final GlobalConfService globalConfService;
+
+    private final SessionUtils sessionUtils;
     private final static int THREAD_SLEEP_INTERVAL = 1000;
     @Value("${default.update.status.cron-expression}")
     private String defaultUpdateStatusCronExp;
@@ -39,12 +43,13 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
     @Value("${server.database.prefix}")
     private String serverDbPrefix;
 
-    public UpdateStatusScheduler(ModelStockHistoryService modelStockHistoryService, PacketService packetService, ProductService productService, MasterTenantService masterTenantService, GlobalConfService globalConfService) {
+    public UpdateStatusScheduler(ModelStockHistoryService modelStockHistoryService, PacketService packetService, ProductService productService, MasterTenantService masterTenantService, GlobalConfService globalConfService, SessionUtils sessionUtils) {
         this.modelStockHistoryService = modelStockHistoryService;
         this.packetService = packetService;
         this.productService = productService;
         this.masterTenantService = masterTenantService;
         this.globalConfService = globalConfService;
+        this.sessionUtils = sessionUtils;
     }
 
     @Override
@@ -62,6 +67,7 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
                     taskRegistrar.addTriggerTask(() -> startUpdateStatusCronTask(masterTenant), triggerContext -> {
                         CronTrigger cronTrigger = new CronTrigger(updateStatusCronExp);
                         Date nextExecutionTime = cronTrigger.nextExecutionTime(triggerContext);
+                        assert nextExecutionTime != null;
                         return nextExecutionTime.toInstant();
                     });
 
@@ -69,6 +75,7 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
                     taskRegistrar.addTriggerTask(() -> startCountStockCronTask(masterTenant), triggerContext -> {
                         CronTrigger cronTrigger = new CronTrigger(defaultCountStockCronExp);
                         Date nextExecutionTime = cronTrigger.nextExecutionTime(triggerContext);
+                        assert nextExecutionTime != null;
                         return nextExecutionTime.toInstant();
                     });
                 });
@@ -81,24 +88,21 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
 
         List<Packet> packets = Collections.synchronizedList(packetService.findAllDiggiePackets());
         synchronized (packets) {
-            Iterator<Packet> iterator = packets.iterator();
-            while (iterator.hasNext()) {
-                Packet packet = iterator.next();
+            User currentUser = sessionUtils.getCurrentUser();
+            for (Packet packet : packets) {
                 try {
-                    this.packetService.getLastStatus(packet);
+                    this.packetService.getLastStatus(packet,currentUser);
                     LOG.info("UPDATE STATUS FINISHED FOR PACKET >> " + packet.toString());
                 } catch (IOException | InterruptedException e) {
-                    System.out.println("e"+e);
                     e.printStackTrace();
                 } catch (Exception e) {
-                    System.out.println(e);
-                    throw new RuntimeException("e1"+e);
+                    throw new RuntimeException("e1" + e);
                 }
                 try {
                     //System.out.println("sleep");
                     Thread.sleep(THREAD_SLEEP_INTERVAL);
                 } catch (InterruptedException e2) {
-                    System.out.println("e2"+e2);
+                    System.out.println("e2" + e2);
                     e2.printStackTrace();
                 }
             }

@@ -2,9 +2,7 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.entities.Color;
 import com.clothing.management.services.ColorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,18 +13,18 @@ import java.util.Optional;
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ColorController {
-
-    @Autowired
-    ColorService colorService;
-
+    private final ColorService colorService;
+    public ColorController(ColorService colorService){
+        this.colorService = colorService;
+    }
     @GetMapping(path = "/findAll")
     public List<Color> findAllColors() {
         return colorService.findAllColors();
     }
 
     @GetMapping(path = "/findById/{id}")
-    public Optional<Color> findByIdColor(@PathVariable Long idColor) {
-        return colorService.findColorById(idColor);
+    public Optional<Color> findByIdColor(@PathVariable Long id) {
+        return colorService.findColorById(id);
     }
 
     @PostMapping(value = "/add" , produces = "application/json")
@@ -35,7 +33,7 @@ public class ColorController {
     }
 
     @PutMapping(value = "/update" , produces = "application/json")
-    public Color updateColor(@RequestBody Color color) throws Exception {
+    public Color updateColor(@RequestBody Color color) {
         return colorService.updateColor(color);
     }
 

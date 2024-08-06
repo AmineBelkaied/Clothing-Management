@@ -1,6 +1,7 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.entities.Governorate;
+import com.clothing.management.repository.IGlobalConfRepository;
 import com.clothing.management.repository.IGovernorateRepository;
 import com.clothing.management.services.GovernorateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,12 @@ import java.util.Optional;
 @Service
 public class GovernorateServiceImpl implements GovernorateService {
 
-    @Autowired
-    IGovernorateRepository governorateRepository;
+    private final IGovernorateRepository governorateRepository;
 
+    @Autowired
+    public GovernorateServiceImpl(IGovernorateRepository governorateRepository) {
+        this.governorateRepository = governorateRepository;
+    }
     @Override
     public List<Governorate> findAllGovernorates() {
         return governorateRepository.findAll();

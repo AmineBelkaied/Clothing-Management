@@ -1,9 +1,7 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.entities.Role;
-import com.clothing.management.entities.User;
 import com.clothing.management.services.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +12,10 @@ import java.util.List;
 @CrossOrigin
 @Secured("ROLE_ADMIN")
 public class RoleController {
-
-    @Autowired
-    RoleService roleService;
+    private final RoleService roleService;
+    public RoleController(RoleService roleService){
+        this.roleService=roleService;
+    }
 
     @GetMapping(path = "/findAll")
     public List<Role> findAllRoles() {

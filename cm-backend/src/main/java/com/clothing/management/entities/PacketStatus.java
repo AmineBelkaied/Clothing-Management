@@ -26,11 +26,20 @@ public class PacketStatus {
     @JoinColumn(name = "user_id")
     private User user;
     public PacketStatus() {
+        this.id = null;
+        this.date = new Date();
     }
 
     public PacketStatus(Long id, Date date, String status, Packet packet, User user) {
         this.id = id;
         this.date = date;
+        this.status = status;
+        this.packet = packet;
+        this.user = user;
+    }
+    public PacketStatus(String status, Packet packet, User user) {
+        this.id = null;
+        this.date = new Date();
         this.status = status;
         this.packet = packet;
         this.user = user;

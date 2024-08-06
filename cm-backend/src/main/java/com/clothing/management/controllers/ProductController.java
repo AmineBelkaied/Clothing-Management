@@ -7,7 +7,6 @@ import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.Product;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.services.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +21,11 @@ import java.util.Optional;
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ProductController {
+    private final ProductService productService;
 
-    @Autowired
-    ProductService productService;
+    public ProductController(ProductService productService){
+        this.productService =productService;
+    }
 
     @GetMapping(path = "/findAll")
     public List<ProductDTO> findAllProducts() {
@@ -32,8 +33,8 @@ public class ProductController {
     }
 
     @GetMapping(path = "/findById/{id}")
-    public Optional<Product> findByIdProduct(@PathVariable Long idProduct) {
-        return productService.findProductById(idProduct);
+    public Optional<Product> findByIdProduct(@PathVariable Long id) {
+        return productService.findProductById(id);
     }
 
     @PostMapping(value = "/add" , produces = "application/json")

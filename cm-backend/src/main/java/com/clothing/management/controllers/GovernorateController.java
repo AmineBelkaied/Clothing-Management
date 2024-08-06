@@ -2,7 +2,6 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.entities.Governorate;
 import com.clothing.management.services.GovernorateService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +13,11 @@ import java.util.Optional;
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class GovernorateController {
+    private final GovernorateService governorateService;
 
-    @Autowired
-    GovernorateService governorateService;
+    public GovernorateController(GovernorateService governorateService){
+        this.governorateService =governorateService;
+    }
 
     @GetMapping(path = "/findAll")
     public List<Governorate> findAllGovernorates() {
@@ -24,8 +25,8 @@ public class GovernorateController {
     }
 
     @GetMapping(path = "/findById/{id}")
-    public Optional<Governorate> findByIdGovernorate(@PathVariable Long idGovernorate) {
-        return governorateService.findGovernorateById(idGovernorate);
+    public Optional<Governorate> findByIdGovernorate(@PathVariable Long id) {
+        return governorateService.findGovernorateById(id);
     }
 
     @PostMapping(value = "/add" , produces = "application/json")

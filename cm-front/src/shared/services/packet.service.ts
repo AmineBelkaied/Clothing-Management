@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
 import { baseUrl } from '../../assets/constants';
 import { CONFIRMED, VALIDATION } from '../utils/status-list';
+import { PacketValidationDTO } from '../models/PacketValidationDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -46,6 +47,10 @@ export class PacketService {
     if(params.mandatoryDate != undefined && params.mandatoryDate != null)
       path += "&mandatoryDate=" + params.mandatoryDate;
     return this.http.get(this.baseUrl + path);
+  }
+  public findValidationPackets(): Observable<PacketValidationDTO> {
+    let path = '/findValidationPackets';
+    return this.http.get<PacketValidationDTO>(this.baseUrl + path);
   }
 
   public createDashboard(): Observable<any> {

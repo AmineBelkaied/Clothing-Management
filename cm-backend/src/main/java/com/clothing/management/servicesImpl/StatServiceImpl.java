@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StatServiceImpl implements StatService {
@@ -304,12 +305,9 @@ public class StatServiceImpl implements StatService {
     @Override
     public Map<String , List<?>> statAllColorsChart(String beginDate, String endDate,List<Long> lookForModelIds){
         System.out.println(beginDate);
-        List<ProductsDayCountDTO> existingProductsPacketColor;
-        if(lookForModelIds.isEmpty()){
-            existingProductsPacketColor = productsPacketRepository.statAllModelsByColor(beginDate,endDate);
-        }else{
-            existingProductsPacketColor = productsPacketRepository.statByColorAndModels(beginDate,endDate,lookForModelIds);
-        }
+        List<ProductsDayCountDTO> existingProductsPacketColor = lookForModelIds.isEmpty() ?
+                productsPacketRepository.statAllModelsByColor(beginDate, endDate) :
+                productsPacketRepository.statByColorAndModels(beginDate, endDate, lookForModelIds);
        Map<String, List<?>> uniqueValues = getUnique((existingProductsPacketColor),false);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<Color> uniqueColors = (List<Color>) uniqueValues.get("uniqueColors");
@@ -355,35 +353,29 @@ public class StatServiceImpl implements StatService {
     }
 
     public static List<Date> getUniqueDates(List<PacketsStatCountDTO> packetList) {
-        List<Date> uniqueDates = new ArrayList<>();
-        for (PacketsStatCountDTO packet : packetList) {
-            Date packetDate = packet.getDate();
-            if (!uniqueDates.contains(packetDate)) {
-                uniqueDates.add(packetDate);
-            }
-        }
-        return uniqueDates;
+        return packetList.stream()
+                .map(PacketsStatCountDTO::getDate)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
     public Map<String, List<?>> statAllPacketsChart(String beginDate, String endDate, String deliveryCompanyName) {
-        List<PacketsStatCountDTO> existingPackets;
-        if(deliveryCompanyName.equals("ALL"))
-            existingPackets = productsPacketRepository.statAllPackets(beginDate, endDate);
-        else existingPackets = productsPacketRepository.statAllPackets(beginDate, endDate,deliveryCompanyName);
+        List<PacketsStatCountDTO> existingPackets= existingPackets(beginDate, endDate,deliveryCompanyName);
         List<Date> uniqueDates = getUniqueDates(existingPackets);
-
-        List<List<Long>> statusCountLists = createStatusCountLists(existingPackets);
-        List<StatTableDTO> statusRecapCount = createStatusRecapCount(existingPackets, uniqueDates.size());
 
         Map<String, List<?>> data = new HashMap<>();
         data.put("dates", uniqueDates);
-        data.put("statusCountLists", statusCountLists);
-        data.put("statusRecapCount", statusRecapCount);
+        data.put("statusCountLists", createStatusCountLists(existingPackets));
+        data.put("statusRecapCount", createStatusRecapCount(existingPackets, uniqueDates.size()));
 
         return data;
     }
-
+    List<PacketsStatCountDTO> existingPackets(String beginDate, String endDate,String deliveryCompanyName){
+        if(deliveryCompanyName.equals("ALL"))
+            return productsPacketRepository.statAllPackets(beginDate, endDate);
+        else return productsPacketRepository.statAllPackets(beginDate, endDate,deliveryCompanyName);
+    }
 
 
     //for packets chart

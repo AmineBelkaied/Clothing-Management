@@ -2,7 +2,6 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.entities.FbPage;
 import com.clothing.management.services.FbPageService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +13,11 @@ import java.util.Optional;
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class FbPageController {
+    private final FbPageService fbPageService;
 
-    @Autowired
-    FbPageService fbPageService;
+    public FbPageController(FbPageService fbPageService){
+        this.fbPageService = fbPageService;
+    }
 
     @GetMapping(path = "/findAll")
     public List<FbPage> findAllFbPages() {
@@ -24,8 +25,8 @@ public class FbPageController {
     }
 
     @GetMapping(path = "/findById/{id}")
-    public Optional<FbPage> findByIdFbPage(@PathVariable Long idFbPage) {
-        return fbPageService.findFbPageById(idFbPage);
+    public Optional<FbPage> findByIdFbPage(@PathVariable Long id) {
+        return fbPageService.findFbPageById(id);
     }
 
     @PostMapping(value = "/add" , produces = "application/json")

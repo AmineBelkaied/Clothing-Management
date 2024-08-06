@@ -2,28 +2,21 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.entities.GlobalConf;
 import com.clothing.management.services.GlobalConfService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/globalConf")
 public class GlobalConfController {
+    private final GlobalConfService globalConfService;
 
-    private GlobalConfService globalConfService;
-
-    @Autowired
     public GlobalConfController(GlobalConfService globalConfService) {
         this.globalConfService = globalConfService;
     }
 
     @GetMapping(path = "/get")
     public GlobalConf getGlobalConf() {
-        GlobalConf globalConf = globalConfService.getGlobalConf();
-        return globalConf;
+        return globalConfService.getGlobalConf();
     }
 
     @PutMapping(value = "/add" , produces = "application/json")

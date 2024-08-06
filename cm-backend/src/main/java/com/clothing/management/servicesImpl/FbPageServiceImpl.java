@@ -1,6 +1,7 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.entities.FbPage;
+import com.clothing.management.repository.IDeliveryCompanyRepository;
 import com.clothing.management.repository.IFbPageRepository;
 import com.clothing.management.services.FbPageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,12 @@ import java.util.Optional;
 @Transactional("tenantTransactionManager")
 public class FbPageServiceImpl implements FbPageService {
 
-    @Autowired
-    IFbPageRepository fbPageRepository;
+    private final IFbPageRepository fbPageRepository;
 
+    @Autowired
+    public FbPageServiceImpl(IFbPageRepository fbPageRepository) {
+        this.fbPageRepository = fbPageRepository;
+    }
     @Override
     public List<FbPage> findAllFbPages() {
         return fbPageRepository.findAll();

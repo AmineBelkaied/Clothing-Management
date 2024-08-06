@@ -2,7 +2,6 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.entities.User;
 import com.clothing.management.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +12,10 @@ import java.util.List;
 @CrossOrigin
 @Secured("ROLE_ADMIN")
 public class UserController {
-
-    @Autowired
-    UserService userService;
+    private final UserService userService;
+    public UserController(UserService userService){
+        this.userService = userService;
+    }
 
     @GetMapping(path = "/findAll")
     public List<User> findAllUsers() {
@@ -36,15 +36,5 @@ public class UserController {
     public void deleteAllCustomersById(@PathVariable List<Integer> usersId) {
         userService.deleteAllUsersById(usersId);
     }
-
-/*    @DeleteMapping(path = "/delete")
-    public void deleteUser(@RequestBody User user) {
-        userService.deleteUser(user);
-    }
-
-    @DeleteMapping(path = "/deleteById/{userId}")
-    public void deleteUserById(@PathVariable Integer userId) {
-        userService.deleteUserById(userId);
-    }*/
 
 }

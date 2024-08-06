@@ -2,14 +2,10 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.dto.GroupedCitiesDTO;
 import com.clothing.management.entities.City;
-import com.clothing.management.entities.Governorate;
 import com.clothing.management.services.CityService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -17,10 +13,11 @@ import java.util.Optional;
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class CityController {
+    private final CityService cityService;
 
-    @Autowired
-    CityService cityService;
-
+    public CityController(CityService cityService){
+        this.cityService = cityService;
+    }
     @GetMapping(path = "/findAll")
     public List<City> findAllCitys() {
         return cityService.findAllCities();
@@ -32,8 +29,8 @@ public class CityController {
     }
 
     @GetMapping(path = "/findById/{id}")
-    public Optional<City> findByIdCity(@PathVariable Long idCity) {
-        return cityService.findCityById(idCity);
+    public Optional<City> findByIdCity(@PathVariable Long id) {
+        return cityService.findCityById(id);
     }
 
     @PostMapping(value = "/add" , produces = "application/json")

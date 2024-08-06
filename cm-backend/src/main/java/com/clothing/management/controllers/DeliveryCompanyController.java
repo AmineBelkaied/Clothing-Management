@@ -2,9 +2,7 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.services.DeliveryCompanyService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -13,17 +11,19 @@ import java.util.Optional;
 @CrossOrigin
 public class DeliveryCompanyController {
 
-    @Autowired
-    DeliveryCompanyService deliveryCompanyService;
+    private final DeliveryCompanyService deliveryCompanyService;
 
+    public DeliveryCompanyController (DeliveryCompanyService deliveryCompanyService){
+        this.deliveryCompanyService =deliveryCompanyService;
+    }
     @GetMapping(path = "/findAll")
     public List<DeliveryCompany> findAllDC() {
         return deliveryCompanyService.findAllStesLivraison();
     }
 
     @GetMapping(path = "/findById/{id}")
-    public Optional<DeliveryCompany> findByIdDC(@PathVariable Long idCompany) {
-        return deliveryCompanyService.findSteById(idCompany);
+    public Optional<DeliveryCompany> findByIdDC(@PathVariable Long id) {
+        return deliveryCompanyService.findSteById(id);
     }
 
     @PostMapping(value = "/add" , produces = "application/json")

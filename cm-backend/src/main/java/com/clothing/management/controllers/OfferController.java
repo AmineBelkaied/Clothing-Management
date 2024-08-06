@@ -4,7 +4,6 @@ import com.clothing.management.dto.*;
 import com.clothing.management.entities.FbPage;
 import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.OfferModel;
-import com.clothing.management.entities.Packet;
 import com.clothing.management.services.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("offer")
@@ -22,23 +20,11 @@ import java.util.stream.Collectors;
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class OfferController {
 
+    private final OfferService offerService;
     @Autowired
-    OfferService offerService;
-
-    /*@GetMapping(path = "/findAll")
-    public List<OfferModelsDTO> findAllOffers() throws IOException {
-        return offerService.findAllOffers();
+    public OfferController(OfferService offerService){
+        this.offerService = offerService;
     }
-
-    /*@GetMapping(path = "/findAllOffersModelQuantities")
-    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() throws IOException {
-        return offerService.findAllOffersModelQuantities();
-    }
-
-    @GetMapping(path = "/findOffersModelQuantitiesById/{idOffer}")
-    public OfferModelQuantitiesDTO findOffersModelQuantitiesById(@PathVariable Long idOffer) throws IOException {
-        return offerService.findOffersModelQuantitiesById(idOffer);
-    }*/
     @GetMapping(path = "/offersDTO")
     public List<OfferDTO> getOffers() throws IOException {
         return offerService.getOffers();
@@ -60,7 +46,7 @@ public class OfferController {
         return offerService.addOffer(offerDTO);
     }
     @PostMapping(value = "/update" , produces = "application/json")
-    public OfferDTO updateOffer(@RequestBody Offer offer) throws Exception {
+    public OfferDTO updateOffer(@RequestBody Offer offer) {
         return offerService.updateOffer(offer);
     }
     @PutMapping(value = "/updateData" , produces = "application/json")
@@ -87,3 +73,18 @@ public class OfferController {
         offerService.deleteSelectedOffers(offersId);
     }
 }
+
+    /*@GetMapping(path = "/findAll")
+    public List<OfferModelsDTO> findAllOffers() throws IOException {
+        return offerService.findAllOffers();
+    }
+
+    /*@GetMapping(path = "/findAllOffersModelQuantities")
+    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() throws IOException {
+        return offerService.findAllOffersModelQuantities();
+    }
+
+    @GetMapping(path = "/findOffersModelQuantitiesById/{idOffer}")
+    public OfferModelQuantitiesDTO findOffersModelQuantitiesById(@PathVariable Long idOffer) throws IOException {
+        return offerService.findOffersModelQuantitiesById(idOffer);
+    }*/

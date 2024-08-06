@@ -4,11 +4,7 @@ import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.entities.ProductHistory;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.services.ProductHistoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -22,8 +18,11 @@ import java.util.*;
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ProductHistoryController {
 
-    @Autowired
-    ProductHistoryService productHistoryService;
+    private final ProductHistoryService productHistoryService;
+
+    public ProductHistoryController(ProductHistoryService productHistoryService){
+        this.productHistoryService = productHistoryService;
+    }
 
     @GetMapping(path = "/findAllByModelId/{modelId}")
     public ResponseEntity<ResponsePage> findAllProductsHistory(
@@ -48,8 +47,8 @@ public class ProductHistoryController {
     }
 
     @GetMapping(path = "/findById/{id}")
-    public Optional<ProductHistory> findByIdProductHistory(@PathVariable Long idProductHistory) {
-        return productHistoryService.findProductHistoryById(idProductHistory);
+    public Optional<ProductHistory> findByIdProductHistory(@PathVariable Long id) {
+        return productHistoryService.findProductHistoryById(id);
     }
 
     @PostMapping(value = "/add" , produces = "application/json")

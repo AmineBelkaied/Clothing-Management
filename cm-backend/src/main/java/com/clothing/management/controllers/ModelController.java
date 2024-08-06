@@ -1,14 +1,10 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.dto.ModelDTO;
-import com.clothing.management.dto.OfferDTO;
 import com.clothing.management.entities.Model;
 import com.clothing.management.services.ModelService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,8 +14,10 @@ import java.util.Optional;
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ModelController {
 
-    @Autowired
-    ModelService modelService;
+    private final ModelService modelService;
+    public ModelController(ModelService modelService){
+        this.modelService = modelService;
+    }
 
     @GetMapping(path = "/findAll")
     public List<Model> findAllModels() {
@@ -27,8 +25,8 @@ public class ModelController {
     }
 
     @GetMapping(path = "/findById/{id}")
-    public Optional<Model> findByIdModel(@PathVariable Long idModel) {
-        return modelService.findModelById(idModel);
+    public Optional<Model> findByIdModel(@PathVariable Long id) {
+        return modelService.findModelById(id);
     }
 
     @PostMapping(value = "/save" , produces = "application/json")
@@ -46,7 +44,7 @@ public class ModelController {
     }
 
     @GetMapping(path = "/modelsDTO")
-    public List<ModelDTO> getModels() throws IOException {
+    public List<ModelDTO> getModels() {
         return modelService.getModels();
     }
 }

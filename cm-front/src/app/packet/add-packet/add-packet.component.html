@@ -6,16 +6,12 @@
           <div class="card-title mb-2">
             <div class="container-fluid">
             <div class="row">
-              <div class="col-md-4">
-                <span style="font-size: smaller;color: rgb(155, 154, 154)"  *ngIf="packetDescription != ''">Articles : </span>
-                <span style="font-size: 13.5px;font-family: Segoe UI', Tahoma, Geneva, Verdana, sans-serif', serif;font-weight: 550;">{{ packetDescription }} </span>
-              </div>
               <div class="col-md-3" >
                 <p-checkbox lass="mb-2" [binary]="true" inputId="binary" [ngModelOptions]="{standalone: true}" [(ngModel)]="enableFakeSize" ></p-checkbox>
                 <label class="ml-2 mt-2" for="ny">Fake Size</label>
               </div>
               <div class="col-md-3" >
-                <p-checkbox lass="mb-2" [binary]="true" inputId="binary" [ngModelOptions]="{standalone: true}" [(ngModel)]="enableAllOffer" (onChange)="getOffers()"></p-checkbox>
+                <p-checkbox lass="mb-2" [binary]="true" inputId="binary" [ngModelOptions]="{standalone: true}" [(ngModel)]="enableAllOffer" (onChange)="getOffersSwitch()"></p-checkbox>
                 <label class="ml-2 mt-2" for="ny">All offer</label>
               </div>
             </div>

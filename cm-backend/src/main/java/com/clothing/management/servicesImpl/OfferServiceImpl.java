@@ -5,36 +5,24 @@ import com.clothing.management.entities.*;
 import com.clothing.management.repository.IOfferModelRepository;
 import com.clothing.management.repository.IOfferRepository;
 import com.clothing.management.services.OfferService;
-import com.clothing.management.services.PacketService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
 
 @Service
 @Transactional("tenantTransactionManager")
 public class OfferServiceImpl implements OfferService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PacketService.class);
-    @Autowired
-    IOfferRepository offerRepository;
 
-    @Autowired
+    IOfferRepository offerRepository;
     IOfferModelRepository offerModelRepository;
 
     @Autowired
-    IOfferModelRepository fbPageRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
+    public OfferServiceImpl(IOfferRepository offerRepository,IOfferModelRepository offerModelRepository) {
+        this.offerRepository = offerRepository;
+        this.offerModelRepository = offerModelRepository;
+    }
 
     @Override
     public void setDeletedByIds(List<Long> ids) {
@@ -43,19 +31,10 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public List<OfferDTO> getOffers(){
-        List<OfferDTO> offerListMap = offerRepository.findAll()
+        return offerRepository.findAll()
                 .stream()
                 .map(OfferDTO::new)
                 .collect(Collectors.toList());
-        return offerListMap;
-    }
-
-    public List<OfferDTO> getOffersByPacketId(Long id){
-        List<OfferDTO> offerListMap = offerRepository.findById(id)
-                .stream()
-                .map(OfferDTO::new)
-                .collect(Collectors.toList());
-        return offerListMap;
     }
 
     @Transactional("tenantTransactionManager")
@@ -65,30 +44,6 @@ public class OfferServiceImpl implements OfferService {
     }
 
 
-    private Model mapToModel(Model model) throws IOException {
-        Model newModel = new Model();
-        newModel.setId(model.getId());
-        newModel.setColors(model.getColors());
-        newModel.setSizes(model.getSizes());
-        newModel.setDescription(model.getDescription());
-        newModel.setName(model.getName());
-        newModel.setPurchasePrice(model.getPurchasePrice());
-        newModel.setEarningCoefficient(model.getEarningCoefficient());
-        newModel.setProducts(model.getProducts().stream().map(this::mapToProduct).collect(Collectors.toList()));
-        /*if(model.getImage() != null)
-            newModel.setBytes(Files.readAllBytes(new File(model.getImage().getImagePath()).toPath()));*/
-        return newModel;
-    }
-
-    private Product mapToProduct(Product product) {
-        Product newProduct = new Product();
-        newProduct.setId(product.getId());
-        newProduct.setColor(product.getColor());
-        newProduct.setSize(product.getSize());
-        newProduct.setQuantity(product.getQuantity());
-        newProduct.setDate(product.getDate());
-        return newProduct;
-    }
 
     @Override
     public Optional<Offer> findOfferById(Long idOffer) {
@@ -102,11 +57,10 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferDTO addOffer(OfferDTO offerDTO) {
-
         Offer offer = new Offer(offerDTO.getName() ,offerDTO.getFbPages(), offerDTO.getPrice(), offerDTO.isEnabled(), false);
         Offer offerResult = offerRepository.save(offer);
 
-        offerDTO.getOfferModels().stream()
+        offerDTO.getOfferModels()
                 .forEach(offerModel ->
                         offerModelRepository.addOfferModel(
                                 offerResult.getId(),
@@ -129,7 +83,7 @@ public class OfferServiceImpl implements OfferService {
 
     @Transactional("tenantTransactionManager")
     @Override
-    public OfferDTO updateOffer(Offer offer) throws Exception {
+    public OfferDTO updateOffer(Offer offer) {
         offerRepository.save(offer);
         return new OfferDTO(offer);
     }
@@ -138,14 +92,14 @@ public class OfferServiceImpl implements OfferService {
     @Override
     public OfferDTO updateOfferData(long id, String name, double price,boolean enabled) throws Exception {
         // Update the offer
-        Offer offerX = offerRepository.findById(id)
+        Offer offer = offerRepository.findById(id)
                 .orElseThrow( () -> new Exception("Offer not found with ID: " + id));
 
-        offerX.setName(name);
-        offerX.setPrice(price);
-        offerX.setEnabled(enabled);
-        offerRepository.save(offerX);
-        return new OfferDTO(offerX);
+        offer.setName(name);
+        offer.setPrice(price);
+        offer.setEnabled(enabled);
+        offerRepository.save(offer);
+        return new OfferDTO(offer);
     }
     @Override
     @Transactional("tenantTransactionManager")
@@ -156,9 +110,8 @@ public class OfferServiceImpl implements OfferService {
         for(OfferModelsDTO offerModelsDTO: modelQuantityList){
             offerModelRepository.addOfferModel(offerId , offerModelsDTO.getModel().getId() , offerModelsDTO.getQuantity());}
 
-        Offer offer = offerRepository.findById(offerId)
-                .orElseThrow(() -> new Exception("Offer not found with ID: " + offerId));
-        return new OfferDTO(offer);
+        return new OfferDTO(offerRepository.findById(offerId)
+                .orElseThrow(() -> new Exception("Offer not found with ID: " + offerId)));
     }
 
     @Override
@@ -167,15 +120,12 @@ public class OfferServiceImpl implements OfferService {
     }
 
     /**
-     * Delete selected offers by id
-     * @param offersId
+     * Delete selected offers by id.
+     *
+     * @param offersId a list of offer IDs to be deleted
      */
     @Override
     public void deleteSelectedOffers(List<Long> offersId) {
         offerRepository.deleteAllById(offersId);
     }
-
-
-
-
 }

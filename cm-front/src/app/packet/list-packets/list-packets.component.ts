@@ -268,11 +268,9 @@ onRowSelect($event: TableRowSelectEvent) {
           this.realTotalItems = response.totalItems;
           this.totalItems = this.packets.length;
           let countConfirmed =response.result.filter(packet => packet.status === CONFIRMED).length;
-
           this.statusItems[3].badge = countConfirmed > 0 ? countConfirmed:0;
           this.loading = false;
           this.createNotification();
-          //this.cdRef.detectChanges();
         },
         error: (error: Error) => {
           console.log('Error:', error);
@@ -310,13 +308,6 @@ onRowSelect($event: TableRowSelectEvent) {
     this.loading = true;
 
     try {
-      if (packet.customerPhoneNb == null || packet.customerPhoneNb === '') {
-        if (this.selectedPhoneNumber !== '' && this.selectedField === 'customerPhoneNb') {
-          packet.customerPhoneNb = this.selectedPhoneNumber;
-          this.selectedPhoneNumber = '';
-        }
-      }
-
       if (this.oldFieldValue !== packet[this.selectedField] && packet[this.selectedField] !== undefined) {
         switch (this.selectedField) {
           case 'status':
@@ -340,7 +331,6 @@ onRowSelect($event: TableRowSelectEvent) {
   }
 
   patchPacketService(packet : Packet) {
-    if(this.oldFieldValue!=packet[this.selectedField]){
       let updatedField;
       if(this.selectedField ==='city')
         updatedField = { [this.selectedField]: packet.city?.id };
@@ -393,7 +383,7 @@ onRowSelect($event: TableRowSelectEvent) {
             this.loading = false;
           }
         });
-    }
+
 
   }
 
@@ -544,10 +534,9 @@ onRowSelect($event: TableRowSelectEvent) {
           this.suiviHeader = "Suivi Historique - Commande N° " + packet.id;
           if (response != null && response.length > 0) {
             response.forEach((element: any) => {
-              this.statusEvents.push({status: element.status, date: element.date, user: element.user?.fullName, icon: PrimeIcons.ENVELOPE, color: '#9C27B0'});
+              this.statusEvents.push({status: element.status, date: element.date, user: element.user, icon: PrimeIcons.ENVELOPE, color: '#9C27B0'});
             });
           }
-          //this.cdRef.detectChanges();
           this.displayStatus = true;
         }
       );
@@ -855,6 +844,7 @@ onRowSelect($event: TableRowSelectEvent) {
 
   showStatusButton() {
     this.showStatus= !this.showStatus;
+    this.createNotification();
   }
   clearAllSelectedStatus(){
     this.nonConfirmedOptionsValue=[];
@@ -875,6 +865,8 @@ onRowSelect($event: TableRowSelectEvent) {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: "Please fill in all article fields" });
         this.packetStatusList = [UNREACHABLE];
       } else if ([NOT_CONFIRMED, NOT_SERIOUS, UNREACHABLE, CANCELED, DELETED, OOS].includes(this.oldFieldValue)) {
+        //console.log("this.oldFieldValue",this.oldFieldValue);
+
         this.packetStatusList = [NOT_CONFIRMED, OOS, CONFIRMED, NOT_SERIOUS, UNREACHABLE, CANCELED];
       } else if ([CONFIRMED, TO_VERIFY].includes(this.oldFieldValue)) {
         this.packetStatusList = [IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, CANCELED, TO_VERIFY, DELIVERED, RETURN, PAID, RETURN_RECEIVED, PROBLEME];
@@ -947,7 +939,6 @@ onRowSelect($event: TableRowSelectEvent) {
       this.loading = false;
       return;
     }
-
 
     this.patchPacketService(packet);
 
@@ -1054,21 +1045,22 @@ onRowSelect($event: TableRowSelectEvent) {
   ];
   }
   createNotification(): void {
-    this.statusItems[1].badge = 0;
-    this.statusItems[1].badgeByDate = 0;
-    this.statusItems[2].badge = 0;
-    this.statusItems[2].badgeByDate = 0;
-    this.statusItems[3].badge = 0;
-    this.statusItems[3].badgeByDate = 0;
-    this.statusItems[4].badge = 0;
-    this.statusItems[4].badgeByDate = 0;
-    this.statusItems[5].badge = 0;
-    this.statusItems[5].badgeByDate = 0;
-    this.statusItems[6].badge = 0;
-    this.statusItems[6].badgeByDate = 0;
-    this.statusItems[7].badge = 0;
-    this.statusItems[7].badgeByDate = 0;
-    let all = 0;
+    if(this.showStatus){
+      this.statusItems[1].badge = 0;
+      this.statusItems[1].badgeByDate = 0;
+      this.statusItems[2].badge = 0;
+      this.statusItems[2].badgeByDate = 0;
+      this.statusItems[3].badge = 0;
+      this.statusItems[3].badgeByDate = 0;
+      this.statusItems[4].badge = 0;
+      this.statusItems[4].badgeByDate = 0;
+      this.statusItems[5].badge = 0;
+      this.statusItems[5].badgeByDate = 0;
+      this.statusItems[6].badge = 0;
+      this.statusItems[6].badgeByDate = 0;
+      this.statusItems[7].badge = 0;
+      this.statusItems[7].badgeByDate = 0;
+      let all = 0;
 
     this.packetService.syncNotification(this.params.startDate,this.params.endDate)
       .pipe(takeUntil(this.$unsubscribe))
@@ -1127,6 +1119,8 @@ onRowSelect($event: TableRowSelectEvent) {
           console.log('Error:', error);
         }
       });
+    }
+
   }
 
   ngOnDestroy(): void {
@@ -1146,7 +1140,7 @@ onRowSelect($event: TableRowSelectEvent) {
         {
           label: 'Duplicate',
           icon: 'pi pi-refresh',
-          disabled:!(this.checkCodeABarreExist(packet) && packet.status !="Livrée" && packet.status !="Payée" ),
+          disabled:!( packet.status == DELIVERED || packet.status == PAID ),
           command: () => {
             this.duplicatePacket(packet)
           }

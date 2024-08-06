@@ -20,16 +20,19 @@ import java.util.stream.Collectors;
 @Service
 public class ModelServiceImpl implements ModelService {
 
-    @Autowired
-    IModelRepository modelRepository;
+    private final IModelRepository modelRepository;
+    private final IColorRepository colorRepository;
+    private final ISizeRepository sizeRepository;
+    private final IProductRepository productRepository;
 
     @Autowired
-    IColorRepository colorRepository;
-
-    @Autowired
-    ISizeRepository sizeRepository;
-    @Autowired
-    IProductRepository productRepository;
+    public ModelServiceImpl(IModelRepository modelRepository, IColorRepository colorRepository,
+                            ISizeRepository sizeRepository, IProductRepository productRepository) {
+        this.modelRepository = modelRepository;
+        this.colorRepository = colorRepository;
+        this.sizeRepository = sizeRepository;
+        this.productRepository = productRepository;
+    }
 
     @Override
     public List<Model> findAllModels() {
@@ -47,8 +50,6 @@ public class ModelServiceImpl implements ModelService {
             model  = addUnknownColorsAndSizes(model);
             // Generate products
             generateModelProducts(model);
-
-        //deleteUnusedProducts(model);
         return model;
     }
 
@@ -57,14 +58,11 @@ public class ModelServiceImpl implements ModelService {
         try {
             // Generate products
             if(model.getColors().size() > 0) {
-                //System.out.println("model colors:"+model.getColors());
                 for(Color color : model.getColors()) {
                     if(model.getSizes().size() > 0) {
                         for(Size size : model.getSizes()) {
                             Product product1 = productRepository.findByModelAndColorAndSize(model.getId(), color.getId(), size.getId());
                             if( product1 == null) {
-                                //System.out.println("color:"+color.getId());
-                                //String productRef = model.getReference().concat(color.getReference()).concat(size.getReference());
                                 Product product = new Product( size, color, 0, new Date(), model);
                                 productRepository.save(product);
                             }
@@ -80,7 +78,41 @@ public class ModelServiceImpl implements ModelService {
         //deleteUnusedProducts(model);
         return model;
     }
+    private Model addUnknownColorsAndSizes(Model model) {
+        return modelRepository.findById(model.getId()).map(existingModel -> {
+            if (existingModel.getColors().stream().noneMatch(color -> color.getReference().equals("?"))
+                    && existingModel.getSizes().stream().noneMatch(size -> size.getReference().equals("?"))) {
+                existingModel.getColors().add(colorRepository.findByReference("?"));
+                existingModel.getSizes().add(sizeRepository.findByReference("?"));
+            }
+            return modelRepository.save(existingModel);
+        }).orElse(model);
+    }
 
+    @Override
+    public void deleteModelById(Long idModel) {
+        modelRepository.deleteById(idModel);
+    }
+
+    /**
+     * Delete selected models by their IDs.
+     *
+     * @param modelsId a list of IDs representing the models to be deleted
+     */
+    @Override
+    public void deleteSelectedModels(List<Long> modelsId) {
+        modelRepository.deleteAllById(modelsId);
+    }
+
+    @Override
+    public List<ModelDTO> getModels(){
+        return modelRepository.findAll()
+                .stream()
+                .map(ModelDTO::new)
+                .collect(Collectors.toList());
+    }
+}
+/*
     public void deleteUnusedProducts(Model model) {
         Model oldModel = modelRepository.findById(model.getId()).orElse(null);
 
@@ -102,42 +134,4 @@ public class ModelServiceImpl implements ModelService {
         }
 
     }
-
-    private Model addUnknownColorsAndSizes(Model model) {
-
-        Optional<Model> optionalModel= modelRepository.findById(model.getId());
-        if(optionalModel != null)
-        {
-            model = optionalModel.get();
-            if(model.getColors().stream().noneMatch(color -> color.getReference().equals("?"))
-                    && model.getSizes().stream().noneMatch(size -> size.getReference().equals("?"))) {
-                model.getColors().add(colorRepository.findByReference("?"));
-                model.getSizes().add(sizeRepository.findByReference("?"));
-            }
-        }
-        return modelRepository.save(model);
-    }
-
-    @Override
-    public void deleteModelById(Long idModel) {
-        modelRepository.deleteById(idModel);
-    }
-
-    /**
-     * Delete selected models by id
-     * @param modelsId
-     */
-    @Override
-    public void deleteSelectedModels(List<Long> modelsId) {
-        modelRepository.deleteAllById(modelsId);
-    }
-
-    @Override
-    public List<ModelDTO> getModels(){
-        List<ModelDTO> ModelsListMap = modelRepository.findAll()
-                .stream()
-                .map(ModelDTO::new)
-                .collect(Collectors.toList());
-        return ModelsListMap;
-    }
-}
+ */

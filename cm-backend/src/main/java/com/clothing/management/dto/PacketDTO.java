@@ -4,8 +4,6 @@ import com.clothing.management.entities.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PacketDTO {
     private Long id;
@@ -37,30 +35,30 @@ public class PacketDTO {
     public PacketDTO() {
         }
     public PacketDTO(Packet packet) {
-            this.id = packet.getId();
-            this.customerName= packet.getCustomerName();
-            this.customerPhoneNb= packet.getCustomerPhoneNb();
-            this.oldClient= packet.getOldClient();
-            this.city =packet.getCity();
-            this.address= packet.getAddress();
-            this.packetDescription= packet.getPacketDescription();
-            this.barcode= packet.getBarcode();
-            this.lastDeliveryStatus = packet.getLastDeliveryStatus();
-            this.fbPage = packet.getFbPage();
-            this.price= packet.getPrice();
-            this.deliveryPrice = packet.getDeliveryPrice();
-            this.discount = packet.getDiscount();
-            this.status= packet.getStatus();
-            this.date= packet.getDate();
-            this.lastUpdateDate = packet.getLastUpdateDate();
-            this.valid= packet.isValid();
-            this.stock= packet.getProductsPackets().size()>0?getStock(packet.getProductsPackets(), packet.getBarcode()):0;
-            this.printLink = packet.getPrintLink();
-            this.deliveryCompany=packet.getDeliveryCompany();
-            this.attempt = packet.getAttempt();
-            this.note = packet.getNote();
-            this.haveExchange=packet.isHaveExchange();
-            this.productCount=packet.getProductCount();
+        this.id = packet.getId();
+        this.customerName= packet.getCustomerName();
+        this.customerPhoneNb= packet.getCustomerPhoneNb();
+        this.oldClient= packet.getOldClient();
+        this.city =packet.getCity();
+        this.address= packet.getAddress();
+        this.packetDescription= packet.getPacketDescription();
+        this.barcode= packet.getBarcode();
+        this.lastDeliveryStatus = packet.getLastDeliveryStatus();
+        this.fbPage = packet.getFbPage();
+        this.price= packet.getPrice();
+        this.deliveryPrice = packet.getDeliveryPrice();
+        this.discount = packet.getDiscount();
+        this.status= packet.getStatus();
+        this.date= packet.getDate();
+        this.lastUpdateDate = packet.getLastUpdateDate();
+        this.valid= packet.isValid();
+        this.stock= packet.getProductsPackets().size()>0?getStock(packet.getProductsPackets(), packet.getBarcode()):0;
+        this.printLink = packet.getPrintLink();
+        this.deliveryCompany=packet.getDeliveryCompany();
+        this.attempt = packet.getAttempt();
+        this.note = packet.getNote();
+        this.haveExchange=packet.isHaveExchange();
+        this.productCount=packet.getProductCount();
     }
 
     private int getStock(List<ProductsPacket> productsPackets, String barcode){

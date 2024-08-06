@@ -48,38 +48,11 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductDTO> findAllProducts() {
         return productRepository.findAll().stream().map(ProductDTO::new).collect(Collectors.toList());
     }
-    private Product mapToProduct(Product product) {
-        Product newProduct = new Product();
-        newProduct.setId(product.getId());
-        newProduct.setColor(product.getColor());
-        newProduct.setSize(product.getSize());
-        //newProduct.setReference(product.getReference());
-        newProduct.setModel(mapToModel(product.getModel()));
-        newProduct.setQuantity(product.getQuantity());
-        newProduct.setDate(product.getDate());
-        return newProduct;
-    }
 
-    private Model mapToModel(Model model) {
-        Model newModel = new Model();
-        newModel.setId(model.getId());
-        newModel.setColors(model.getColors());
-        newModel.setSizes(model.getSizes());
-        newModel.setDescription(model.getDescription());
-        newModel.setName(model.getName());
-        newModel.setPurchasePrice(model.getPurchasePrice());
-        newModel.setEarningCoefficient(model.getEarningCoefficient());
-        return newModel;
-    }
     @Override
     public Optional<Product> findProductById(Long idProduct) {
         return productRepository.findById(idProduct);
     }
-
-   /* @Override
-    public Product findProductByReference(String reference) {
-        return productRepository.findByReference(reference);
-    }*/
 
     @Override
     public Product addProduct(Product product) {
@@ -195,3 +168,31 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findByModelAndColorAndSize(modelId,colorId,sizeId);
     }
 }
+  /*
+    private Product mapToProduct(Product product) {
+        Product newProduct = new Product();
+        newProduct.setId(product.getId());
+        newProduct.setColor(product.getColor());
+        newProduct.setSize(product.getSize());
+        //newProduct.setReference(product.getReference());
+        newProduct.setModel(mapToModel(product.getModel()));
+        newProduct.setQuantity(product.getQuantity());
+        newProduct.setDate(product.getDate());
+        return newProduct;
+    }
+
+    private Model mapToModel(Model model) {
+        Model newModel = new Model();
+        newModel.setId(model.getId());
+        newModel.setColors(model.getColors());
+        newModel.setSizes(model.getSizes());
+        newModel.setDescription(model.getDescription());
+        newModel.setName(model.getName());
+        newModel.setPurchasePrice(model.getPurchasePrice());
+        newModel.setEarningCoefficient(model.getEarningCoefficient());
+        return newModel;
+    }
+    @Override
+    public Product findProductByReference(String reference) {
+        return productRepository.findByReference(reference);
+    }*/

@@ -9,9 +9,8 @@ import java.util.List;
 
 public class PacketValidationDTO {
     private Long id;
-
-    private String status;
     private String customerName;
+    private String customerPhoneNb;
     private String packetDescription;
     private String barcode;
     private String fbPageName;
@@ -19,14 +18,15 @@ public class PacketValidationDTO {
     private double price;
     private Date date;
     private boolean valid;
+    private Long exchangeId;
     private boolean haveExchange;
 
     public PacketValidationDTO(){}
 
     public PacketValidationDTO(Packet packet){
         this.id = packet.getId();
-        this.status = packet.getStatus();
         this.customerName = packet.getCustomerName();
+        this.customerPhoneNb = packet.getCustomerPhoneNb();
         this.packetDescription = packet.getPacketDescription();
         this.barcode = packet.getBarcode();
         this.fbPageName = packet.getFbPage().getName();
@@ -34,12 +34,12 @@ public class PacketValidationDTO {
         this.price = packet.getPrice()- packet.getDiscount();
         this.date = packet.getDate();
         this.valid = packet.isValid();
+        this.exchangeId = packet.getExchangeId();
         this.haveExchange = packet.isHaveExchange();
     }
 
     public PacketValidationDTO(Long id, String status, String customerName, String packetDescription, String barcode, String fbPageName, String deliveryCompanyName, double price, Date date, boolean valid, boolean haveExchange) {
         this.id = id;
-        this.status = status;
         this.customerName = customerName;
         this.packetDescription = packetDescription;
         this.barcode = barcode;
@@ -57,14 +57,6 @@ public class PacketValidationDTO {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public String getCustomerName() {
@@ -137,5 +129,21 @@ public class PacketValidationDTO {
 
     public void setHaveExchange(boolean haveExchange) {
         this.haveExchange = haveExchange;
+    }
+
+    public Long getExchangeId() {
+        return exchangeId;
+    }
+
+    public void setExchangeId(Long exchangeId) {
+        this.exchangeId = exchangeId;
+    }
+
+    public String getCustomerPhoneNb() {
+        return customerPhoneNb;
+    }
+
+    public void setCustomerPhoneNb(String customerPhoneNb) {
+        this.customerPhoneNb = customerPhoneNb;
     }
 }

@@ -27,10 +27,7 @@ export class GlobalConfService {
         this.globalConfSubscriber.next(globalConf);
         // Update the local state
         this.globalConf = globalConf;
-      }), switchMap( () =>
-        {
-          return this.offerService.loadOffers();
-        }),
+      }),
       catchError((error) => {
         // Handle the error here
         console.error('Error loading global configuration:', error);

@@ -190,7 +190,7 @@ import { GlobalConf } from 'src/shared/models/GlobalConf';
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
-      deps: [GlobalConfService,OfferService],multi: true
+      deps: [GlobalConfService],multi: true
     },
     {
       provide: HTTP_INTERCEPTORS,
