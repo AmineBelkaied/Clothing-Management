@@ -16,9 +16,11 @@ import java.util.Optional;
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class FbPageController {
+    private final FbPageService fbPageService;
 
-    @Autowired
-    FbPageService fbPageService;
+    public FbPageController(FbPageService fbPageService){
+        this.fbPageService = fbPageService;
+    }
 
     @GetMapping
     public ResponseEntity<List<FbPage>> getAllFbPages() {

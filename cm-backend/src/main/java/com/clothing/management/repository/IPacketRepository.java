@@ -1,6 +1,4 @@
 package com.clothing.management.repository;
-
-import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.models.DashboardCard;
 import org.springframework.data.domain.Page;
@@ -10,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
-
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
@@ -21,10 +18,8 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value=" SELECT * FROM packet p WHERE DATEDIFF(NOW() , p.date) < 2", nativeQuery = true)
     List<Packet> findAllByDate(@Param("date") Date d);
 
-
-    @Query(value="SELECT p FROM Packet p WHERE p.status NOT IN :statuses " +
-            "AND p.valid")
-    public List<Packet> findAllDiggiePackets(@Param("statuses") List<String> statuses);
+    @Query(value="SELECT p FROM Packet p WHERE p.status NOT IN :statuses AND p.valid")
+    List<Packet> findAllDiggiePackets(@Param("statuses") List<String> statuses);
 
     @Transactional
     @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode OR p.id = :barCode", nativeQuery = true)
@@ -32,7 +27,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
 
     @Query(value="SELECT COUNT(p.id) FROM packet p WHERE p.customer_phone_nb LIKE %:phoneNumber% " +
             "AND ((p.barcode != '' AND p.exchange_Id IS NULL) OR p.status <> 'Pas Serieux')", nativeQuery = true)
-    public int findAllPacketsByPhone_number(@Param("phoneNumber") String phoneNumber);
+    int findAllPacketsByPhone_number(@Param("phoneNumber") String phoneNumber);
 
     @Query(value="SELECT NEW com.clothing.management.models.DashboardCard(" +
             " p.status, " +
@@ -45,7 +40,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     Page<Packet> findAllPacketsByField(@Param("searchField") String searchField, Pageable pageable);
 
     @Transactional
-    @Query(value ="SELECT p FROM Packet p WHERE CAST(p.id as String) LIKE %:searchField% OR  p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.barcode LIKE %:searchField% AND DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)")
+    @Query(value ="SELECT p FROM Packet p WHERE CAST(p.id as String) LIKE %:searchField% OR  p.customerName LIKE %:searchField% OR p.customerPhoneNb LIKE %:searchField% OR p.barcode LIKE %:searchField% OR p.packetDescription LIKE %:searchField% AND DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)")
     Page<Packet> findAllPacketsByFieldAndDate(@Param("searchField") String searchField, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
 
     @Query(value ="SELECT p FROM Packet p WHERE p.status = 'Confirmée' OR (p.valid = false AND p.barcode <> '' AND p.status <> 'Annuler')")
@@ -53,6 +48,9 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
 
     @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList) AND (p.status IN (:ignoredDateStatusList) OR (DATE(p.date) >= DATE(:startDate) AND DATE(p.date) <= DATE(:endDate)))")
     Page<Packet> findAllPacketsByStatus(@Param("ignoredDateStatusList") List<String> ignoredDateStatusList, @Param("selectedList") List<String> selectedList, @Param("startDate") Date startDate, @Param("endDate") Date endDate, Pageable pageable);
+
+    @Query(value ="SELECT p FROM Packet p WHERE p.status = 'Confirmée'")
+    List<Packet> findValidationPackets();
 
     @Transactional
     @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList)")
@@ -70,7 +68,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
 
     @Modifying
     @Query(value="DELETE FROM packet WHERE customer_name='' AND customer_phone_nb='';", nativeQuery = true)
-    public int deleteEmptyPacket();
+    int deleteEmptyPacket();
 
     @Modifying
     @Query(value="UPDATE packet SET city_id = :cityId WHERE id = :packetId", nativeQuery = true)

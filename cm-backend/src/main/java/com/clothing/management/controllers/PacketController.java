@@ -2,19 +2,17 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
-import com.clothing.management.auth.util.JwtTokenUtil;
 import com.clothing.management.dto.*;
 import com.clothing.management.dto.DeliveryCompanyDTOs.BarCodeStatusDTO;
 import com.clothing.management.entities.Note;
 import com.clothing.management.entities.Packet;
-import com.clothing.management.entities.PacketStatus;
 import com.clothing.management.models.DashboardCard;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.scheduler.UpdateStatusScheduler;
 import com.clothing.management.services.PacketService;
 
+import com.clothing.management.servicesImpl.PacketServiceImpl;
 import jakarta.websocket.server.PathParam;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,17 +29,15 @@ import java.util.stream.Collectors;
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class PacketController {
 
-    @Autowired
-    PacketService packetService;
+    private final PacketService packetService;
+    private final UpdateStatusScheduler updateStatusScheduler;
+    private final MasterTenantService masterTenantService;
 
-    @Autowired
-    UpdateStatusScheduler updateStatusScheduler;
-
-    @Autowired
-    MasterTenantService masterTenantService;
-
-    @Autowired
-    JwtTokenUtil jwtTokenUtil;
+    public PacketController(PacketService packetService,UpdateStatusScheduler updateStatusScheduler, MasterTenantService masterTenantService){
+        this.packetService = packetService;
+        this.updateStatusScheduler = updateStatusScheduler;
+        this.masterTenantService =masterTenantService;
+    }
 
     @GetMapping
     public List<Packet> findAllPackets() {
@@ -80,6 +76,19 @@ public class PacketController {
         }
     }
 
+    @GetMapping(path = "/findValidationPackets")
+    public ResponseEntity<ResponsePage> findValidationPackets() {
+        try {
+            return new ResponseEntity<>(new ResponsePage.Builder()
+                    .result(packetService.findValidationPackets())
+                    .build(), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(new ResponsePage.Builder().build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
     @GetMapping("/by-date-range")
     public List<PacketDTO> findAllPacketsByDateRange(@RequestParam(required = false) String startDate,
@@ -101,6 +110,10 @@ public class PacketController {
     public List<ProductsPacketDTO> findPacketRelatedProducts(@PathVariable Long id) throws Exception {
         return packetService.findPacketRelatedProducts(id);
     }
+    /*@GetMapping(path = "/findPacketRelatedProducts/{idPacket}")
+    public List<ProductsPacketDTO> findPacketRelatedProducts(@PathVariable Long idPacket) throws Exception {
+        return packetService.findPacketRelatedProducts(idPacket);
+    }*/
 
     @PostMapping
     public PacketDTO addPacket() throws Exception {
@@ -116,11 +129,13 @@ public class PacketController {
     }
 
     @PostMapping("/validate/{barcode}")
-    public ResponseEntity<PacketValidationDTO> updatePacketValid(@PathVariable String barcode, @RequestBody String type) throws Exception {
+    public ResponseEntity<PacketValidationDTO> updatePacketValid(@PathVariable String barCode, @RequestBody String type) throws Exception {
+        PacketValidationDTO packet = null;
         try {
-            return new ResponseEntity<>(packetService.updatePacketValid(barcode,type), HttpStatus.OK);
+            packet = packetService.updatePacketValid(barCode,type);
+            return new ResponseEntity<>(packet, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(packetService.updatePacketValid(barcode, type), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(packet, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -135,7 +150,7 @@ public class PacketController {
     }
 
     @GetMapping("/{id}/timeline")
-    public List<PacketStatus> findPacketTimeline(@PathVariable Long id) throws Exception {
+    public List<PacketStatusDTO> findPacketTimeline(@PathVariable Long id) throws Exception {
         return packetService.findPacketTimeLineById(id);
     }
 

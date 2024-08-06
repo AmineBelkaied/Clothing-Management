@@ -2,7 +2,6 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.entities.Governorate;
 import com.clothing.management.services.GovernorateService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +12,8 @@ import java.util.List;
 @RequestMapping("${api.prefix}/governorates")
 @CrossOrigin
 public class GovernorateController {
-
     private final GovernorateService governorateService;
 
-    @Autowired
     public GovernorateController(GovernorateService governorateService) {
         this.governorateService = governorateService;
     }

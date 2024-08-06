@@ -10,7 +10,7 @@ public interface ColorService {
     public List<Color> findAllColors();
     public Optional<Color> findColorById(Long idColor);
     public Color addColor(Color color) throws Exception;
-    public Color updateColor(Color color) throws Exception;
+    public Color updateColor(Color color);
     public void deleteColor(Color color);
     public void deleteColorById(Long idColor);
 }

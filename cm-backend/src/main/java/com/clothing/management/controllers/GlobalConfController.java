@@ -10,10 +10,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("${api.prefix}/global-config")
 public class GlobalConfController {
-
     private final GlobalConfService globalConfService;
 
-    @Autowired
     public GlobalConfController(GlobalConfService globalConfService) {
         this.globalConfService = globalConfService;
     }

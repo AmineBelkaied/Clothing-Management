@@ -4,8 +4,6 @@ import com.clothing.management.entities.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PacketDTO {
     private Long id;

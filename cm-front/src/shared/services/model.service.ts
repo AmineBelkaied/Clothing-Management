@@ -19,9 +19,9 @@ export class ModelService {
     id: 0, // Or any default value
     name: '',
     description: '',
-    colors: [],
-    sizes: [],
-    products: [],
+    colors: [] =[],
+    sizes: [] = [],
+    products: [] = [],
     earningCoefficient: 2,
     purchasePrice: 15,
     deleted: false,

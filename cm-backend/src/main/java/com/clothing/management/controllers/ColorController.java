@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,10 +17,10 @@ import java.util.Optional;
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ColorController {
-
-    @Autowired
-    ColorService colorService;
-
+    private final ColorService colorService;
+    public ColorController(ColorService colorService){
+        this.colorService = colorService;
+    }
     @GetMapping
     public ResponseEntity<List<Color>> getAllColors() {
         List<Color> colors = colorService.findAllColors();

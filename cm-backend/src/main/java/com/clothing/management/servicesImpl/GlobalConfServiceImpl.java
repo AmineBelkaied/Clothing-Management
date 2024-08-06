@@ -3,6 +3,7 @@ package com.clothing.management.servicesImpl;
 
 import com.clothing.management.entities.GlobalConf;
 
+import com.clothing.management.repository.IFbPageRepository;
 import com.clothing.management.repository.IGlobalConfRepository;
 import com.clothing.management.services.GlobalConfService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,12 @@ import java.util.Optional;
 
 @Service
 public class GlobalConfServiceImpl implements GlobalConfService {
-    @Autowired
     public IGlobalConfRepository globalConfRepository;
 
+    @Autowired
+    public GlobalConfServiceImpl(IGlobalConfRepository globalConfRepository) {
+        this.globalConfRepository = globalConfRepository;
+    }
     @Override
     public GlobalConf getGlobalConf() {
         return globalConfRepository.findAll().stream().findFirst().orElse(null);

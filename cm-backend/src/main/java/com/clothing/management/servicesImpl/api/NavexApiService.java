@@ -66,7 +66,10 @@ public class NavexApiService extends DeliveryCompanyService {
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
-        } finally {
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
             connection.disconnect();
         }
 

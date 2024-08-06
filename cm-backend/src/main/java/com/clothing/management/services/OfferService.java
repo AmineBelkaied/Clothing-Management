@@ -21,7 +21,7 @@ public interface OfferService {
     public Optional<Offer> findOfferById(Long idOffer);
     public Offer findOfferByName(String name);
     public OfferDTO addOffer(OfferDTO offerDTO);
-    public OfferDTO updateOffer(Offer offer) throws Exception;
+    public OfferDTO updateOffer(Offer offer);
     public OfferDTO updateOfferData(long id, String name, double price,boolean enabled) throws Exception;
     public OfferDTO updateOfferFbPages(long offerId,Set<FbPage> fbPages) throws Exception;
     public OfferDTO updateOfferModels(long offerId, Set<OfferModelsDTO> modelQuantityList) throws Exception;

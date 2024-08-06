@@ -15,9 +15,10 @@ import java.util.List;
 @CrossOrigin
 @Secured("ROLE_ADMIN")
 public class RoleController {
-
-    @Autowired
-    private RoleService roleService;
+    private final RoleService roleService;
+    public RoleController(RoleService roleService){
+        this.roleService=roleService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Role>> getAllRoles() {

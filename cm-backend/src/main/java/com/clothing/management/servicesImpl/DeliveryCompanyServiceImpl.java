@@ -12,8 +12,12 @@ import java.util.Optional;
 @Service
 public class DeliveryCompanyServiceImpl implements DeliveryCompanyService {
 
+    private final IDeliveryCompanyRepository deliveryCompanyRepository;
+
     @Autowired
-    IDeliveryCompanyRepository deliveryCompanyRepository;
+    public DeliveryCompanyServiceImpl(IDeliveryCompanyRepository deliveryCompanyRepository) {
+        this.deliveryCompanyRepository = deliveryCompanyRepository;
+    }
 
     @Override
     public List<DeliveryCompany> findAllDeliveryCompanies() {

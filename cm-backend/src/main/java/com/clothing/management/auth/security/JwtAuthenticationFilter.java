@@ -53,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 } catch (IllegalArgumentException ex) {
                     logger.error("An error during getting username from token", ex);
                 } catch (ExpiredJwtException ex) {
-                    logger.warn("The token is expired and not valid anymore", ex);
+                    logger.warn("The token is expired and not valid anymore");
                 } catch(SignatureException ex){
                     logger.error("Authentication Failed. Username or Password not valid.",ex);
                 }

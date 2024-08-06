@@ -3,14 +3,14 @@ import { Model } from "./Model";
 import { Size } from "./Size";
 
 export interface Product {
-    id: number;
+    id : number;
     name: string;
-    deleted: boolean;
-    qte: number;
-    color: Color;
-    size: Size;
-    modelId: number;
+    deleted:boolean;
+    qte:number;
+    color:Color;
+    size:Size;
+    modelId:number;
     earningCoefficient?: number;
     purchasePrice?: number;
-    model?: Model;
+    model?:Model;
 }

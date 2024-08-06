@@ -3,6 +3,7 @@ package com.clothing.management.auth.util;
 import com.clothing.management.entities.User;
 import com.clothing.management.exceptions.UserNotAuthenticatedException;
 import com.clothing.management.repository.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ public class SessionUtils {
         this.userRepository = userRepository;
     }
 
-    public User getCurrentUser() {
+    public User getCurrentUser0() {
         if(SecurityContextHolder.getContext().getAuthentication() != null) {
             UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             if (userDetails != null) {
@@ -28,4 +29,17 @@ public class SessionUtils {
         }
         return userRepository.findByUserName(SYSTEM_USER);
     }
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) principal;
+                return userRepository.findByUserName(userDetails.getUsername());
+            } else {
+                throw new UserNotAuthenticatedException("Principal is not an instance of UserDetails.");
+            }
+        }
+        return userRepository.findByUserName(SYSTEM_USER);
+   }
 }

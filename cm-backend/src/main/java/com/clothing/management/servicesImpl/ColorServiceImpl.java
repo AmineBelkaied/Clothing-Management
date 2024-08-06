@@ -12,8 +12,12 @@ import java.util.Optional;
 @Service
 public class ColorServiceImpl implements ColorService {
 
+    private final IColorRepository colorRepository;
+
     @Autowired
-    IColorRepository colorRepository;
+    public ColorServiceImpl(IColorRepository colorRepository) {
+        this.colorRepository = colorRepository;
+    }
 
     @Override
     public List<Color> findAllColors() {
@@ -27,17 +31,19 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public Color addColor(Color color) throws Exception {
-        Color colorByReference = colorRepository.findByReference(color.getReference());
-        if(colorByReference != null)
-            throw new Exception("Cette référence existe déjà");
-        return colorRepository.save(color);
+        try {
+            Optional.ofNullable(colorRepository.findByReference(color.getReference()))
+                    .ifPresent(existingColor -> {
+                        throw new RuntimeException("Cette référence existe déjà");
+                    });
+            return colorRepository.save(color);
+        } catch (RuntimeException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     @Override
-    public Color updateColor(Color color) throws Exception {
-        //Optional<Color> colorByReference = colorRepository.findById(color.getId());
-        /*if(color. != null)
-            throw new Exception("Cette référence existe déjà");*/
+    public Color updateColor(Color color){
         return colorRepository.save(color);
     }
 

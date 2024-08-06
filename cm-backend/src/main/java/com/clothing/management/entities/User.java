@@ -28,7 +28,7 @@ public class User implements Serializable {
     private String password;
 
     @Column(name = "enabled")
-    private Boolean enabled;
+    private boolean enabled;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -103,11 +103,11 @@ public class User implements Serializable {
         this.roles = roles;
     }
 
-    public Boolean getEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 

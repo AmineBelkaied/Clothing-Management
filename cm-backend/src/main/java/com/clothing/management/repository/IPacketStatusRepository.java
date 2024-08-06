@@ -1,6 +1,4 @@
 package com.clothing.management.repository;
-
-import com.clothing.management.entities.FbPage;
 import com.clothing.management.entities.PacketStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 

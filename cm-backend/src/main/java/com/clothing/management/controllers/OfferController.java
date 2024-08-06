@@ -4,7 +4,6 @@ import com.clothing.management.dto.*;
 import com.clothing.management.entities.FbPage;
 import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.OfferModel;
-import com.clothing.management.entities.Packet;
 import com.clothing.management.services.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,34 +26,16 @@ public class OfferController {
 
     private final OfferService offerService;
 
-    @Autowired
-    public OfferController(OfferService offerService) {
+    public OfferController(OfferService offerService){
         this.offerService = offerService;
     }
 
-    /*@GetMapping
-    public ResponseEntity<List<OfferModelsDTO>> getAllOffers() throws IOException {
-        List<OfferModelsDTO> offers = offerService.findAllOffers();
-        return ResponseEntity.ok(offers);
-    }
-
-    /*@GetMapping("/model-quantities")
-    public ResponseEntity<List<OfferModelQuantitiesDTO>> getAllOffersModelQuantities() throws IOException {
-        List<OfferModelQuantitiesDTO> offerQuantities = offerService.findAllOffersModelQuantities();
-        return ResponseEntity.ok(offerQuantities);
-    }
-
-    @GetMapping(path = "/findOffersModelQuantitiesById/{idOffer}")
-    public OfferModelQuantitiesDTO findOffersModelQuantitiesById(@PathVariable Long idOffer) throws IOException {
-        return offerService.findOffersModelQuantitiesById(idOffer);
-    }*/
     @GetMapping(path = "/offersDTO")
     public List<OfferDTO> getOffers() throws IOException {
         return offerService.getOffers();
     }
 
-
-    @GetMapping("/{idOffer}")
+    @GetMapping("/{id}")
     public ResponseEntity<Offer> getOfferById(@PathVariable Long id) {
         return offerService.findOfferById(id)
                 .map(ResponseEntity::ok)
@@ -110,3 +91,18 @@ public class OfferController {
         return ResponseEntity.noContent().build();
     }
 }
+
+    /*@GetMapping(path = "/findAll")
+    public List<OfferModelsDTO> findAllOffers() throws IOException {
+        return offerService.findAllOffers();
+    }
+
+    /*@GetMapping(path = "/findAllOffersModelQuantities")
+    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() throws IOException {
+        return offerService.findAllOffersModelQuantities();
+    }
+
+    @GetMapping(path = "/findOffersModelQuantitiesById/{idOffer}")
+    public OfferModelQuantitiesDTO findOffersModelQuantitiesById(@PathVariable Long idOffer) throws IOException {
+        return offerService.findOffersModelQuantitiesById(idOffer);
+    }*/

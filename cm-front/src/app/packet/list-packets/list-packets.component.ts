@@ -280,11 +280,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           this.realTotalItems = response.totalItems;
           this.totalItems = this.packets.length;
           let countConfirmed =response.result.filter(packet => packet.status === CONFIRMED).length;
-
           this.statusItems[3].badge = countConfirmed > 0 ? countConfirmed:0;
           this.loading = false;
           this.createNotification();
-          //this.cdRef.detectChanges();
         },
         error: (error: Error) => {
           console.log('Error:', error);
@@ -322,13 +320,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     try {
-      if (packet.customerPhoneNb == null || packet.customerPhoneNb === '') {
-        if (this.selectedPhoneNumber !== '' && this.selectedField === 'customerPhoneNb') {
-          packet.customerPhoneNb = this.selectedPhoneNumber;
-          this.selectedPhoneNumber = '';
-        }
-      }
-
       if (this.oldFieldValue !== packet[this.selectedField] && packet[this.selectedField] !== undefined) {
         switch (this.selectedField) {
           case 'status':
@@ -352,7 +343,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   patchPacketService(packet : Packet) {
-    if(this.oldFieldValue!=packet[this.selectedField]){
       let updatedField;
       if(this.selectedField ==='city')
         updatedField = { [this.selectedField]: packet.city?.id };
@@ -405,8 +395,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
             this.loading = false;
           }
         });
-    }
-
   }
 
   onDateSelect(event: any) {
@@ -585,10 +573,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         this.suiviHeader = "Suivi Historique - Commande N° " + packet.id;
         if (response != null && response.length > 0) {
           response.forEach((element: any) => {
-            this.statusEvents.push({ status: element.status, date: element.date, user: element.user?.fullName, icon: PrimeIcons.ENVELOPE, color: '#9C27B0' });
+            this.statusEvents.push({ status: element.status, date: element.date, user: element.user, icon: PrimeIcons.ENVELOPE, color: '#9C27B0' });
           });
         }
-        //this.cdRef.detectChanges();
+
         this.displayStatus = true;
       }
       );
@@ -645,9 +633,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   OnSubmit($event: any): void {
-    console.log("onsubmit list packet",$event);
+    //console.log("onsubmit list packet",$event);
     this.modelDialog = $event.modelDialog;
-    console.log("$event.modelDialog"+this.modelDialog);
+    //console.log("$event.modelDialog"+this.modelDialog);
 
     this.updatePacketFields($event.packet);
     this.editMode ? this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été mis à jour avec succés', life: 1000 }) : this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été ajoutés avec succés', life: 1000 });
@@ -784,13 +772,13 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   mandatoryDateChange(){
     if(this.selectedStatus.value != null && this.selectedStatus.value.length > 0)
-      console.log("filterPackets-mandatoryDateChange");
+      //console.log("filterPackets-mandatoryDateChange");
     this.filterPackets('global')
   }
 
   oldDateFilter(){
       this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now() - 86400000)];
-      console.log("filterPackets-oldDateFilter");
+      //console.log("filterPackets-oldDateFilter");
       this.filterPackets('global');
 
     //console.log('aaa',this.rangeDates);
@@ -873,6 +861,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   showStatusButton() {
     this.showStatus= !this.showStatus;
+    this.createNotification();
   }
 
   getReasonOptionsByStatus(status: string) {
@@ -1013,7 +1002,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       return;
     }
 
-
     this.patchPacketService(packet);
 
   }
@@ -1121,21 +1109,22 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   createNotification(): void {
-    this.statusItems[1].badge = 0;
-    this.statusItems[1].badgeByDate = 0;
-    this.statusItems[2].badge = 0;
-    this.statusItems[2].badgeByDate = 0;
-    this.statusItems[3].badge = 0;
-    this.statusItems[3].badgeByDate = 0;
-    this.statusItems[4].badge = 0;
-    this.statusItems[4].badgeByDate = 0;
-    this.statusItems[5].badge = 0;
-    this.statusItems[5].badgeByDate = 0;
-    this.statusItems[6].badge = 0;
-    this.statusItems[6].badgeByDate = 0;
-    this.statusItems[7].badge = 0;
-    this.statusItems[7].badgeByDate = 0;
-    let all = 0;
+    if(this.showStatus){
+      this.statusItems[1].badge = 0;
+      this.statusItems[1].badgeByDate = 0;
+      this.statusItems[2].badge = 0;
+      this.statusItems[2].badgeByDate = 0;
+      this.statusItems[3].badge = 0;
+      this.statusItems[3].badgeByDate = 0;
+      this.statusItems[4].badge = 0;
+      this.statusItems[4].badgeByDate = 0;
+      this.statusItems[5].badge = 0;
+      this.statusItems[5].badgeByDate = 0;
+      this.statusItems[6].badge = 0;
+      this.statusItems[6].badgeByDate = 0;
+      this.statusItems[7].badge = 0;
+      this.statusItems[7].badgeByDate = 0;
+      let all = 0;
 
     this.packetService.syncNotification(this.params.startDate,this.params.endDate)
       .pipe(takeUntil(this.$unsubscribe))
@@ -1194,6 +1183,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           console.log('Error:', error);
         }
       });
+    }
+
   }
 
   ngOnDestroy(): void {
@@ -1213,7 +1204,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         {
           label: 'Duplicate',
           icon: 'pi pi-refresh',
-          disabled:!(this.checkCodeABarreExist(packet) && packet.status !="Livrée" && packet.status !="Payée" ),
+          disabled:!( packet.status == DELIVERED || packet.status == PAID ),
           command: () => {
             this.duplicatePacket(packet)
           }

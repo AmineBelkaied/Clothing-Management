@@ -4,7 +4,6 @@ import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.entities.ProductHistory;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.services.ProductHistoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +19,11 @@ import java.util.Optional;
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ProductHistoryController {
 
-    @Autowired
-    private ProductHistoryService productHistoryService;
+    private final ProductHistoryService productHistoryService;
+
+    public ProductHistoryController(ProductHistoryService productHistoryService){
+        this.productHistoryService = productHistoryService;
+    }
 
     @GetMapping("/model/{modelId}")
     public ResponseEntity<ResponsePage> getProductHistoryByModelId(

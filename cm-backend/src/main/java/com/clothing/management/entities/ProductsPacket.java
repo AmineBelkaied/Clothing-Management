@@ -15,20 +15,21 @@ public class ProductsPacket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-
     @JsonManagedReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
-    Product product;
+    private Product product;
     @JsonManagedReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "offer_id")
-    Offer offer;
+    private Offer offer;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "packet_id")
-    Packet packet;
+    private Packet packet;
+
+
 
     @Column(name = "packet_offer_id")
     Long packetOfferId;
@@ -37,6 +38,15 @@ public class ProductsPacket {
     double profits;
 
     public ProductsPacket() {
+        this.id = null;
+        this.status = 0;
+    }
+
+    public ProductsPacket(ProductsPacket productPacket,Packet packet) {
+        this.packet = packet;
+        this.product = productPacket.getProduct();
+        this.packetOfferId = productPacket.getPacketOfferId();
+        this.offer = productPacket.getOffer();
         this.status = 0;
     }
 
@@ -130,11 +140,16 @@ public class ProductsPacket {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ProductsPacket that)) return false;
-        return Double.compare(that.profits, profits) == 0 && product.getId().equals(that.product.getId()) && packet.getId().equals(that.packet.getId()) && offer.getId().equals(that.offer.getId()) && packetOfferId.equals(that.packetOfferId) && Objects.equals(status, that.status);
+        return Double.compare(that.profits, profits) == 0
+                && product.getId().equals(that.product.getId())
+                && packet.getId().equals(that.packet.getId())
+                && offer.getId().equals(that.offer.getId())
+                && packetOfferId.equals(that.packetOfferId)
+                && Objects.equals(status, that.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, product.getId(), packet.getId(), offer.getId(), packetOfferId, status, profits);
+        return Objects.hash(id, product, packet, offer, packetOfferId, status, profits);
     }
 }

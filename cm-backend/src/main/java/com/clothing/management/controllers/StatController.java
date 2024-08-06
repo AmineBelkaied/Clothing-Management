@@ -14,9 +14,10 @@ import java.util.Map;
 @RequestMapping("${api.prefix}/stats")
 @CrossOrigin
 public class StatController {
-
-    @Autowired
-    private StatService statService;
+    private final StatService statService;
+    public StatController(StatService statService){
+        this.statService = statService;
+    }
 
     @GetMapping("/model-sold/{modelId}")
     public ResponseEntity<Map<String, List<?>>> getModelSoldStats(

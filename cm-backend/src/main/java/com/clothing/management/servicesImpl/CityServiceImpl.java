@@ -7,24 +7,22 @@ import com.clothing.management.repository.ICityRepository;
 import com.clothing.management.repository.IGovernorateRepository;
 import com.clothing.management.services.CityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-
-import static java.util.stream.Collectors.groupingBy;
+import java.util.stream.Collectors;
 
 @Service
 public class CityServiceImpl implements CityService {
 
-    @Autowired
-    ICityRepository cityRepository;
+    private final ICityRepository cityRepository;
+    private final IGovernorateRepository governorateRepository;
 
     @Autowired
-    IGovernorateRepository governorateRepository;
+    public CityServiceImpl(ICityRepository cityRepository, IGovernorateRepository governorateRepository) {
+        this.cityRepository = cityRepository;
+        this.governorateRepository = governorateRepository;
+    }
 
     @Override
     public List<City> findAllCities() {
@@ -66,16 +64,12 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public List<GroupedCitiesDTO> findGroupedCities() {
-        Map<Governorate, List<City>> groupedCitiesDTO = cityRepository.findAll()
+        return cityRepository.findAll()
                 .stream()
-                .collect(groupingBy(City::getGovernorate));
-        //Map<Governorate, List<City>> groupedCitiesDTOSQL = cityRepository.findAllgroupedCities();
-
-        List<GroupedCitiesDTO> groupedCitiesDTOList = new ArrayList<>();
-        for (Governorate governorate : groupedCitiesDTO.keySet()) {
-            GroupedCitiesDTO groupedCity = new GroupedCitiesDTO(governorate , groupedCitiesDTO.get(governorate));
-            groupedCitiesDTOList.add(groupedCity);
-        }
-        return groupedCitiesDTOList;
+                .collect(Collectors.groupingBy(City::getGovernorate))
+                .entrySet()
+                .stream()
+                .map(entry -> new GroupedCitiesDTO(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Subject, of, takeUntil } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
+import { PacketValidationDTO } from 'src/shared/models/PacketValidationDTO';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { PacketService } from 'src/shared/services/packet.service';
 import { StorageService } from 'src/shared/services/strorage.service';
@@ -15,32 +16,22 @@ import { RETURN, VALIDATION } from 'src/shared/utils/status-list';
 })
 export class VerificationComponent implements OnInit {
 
-  sourcePackets: Packet[] = [];
+  sourcePackets: PacketValidationDTO[] = [];
 
-  targetPackets: Packet[] = [];
+  targetPackets: PacketValidationDTO[] = [];
 
   barCode : string;
 
   $unsubscribe: Subject<void> = new Subject();
 
-  packets: Packet[];
+  packets: PacketValidationDTO[];
   totalItems: number;
   packet: Packet;
   type : string = VALIDATION;
   sourceString : string = "Non Validé";
   targetString : string = "Validé";
   isAdmin: boolean;
-  packetSameBarCode : Packet[];
-
-  params : any={
-    page: 0,
-    size: 300,
-    startDate: null,
-    endDate: null,
-    mandatoryDate: false,
-    status: VALIDATION,
-  };
-
+  packetSameBarCode : PacketValidationDTO[];
 
   constructor(private packetService : PacketService, private messageService: MessageService,public storageService: StorageService) {
 
@@ -61,23 +52,20 @@ findAllConfirmedPackets(): void {
     this.sourceString = RETURN;
     this.targetString = "Retour Echange";
   }
-  this.params.status = this.type;
-  this.packetService.findAllPackets(this.params)
+  this.packetService.findValidationPackets()
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
-      next: (response: ResponsePage) => {
+      next: (response: any) => {
         this.packets = response.result;
-        //console.log('response',response);
-        this.totalItems = response.totalItems;
+
         if(this.type == VALIDATION){
-          this.sourcePackets = response.result.filter((packet: Packet) => packet.valid == false);
-          this.targetPackets = response.result.filter((packet: Packet) => packet.valid);
+          this.sourcePackets = this.packets.filter((packet: PacketValidationDTO) => packet.valid == false);
+          this.targetPackets = this.packets.filter((packet: PacketValidationDTO) => packet.valid);
         }
         else {
-          this.sourcePackets = response.result.filter((packet: Packet) => packet.exchangeId == null);
-          this.targetPackets = response.result.filter((packet: Packet) => packet.exchangeId);
+          this.sourcePackets = this.packets.filter((packet: PacketValidationDTO) => packet.exchangeId == null);
+          this.targetPackets = this.packets.filter((packet: PacketValidationDTO) => packet.exchangeId);
         }
-        console.log('this.sourceProducts',this.sourcePackets.length);
       },
       error: (error: Error) => {
         console.log('Error:', error);
@@ -86,51 +74,42 @@ findAllConfirmedPackets(): void {
 }
 
 Validate(){
-  //if(this.barCode.length == 13)
-  //this.barCode = this.barCode.slice(0,12);
-
-
-  //console.log(lastNineCharacters);  // Output: "789012345"
-
-  //console.log('validé',this.barCode);
   let lastNineCharacters = this.barCode.slice(-9);
   let num: number = Number(this.barCode);
   if (this.type == VALIDATION){
     if(this.barCode.length > 8){
 
-      if (!(this.sourcePackets.map((packet : Packet) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1)){
-        if (this.targetPackets.map((packet : Packet) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1){
+      if (!(this.sourcePackets.map((packet : PacketValidationDTO) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1)){
+        if (this.targetPackets.map((packet : PacketValidationDTO) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1){
           alert('Error: BarreCode déja validé');
         } else alert("Error: BarreCode n'existe pas");
         return;
       }
-      else if (this.targetPackets.map((packet : Packet) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1){
+      else if (this.targetPackets.map((packet : PacketValidationDTO) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1){
         alert('Error: Colie double et déja validé');
         return;
       }
     }
     if(this.barCode.length < 9){
-
-      if (!(this.sourcePackets.map((packet : Packet) => packet.id).indexOf(num) > -1)){
-        if (this.targetPackets.map((packet : Packet) => packet.id).indexOf(num) > -1){
+      if (!(this.sourcePackets.map((packet : PacketValidationDTO) => packet.id).indexOf(num) > -1)){
+        if (this.targetPackets.map((packet : PacketValidationDTO) => packet.id).indexOf(num) > -1){
           alert('Error: BarreCode déja validé');
         } else alert("Error: BarreCode n'existe pas");
         return;
       }
-      else if (this.targetPackets.map((packet : Packet) => packet.id).indexOf(num) > -1){
+      else if (this.targetPackets.map((packet : PacketValidationDTO) => packet.id).indexOf(num) > -1){
         alert('Error: Colie double et déja validé');
         return;
       }
     }
     if(this.barCode.length > 8){
-      this.packetSameBarCode = this.sourcePackets.filter((packet : Packet) => packet.barcode.slice(-9) == lastNineCharacters);
+      this.packetSameBarCode = this.sourcePackets.filter((packet : PacketValidationDTO) => packet.barcode.slice(-9) == lastNineCharacters);
       this.barCode = this.packetSameBarCode[0].barcode;
     }
     else {
-      this.packetSameBarCode = this.sourcePackets.filter((packet : Packet) => packet.id == num);
+      this.packetSameBarCode = this.sourcePackets.filter((packet : PacketValidationDTO) => packet.id == num);
       this.barCode = this.packetSameBarCode[0].barcode;
     }
-
 
     if (this.packetSameBarCode.length>1){
       alert('Error: le code a barre '+this.barCode +' existe plusieur fois');
@@ -138,11 +117,11 @@ Validate(){
     }
     else {
       let phoneNumber = this.packetSameBarCode[0].customerPhoneNb;
-      let packetSamePhoneNumber : Packet[] = this.sourcePackets.filter((packet : Packet) => packet.customerPhoneNb == phoneNumber);
+      let packetSamePhoneNumber : PacketValidationDTO[] = this.sourcePackets.filter((packet : PacketValidationDTO) => packet.customerPhoneNb == phoneNumber);
       if (packetSamePhoneNumber.length>1)
     {
       alert('Error: le numero de telephone '+phoneNumber +' existe plusieur fois');
-      if(this.isAdmin)
+      if(!this.isAdmin)
       return;
     }}
   }
@@ -151,7 +130,20 @@ Validate(){
       this.messageService.add({ severity: 'success', summary: 'Success', detail: "code à barre validé: " + this.barCode });
       console.log('response',response);
 
-      this.findAllConfirmedPackets();
+      if(this.type == VALIDATION){
+        const packetIndex = this.sourcePackets.findIndex((packet: PacketValidationDTO) => packet.barcode === this.barCode);
+        console.log("packetIndex",packetIndex);
+
+        if (packetIndex !== -1) {
+          // Remove the packet from sourcePackets
+          const [packet] = this.sourcePackets.splice(packetIndex, 1);
+          // Add the packet to targetPackets
+          this.targetPackets.push(packet);
+        }
+      }
+
+      //this.findAllConfirmedPackets();
+
       this.barCode = "";
     }, error => {
       // Handle errors here

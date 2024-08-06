@@ -16,9 +16,10 @@ import java.util.Optional;
 @CrossOrigin
 @Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class SizeController {
-
-    @Autowired
-    private SizeService sizeService;
+    private final SizeService sizeService;
+    public SizeController (SizeService sizeService){
+        this.sizeService = sizeService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Size>> getAllSizes() {

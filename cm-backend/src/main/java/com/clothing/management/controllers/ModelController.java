@@ -3,7 +3,6 @@ package com.clothing.management.controllers;
 import com.clothing.management.dto.ModelDTO;
 import com.clothing.management.entities.Model;
 import com.clothing.management.services.ModelService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -17,9 +16,7 @@ import java.util.List;
 public class ModelController {
 
     private final ModelService modelService;
-
-    @Autowired
-    public ModelController(ModelService modelService) {
+    public ModelController(ModelService modelService){
         this.modelService = modelService;
     }
 

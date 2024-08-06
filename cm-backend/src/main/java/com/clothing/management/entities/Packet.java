@@ -1,11 +1,13 @@
 package com.clothing.management.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "packet", indexes = {
@@ -35,11 +37,11 @@ public class Packet {
     @Column(name = "old_client")
     private Integer oldClient;
 
-    @OneToMany(mappedBy = "packet" , cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "packet" , cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ProductsPacket> productsPackets;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "packet", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "packet", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<PacketStatus> packetStatus;
 
     @ManyToOne
@@ -88,6 +90,42 @@ public class Packet {
     public Packet() {
         this.productsPackets=new ArrayList<>();
         this.packetStatus = new ArrayList<>();
+    }
+    public Packet(Packet packet,DeliveryCompany deliveryCompany) {
+        this.customerName= packet.getCustomerName() + "   echange id: " + packet.getId();
+        this.customerPhoneNb= packet.getCustomerPhoneNb();
+        this.address= packet.getAddress();
+        this.packetDescription= packet.getPacketDescription();
+        this.price= packet.getPrice();
+        this.date=new Date();
+        this.status = "Non confirmée";
+        this.fbPage = packet.getFbPage();
+        this.city = packet.getCity();
+        this.deliveryPrice = packet.getDeliveryPrice();
+        this.valid= false;
+        this.exchangeId =packet.getId();
+        this.haveExchange=false;
+        this.deliveryCompany=deliveryCompany;
+        this.discount = packet.getDiscount();
+        this.oldClient= 0;
+        this.barcode= "";
+        this.lastDeliveryStatus = "";
+        this.packetStatus = new ArrayList<>();
+        this.lastUpdateDate = null;
+        this.printLink = null;
+        this.productsPackets = new ArrayList<>();
+    }
+
+    public void createProductsPacket(List<ProductsPacket> productsPacket){
+        this.setProductsPackets(
+                productsPacket.stream()
+                        .map(productPacket -> {
+                            productPacket.setPacket(this);  // Set the new packet reference
+                            productPacket.setId(null);  // Reset the ID to make it a new entity
+                            return productPacket;
+                        })
+                        .collect(Collectors.toList())
+        );
     }
 
     public Packet(DeliveryCompany deliveryCompany) {
