@@ -18,7 +18,6 @@ export class SizeService {
   public editMode = false;
 
   constructor(private http: HttpClient) {
-    //this.loadSizes();
   }
 
   loadSizes(): Observable<Size[]> {
@@ -49,11 +48,11 @@ export class SizeService {
     );
   }
 
-  findSizeById(id: number): Observable<Size> {
+  /*findSizeById(id: number): Observable<Size> {
     return this.http.get<Size>(`${this.baseUrl}/${id}`).pipe(
       catchError(this.handleError<Size>('findSizeById'))
     );
-  }
+  }*/
 
   addSize(size: Size): Observable<Size> {
     return this.http.post<Size>(`${this.baseUrl}`, size, { observe: 'body' }).pipe(
@@ -68,8 +67,8 @@ export class SizeService {
     );
   }
 
-  deleteSizeById(idSize: number): Observable<void> {
-    return this.http.delete<void>(this.baseUrl + "/deleteById/" + idSize).pipe(
+  deleteSizeById(id: number) {
+    return this.http.delete(`${this.baseUrl}/${id}`).pipe(
       catchError(this.handleError<void>('deleteSizeById'))
     );
   }

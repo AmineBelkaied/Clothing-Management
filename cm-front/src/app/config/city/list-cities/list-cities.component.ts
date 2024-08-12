@@ -1,10 +1,9 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { CityService } from 'src/shared/services/city.service';
 import { City } from 'src/shared/models/City';
 import { Governorate } from 'src/shared/models/Governorate';
 import { Subject, takeUntil } from 'rxjs';
-import { GovernorateService } from 'src/shared/services/governorate.service';
 
 
 @Component({
@@ -60,7 +59,7 @@ export class ListCitiesComponent implements OnInit,OnDestroy {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.citySerivce.deleteCityById(city.id).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(result => {
+          .subscribe(() => {
             this.cities = this.cities.filter(val => val.id !== city.id);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été supprimée avec succés", life: 1000 });
           })
@@ -93,7 +92,7 @@ export class ListCitiesComponent implements OnInit,OnDestroy {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.citySerivce.deleteSelectedCities(selectedCitiesId).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(result => {
+          .subscribe(() => {
             this.cities = this.cities.filter((city: City) => selectedCitiesId.indexOf(city.id) == -1);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les villes séléctionnées ont été supprimé avec succés', life: 1000 });
           })
@@ -176,7 +175,7 @@ export class ListCitiesComponent implements OnInit,OnDestroy {
   onEditComplete($event: any) {
     if(JSON.stringify(this.oldCity) != JSON.stringify($event.data)) {
       this.citySerivce.updateCity($event.data).pipe(takeUntil(this.$unsubscribe))
-      .subscribe(result => {
+      .subscribe(() => {
         console.log("city successfully updated !");
         this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'La ville a été mise à jour avec succés', life: 1000 });
       })

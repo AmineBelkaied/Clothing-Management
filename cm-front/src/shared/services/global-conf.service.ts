@@ -1,11 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject, catchError, Observable, shareReplay,tap,map, throwError, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { GlobalConf } from '../models/GlobalConf';
 import { MessageService } from 'primeng/api';
 import { GLOBAL_CONFIG_ENDPOINTS } from '../constants/api-endpoints';
-import { OfferService } from './offer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,15 +16,13 @@ export class GlobalConfService {
   public globalConfSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public globalConf: GlobalConf;
 
-  constructor(private http: HttpClient, private messageService: MessageService,private offerService : OfferService) {}
+  constructor(private http: HttpClient, private messageService: MessageService) {}
 
 
   loadGlobalConf() : void {
     this.getGlobalConf().pipe(
       tap((globalConf: GlobalConf) => {
-        // Emit the new global configuration through the subscriber
         this.globalConfSubscriber.next(globalConf);
-        // Update the local state
         this.globalConf = globalConf;
       }),
       catchError((error) => {
@@ -51,7 +48,7 @@ export class GlobalConfService {
   setGlobalConfSubscriber(globalConf:GlobalConf){
     this.updateGlobalConf(globalConf)
       .pipe(
-        catchError((err: any, caught: Observable<any>): any => {
+        catchError((err: any): any => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
@@ -59,7 +56,7 @@ export class GlobalConfService {
           });
         })
       )
-      .subscribe((result: any) => {
+      .subscribe(() => {
         this.globalConf = globalConf;
         this.globalConfSubscriber.next(globalConf)
         this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été modifiée avec succés", life: 1000 });

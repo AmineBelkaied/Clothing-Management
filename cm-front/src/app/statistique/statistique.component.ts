@@ -1,19 +1,17 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { DaySales, Colors, Model } from 'src/shared/models/stat';
+import { Component, OnInit } from '@angular/core';
+import { DaySales} from 'src/shared/models/stat';
 import { PacketService } from 'src/shared/services/packet.service';
 import { Packet } from 'src/shared/models/Packet';
 import { DatePipe } from '@angular/common';
 import { StatsService } from 'src/shared/services/stats.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { Subject, takeUntil } from 'rxjs';
-import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { ModelService } from 'src/shared/services/model.service';
 import { ActivatedRoute } from '@angular/router';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
-import { Offer } from 'src/shared/models/Offer';
 
 @Component({
   selector: 'app-statistique',
@@ -296,11 +294,9 @@ export class StatistiqueComponent implements OnInit {
   }
 
   createModelsChart(data: any) {
-    //console.log('createModelsChart', data);
     this.modelTableData = [];
-    let modelsList: string[] = [];
+    let modelsList: string[];
     let modelsCounts: any[] = [];
-    //console.log('statStock', statStock);
 
     this.modelTableData = data.modelsRecapCount;
     modelsList = data.models;
@@ -359,16 +355,11 @@ export class StatistiqueComponent implements OnInit {
   createPacketsChart(data: any) {
     console.log('createPacketsChart', data);
     this.packetsTableData = [];
-    let statusCounts: any[] = [];
+    let statusCounts: any[];
 
     this.packetsTableData = data.statusRecapCount;
     statusCounts = data.statusCountLists;
-    const statusList: string[] = this.packetsTableData.flatMap(
-      (obj: any) => obj.name
-    );
-    //this.packetsDataSetArray = [];
     this.dates = data.dates;
-    //this.packetsDataSetArray = ;
 
     this.packetsData = {
       labels: this.dates,
@@ -429,8 +420,8 @@ export class StatistiqueComponent implements OnInit {
   }
   createColorsChart(data: any) {
     this.colorsTableData = [];
-    let colorsList: string[] = [];
-    let colorsCounts: any[] = [];
+    let colorsList: string[];
+    let colorsCounts: any[];
     this.colorsTableData = data.colorsRecapCount;
     colorsList = data.colors;
     colorsCounts = data.countColorsLists;
@@ -459,8 +450,8 @@ export class StatistiqueComponent implements OnInit {
     console.log("createOffersChart",data);
 
     this.offerTableData = [];
-    let offersList: string[] = [];
-    let offersCounts: any[] = [];
+    let offersList: string[];
+    let offersCounts: any[];
     this.offerTableData = data.offersRecapCount;
     offersList = data.offers;
     offersCounts = data.countOffersLists;
@@ -671,8 +662,7 @@ export class StatistiqueComponent implements OnInit {
 
   selectModelChart($event: any) {
     this.selectedModelChart = $event.option;
-    if ($event.option == 'Chart') this.modelChartBoolean = true;
-    else this.modelChartBoolean = false;
+    this.modelChartBoolean = $event.option == 'Chart';
   }
 
 

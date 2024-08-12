@@ -57,7 +57,6 @@ public class StatServiceImpl implements StatService {
                 for (ProductsDayCountDTO row : existingProductsPacket) {
                     if (row.getPacketDate().equals(uniqueDate) && row.getModelName().equals(uniqueModel))
                         {
-                            //System.out.println("model-"+row.getModelName()+"/payed:"+row.getCountPayed());
                             if(countProgressEnabler) {
                                 count += row.getCountPayed() + row.getCountProgress();
                                 countProfits+=row.getProfits();
@@ -231,7 +230,6 @@ public class StatServiceImpl implements StatService {
                         if (row.getCountProgress()>0)countProgress+=1;
                     }
                 }
-                //System.out.println(uniqueDate+"count:"+count);
                 offerRecap.setPayed(countPayed+offerRecap.getPayed());
                 offerRecap.setRetour(countRetour+offerRecap.getRetour());
                 offerRecap.setProgress(countProgress+offerRecap.getProgress());
@@ -304,11 +302,10 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public Map<String , List<?>> statAllColorsChart(String beginDate, String endDate,List<Long> lookForModelIds){
-        System.out.println(beginDate);
         List<ProductsDayCountDTO> existingProductsPacketColor = lookForModelIds.isEmpty() ?
                 productsPacketRepository.statAllModelsByColor(beginDate, endDate) :
                 productsPacketRepository.statByColorAndModels(beginDate, endDate, lookForModelIds);
-       Map<String, List<?>> uniqueValues = getUnique((existingProductsPacketColor),false);
+        Map<String, List<?>> uniqueValues = getUnique((existingProductsPacketColor),false);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<Color> uniqueColors = (List<Color>) uniqueValues.get("uniqueColors");
 
@@ -348,7 +345,6 @@ public class StatServiceImpl implements StatService {
         data.put("colors",uniqueColors);
         data.put("countColorsLists",countColorsLists);
         data.put("colorsRecapCount",colorsRecapCount);
-        //System.out.println("data"+data);
         return data;
     }
 
@@ -495,11 +491,9 @@ public class StatServiceImpl implements StatService {
                 }
             }
             OfferDTO offer = product.getOffer();
-            //System.out.println("looking for offer");
             if (!uniqueOffersIds.contains(offer.getId())) {
                 uniqueOffers.add(offer);
                 uniqueOffersIds.add(offer.getId());
-                //System.out.println("new offer"+offer);
             }
         }
 

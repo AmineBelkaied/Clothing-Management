@@ -13,6 +13,7 @@ import com.clothing.management.services.ModelService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -105,6 +106,7 @@ public class ModelServiceImpl implements ModelService {
     }
 
     @Override
+    @Transactional("tenantTransactionManager")
     public List<ModelDTO> getModels(){
         return modelRepository.findAll()
                 .stream()

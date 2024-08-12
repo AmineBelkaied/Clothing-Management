@@ -328,11 +328,10 @@
           <div *ngIf="
               packet?.notes?.length > 0 &&
               (packet.status === 'Injoignable' || packet.status === 'Supprimé' || packet.status === 'Annuler')
-            " style="background-color: #c7ecee; !important; border-radius: 10px"  (click)="onNoteClick($event, op, packet?.notes)">
+            " style="background-color: #c7ecee !important; border-radius: 10px"  (click)="onNoteClick($event, op, packet?.notes)">
             <i class="pi pi-comment mr-3 p-text-secondary" severity="info" [value]="packet?.notes.length" *ngIf="packet?.notes.length > 1" pBadge style="font-size: 1rem" value="2"></i>
             <span> - {{ packet.notes[packet.notes.length - 1]?.explanation }} </span>
             <p class="align-center"><small> {{ packet.notes[packet.notes.length - 1]?.user?.userName }} - {{ packet.notes[packet.notes.length - 1]?.date | date: 'dd/MM/yy HH:mm' }}</small></p>
-
           </div>
         </td>
 
@@ -433,21 +432,7 @@
               </p-dropdown>
             </ng-template>
             <ng-template pTemplate="output">
-              <i severity="warning" pBadge [value]="packet.attempt" *ngIf="packet.status === 'Injoignable'">
-                <div [ngClass]="{
-                    noModelSelectedStatus:
-                      packet.stock < 0 && packet.barcode == '',
-                    outofstockStatus: packet.stock == 0 && packet.barcode == '',
-                    lowstockStatus:
-                      packet.stock > 0 &&
-                      packet.stock < 10 &&
-                      packet.barcode == '',
-                    instockStatus: packet.stock > 10 && packet.barcode == ''
-                  }">
-                  {{ packet.status }}
-                </div>
-              </i>
-              <div *ngIf="packet.status != 'Injoignable'" [ngClass]="{
+              <div [ngClass]="{
                   noModelSelectedStatus:
                     packet.stock < 0 && packet.barcode == '',
                   outofstockStatus: packet.stock == 0 && packet.barcode == '',

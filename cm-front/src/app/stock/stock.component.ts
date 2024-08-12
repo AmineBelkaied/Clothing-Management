@@ -1,12 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { ModelService } from 'src/shared/services/model.service';
 import { ProductService } from '../../shared/services/product.service';
 import { Model } from 'src/shared/models/Model';
 import { ProductHistoryService } from 'src/shared/services/product-history.service';
-import { Subject, of, switchMap, takeUntil } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, takeUntil, tap } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 import { StatsService } from 'src/shared/services/stats.service';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { DateUtils } from 'src/shared/utils/date-utils';
@@ -18,7 +18,7 @@ import { Product } from '../../shared/models/Product';
   templateUrl: './stock.component.html',
   styleUrls: ['./stock.component.scss'],
 })
-export class StockComponent implements OnInit {
+export class StockComponent implements OnInit,OnDestroy {
   products: Product[][] = [];
   models: Model[] = [];
 
@@ -43,7 +43,6 @@ export class StockComponent implements OnInit {
   qte: number = 0;
   comment: string;
   @ViewChild('dt') dt!: Table;
-  @ViewChild('el') el!: ElementRef;
   sizes: any[] = [];
   colors: any[] = [];
   selectAll: boolean = false;
@@ -91,13 +90,24 @@ export class StockComponent implements OnInit {
     private activateRoute: ActivatedRoute,
     private statsService: StatsService,
     private modelService: ModelService,
-    private dateUtils: DateUtils,
-    private router: Router
+    private dateUtils: DateUtils
   ) {}
 
   ngOnInit(): void {
+    console.log("ngOnInit");
+    this.modelService.getModelsSubscriber()
+      .pipe(takeUntil(this.$unsubscribe))
+      .pipe(
+        tap((data: Model[]) => {
+          console.log(data);
 
-    this.getAllModel();
+          this.models = data;
+          let modelsLength = data.length-1;
+          this.modelId=data[0].id!;
+          this.selectedModel = data[this.modelId];
+        }),
+        )
+      .subscribe();
 
     // Create the line chart
     this.dataSetArray = [
@@ -155,32 +165,49 @@ export class StockComponent implements OnInit {
   };
   }
 
+  selectModel(model: any): void {
+    this.selectedModel = model;
+  }
+
   getAllModel(){
-    this.modelService.findAllModels().subscribe((data: any) => {
+    this.modelService
+      .getModelsSubscriber()
+      .pipe(takeUntil(this.$unsubscribe))
+      .pipe(
+        tap((data: any) => {
+          this.models = data;
+          let modelsLength = data.length-1;
+          this.modelId=data[modelsLength].id;
+        }),
+        )
+      .subscribe();
+    /*this.modelService.findAllModels().subscribe((data: any) => {
       this.models = data;
-
-      this.activateRoute.params.subscribe(params => {
-        let modelsLength = data.length-1;
-
+      let modelsLength = data.length-1;
+      this.modelId=data[modelsLength].id;
+      /*this.activateRoute.params.subscribe(params => {
         if (params['id'] == 0)this.navigateToStock(data[modelsLength].id);
           else this.modelId = +params['id'];
           this.setCalendar();
           this.getStats();
       });
-    });
+    });*/
   }
 
   getStats(){
-    this.setCalendar();
+    console.log("getStat");
+
+      this.modelId= this.selectedModel.id!;
+      this.setCalendar();
       this.getStatModelSoldChart(this.modelId,this.selectedChart);
       this.getStockByModelId(this.modelId);
       this.getProductsCountByModelId(this.modelId);
       this.getProductHistory();
   }
 
-  navigateToStock(selectedModelId: number): void {
+  /*navigateToStock(selectedModelId: number): void {
     this.router.navigate(['/stock', selectedModelId]);
-  }
+  }*/
 
 
   getProductsCountByModelId(modelId : number){
@@ -233,7 +260,7 @@ export class StockComponent implements OnInit {
   }
 
   createChart(data: any , option : string){
-    let chartList = [];
+    let chartList;
     let chartCounts : any[]= [];
     this.datesList = data.dates;
     if(option == "Size") {
@@ -251,7 +278,7 @@ export class StockComponent implements OnInit {
     this.dataSetArray =[];
     let i = 0;
     chartList.forEach((item: any) => {
-      let name= "";
+      let name: string;
       if(option == "Color")name = item.name;
       else if(option == "Size") name= item.reference;
       else name= item;
@@ -302,7 +329,7 @@ export class StockComponent implements OnInit {
     this.productService.getStock(modelId).subscribe((result: any) => {
       this.products = result.productsByColor;
       let productByColor = this.products[0]
-      if(this.products != undefined)
+      if(this.products)
         this.modelName=productByColor[0].model?.name!;
         this.colors=productByColor[0].model?.colors!;
       //console.log('this.products[0]',this.products[0]);
@@ -312,23 +339,23 @@ export class StockComponent implements OnInit {
 
   getCount(productId:number): number{
     let products = this.productsCount.find(item => item.productId === productId);
-    return (products != undefined) ? products.countPayed: 0;
+    return (products) ? products.countPayed: 0;
   }
 
   getCountProgress(productId:number): number{
     let product = this.productsCount.find(item => item.productId === productId);
     console.log("product",product);
-    return (product != undefined) ? product.countProgress: 0;
+    return (product) ? product.countProgress: 0;
   }
 
   getCountExchange(productId:number): number{
     let products = this.productsCount.find(item => item.productId === productId);
-    return (products != undefined) ? products.countExchange: 0;
+    return (products) ? products.countExchange: 0;
   }
 
   getCountRupture(productId:number): number{
     let products = this.productsCount.find(item => item.productId === productId);
-    return (products != undefined) ? products.countOos: 0;
+    return (products) ? products.countOos: 0;
   }
 
 
@@ -344,23 +371,20 @@ export class StockComponent implements OnInit {
   }
 
   handleColorClick(j: number) {
-    if (this.haveSelectedItems(j, true))
-      for (var i = 0; i < this.products[j].length; i++)
-        this.unSelectProduct(j, i, this.products[j][i].id);
-    else
-      for (var i = 0; i < this.products[j].length; i++)
-        this.selectProduct(j, i, this.products[j][i].id);
-    //console.log('selectedProducts',this.selectedProducts);
+
+      for (let i = 0; i < this.products[j].length; i++)
+        if (this.haveSelectedItems(j, true))
+            this.unSelectProduct(j, i, this.products[j][i].id);
+        else
+            this.selectProduct(j, i, this.products[j][i].id);
   }
 
   handleSizeClick(i: number) :void{
-    if (this.haveSelectedItems(i, false))
-      for (var j = 0; j < this.products.length; j++)
+    for (let j = 0; j < this.products.length; j++)
+      if (this.haveSelectedItems(i, false))
         this.unSelectProduct(j, i, this.products[j][i].id);
-    else
-      for (var j = 0; j < this.products.length; j++)
+      else
         this.selectProduct(j, i, this.products[j][i].id);
-    //console.log('selectedProducts',this.selectedProducts);
   }
 
   selectProduct(j: number, i: number, productId: any) {
@@ -379,17 +403,17 @@ export class StockComponent implements OnInit {
   }
 
   selectAllProducts() {
-    for (var j = 0; j < this.products.length; j++)
-      for (var i = 0; i < this.products[j].length; i++)
+    for (let j = 0; j < this.products.length; j++)
+      for (let i = 0; i < this.products[j].length; i++)
         if (this.selectAll) this.selectProduct(j, i, this.products[j][i].id);
         else this.unSelectProduct(j, i, this.products[j][i].id);
   }
 
   totalRow(j: number) {
     let totRow = 0;
-    for (var i = 0; i < this.products[j].length; i++)
+    for (let i = 0; i < this.products[j].length; i++)
     {
-      if (this.stock==true)totRow += this.products[j][i].qte;
+      if (this.stock)totRow += this.products[j][i].qte;
       else totRow += this.getCount(this.products[j][i].id);
     }
     return totRow;
@@ -398,7 +422,7 @@ export class StockComponent implements OnInit {
   totalRow2(j: number) {
     let totRow = 0;
     let totRow2 = 0;
-    for (var i = 0; i < this.products[j].length; i++)
+    for (let i = 0; i < this.products[j].length; i++)
     {
       totRow += this.products[j][i].qte;
       totRow2 += this.getCount(this.products[j][i].id);
@@ -416,11 +440,11 @@ export class StockComponent implements OnInit {
   totalColumn(i: number) {
     //console.log("products:",this.products);
     let totColumn = 0;
-    if(this.products == undefined)return 0;
-    for (var j = 0; j < this.products.length; j++)
-    if (this.products[j][i] != undefined)
-    if (this.stock==true){
-      //console.log("this.products[j][i]",this.products[j][i]);
+    if(this.products.length<1)
+      return 0;
+    for (let j = 0; j < this.products.length; j++)
+    if (this.products[j][i])
+    if (this.stock){
        totColumn += this.products[j][i].qte;
       }
     else totColumn += this.getCount(this.products[j][i].id);
@@ -429,10 +453,10 @@ export class StockComponent implements OnInit {
 
   totalTable() {
     let tot = 0;
-    if(this.products == undefined)return 0
-    for (var j = 0; j < this.products.length; j++)
-      for (var i = 0; i < this.products[j].length; i++)
-        if (this.stock==true)tot += this.products[j][i].qte;
+    if(this.products.length<1)return 0;
+    for (let j = 0; j < this.products.length; j++)
+      for (let i = 0; i < this.products[j].length; i++)
+        if (this.stock)tot += this.products[j][i].qte;
         else tot += this.getCount(this.products[j][i].id);
 
     return tot;
@@ -458,11 +482,9 @@ export class StockComponent implements OnInit {
       else this.productService
       .addStock(this.selectedProducts, this.qte, +this.modelId, this.comment)
       .subscribe((result: any) => {
-        console.log('result', result);
-        for (var j = 0; j < this.products.length; j++)
-          for (var i = 0; i < this.products[j].length; i++)
+        for (let j = 0; j < this.products.length; j++)
+          for (let i = 0; i < this.products[j].length; i++)
             if (this.selectedProducts.includes(this.products[j][i].id)) {
-              //console.log('prod', this.products[j][i].color.name);
               this.products[j][i].qte += this.qte;
               rows[j].cells[i + 1].setAttribute(
                 'style',
@@ -484,7 +506,7 @@ export class StockComponent implements OnInit {
 
   }
 
-  dateFilterChange(event: any) {
+  dateFilterChange() {
     this.setCalendar();
     this.getStats();
   }
@@ -516,13 +538,13 @@ export class StockComponent implements OnInit {
 
   haveSelectedItems(index: number, row: boolean):boolean {
     if (row) {
-      for (var i = 0; i < this.products[index].length; i++)
+      for (let i = 0; i < this.products[index].length; i++)
         if (this.selectedProducts.includes(this.products[index][i].id)){
           console.log('have similar row',this.products[index][i].id);
           return true
         }
     } else
-      for (var j = 0; j < this.products.length; j++)
+      for (let j = 0; j < this.products.length; j++)
         if (this.selectedProducts.includes(this.products[j][index].id)){
           console.log('have similar size',this.products[j][index].id);
           return true
@@ -537,18 +559,16 @@ export class StockComponent implements OnInit {
 
   onDeleteProductsHistory($event: any): void {
     $event.products.forEach((product: any) => {
-      for (var j = 0; j < this.products.length; j++)
-        for (var i = 0; i < this.products[j].length; i++)
+      for (let j = 0; j < this.products.length; j++)
+        for (let i = 0; i < this.products[j].length; i++)
         if(product.productId == this.products[j][i].id)
           this.products[j][i].qte = this.products[j][i].qte - product.qte;
     });
   }
 
   existingColor(color: Color): boolean {
-    if (this.colors.some(c => c.id === color.id)) {
-      return true;
-    }
-    return false
+    return this.colors.some(c => c.id === color.id);
+
   }
 
   getSeverity(product: Product) {
@@ -674,5 +694,10 @@ export class StockComponent implements OnInit {
   clearDate(){
       this.rangeDates = [];
     this.getStats();
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 }

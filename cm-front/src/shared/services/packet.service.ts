@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, throwError } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
 import { environment } from '../../environments/environment';
 import { CONFIRMED, VALIDATION } from '../utils/status-list';
@@ -63,10 +63,10 @@ export class PacketService {
   }
 
   public findAllPacketsByDate(beginDate: string, endDate: string): Observable<any> {
+    //if(endDate == null) endDate = beginDate;
     let params = new HttpParams()
     .set('beginDate', beginDate)
     .set('endDate', endDate);
-
     return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.BY_DATE_RANGE}`, { params });
   }
 
@@ -102,8 +102,17 @@ export class PacketService {
     return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
-  deleteSelectedPackets(packetsId: number[]) {
-    return this.http.delete(`${this.baseUrl}/${PACKET_ENDPOINTS.BATCH_DELETE}/${packetsId}`);
+  deleteSelectedPackets(packetsId: number[], note: Note) {
+    const params = new HttpParams().set('packetsId', packetsId.join(','));
+    return this.http.post(`${this.baseUrl}${PACKET_ENDPOINTS.BATCH_DELETE}`, note, {
+      headers: { 'content-type': 'application/json' },
+      params: params
+    }).pipe(
+      catchError((error) => {
+        console.error('Error:', error);
+        return throwError(error);
+      })
+    );
   }
 
 
@@ -120,11 +129,11 @@ export class PacketService {
   }
 
   getLastStock(packetId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/${packetId}/${PACKET_ENDPOINTS.CHECK_VALIDITY}`);
+    return this.http.get(`${this.baseUrl}/${packetId}${PACKET_ENDPOINTS.CHECK_VALIDITY}`);
   }
 
   getPacketTimeLine(packetId: number) {
-    return this.http.get(`${this.baseUrl}/${packetId}/${PACKET_ENDPOINTS.TIMELINE}`);
+    return this.http.get(`${this.baseUrl}/${packetId}${PACKET_ENDPOINTS.TIMELINE}`);
   }
 
   getLastStatus(id: number) {
@@ -134,8 +143,11 @@ export class PacketService {
 
   addAttempt(note: Note, packetId: number) {
     return this.http.post(
-      `${this.baseUrl}/${packetId}/${PACKET_ENDPOINTS.ATTEMPT}`, note
+      `${this.baseUrl}/${packetId}${PACKET_ENDPOINTS.ATTEMPT}`, note
     );
+  }
+  getValidationPackets(): Observable<any> {
+    return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.VALIDATION}`);
   }
 
   handleError(error: any) {

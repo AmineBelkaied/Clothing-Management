@@ -40,7 +40,7 @@ export class ListSteLivraisonComponent implements OnInit,OnDestroy {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.deliveryCompanyService.deleteDeliveryCompanyById(deliveryCompany.id)
-          .subscribe(result => {
+          .subscribe(() => {
             this.deliveryCompanyList = this.deliveryCompanyList.filter(val => val.id !== deliveryCompany.id);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La société de livraison a été supprimée avec succés", life: 1000 });
           })
@@ -48,12 +48,12 @@ export class ListSteLivraisonComponent implements OnInit,OnDestroy {
     });
   }
 
-  enableDeliveryCompany(deliveryCompany: any)  {
+  /*enableDeliveryCompany(deliveryCompany: any)  {
     this.deliveryCompanyService.updateDeliveryCompany(deliveryCompany)
     .subscribe((updatedDeliveryCompany: any) => {
       this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La société de livraison a été modifiée avec succés", life: 1000 });
     });
-  }
+  }*/
 
   ngOnDestroy(): void {
     this.$unsubscribe.next();

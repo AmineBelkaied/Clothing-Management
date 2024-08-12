@@ -15,11 +15,8 @@ export class StockHistoryComponent implements OnInit {
   modelId!: number;
 
   rangeDates: Date[] = [];
-
   searchField: string = "";
-
-  selectedProductsHistory = [];
-
+  selectedProductsHistory: any[] = [];
   currentPage: number = 0;
 
   @Output()
@@ -29,35 +26,44 @@ export class StockHistoryComponent implements OnInit {
 
   ngOnInit(): void { }
 
-  onPageChange($event: any){
+  onPageChange($event: any): void {
     this.currentPage = $event.page;
-    console.log(this.currentPage);
-    this.productHistoryService.findAllProductsHistory(this.modelId, $event.page, $event.rows, this.searchField,
-      this.convertDateToString(this.rangeDates[0]) != null ? this.convertDateToString(this.rangeDates[0]) : null , this.rangeDates[1] != null ? this.convertDateToString(this.rangeDates[1]) : null)
-    .subscribe((result: any) => this.productsHistory = result)
-    console.log("this.productsHistory",this.productsHistory);
+    this.loadProductsHistory($event.page, $event.rows);
   }
 
-  displayQuantity(quantity: number) {
-    return quantity > 0 ? "+" + quantity : quantity;
-  }
+  loadProductsHistory(page: number, rows: number): void {
+    const startDate = this.convertDateToString(this.rangeDates[0]);
+    const endDate = this.convertDateToString(this.rangeDates[1]);
 
-  convertDateToString(date: Date) {
-    if(date != null) {
-      let day = date.getDate();
-      let month = date.getMonth() + 1; // add 1 because months are indexed from 0
-      let year = date.getFullYear();
-      return year + "-" + month + "-" + day;
-    }
-    return;
-  }
-
-  deleteSelectedProductsHistory() {
-    this.productHistoryService.deleteProductsHistory(this.selectedProductsHistory, this.modelId, this.currentPage)
-    .subscribe((result: any) => {
+    this.productHistoryService.findAllProductsHistory(
+      this.modelId,
+      page,
+      rows,
+      this.searchField,
+      startDate,
+      endDate
+    ).subscribe((result: any) => {
       this.productsHistory = result;
-      this.deleteProductsHistoryEvent.emit({products: this.selectedProductsHistory});
+    });
+  }
+
+  displayQuantity(quantity: number): string {
+    return quantity > 0 ? `+${quantity}` : `${quantity}`;
+  }
+
+  convertDateToString(date: Date): string | null {
+    return date ? `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}` : null;
+  }
+
+  deleteSelectedProductsHistory(): void {
+    this.productHistoryService.deleteProductsHistory(
+      this.selectedProductsHistory,
+      this.modelId,
+      this.currentPage
+    ).subscribe((result: any) => {
+      this.productsHistory = result;
+      this.deleteProductsHistoryEvent.emit({ products: this.selectedProductsHistory });
       this.selectedProductsHistory = [];
-    })
+    });
   }
 }

@@ -5,7 +5,6 @@ import com.clothing.management.entities.FbPage;
 import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.OfferModel;
 import com.clothing.management.services.OfferService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -14,9 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("${api.prefix}/offers")
@@ -30,8 +26,8 @@ public class OfferController {
         this.offerService = offerService;
     }
 
-    @GetMapping(path = "/offersDTO")
-    public List<OfferDTO> getOffers() throws IOException {
+    @GetMapping
+    public List<OfferDTO> getOffers(){
         return offerService.getOffers();
     }
 

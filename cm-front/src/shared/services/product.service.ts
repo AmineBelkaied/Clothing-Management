@@ -21,7 +21,6 @@ export class ProductService {
       map((products: any) => products.filter((product: Product) => !product.deleted)),
       tap((products: Product[]) => {
         this.products = products;
-        //console.log("this.products", this.products);
         this.productsSubscriber.next(this.products);
       })
     );
@@ -49,6 +48,6 @@ export class ProductService {
   }
 
   deleteSelectedProducts(productsId: number[]) {
-    return this.http.delete(`${this.baseUrl}/${PRODUCT_ENDPOINTS.BATCH_DELETE}/${productsId}`);
+    return this.http.delete(`${this.baseUrl}${PRODUCT_ENDPOINTS.BATCH_DELETE}/${productsId}`);
   }
 }

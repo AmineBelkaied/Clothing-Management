@@ -10,9 +10,6 @@ import com.clothing.management.models.DashboardCard;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.scheduler.UpdateStatusScheduler;
 import com.clothing.management.services.PacketService;
-
-import com.clothing.management.servicesImpl.PacketServiceImpl;
-import jakarta.websocket.server.PathParam;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,7 +73,7 @@ public class PacketController {
         }
     }
 
-    @GetMapping(path = "/findValidationPackets")
+    @GetMapping(path = "/validation-packets")
     public ResponseEntity<ResponsePage> findValidationPackets() {
         try {
             return new ResponseEntity<>(new ResponsePage.Builder()
@@ -91,9 +88,9 @@ public class PacketController {
 
 
     @GetMapping("/by-date-range")
-    public List<PacketDTO> findAllPacketsByDateRange(@RequestParam(required = false) String startDate,
+    public List<PacketDTO> findAllPacketsByDateRange(@RequestParam(required = false) String beginDate,
                                                   @RequestParam(required = false) String endDate) throws ParseException {
-        return packetService.findAllPacketsByDate(startDate, endDate);
+        return packetService.findAllPacketsByDate(beginDate, endDate);
     }
 
     @GetMapping("/by-date/{date}")
@@ -101,19 +98,10 @@ public class PacketController {
         return packetService.findAllPacketsByDate(date);
     }
 
-    /*@GetMapping("/{id}")
-    public Optional<Packet> findPacketById(@PathVariable Long id) {
-        return packetService.findPacketById(id);
-    }*/
-
     @GetMapping("/{id}/related-products")
     public List<ProductsPacketDTO> findPacketRelatedProducts(@PathVariable Long id) throws Exception {
         return packetService.findPacketRelatedProducts(id);
     }
-    /*@GetMapping(path = "/findPacketRelatedProducts/{idPacket}")
-    public List<ProductsPacketDTO> findPacketRelatedProducts(@PathVariable Long idPacket) throws Exception {
-        return packetService.findPacketRelatedProducts(idPacket);
-    }*/
 
     @PostMapping
     public PacketDTO addPacket() throws Exception {
@@ -129,10 +117,10 @@ public class PacketController {
     }
 
     @PostMapping("/validate/{barcode}")
-    public ResponseEntity<PacketValidationDTO> updatePacketValid(@PathVariable String barCode, @RequestBody String type) throws Exception {
+    public ResponseEntity<PacketValidationDTO> updatePacketValid(@PathVariable String barcode, @RequestBody String type){
         PacketValidationDTO packet = null;
         try {
-            packet = packetService.updatePacketValid(barCode,type);
+            packet = packetService.updatePacketValid(barcode,type);
             return new ResponseEntity<>(packet, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(packet, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -144,9 +132,10 @@ public class PacketController {
         packetService.deletePacketById(id);
     }
 
-    @DeleteMapping("/batch-delete")
-    public void deleteSelectedPackets(@RequestBody List<Long> packetIds) throws Exception {
-        packetService.deleteSelectedPackets(packetIds);
+    @PostMapping("/batch-delete")
+    public List<PacketDTO> deleteSelectedPackets(@RequestParam List<Long> packetsId, @RequestBody Note note) throws Exception {
+        return packetService.deleteSelectedPackets(packetsId, note);
+        //return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/timeline")
@@ -168,11 +157,6 @@ public class PacketController {
     public PacketDTO addProductsToPacket(@RequestBody SelectedProductsDTO selectedProductsDTO) throws Exception {
         return packetService.addProductsToPacket(selectedProductsDTO);
     }
-
-    /*@GetMapping("/{id}/check-validity")
-    public List<Packet> checkPacketProductsValidity(@PathVariable Long id) throws Exception {
-        return packetService.checkPacketProductsValidity(id);
-    }*/
 
     @GetMapping("/notifications/sync")
     public List<DashboardCard> syncNotifications(@RequestParam(required = false) String startDate,

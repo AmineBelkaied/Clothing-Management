@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Table } from 'jspdf-autotable';
 import { ConfirmationService, MessageService, SelectItem } from 'primeng/api';
-import { concatMap, Subject, switchMap, takeUntil } from 'rxjs';
+import { Subject, switchMap, takeUntil } from 'rxjs';
 import { User } from 'src/shared/models/User';
 import { RoleService } from 'src/shared/services/role.service';
 import { UserService } from 'src/shared/services/user.service';
@@ -117,7 +117,7 @@ export class UserComponent {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.userService.deleteAllUsersById(ids).pipe(takeUntil(this.$unsubscribe))
-          .subscribe((result: any) => {
+          .subscribe(() => {
             this.getAllUsers();
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les utilisateurs sélectionnés ont été supprimé avec succés' , life: 1000 });
             this.selectedUsers = [];

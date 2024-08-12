@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { GOVERNORATE_ENDPOINTS } from '../constants/api-endpoints';
-import { Governorate } from '../models/Governorate';
 
 @Injectable({
   providedIn: 'root'
@@ -17,9 +16,9 @@ export class GovernorateService {
     return this.http.get(`${this.baseUrl}`);
   }
 
-  findGovernorateById(id: number) {
+  /*findGovernorateById(id: number) {
     return this.http.get(`${this.baseUrl}/${id}`);
-  }
+  }*/
 
   addGovernorate(governorate: any) {
     return this.http.post(`${this.baseUrl}`, governorate , {observe: 'body'});
@@ -29,12 +28,12 @@ export class GovernorateService {
     return this.http.put(`${this.baseUrl}`, governorate , {headers : { 'content-type': 'application/json'}});
   }
 
-  deleteGovernorateById(id: number) {
+  /*deleteGovernorateById(id: number) {
     return this.http.delete(`${this.baseUrl}/${id}`);
-  }
+  }*/
 
   deleteSelectedGovernorates(governoratesId: number[]) {
-    return this.http.delete(`${this.baseUrl}/${GOVERNORATE_ENDPOINTS.BATCH_DELETE}/${governoratesId}`);
+    return this.http.delete(`${this.baseUrl}${GOVERNORATE_ENDPOINTS.BATCH_DELETE}/${governoratesId}`);
   }
 
 }

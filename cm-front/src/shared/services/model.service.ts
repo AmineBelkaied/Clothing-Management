@@ -4,7 +4,6 @@ import { Model } from 'src/shared/models/Model';
 import { environment } from '../../environments/environment';
 import { MODEL_ENDPOINTS } from '../constants/api-endpoints';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
-import { MessageService } from 'primeng/api';
 
 @Injectable({
   providedIn: 'root',
@@ -93,6 +92,7 @@ export class ModelService {
   }
 
   findAllModelsDTO(): Observable<Model[]> {
+    console.log("findAllModelsDTO");
     return this.http.get<Model[]>(`${this.baseUrl}`);
   }
 
@@ -117,6 +117,6 @@ export class ModelService {
   }
 
   deleteSelectedModels(modelsId: number[]) {
-    return this.http.delete(`${this.baseUrl}/${MODEL_ENDPOINTS.BATCH_DELETE}/${modelsId}`);
+    return this.http.delete(`${this.baseUrl}${MODEL_ENDPOINTS.BATCH_DELETE}/${modelsId}`);
   }
 }

@@ -26,6 +26,6 @@ export class UserService {
   }
 
   deleteAllUsersById(usersId: number[]) {
-    return this.http.delete(`${this.baseUrl}/${USER_ENDPOINTS.BATCH_DELETE}/${usersId}`);
+    return this.http.delete(`${this.baseUrl}${USER_ENDPOINTS.BATCH_DELETE}/${usersId}`);
   }
 }

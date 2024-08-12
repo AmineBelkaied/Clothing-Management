@@ -11,24 +11,17 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface OfferService {
-
-    //public List<OfferModelsDTO> findAllOffers() throws IOException;
-    //public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() throws IOException;
-    //public OfferModelQuantitiesDTO findOffersModelQuantitiesById(Long id) throws IOException;
-    public List<OfferDTO> getOffers() throws IOException;
-    public List<OfferModel> findOfferByFbPageId(Long fbPageId) throws IOException;
-
-    public Optional<Offer> findOfferById(Long idOffer);
-    public Offer findOfferByName(String name);
-    public OfferDTO addOffer(OfferDTO offerDTO);
-    public OfferDTO updateOffer(Offer offer);
-    public OfferDTO updateOfferData(long id, String name, double price,boolean enabled) throws Exception;
-    public OfferDTO updateOfferFbPages(long offerId,Set<FbPage> fbPages) throws Exception;
-    public OfferDTO updateOfferModels(long offerId, Set<OfferModelsDTO> modelQuantityList) throws Exception;
-
-    public void deleteOffer(Offer offer);
+    List<OfferDTO> getOffers();
+    List<OfferModel> findOfferByFbPageId(Long fbPageId) throws IOException;
+    Optional<Offer> findOfferById(Long idOffer);
+    Offer findOfferByName(String name);
+    OfferDTO addOffer(OfferDTO offerDTO);
+    OfferDTO updateOffer(Offer offer);
+    OfferDTO updateOfferData(long id, String name, double price,boolean enabled) throws Exception;
+    OfferDTO updateOfferFbPages(long offerId,Set<FbPage> fbPages) throws Exception;
+    OfferDTO updateOfferModels(long offerId, Set<OfferModelsDTO> modelQuantityList) throws Exception;
+    void deleteOffer(Offer offer);
     void deleteSelectedOffers(List<Long> offersId);
-
-    public void setDeletedByIds(List<Long> ids);
+    void setDeletedByIds(List<Long> ids);
 
 }

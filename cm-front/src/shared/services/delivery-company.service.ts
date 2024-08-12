@@ -28,9 +28,9 @@ export class DeliveryCompanyService {
     return this.http.get(`${this.baseUrl}`);
   }
 
-  findDeliveryCompanyById(id: number) {
+  /*findDeliveryCompanyById(id: number) {
     return this.http.get(`${this.baseUrl}/${id}`);
-  }
+  }*/
 
   addDeliveryCompany(deliveryCompany: DeliveryCompany) {
     return this.http.post(`${this.baseUrl}`, deliveryCompany , {observe: 'body'});
@@ -55,9 +55,9 @@ export class DeliveryCompanyService {
     return this.deliveryCompanySubscriber.asObservable();
   }
 
-  pushDeliveryCompany(deliveryCompany: DeliveryCompany){
+  /*pushDeliveryCompany(deliveryCompany: DeliveryCompany){
     this.deliveryCompanyList.push(deliveryCompany);
-  }
+  }*/
 
   spliceDeliveryCompany(updatedDeliveryCompany: any){
     let index = this.deliveryCompanyList.findIndex(deliveryCompany => deliveryCompany.id == updatedDeliveryCompany.id);

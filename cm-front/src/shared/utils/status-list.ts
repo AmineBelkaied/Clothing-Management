@@ -6,7 +6,6 @@ export const IN_PROGRESS_2 = 'En cours (2)';
 export const IN_PROGRESS_3 = 'En cours (3)';
 export const DELIVERED = 'Livrée';
 export const PAID = 'Payée';
-//export const RETOUR_EXPEDITEUR = 'Retour Expediteur';
 export const TO_VERIFY = 'A verifier';
 export const RETURN = 'Retour';
 export const RETURN_RECEIVED = 'Retour reçu';

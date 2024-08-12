@@ -68,12 +68,10 @@ import { AddSizeComponent } from './config/size/add-size/add-size.component';
 import { ListSizesComponent } from './config/size/list-sizes/list-sizes.component';
 import { ChartModule } from 'primeng/chart';
 import { ToggleButtonModule } from 'primeng/togglebutton';
-import { CityTreeService } from 'src/shared/services/cityTree.service';
 import { StatistiqueComponent } from './statistique/statistique.component';
 import { StockHistoryComponent } from './stock-history/stock-history.component';
 import { PaginatorModule } from 'primeng/paginator';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
 import { VerificationComponent } from './verification/verification.component';
 import { PickListModule } from 'primeng/picklist';
 import { GlobalConfComponent } from './config/global-conf/global-conf.component';
@@ -84,8 +82,6 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { AuthInterceptor } from 'src/shared/helpers/interceptor';
 import { UserComponent } from './config/user/user.component';
 import { PasswordModule } from 'primeng/password';
-import { SizeService } from 'src/shared/services/size.service';
-
 import 'tslib';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -93,8 +89,6 @@ import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { OfferService } from 'src/shared/services/offer.service';
-import { catchError, finalize, tap, throwError } from 'rxjs';
-import { GlobalConf } from 'src/shared/models/GlobalConf';
 
 @NgModule({
   declarations: [
@@ -124,7 +118,6 @@ import { GlobalConf } from 'src/shared/models/GlobalConf';
     StatistiqueComponent,
     StockHistoryComponent,
     PayedReturnComponent,
-    DashboardComponent,
     VerificationComponent,
     PayedReturnComponent,
     UserComponent,
@@ -182,7 +175,6 @@ import { GlobalConf } from 'src/shared/models/GlobalConf';
   providers: [
     MessageService,
     ConfirmationService,
-    CityTreeService,
     DatePipe,
     AuthGuard,
     GlobalConfService,

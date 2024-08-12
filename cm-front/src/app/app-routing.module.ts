@@ -10,12 +10,10 @@ import { StatistiqueComponent } from './statistique/statistique.component';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { Roles } from 'src/shared/enums/roles';
-import { DashboardComponent } from './dashboard/dashboard.component';
 import { VerificationComponent } from './verification/verification.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import 'tslib';
-import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 const routes: Routes = [
   { path: "", redirectTo: "/packets", pathMatch: "full" },
@@ -35,12 +33,10 @@ const routes: Routes = [
     }
   },
   {
-    path: "stock/:id", "component": StockComponent, canActivate: [AuthGuard], data: {
+    path: "stock", "component": StockComponent, canActivate: [AuthGuard], data: {
       role: [Roles.ADMIN, Roles.USER]
     }
   },
-  {
-    path: "stock", "component": StockComponent },
   { path: "sizes", "component": ListSizesComponent, canActivate: [AuthGuard], data: {
       role: [Roles.ADMIN]
     }
@@ -55,7 +51,6 @@ const routes: Routes = [
       role: [Roles.ADMIN,, Roles.USER]
     }
   },
-  { path: "dashboard", "component": DashboardComponent },
   { path: "verification", "component": VerificationComponent },
   {
     path: "packets", "component": ListPacketsComponent, canActivate: [AuthGuard], data: {

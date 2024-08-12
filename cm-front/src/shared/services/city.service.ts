@@ -10,13 +10,14 @@ import { CITY_ENDPOINTS } from '../constants/api-endpoints';
 })
 export class CityService {
 
-  private baseUrl: string = environment.baseUrl + `${CITY_ENDPOINTS.BASE}`;;
+  private baseUrl: string = environment.baseUrl + `${CITY_ENDPOINTS.BASE}`;
   public citys: City[] = [];
   private groupedCities: SelectItemGroup[] = [];
   public editMode = false;
 
   constructor(private http: HttpClient) {
   }
+
 
   findAllCitys() {
     return this.http.get(`${this.baseUrl}`);
@@ -26,9 +27,9 @@ export class CityService {
     return this.http.get(`${this.baseUrl}${CITY_ENDPOINTS.GROUPED_BY_GOVERNORATE}`);
   }
 
-  findCityById(id: number) {
+  /*findCityById(id: number) {
     return this.http.get(`${this.baseUrl}/${id}`);
-  }
+  }*/
 
   addCity(city: City) {
     return this.http.post(`${this.baseUrl}`, city , {observe: 'body'});
@@ -43,17 +44,17 @@ export class CityService {
   }
 
   deleteSelectedCities(citiesId: any[]) {
-    return this.http.delete(`${this.baseUrl}/${CITY_ENDPOINTS.BATCH_DELETE}/${citiesId}`);
+    return this.http.delete(`${this.baseUrl}${CITY_ENDPOINTS.BATCH_DELETE}/${citiesId}`);
   }
 
   adaptListToDropDown(groupedCities: any[]) {
-    for (var i = 0; i < groupedCities.length; i++) {
+    for (let i = 0; i < groupedCities.length; i++) {
       let groupedCity: SelectItemGroup = {
         label: groupedCities[i]?.governorate.name,
         value: groupedCities[i]?.governorate.id,
         items: []
       }
-      for (var j = 0; j < groupedCities[i].cities.length; j++) {
+      for (let j = 0; j < groupedCities[i].cities.length; j++) {
           let city: any = {
             label: groupedCities[i].cities[j].name,
             value: groupedCities[i].cities[j],
@@ -62,7 +63,7 @@ export class CityService {
           groupedCity.items.push(city);
       }
       this.groupedCities.push(groupedCity);
-    };
+    }
     return this.groupedCities;
   }
 

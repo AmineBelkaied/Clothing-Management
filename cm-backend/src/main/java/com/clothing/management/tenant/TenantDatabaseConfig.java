@@ -86,7 +86,7 @@ public class TenantDatabaseConfig {
         //properties.put(Environment.MULTI_TENANT, MultiTenancyStrategy.DATABASE);
         properties.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, connectionProvider);
         properties.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, tenantResolver);
-        properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+        properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
         properties.put(Environment.SHOW_SQL, false);
         properties.put(Environment.FORMAT_SQL, false);
         properties.put(Environment.HBM2DDL_AUTO, "none");

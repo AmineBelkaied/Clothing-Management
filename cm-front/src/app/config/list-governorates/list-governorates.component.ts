@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Governorate } from 'src/shared/models/Governorate';
 import { GovernorateService } from '../../../shared/services/governorate.service';
@@ -50,7 +50,7 @@ export class ListGovernoratesComponent implements OnInit,OnDestroy {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.governorateService.deleteSelectedGovernorates(selectedGovernoratesId).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(result => {
+          .subscribe(() => {
             this.governorates = this.governorates.filter((gouvernorate: Governorate) => selectedGovernoratesId.indexOf(gouvernorate.id) == -1);
             this.selectedGovernorates = [];
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les gouvernorats séléctionnées ont été supprimé avec succés', life: 1000 });
@@ -66,7 +66,7 @@ export class ListGovernoratesComponent implements OnInit,OnDestroy {
   onEditComplete($event: any) {
     if(JSON.stringify(this.oldGovernorate) != JSON.stringify($event.data)) {
       this.governorateService.updateGovernorate($event.data).pipe(takeUntil(this.$unsubscribe))
-      .subscribe(result => {
+      .subscribe(() => {
         console.log("governorate successfully updated !");
         this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'La gouvernorat a été mise à jour avec succés', life: 1000 });
       })

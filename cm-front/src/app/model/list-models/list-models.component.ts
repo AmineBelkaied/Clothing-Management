@@ -1,4 +1,3 @@
-import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { catchError, Subject, switchMap, take, takeUntil, tap, throwError } from 'rxjs';
@@ -48,10 +47,10 @@ export class ListModelsComponent implements OnInit, OnDestroy{
     private sizeService: SizeService,
     private colorService: ColorService
   ) {}
- 
+
   ngOnInit() {
     this.modelService
-      .findAllModelsDTO()
+      .getModelsSubscriber()
       .pipe(takeUntil(this.$unsubscribe))
       .pipe(
         tap((data: any) => {
@@ -129,7 +128,7 @@ export class ListModelsComponent implements OnInit, OnDestroy{
         this.modelService
           .deleteSelectedModels(selectedModelsId)
           .pipe(takeUntil(this.$unsubscribe))
-          .subscribe((result) => {
+          .subscribe(() => {
             this.models = this.models.filter(
               (val) => !this.selectedModels.includes(val)
             );
@@ -169,7 +168,7 @@ export class ListModelsComponent implements OnInit, OnDestroy{
         this.modelService
           .deleteModelById(model.id!)
           .pipe(takeUntil(this.$unsubscribe))
-          .subscribe((response: any) => {
+          .subscribe(() => {
             this.models = this.models.filter((val) => val.id !== model.id);
             this.model = Object.assign({}, this.model);
             this.messageService.add({

@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { Subject, of, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
 import { PacketValidationDTO } from 'src/shared/models/PacketValidationDTO';
-import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { PacketService } from 'src/shared/services/packet.service';
 import { StorageService } from 'src/shared/services/strorage.service';
-import { DateUtils } from 'src/shared/utils/date-utils';
 import { RETURN, VALIDATION } from 'src/shared/utils/status-list';
 
 @Component({
@@ -52,14 +50,14 @@ findAllConfirmedPackets(): void {
     this.sourceString = RETURN;
     this.targetString = "Retour Echange";
   }
-  this.packetService.findValidationPackets()
+  this.packetService.getValidationPackets()
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
       next: (response: any) => {
         this.packets = response.result;
 
         if(this.type == VALIDATION){
-          this.sourcePackets = this.packets.filter((packet: PacketValidationDTO) => packet.valid == false);
+          this.sourcePackets = this.packets.filter((packet: PacketValidationDTO) => !packet.valid);
           this.targetPackets = this.packets.filter((packet: PacketValidationDTO) => packet.valid);
         }
         else {
@@ -125,33 +123,49 @@ Validate(){
       return;
     }}
   }
-     this.packetService.validatePacket(this.barCode,this.type).subscribe(response => {
+  this.packetService.validatePacket(this.barCode, this.type).subscribe({
+    next: (response: any) => {
       // Handle the response here
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: "code à barre validé: " + this.barCode });
-      console.log('response',response);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: `code à barre validé: ${this.barCode}`
+      });
+      console.log('response', response);
 
-      if(this.type == VALIDATION){
-        const packetIndex = this.sourcePackets.findIndex((packet: PacketValidationDTO) => packet.barcode === this.barCode);
-        console.log("packetIndex",packetIndex);
-
-        if (packetIndex !== -1) {
-          // Remove the packet from sourcePackets
-          const [packet] = this.sourcePackets.splice(packetIndex, 1);
-          // Add the packet to targetPackets
-          this.targetPackets.push(packet);
-        }
+      if (this.type === VALIDATION) {
+        this.movePacketToTarget(this.barCode);
       }
 
-      //this.findAllConfirmedPackets();
-
-      this.barCode = "";
-    }, error => {
+      this.barCode = ""; // Reset the barcode after processing
+    },
+    error: (error: any) => {
       // Handle errors here
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la validation du barcode: '+ this.barCode });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `Erreur lors de la validation du barcode: ${this.barCode}`
+      });
       console.error(error);
-    });
-
+    },
+    complete: () => {
+      // Optional: Add logic for when the observable completes
+      console.log('Validation process completed.');
+    }
+  });
 }
+  private movePacketToTarget(barCode: string): void {
+    const packetIndex = this.sourcePackets.findIndex(
+      (packet: PacketValidationDTO) => packet.barcode === barCode
+    );
+    console.log("packetIndex", packetIndex);
+
+    if (packetIndex !== -1) {
+      // Remove the packet from sourcePackets and add it to targetPackets
+      const [packet] = this.sourcePackets.splice(packetIndex, 1);
+      this.targetPackets.push(packet);
+    }
+  }
 }
 
 

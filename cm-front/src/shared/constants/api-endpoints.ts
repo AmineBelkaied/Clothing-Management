@@ -15,7 +15,8 @@ export const PACKET_ENDPOINTS = {
     RELATED_PRODUCTS: '/related-products',
     CHECK_VALIDITY: '/check-validity',
     TIMELINE: '/timeline',
-    ATTEMPT: '/attempt'
+    ATTEMPT: '/attempt',
+    VALIDATION: '/validation-packets'
 };
 
 export const OFFER_ENDPOINTS = {

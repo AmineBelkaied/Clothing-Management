@@ -14,43 +14,41 @@ export class ProductHistoryService {
   constructor(private http: HttpClient) { }
 
   findAllProductsHistory(
-    modelId: any, 
-    page: number, 
-    size: number, 
-    colorSize?: string, 
-    beginDate?: any, 
+    modelId: any,
+    page: number,
+    size: number,
+    colorSize?: string,
+    beginDate?: any,
     endDate?: any
   ): Observable<any> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-  
+
     if (colorSize) {
       params = params.set('colorSize', colorSize);
     }
-  
+
     if (beginDate) {
       params = params.set('beginDate', beginDate);
-      // Set endDate to beginDate if endDate is undefined
       params = params.set('endDate', endDate || beginDate);
     }
-  
+
     return this.http.get(`${this.baseUrl}${PRODUCT_HISTORY_ENDPOINTS.BY_MODEL}/${modelId}`, { params });
   }
 
   findAll(modelId: any, colorSize?: string, beginDate?: any, endDate?: any): Observable<any> {
     let params = new HttpParams();
-  
+
     if (colorSize) {
       params = params.set('colorSize', colorSize);
     }
-  
+
     if (beginDate) {
       params = params.set('beginDate', beginDate);
-      // Set endDate to beginDate if endDate is undefined
       params = params.set('endDate', endDate || beginDate);
     }
-  
+
     return this.http.get(`${this.baseUrl}${PRODUCT_HISTORY_ENDPOINTS.BY_MODEL}/${modelId}`, { params });
   }
 
@@ -63,6 +61,6 @@ export class ProductHistoryService {
   }
 
   deleteProductsHistory(productsHistory: any[], modelId: number, page: number): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${PRODUCT_HISTORY_ENDPOINTS.BATCH_DELETE}/${modelId}?page=${page}`, productsHistory);
+    return this.http.post(`${this.baseUrl}${PRODUCT_HISTORY_ENDPOINTS.BATCH_DELETE}/${modelId}?page=${page}`, productsHistory);
   }
 }

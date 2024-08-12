@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { Observable, Subject, catchError, takeUntil } from 'rxjs';
+import { Subject, catchError, takeUntil } from 'rxjs';
 import { Size } from 'src/shared/models/Size';
 import { SizeService } from 'src/shared/services/size.service';
 
@@ -30,7 +30,7 @@ export class AddSizeComponent implements OnInit,OnDestroy {
       this.size.description = form.value.description;
       this.sizeService.updateSize(this.size)
       .pipe(
-        catchError((err: any, caught: Observable<any>): any => {
+        catchError((err: any): any => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
@@ -48,7 +48,7 @@ export class AddSizeComponent implements OnInit,OnDestroy {
     } else {
       this.sizeService.addSize(form.value)
       .pipe(
-        catchError((err: any, caught: Observable<any>): any => {
+        catchError((err: any): any => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',

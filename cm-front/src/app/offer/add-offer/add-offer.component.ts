@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { Model } from 'src/shared/models/Model';
 import { OfferService } from '../../../shared/services/offer.service';
 import { FbPage } from 'src/shared/models/FbPage';
@@ -27,8 +26,7 @@ export class AddOfferComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private offerService: OfferService,
-    public fbPageService: FbPageService,
-    private messageService: MessageService) {
+    public fbPageService: FbPageService) {
     this.offerForm = this.fb.group({
       id: "",
       name: '',
@@ -59,8 +57,8 @@ export class AddOfferComponent implements OnInit {
       this.offerForm.get('price')?.setValue(this.offer.price);
       this.offerForm.get('enabled')?.setValue(this.offer.enabled);
       this.offerForm.get('fbPages')?.setValue(this.offer.fbPages);
-      if(this.offer.offerModels != null && this.offer.offerModels.length > 0 )
-        for(var i=0 ; i < this.offer.offerModels.length ; i++) {
+      if(this.offer.offerModels.length > 0 )
+        for(let i=0 ; i < this.offer.offerModels.length ; i++) {
             this.addModelQuantity();
             this.modelQuantities().at(i).get('model')?.setValue(this.offer.offerModels[i].model);
             this.modelQuantities().at(i).get('quantity')?.setValue(this.offer.offerModels[i].quantity);

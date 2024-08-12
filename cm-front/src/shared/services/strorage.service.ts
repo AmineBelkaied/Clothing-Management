@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject} from 'rxjs';
 
 const USER_KEY = 'auth-user';
 const TENANT_NAME = 'tenant-name';
@@ -33,7 +33,7 @@ export class StorageService {
   public getUser(): any {
     const user = window.localStorage.getItem(USER_KEY);
    // console.log(user);
-    
+
     if (user) {
       return JSON.parse(user);
     }
@@ -50,21 +50,16 @@ export class StorageService {
   }
 
   public getUserName(): any {
-    return this.getUser().userName;  
+    return this.getUser().userName;
   }
 
   public getTenantName(): any {
-    const tenantName = window.localStorage.getItem(TENANT_NAME);
-    return tenantName;
+    return window.localStorage.getItem(TENANT_NAME);
   }
 
   public isUserLoggedIn(): boolean {
     const user = window.localStorage.getItem(USER_KEY);
-    if (user) {
-      return true;
-    }
-
-    return false;
+    return !!user;
   }
 
   public getRoles(): any {

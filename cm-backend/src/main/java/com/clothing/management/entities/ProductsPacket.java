@@ -34,12 +34,12 @@ public class ProductsPacket {
     @Column(name = "packet_offer_id")
     Long packetOfferId;
 
-    Integer status;
+    //Integer status;
     double profits;
 
     public ProductsPacket() {
         this.id = null;
-        this.status = 0;
+        //this.status = 0;
     }
 
     public ProductsPacket(ProductsPacket productPacket,Packet packet) {
@@ -47,7 +47,7 @@ public class ProductsPacket {
         this.product = productPacket.getProduct();
         this.packetOfferId = productPacket.getPacketOfferId();
         this.offer = productPacket.getOffer();
-        this.status = 0;
+        //this.status = 0;
     }
 
     public ProductsPacket(Product product, Packet packet, Offer offer, Long packetOfferId, double profits) {
@@ -64,7 +64,7 @@ public class ProductsPacket {
         this.packet = packet;
         this.offer = offer;
         this.packetOfferId = packetOfferId;
-        this.status = status;
+        //this.status = status;
     }
 
     public Long getId() {
@@ -107,13 +107,9 @@ public class ProductsPacket {
         this.packetOfferId = packetOfferId;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
+    //public Integer getStatus() { return status; }
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
+    //public void setStatus(Integer status) { this.status = status;}
 
     public double getProfits() {
         return profits;
@@ -131,7 +127,7 @@ public class ProductsPacket {
                 ", product=" + product.getId() +
                 ", offer=" + offer.getId() +
                 ", packetOfferId=" + packetOfferId +
-                ", status=" + status +
+                //", status=" + status +
                 ", profits=" + profits +
                 '}';
     }
@@ -144,12 +140,12 @@ public class ProductsPacket {
                 && product.getId().equals(that.product.getId())
                 && packet.getId().equals(that.packet.getId())
                 && offer.getId().equals(that.offer.getId())
-                && packetOfferId.equals(that.packetOfferId)
-                && Objects.equals(status, that.status);
+                && packetOfferId.equals(that.packetOfferId);
+                //&& Objects.equals(status, that.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, product, packet, offer, packetOfferId, status, profits);
+        return Objects.hash(id, product, packet, offer, packetOfferId, profits);
     }
 }

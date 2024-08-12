@@ -81,7 +81,7 @@ export class ListOffersComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.offerService.deleteSelectedOffers(selectedOffersId).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(result => {
+          .subscribe(() => {
             console.log("offers successfully deleted !");
             this.offers = this.offers.filter((offer: Offer) => selectedOffersId.indexOf(offer.id) == -1);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les offres séléctionnés ont été supprimé avec succés', life: 1000 });

@@ -1,6 +1,5 @@
-import { HttpEventType, HttpResponse } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, OnDestroy} from '@angular/core';
-import { Observable, Subject, Subscription, takeUntil } from 'rxjs';
+import { Component, Input, OnInit, OnDestroy} from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { Color } from 'src/shared/models/Color';
 import { Model } from 'src/shared/models/Model';
 import { Size } from 'src/shared/models/Size';
@@ -10,14 +9,7 @@ import { SizeService } from 'src/shared/services/size.service';
 
 @Component({
   selector: 'app-add-model',
-  templateUrl: './add-model.component.html',
-  styles: [`
-  :host ::ng-deep .p-dialog .product-image {
-      width: 150px;
-      margin: 0 auto 2rem auto;
-      display: block;
-  }
-`]
+  templateUrl: './add-model.component.html'
 })
 
 

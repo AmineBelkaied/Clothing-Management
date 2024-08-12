@@ -1,6 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
@@ -22,8 +20,7 @@ export class GlobalConfComponent implements OnInit, OnDestroy {
 
   constructor(
     public globalConfService: GlobalConfService,
-    private deliveryCompanyService: DeliveryCompanyService,
-    private messageService: MessageService) {
+    private deliveryCompanyService: DeliveryCompanyService) {
 
     }
 
@@ -41,7 +38,7 @@ export class GlobalConfComponent implements OnInit, OnDestroy {
     );
   }
 
-  addGlobalConf(form: NgForm) {
+  addGlobalConf() {
       this.globalConfService.setGlobalConfSubscriber(this.globalConf);
   }
 

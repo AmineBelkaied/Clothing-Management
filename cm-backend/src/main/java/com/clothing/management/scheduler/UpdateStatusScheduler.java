@@ -86,7 +86,7 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
         DBContextHolder.setCurrentDb(masterTenant.getDbName());
         packetService.deleteEmptyPacket();
 
-        List<Packet> packets = Collections.synchronizedList(packetService.findAllDiggiePackets());
+        List<Packet> packets = Collections.synchronizedList(packetService.findSyncPackets());
         synchronized (packets) {
             User currentUser = sessionUtils.getCurrentUser();
             for (Packet packet : packets) {

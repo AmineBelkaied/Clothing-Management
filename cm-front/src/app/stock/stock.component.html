@@ -34,7 +34,7 @@
               (keyup.enter)="getProductHistory()" />
             <p-calendar
               [(ngModel)]="rangeDates"
-              (ngModelChange)="dateFilterChange('date')"
+              (ngModelChange)="dateFilterChange()"
               selectionMode="range"
               dateFormat="dd/mm"
               [readonlyInput]="true"
@@ -75,7 +75,14 @@
     <div class="col" style="overflow-x: hidden;min-width:200px;max-width:300px;">
       <div class="card mt-2 mb-3" style="background-color: #fbfbfb">
         <div class="card-body">
-          <p-listbox [listStyle]="{'max-height': 'fit-content'}"  [options]="models" [(ngModel)]="selectedModel" optionLabel="name" [filter]="true" [routerLink]="['/stock', selectedModel!.id]"></p-listbox>
+          <div class="list-container" style="max-height: fit-content; overflow: auto;">
+            <ul>
+              <li *ngFor="let model of models" (click)="selectModel(model)"
+                  [class.selected]="model === selectedModel">
+                {{ model.name }}
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>

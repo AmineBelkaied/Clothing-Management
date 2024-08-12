@@ -1,6 +1,6 @@
 import { Component, OnInit , OnDestroy} from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { Subject, Subscription, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { Size } from 'src/shared/models/Size';
 import { SizeService } from 'src/shared/services/size.service';
 
@@ -37,7 +37,7 @@ export class ListSizesComponent implements OnInit, OnDestroy {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.sizeService.deleteSizeById(size.id).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(result => {
+          .subscribe(() => {
             this.sizes = this.sizes.filter(val => val.id !== size.id);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été supprimée avec succés", life: 1000 });
           })
@@ -47,6 +47,6 @@ export class ListSizesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.$unsubscribe.next();
-this.$unsubscribe.complete();
+    this.$unsubscribe.complete();
   }
 }

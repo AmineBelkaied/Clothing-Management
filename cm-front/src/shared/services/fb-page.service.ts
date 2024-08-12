@@ -37,7 +37,7 @@ export class FbPageService {
     }
     return this.fbPagesSubscriber.asObservable();
   }
-  
+
   findAllFbPages() : Observable<FbPage[]> {
     return this.http.get<FbPage[]>(`${this.baseUrl}`);
   }
@@ -45,7 +45,7 @@ export class FbPageService {
   setFbPagesConfSubscriber(fbPage:FbPage){
     this.updateFbPage(fbPage)
       .pipe(
-        catchError((err: any, caught: Observable<any>): any => {
+        catchError((err: any): any => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
@@ -53,7 +53,7 @@ export class FbPageService {
           });
         })
       )
-      .subscribe((result: any) => {
+      .subscribe(() => {
         this.pushFbPage(fbPage);
         this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page FB a été modifiée avec succés", life: 1000 });
       });
@@ -64,7 +64,7 @@ export class FbPageService {
   }
 
   addFbPage(fbPage: FbPage) {
-    return this.http.post(`${this.baseUrl}`, fbPage , {observe: 'body'});;
+    return this.http.post(`${this.baseUrl}`, fbPage , {observe: 'body'});
   }
 
   updateFbPage(fbPage: FbPage) {

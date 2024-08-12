@@ -1,7 +1,7 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Form, NgForm } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { Observable, Subject, catchError, takeUntil } from 'rxjs';
+import { Subject, catchError, takeUntil } from 'rxjs';
 import { Color } from 'src/shared/models/Color';
 import { ColorService } from 'src/shared/services/color.service';
 
@@ -30,7 +30,7 @@ export class AddColorComponent implements OnInit,OnDestroy {
       this.color.reference = form.value.reference;
       this.colorService.updateColor(this.color)
       .pipe(
-        catchError((err: any, caught: Observable<any>): any => {
+        catchError((err: any): any => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
@@ -48,7 +48,7 @@ export class AddColorComponent implements OnInit,OnDestroy {
     } else {
       this.colorService.addColor(form.value)
       .pipe(
-        catchError((err: any, caught: Observable<any>): any => {
+        catchError((err: any): any => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',

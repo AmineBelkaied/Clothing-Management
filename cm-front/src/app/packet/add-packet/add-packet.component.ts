@@ -3,7 +3,6 @@ import {
   Component,
   EventEmitter,
   Input,
-  model,
   OnInit,
   Output,
 } from '@angular/core';
@@ -21,9 +20,8 @@ import { Size } from 'src/shared/models/Size';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { OOS, NOT_CONFIRMED } from 'src/shared/utils/status-list';
 import { Offer } from 'src/shared/models/Offer';
-import { Packet } from 'src/shared/models/Packet';
 import { OfferService } from 'src/shared/services/offer.service';
-import { map, Subject, takeUntil, tap } from 'rxjs';
+import { Subject, takeUntil, tap } from 'rxjs';
 import { Product } from 'src/shared/models/Product';
 import { ProductService } from 'src/shared/services/product.service';
 import { DecimalPipe } from '@angular/common';
@@ -162,8 +160,8 @@ export class AddPacketComponent implements OnInit {
   //start set data block
   // edit mode after offer add (2)
   addSelectedModels(products: Product[], offerIndex: number): void {
-    if (products != null && products.length > 0)
-      for (var j = 0; j < products.length; j++) {
+    if (products.length > 0)
+      for (let j = 0; j < products.length; j++) {
         console.log('products['+j+']', products[j]);
         if (products[j].id != null && products[j].model?.id != null) {
           let selectedModel: Model = products[j].model!;
@@ -181,9 +179,9 @@ export class AddPacketComponent implements OnInit {
   setOfferModelsValues(offerIndex: number, offer: Offer): void {
     this.setOfferControlValues(this.offers().at(offerIndex), offer);
     let pos = 0;
-    for (var i = 0; i < offer.offerModels.length; i++) {
+    for (let i = 0; i < offer.offerModels.length; i++) {
       let selectedModel: Model = offer.offerModels[i].model;
-      for (var j = 0; j < offer.offerModels[i].quantity; j++) {
+      for (let j = 0; j < offer.offerModels[i].quantity; j++) {
         let selectedProduct: Product = this.getNoChoiceColorSizeProduct(selectedModel);
         this.pushModelToOffer(offerIndex, selectedModel, selectedProduct);
         pos++;
@@ -204,7 +202,7 @@ export class AddPacketComponent implements OnInit {
       (offer) => offer.id === offerId
     )!;
     if (offer) {
-      if (offer != null && offer.offerModels.length > 0) {
+      if (offer.offerModels.length > 0) {
         this.setOfferModelsValues(index, offer);
       }
       this.calculateProductsPrice();
@@ -293,12 +291,12 @@ export class AddPacketComponent implements OnInit {
   onSubmit(event: Event) {
     let packetGainCoefficient = 0;
     let packetPurshasePrice = 0;
-    let packetEarningCoefficient = 0;
+    let packetEarningCoefficient: number;
     let packet = this.packetForm.value;
-    for (var i = 0; i < packet.offers.length; i++) {
+    for (let i = 0; i < packet.offers.length; i++) {
       let offer: Offer = packet.offers[i];
-      if (offer.id != null && offer.id != undefined) {
-        if (offer.offerModels != null && offer.offerModels.length > 0) {
+      if (offer.id != null) {
+        if (offer.offerModels.length > 0) {
           offer.offerModels.forEach((model: Model) => {
             if (model) {
               packetGainCoefficient += model.earningCoefficient;
@@ -357,7 +355,7 @@ export class AddPacketComponent implements OnInit {
 
   submitProductsOffers(productsOffers: ProductsPacket[], stock: number) {
     console.log('start submit');
-    let selectedProducts = {};
+    let selectedProducts: {};
     let status = OOS;
     if (stock) status = NOT_CONFIRMED;
     selectedProducts = {
@@ -391,12 +389,12 @@ export class AddPacketComponent implements OnInit {
     this.colorSizeChoosen = true;
     this.productCount = 0;
 
-    for (var i = 0; i < packet.offers.length; i++) {
+    for (let i = 0; i < packet.offers.length; i++) {
       let offer: Offer = packet.offers[i];
       console.log('offer-' + i + ':', offer);
-      if (offer.id != null && offer.id != undefined) {
-        if (offer.offerModels != null && offer.offerModels.length > 0) {
-          for (var j = 0; j < offer.offerModels.length; j++) {
+      if (offer.id != null) {
+        if (offer.offerModels.length > 0) {
+          for (let j = 0; j < offer.offerModels.length; j++) {
             let model: Model = offer.offerModels[j];
             //create packet description
             this.addProductToPacketDescription(
@@ -464,7 +462,7 @@ export class AddPacketComponent implements OnInit {
   // edit mode after get offer (1)
   addSelectedOffer(offer: Offer): void {
     console.log(offer);
-    
+
     this.offers().push(
       this.fb.group({
         id: offer.id,
@@ -527,7 +525,7 @@ export class AddPacketComponent implements OnInit {
 
   calculateProductsPrice() {
     this.productsPrice = 0;
-    for (var i = 0; i < this.offers().length; i++) {
+    for (let i = 0; i < this.offers().length; i++) {
       this.productsPrice += this.offers().at(i).get('price')?.value;
     }
     this.calculatePacketPrice();

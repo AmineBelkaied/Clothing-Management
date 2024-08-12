@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Color } from 'src/shared/models/Color';
 import { ColorService } from '../../../../shared/services/color.service';
@@ -34,15 +34,13 @@ export class ListColorsComponent implements OnInit,OnDestroy {
   }
 
   deleteColor(color: any)  {
-    console.log("okkk");
-
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer la couleur séléctionnée ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.colorService.deleteColorById(color.id).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(result => {
+          .subscribe(() => {
             this.colors = this.colors.filter(val => val.id !== color.id);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La couleur a été supprimée avec succés", life: 1000 });
           })

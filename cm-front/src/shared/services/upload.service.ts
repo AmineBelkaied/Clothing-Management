@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpRequest, HttpHeaders, HttpEvent } from '@angular/common/http';
+import { HttpClient, HttpRequest, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -30,10 +30,10 @@ export class UploadFileService {
   }
 
   getImage(modelId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/download/` +  modelId, 
+    return this.http.get(`${this.baseUrl}/download/` +  modelId,
     {
       observe: 'response',
-      responseType: 'blob' 
+      responseType: 'blob'
   });
   }
 }

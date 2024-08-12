@@ -27,10 +27,11 @@ public class PacketDTO {
     private String printLink;
     private boolean valid;
     private Integer stock;
-    private String note;
     private Integer productCount;
     private Long exchangeId;
     private boolean haveExchange;
+
+    private List<Note> notes;
 
     public PacketDTO() {
     }
@@ -58,6 +59,7 @@ public class PacketDTO {
             this.deliveryCompany=packet.getDeliveryCompany();
             this.haveExchange=packet.isHaveExchange();
             this.productCount=packet.getProductCount();
+            this.notes = packet.getNotes();
     }
 
     private int getStock(List<ProductsPacket> productsPackets, String barcode){
@@ -250,14 +252,6 @@ public class PacketDTO {
         this.stock = stock;
     }
 
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
     public Integer getProductCount() {
         return productCount;
     }
@@ -272,5 +266,13 @@ public class PacketDTO {
 
     public void setHaveExchange(boolean haveExchange) {
         this.haveExchange = haveExchange;
+    }
+
+    public List<Note> getNotes() {
+        return notes;
+    }
+
+    public void setNotes(List<Note> notes) {
+        this.notes = notes;
     }
 }

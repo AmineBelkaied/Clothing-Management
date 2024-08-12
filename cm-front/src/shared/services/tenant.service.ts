@@ -17,9 +17,6 @@ export class TenantService {
   constructor(private http: HttpClient, private storageService: StorageService) { }
 
   upload(file: File): Observable<HttpEvent<any>> {
-    //console.log("cwxcwc");
-    //console.log(file);
-
     const formData: any = new FormData();
 
     formData.append('file', file);
@@ -34,10 +31,10 @@ export class TenantService {
     return this.http.get(this.endPoint + "/add/" + tenantName);
   }
 
-  findAllTenants() {
+  /*findAllTenants() {
     return this.http.get(this.endPoint + "/findAll/", this.httpOptions);
   }
-/*
+
   getFiles(): Observable<any> {
     return this.http.get(`${this.baseUrl}/files`);
   } */

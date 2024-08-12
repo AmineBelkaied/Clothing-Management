@@ -26,7 +26,6 @@ export interface Packet {
     printLink?:String;
     valid?: boolean;
     stock?: number;
-    attempt?: number;
     notes?: Note[];
     lastNote?: Note;
     note?: String;

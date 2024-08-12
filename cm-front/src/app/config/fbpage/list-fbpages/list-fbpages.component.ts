@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { Subject, Subscription, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from 'src/shared/services/fb-page.service';
 
@@ -47,7 +47,7 @@ export class ListFbpagesComponent implements OnInit,OnDestroy {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.fbPageService.deleteFbPageById(fbPage.id).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(result => {
+          .subscribe(() => {
             this.fbPages = this.fbPages.filter(val => val.id !== fbPage.id);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page faecbook a été supprimée avec succés", life: 1000 });
           })

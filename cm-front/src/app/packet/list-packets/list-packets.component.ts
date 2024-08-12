@@ -9,12 +9,11 @@ import { Table, TableRowSelectEvent } from 'primeng/table';
 import { CityService } from '../../../shared/services/city.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../../../shared/services/fb-page.service';
-import { catchError, Observable, of, Subject,takeUntil} from 'rxjs';
-import { Offer } from 'src/shared/models/Offer';
+import { catchError, EMPTY, Observable, Subject,takeUntil} from 'rxjs';
 import { StorageService } from 'src/shared/services/strorage.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { CANCELED, OOS, NOT_SERIOUS, PROBLEME,
-  DELETED, TERMINE, statesList, statusList,
+  DELETED, statesList, statusList,
   IN_PROGRESS_1,
   IN_PROGRESS_2,
   IN_PROGRESS_3,
@@ -118,7 +117,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       title: "Tous",
       badge: 0,
       badgeByDate: 0,
-      command: (event: any) => {
+      command: () => {
       },
       disabled: true
     },
@@ -127,7 +126,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       title: OOS,
       badge: 0,
       badgeByDate: 0,
-      command: (event: any) => {
+      command: () => {
       }
     },
     {
@@ -135,7 +134,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       title: NOT_CONFIRMED,
       badge: 0,
       badgeByDate: 0,
-      command: (event: any) => {
+      command: () => {
       }
     },
     {
@@ -144,48 +143,38 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       icon: 'pi-power-off',
       badge: 0,
       badgeByDate: 0,
-      command: (event: any) => {
+      command: () => {
       }
     },
     {
       label: CONFIRMED,
       title: CONFIRMED,
       badge: 0,
-      badgeByDate: 0,
-      command:
-        (event: any) => {
-        }
+      badgeByDate: 0
     },
     {
       label: IN_PROGRESS,
       title: IN_PROGRESS,
       badge: 0,
-      badgeByDate: 0,
-      command: (event: any) => {
-      },
+      badgeByDate: 0
     },
     {
       label: RETURN,
       title: RETURN,
       badge: 0,
-      badgeByDate: 0,
-      command: (event: any) => {
-      }
+      badgeByDate: 0
     },
     {
       label: CANCELED,
       title: CANCELED,
       badge: 0,
-      badgeByDate: 0,
-      command: (event: any) => {
-      }
+      badgeByDate: 0
     },
     {
       label: 'Terminé',
       title: 'Terminé',
       badge: 0,
-      badgeByDate: 0,
-      command: (event: any) => { }
+      badgeByDate: 0
     }
   ];
   showStatus: boolean = false;
@@ -193,7 +182,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   oldActiveIndex: number = 2;
 
   @ViewChild('dt') dt: Table;
-  private readonly reg: RegExp = /,/gi;
+  //private readonly reg: RegExp = /,/gi;
   regBS = /\n/gi;
   private readonly FIRST: string = 'FIRST';
   countCanceled: number = 0;
@@ -211,10 +200,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     { label: 'Space used', value: 15, color: '#34d399' }
   ];
   selectedField: keyof Packet;
-  reasonOptions: { label: string, value: string }[] = [];
-  selectedReason: string;
   explanation: string;
-  readonly explanationSuffix: string = ' : ';
   clientReasons: any[];
   note: Note = {
     date: new Date()
@@ -342,60 +328,62 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     }
   }
 
-  patchPacketService(packet : Packet) {
-      let updatedField;
-      if(this.selectedField ==='city')
-        updatedField = { [this.selectedField]: packet.city?.id };
-      else if(this.selectedField ==='fbPage')
-        updatedField = { [this.selectedField]: packet.fbPage?.id };
-      else if(this.selectedField ==='date')
-        updatedField = { [this.selectedField]: this.onDateSelect(packet.date) };
-      else
-        updatedField = { [this.selectedField]: packet[this.selectedField] };
+  patchPacketService(packet: Packet) {
+    let updatedField;
+    if (this.selectedField === 'city')
+      updatedField = { [this.selectedField]: packet.city?.id };
+    else if (this.selectedField === 'fbPage')
+      updatedField = { [this.selectedField]: packet.fbPage?.id };
+    else if (this.selectedField === 'date')
+      updatedField = { [this.selectedField]: this.onDateSelect(packet.date) };
+    else
+      updatedField = { [this.selectedField]: packet[this.selectedField] };
 
-      let status = packet.status;
-      this.packetService.patchPacket(packet.id!, updatedField)
-        .pipe(
-          catchError((err: any, caught: Observable<any>): Observable<any> => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating packet ' + err.error.message });
-            const packetIndex = this.packets.findIndex((p: any) => p.id === packet.id);
-            if (packetIndex !== -1) {
-              this.packets[packetIndex][this.selectedField] = this.oldFieldValue;
-            }
-            this.loading = false;
-            return of();
-          })
-        )
-        .subscribe({
-          next: (responsePacket: any) => {
-            let msg = "Packet updated successfully";
-            if (this.selectedField === 'status') {
-              this.createNotification();
-            }
-            if (packet.stock! < 10 && this.selectedField === 'status' && ((status === CONFIRMED && responsePacket.barcode != null) || status === CANCELED || status === RETURN_RECEIVED)) {
-              this.getLastStock(packet.id!);
-            }
-            if (this.selectedField === 'status' && status === CONFIRMED && responsePacket.barcode != null) {
-              this.updatePacketFields(responsePacket);
-              msg ='Barcode created successfully';
-              //this.statusItems[3].badge += 1;
-            } else if (responsePacket.oldClient !== undefined && this.selectedField === 'customerPhoneNb') {
-
-              const packetIndex = this.packets.findIndex((p: Packet) => p.id === responsePacket.id);
-              if (packetIndex !== -1) {
-                this.packets[packetIndex].oldClient = responsePacket.oldClient;
-                msg ='Phone number updated successfully';
-              }
-            }
-
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
-            this.loading = false;
-          },
-          error: () => {
-            this.loading = false;
+    let status = packet.status;
+    this.packetService.patchPacket(packet.id!, updatedField)
+      .pipe(
+        catchError((err: any): Observable<any> => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating packet ' + err.error.message });
+          const packetIndex = this.packets.findIndex((p: any) => p.id === packet.id);
+          if (packetIndex !== -1) {
+            this.packets[packetIndex][this.selectedField] = this.oldFieldValue;
           }
-        });
+          this.loading = false;
+          // Return an EMPTY observable to indicate that the observable chain should terminate gracefully
+          return EMPTY;
+        })
+      )
+      .subscribe({
+        next: (responsePacket: any) => {
+          let msg = "Packet updated successfully";
+          if (this.selectedField === 'status') {
+            this.createNotification();
+          }
+          if (packet.stock! < 10 && this.selectedField === 'status' && ((status === CONFIRMED && responsePacket.barcode != null) || status === CANCELED || status === RETURN_RECEIVED)) {
+            this.getLastStock(packet.id!);
+          }
+          if (this.selectedField === 'status' && status === CONFIRMED && responsePacket.barcode != null) {
+            this.updatePacketFields(responsePacket);
+            msg = 'Barcode created successfully';
+            //this.statusItems[3].badge += 1;
+          } else if (responsePacket.oldClient !== undefined && this.selectedField === 'customerPhoneNb') {
+
+            const packetIndex = this.packets.findIndex((p: Packet) => p.id === responsePacket.id);
+            if (packetIndex !== -1) {
+              this.packets[packetIndex].oldClient = responsePacket.oldClient;
+              msg = 'Phone number updated successfully';
+            }
+          }
+
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
+      });
   }
+
 
   onDateSelect(event: any) {
     // Manually set the hours to 3 AM, minutes, and seconds to zero
@@ -448,7 +436,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.packetService.getLastStatus(packet.id!)
       .subscribe({
           next: (response: any) => {//correction Packet
-            this.updatePacketFields(response)
+            this.updatePacketFields(response);
             this.createNotification();
           },
           error : (error: Error) => {
@@ -476,15 +464,24 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.packets[X].price = packet.price;
       this.packets[X].deliveryPrice = packet.deliveryPrice;
       this.packets[X].discount = packet.discount;
-      this.packets[X].attempt=packet.attempt;
     }
   }
 
-  addAttempt(packet: Packet, status: string): void {
+  addAttempt(status: string,packet?: Packet): void {
+
     this.noteActionStatus = status;
-    this.selectedPacket = packet;
+    if( status == 'DELETED' ){
+      let index = this.selectedPackets.findIndex((selectedPacket: Packet) => selectedPacket.barcode == null || selectedPacket.barcode == "");
+      console.log("index",index);
+
+      if (index > -1) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please do not delete outgoing packets' });
+        return;
+      }
+    }
+
+    if(packet)this.selectedPacket = packet;
     this.clientReasons = this.getReasonOptionsByStatus(status);
-    this.visibleNote = true;
     this.explanationTitle = '';
     this.explanation = '';
     this.note = {
@@ -497,26 +494,39 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       clientReason.text = true
       clientReason.outlined = false
     });
+    this.visibleNote = true;
   }
 
   confirmNote() {
     this.note.date = new Date();
     this.note.explanation = StringUtils.isStringValid(this.explanation) ? this.explanationTitle + ' : ' + this.explanation : this.explanationTitle;
-    /* if (this.note.trim() !== '')  // Check if value is not empty
-       {
-         this.confirmEvent.emit(this.note);
-         note = this.note;
-       }*/
+    console.log("this.noteActionStatus",this.noteActionStatus);
     switch (this.noteActionStatus) {
       case 'DELETED': {
         let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id!);
-        this.packetService
-          .deleteSelectedPackets(selectedPacketsByIds)
-          .subscribe(() => {
-            this.packets = this.packets.filter((packet: Packet) => selectedPacketsByIds.indexOf(packet.id!) == -1);
+        this.packetService.deleteSelectedPackets(selectedPacketsByIds, this.note).subscribe({
+          next: () => {
+            // Handle successful response
+            this.packets = this.packets.filter(packet => !selectedPacketsByIds.includes(packet.id!));
             this.selectedPackets = [];
-            this.messageService.add({ severity: 'success', summary: 'Succés', detail: 'Les commandes séléctionnées ont été supprimé avec succés', life: 1000 });
-          });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Succès',
+              detail: 'Les commandes sélectionnées ont été supprimées avec succès',
+              life: 1000
+            });
+          },
+          error: (err:any) => {
+            // Handle error response
+            console.error('Error:', err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'Une erreur est survenue lors de la suppression des commandes',
+              life: 1000
+            });
+          }
+        });
         break;
       }
       case 'UNREACHABLE': {
@@ -526,7 +536,20 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
               this.updatePacketFields(response, 'ADD_NOTE_ACTION');
               this.messageService.add({ severity: 'info', summary: 'Success', detail: 'La note a été ajoutée avec succés', life: 1200 });
             },
-            error: (error: Error) => {
+            error: () => {
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: "Une erreur est survenue lors de l'ajout de la note", life: 1200 });
+            }
+          });
+          break;
+      }
+      case 'CANCELED': {
+        this.packetService.addAttempt(this.note, this.selectedPacket.id!)
+          .subscribe({
+            next: (response: any) => {
+              this.updatePacketFields(response, 'ADD_NOTE_ACTION');
+              this.messageService.add({ severity: 'info', summary: 'Success', detail: 'La note a été ajoutée avec succés', life: 1200 });
+            },
+            error: () => {
               this.messageService.add({ severity: 'error', summary: 'Error', detail: "Une erreur est survenue lors de l'ajout de la note", life: 1200 });
             }
           });
@@ -588,7 +611,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   addNewRow(): void {
     if (this.activeIndex != 2)
       this.onActiveIndexChange(2);
-    if (this.loading == false) {
+    if (!this.loading) {
       //this.activeIndex=2;
       this.loading = true;
       this.packetService
@@ -613,7 +636,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   deleteSelectedPackets(): void {
-    this.addAttempt(this.selectedPackets[0], 'DELETED');
+    this.addAttempt('DELETED');
   }
 
   loadOfferListAndOpenOffersDialog(packet: Packet,editMode:boolean): void {
@@ -671,8 +694,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       page = this.currentPage;
     if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
 
-    if (this.filter !== '' && this.filter !== undefined)
-      { this.oldActiveIndex = this.activeIndex;this.activeIndex = 0;console.log("filter:",this.filter);
+    if (this.filter !== '')
+      { this.oldActiveIndex = this.activeIndex;this.activeIndex = 0;
     }
 
     this.params = {
@@ -727,11 +750,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   getValue(fieldName: any): string {
-    return fieldName != null && fieldName != undefined ? fieldName : '';
+    return fieldName != null ? fieldName : '';
   }
 
   isValid(field: any) {
-    return field != null && field != undefined && field != '';
+    return field != null && field != '';
   }
 
   trackByFunction = (index: any, item: { id: any }) => {
@@ -763,11 +786,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   checkCodeABarreExist(packet:Packet){
-    return packet!= undefined && packet.barcode !="" && packet.barcode!= null
+    return packet.barcode != "" && packet.barcode!= null
   }
 
   checkPhoneNbExist(packet:Packet){
-    return packet!= undefined && packet.customerPhoneNb !="" && packet.customerPhoneNb!= null
+    return packet.customerPhoneNb !="" && packet.customerPhoneNb!= null
   }
 
   mandatoryDateChange(){
@@ -949,15 +972,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     let errorMessage: string | undefined = undefined;
 
     switch (status) {
-      case DELETED:
-        if (barcode != null && barcode !== "") {
-          errorMessage = 'Please do not delete outgoing packets';
-        }
-        break;
       case CANCELED:
         if (this.oldFieldValue !== CONFIRMED && this.oldFieldValue !== TO_VERIFY && this.oldFieldValue !== DELETED) {
           errorMessage = 'Please do not cancel outgoing packets';
-        }else this.addAttempt(packet, 'DELETED');
+        }else if(barcode != null && barcode !== "") this.addAttempt('CANCELED',packet);
         break;
       case NOT_CONFIRMED:
       case OOS:
@@ -969,7 +987,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       case IN_PROGRESS_1:
       case IN_PROGRESS_2:
       case IN_PROGRESS_3:
-      case CANCELED:
       case DELIVERED:
       case RETURN:
       case RETURN_RECEIVED:
@@ -1130,7 +1147,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: DashboardCard[]) => {
-          if (response != null && response.length > 0) {
+          if (response.length > 0) {
             response.forEach((element: any) => {
 
               switch (element.status) {
@@ -1214,7 +1231,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           icon: 'pi pi-refresh',
           disabled:packet.status!=UNREACHABLE,
           command: () => {
-            this.addAttempt(packet, 'UNREACHABLE')
+            this.addAttempt('UNREACHABLE',packet)
           }
         },
         {
@@ -1248,7 +1265,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           icon: 'pi pi-search-plus',
           disabled:!this.checkPhoneNbExist(packet),
           command: () => {
-            this.openLinkGetter(packet.customerPhone,packet.deliveryCompany);
+            this.openLinkGetter(packet.customerPhoneNb,packet.deliveryCompany);
           }
         },
         {

@@ -16,7 +16,6 @@ export class OfferService {
   public offers: Offer[] = [];
   public offer: Offer;
   private baseUrl: string = environment.baseUrl + `${OFFER_ENDPOINTS.BASE}`;
-  //public offersDTO: Offer[] = [];
 
   constructor(private http: HttpClient) { }
 
@@ -34,7 +33,7 @@ export class OfferService {
     )
   }
   findAllOffersDTO() : Observable<Offer[]>{
-    return this.http.get<Offer[]>(this.baseUrl + "/offersDTO");
+    return this.http.get<Offer[]>(`${this.baseUrl}`);
   }
 
   getOffersSubscriber(): Observable<Offer[]> {
@@ -53,9 +52,9 @@ cleanOffre() {
     this.offerSubscriber.next(offer);
   }
 
-  findAllOffers() {
+  /*findAllOffers() {
     return this.http.get(`${this.baseUrl}`);
-  }
+  }*/
 
 
   findOffersByFbPageId(id: number) : Observable<Offer[]>{
@@ -99,16 +98,12 @@ cleanOffre() {
   }
 
   deleteSelectedOffers(offersId: number[]) {
-    return this.http.delete(`${this.baseUrl}/${OFFER_ENDPOINTS.BATCH_DELETE}/${offersId}`);
+    return this.http.delete(`${this.baseUrl}${OFFER_ENDPOINTS.BATCH_DELETE}/${offersId}`);
   }
 
   spliceOffer(){
-    console.log('this.offer',this.offer);
-    console.log('this.offers0',this.offers);
     let index = this.offers.findIndex(offer => offer.id == this.offer.id);
-    console.log('index',index);
     this.offers.splice(index , 1 , this.offer);
-    console.log('this.offers',this.offers);
     this.offersSubscriber.next(this.offers);
   }
 
