@@ -3,6 +3,7 @@ package com.clothing.management.servicesImpl;
 import com.clothing.management.dto.GroupedCitiesDTO;
 import com.clothing.management.entities.City;
 import com.clothing.management.entities.Governorate;
+import com.clothing.management.exceptions.custom.notfound.GovernorateNotFoundException;
 import com.clothing.management.repository.ICityRepository;
 import com.clothing.management.repository.IGovernorateRepository;
 import com.clothing.management.services.CityService;
@@ -36,12 +37,11 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public City addCity(City city) {
-        Optional<Governorate> governorate = governorateRepository.findById(city.getGovernorate().getId());
-        if(governorate.isPresent()) {
-            city.setGovernorate(governorate.get());
-            return cityRepository.save(city);
-        }
-        return null;
+        governorateRepository.findById(city.getGovernorate().getId())
+                .ifPresentOrElse(city::setGovernorate, () -> {
+                    throw new GovernorateNotFoundException(city.getGovernorate().getId(), city.getGovernorate().getName());
+                });
+        return cityRepository.save(city);
     }
 
     @Override

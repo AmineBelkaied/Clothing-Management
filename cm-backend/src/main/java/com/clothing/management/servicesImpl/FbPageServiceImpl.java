@@ -1,10 +1,9 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.entities.FbPage;
-import com.clothing.management.repository.IDeliveryCompanyRepository;
+import com.clothing.management.exceptions.custom.alreadyexists.FbPageAlreadyExistsException;
 import com.clothing.management.repository.IFbPageRepository;
 import com.clothing.management.services.FbPageService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,10 +16,10 @@ public class FbPageServiceImpl implements FbPageService {
 
     private final IFbPageRepository fbPageRepository;
 
-    @Autowired
     public FbPageServiceImpl(IFbPageRepository fbPageRepository) {
         this.fbPageRepository = fbPageRepository;
     }
+
     @Override
     public List<FbPage> findAllFbPages() {
         return fbPageRepository.findAll();
@@ -33,6 +32,9 @@ public class FbPageServiceImpl implements FbPageService {
 
     @Override
     public FbPage addFbPage(FbPage fbPage) {
+        if (findFbPageById(fbPage.getId()).isPresent()) {
+            throw new FbPageAlreadyExistsException(fbPage.getId(), fbPage.getName());
+        }
         return fbPageRepository.save(fbPage);
     }
 

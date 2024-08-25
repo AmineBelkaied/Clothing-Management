@@ -1,6 +1,8 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.entities.Size;
+import com.clothing.management.exceptions.custom.alreadyexists.ColorAlreadyExistsException;
+import com.clothing.management.exceptions.custom.alreadyexists.SizeAlreadyExistsException;
 import com.clothing.management.repository.ISizeRepository;
 import com.clothing.management.services.SizeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,23 +28,31 @@ public class SizeServiceImpl implements SizeService {
     }
 
     @Override
-    public Size addSize(Size size) throws Exception {
-        Size sizeByReference = sizeRepository.findByReference(size.getReference());
-        if(sizeByReference != null)
-            throw new Exception("Cette référence existe déjà");
+    public Optional<Size> findSizeByReference(String reference) {
+        return sizeRepository.findByReferenceIsIgnoreCase(reference);
+    }
+
+    @Override
+    public Size addSize(Size size) {
+        checkSizeExistence(size.getReference());
         return sizeRepository.save(size);
     }
 
     @Override
-    public Size updateSize(Size size) throws Exception {
-        Size sizeByReference = sizeRepository.findByReference(size.getReference());
-        if(sizeByReference != null)
-            throw new Exception("Cette référence existe déjà");
+    public Size updateSize(Size size) {
+        checkSizeExistence(size.getReference());
         return sizeRepository.save(size);
     }
 
     @Override
     public void deleteSizeById(Long idSize) {
         sizeRepository.deleteById(idSize);
+    }
+
+    private void checkSizeExistence(String reference) {
+        findSizeByReference(reference)
+                .ifPresent(existingSize -> {
+                    throw new SizeAlreadyExistsException(existingSize.getId(), existingSize.getReference());
+                });
     }
 }

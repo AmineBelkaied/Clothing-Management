@@ -5,13 +5,13 @@ import com.clothing.management.entities.Color;
 import com.clothing.management.entities.Model;
 import com.clothing.management.entities.Product;
 import com.clothing.management.entities.Size;
+import com.clothing.management.exceptions.custom.alreadyexists.ModelAlreadyExistsException;
 import com.clothing.management.repository.IColorRepository;
 import com.clothing.management.repository.IModelRepository;
 import com.clothing.management.repository.IProductRepository;
 import com.clothing.management.repository.ISizeRepository;
 import com.clothing.management.services.ModelService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +25,7 @@ public class ModelServiceImpl implements ModelService {
     private final IColorRepository colorRepository;
     private final ISizeRepository sizeRepository;
     private final IProductRepository productRepository;
-
-    @Autowired
+    
     public ModelServiceImpl(IModelRepository modelRepository, IColorRepository colorRepository,
                             ISizeRepository sizeRepository, IProductRepository productRepository) {
         this.modelRepository = modelRepository;
@@ -47,10 +46,15 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public Model saveModel(Model model) {
-            model  = modelRepository.save(model);
-            model  = addUnknownColorsAndSizes(model);
-            // Generate products
-            generateModelProducts(model);
+        modelRepository.findByNameIsIgnoreCase(model.getName())
+                .ifPresent(existingModel -> {
+                    throw new ModelAlreadyExistsException(existingModel.getId(), existingModel.getName());
+                });
+        model = modelRepository.save(model);
+        model = addUnknownColorsAndSizes(model);
+        // Generate products
+        generateModelProducts(model);
+        
         return model;
     }
 
@@ -58,9 +62,9 @@ public class ModelServiceImpl implements ModelService {
     public Model generateModelProducts(Model model) {
         try {
             // Generate products
-            if(model.getColors().size() > 0) {
+            if(!model.getColors().isEmpty()) {
                 for(Color color : model.getColors()) {
-                    if(model.getSizes().size() > 0) {
+                    if(!model.getSizes().isEmpty()) {
                         for(Size size : model.getSizes()) {
                             Product product1 = productRepository.findByModelAndColorAndSize(model.getId(), color.getId(), size.getId());
                             if( product1 == null) {
@@ -79,12 +83,13 @@ public class ModelServiceImpl implements ModelService {
         //deleteUnusedProducts(model);
         return model;
     }
+
     private Model addUnknownColorsAndSizes(Model model) {
         return modelRepository.findById(model.getId()).map(existingModel -> {
             if (existingModel.getColors().stream().noneMatch(color -> color.getReference().equals("?"))
                     && existingModel.getSizes().stream().noneMatch(size -> size.getReference().equals("?"))) {
-                existingModel.getColors().add(colorRepository.findByReference("?"));
-                existingModel.getSizes().add(sizeRepository.findByReference("?"));
+                existingModel.getColors().add(colorRepository.findByReferenceIsIgnoreCase("?").get());
+                existingModel.getSizes().add(sizeRepository.findByReferenceIsIgnoreCase("?").get());
             }
             return modelRepository.save(existingModel);
         }).orElse(model);

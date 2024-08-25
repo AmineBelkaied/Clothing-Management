@@ -1,7 +1,7 @@
 package com.clothing.management.auth.util;
 
 import com.clothing.management.entities.User;
-import com.clothing.management.exceptions.UserNotAuthenticatedException;
+import com.clothing.management.exceptions.custom.others.UserNotAuthenticatedException;
 import com.clothing.management.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
