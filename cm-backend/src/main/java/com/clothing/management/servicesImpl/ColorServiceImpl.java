@@ -1,6 +1,7 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.entities.Color;
+import com.clothing.management.exceptions.custom.alreadyexists.ColorAlreadyExistsException;
 import com.clothing.management.repository.IColorRepository;
 import com.clothing.management.services.ColorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,20 +31,19 @@ public class ColorServiceImpl implements ColorService {
     }
 
     @Override
-    public Color addColor(Color color) throws Exception {
-        try {
-            Optional.ofNullable(colorRepository.findByReference(color.getReference()))
-                    .ifPresent(existingColor -> {
-                        throw new RuntimeException("Cette référence existe déjà");
-                    });
-            return colorRepository.save(color);
-        } catch (RuntimeException e) {
-            throw new Exception(e.getMessage());
-        }
+    public Optional<Color> findColorByName(String name) {
+        return colorRepository.findByNameIsIgnoreCase(name);
     }
 
     @Override
-    public Color updateColor(Color color){
+    public Color addColor(Color color) {
+        checkColorExistence(color.getName());
+        return colorRepository.save(color);
+    }
+
+    @Override
+    public Color updateColor(Color color) {
+        checkColorExistence(color.getName());
         return colorRepository.save(color);
     }
 
@@ -55,5 +55,12 @@ public class ColorServiceImpl implements ColorService {
     @Override
     public void deleteColorById(Long idColor) {
         colorRepository.deleteById(idColor);
+    }
+
+    private void checkColorExistence(String name) {
+        findColorByName(name)
+                .ifPresent(existingColor -> {
+                    throw new ColorAlreadyExistsException(existingColor.getId(), existingColor.getName());
+                });
     }
 }

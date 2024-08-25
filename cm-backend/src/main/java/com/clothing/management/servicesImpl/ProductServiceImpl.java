@@ -6,7 +6,7 @@ import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.*;
-import com.clothing.management.exceptions.ProductNotFoundException;
+import com.clothing.management.exceptions.custom.notfound.ProductNotFoundException;
 import com.clothing.management.repository.IModelRepository;
 import com.clothing.management.repository.IOfferRepository;
 import com.clothing.management.repository.IProductHistoryRepository;
@@ -138,7 +138,7 @@ public class ProductServiceImpl implements ProductService {
             updateIdStockList.getProductsId().forEach(productId -> {
                 // Find the product by its ID
                 Product product = findProductById(productId)
-                        .orElseThrow(() -> new ProductNotFoundException("The product does not exist!"));
+                        .orElseThrow(() -> new ProductNotFoundException(productId));
 
             product.setQuantity(product.getQuantity() + updateIdStockList.getQte());
             updateProduct(product);

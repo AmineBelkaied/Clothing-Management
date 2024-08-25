@@ -7,9 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ISizeRepository extends JpaRepository<Size, Long> {
 
-    @Query("SELECT s FROM Size s where s.reference = :sizeRef")
-    Size findByReference(@Param("sizeRef") String sizeRef);
+    Optional<Size> findByReferenceIsIgnoreCase(String sizeRef);
 }

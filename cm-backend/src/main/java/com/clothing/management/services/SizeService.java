@@ -9,6 +9,7 @@ public interface SizeService {
 
     public List<Size> findAllSizes();
     public Optional<Size> findSizeById(Long idSize);
+    public Optional<Size> findSizeByReference(String reference);
     public Size addSize(Size size) throws Exception;
     public Size updateSize(Size size) throws Exception;
     public void deleteSizeById(Long idSize);

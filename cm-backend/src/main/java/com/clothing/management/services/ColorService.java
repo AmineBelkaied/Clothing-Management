@@ -9,6 +9,7 @@ public interface ColorService {
 
     public List<Color> findAllColors();
     public Optional<Color> findColorById(Long idColor);
+    public Optional<Color> findColorByName(String name);
     public Color addColor(Color color) throws Exception;
     public Color updateColor(Color color);
     public void deleteColor(Color color);
