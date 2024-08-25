@@ -12,6 +12,7 @@ export interface Model {
     purchasePrice: number;
     earningCoefficient:number;
     deleted: boolean;
+    enabled: boolean;
 
     selectedColor?:Color;
     selectedSize?:Size;

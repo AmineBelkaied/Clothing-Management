@@ -14,8 +14,8 @@ export class ListSizesComponent implements OnInit, OnDestroy {
   sizes: Size[] = [];
   $unsubscribe: Subject<void> = new Subject();
   constructor(private sizeService: SizeService, private messageService: MessageService, private confirmationService: ConfirmationService) {
-    this.sizeService.loadSizes();
-   }
+
+  }
 
   ngOnInit(): void {
     this.sizeService.getSizesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(

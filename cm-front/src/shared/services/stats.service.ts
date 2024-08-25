@@ -21,7 +21,7 @@ export class StatsService {
       .set('beginDate', beginDate)
       .set('endDate', endDate);
 
-    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.PRODUCTS_COUNT}/${modelId}`, { params });
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.PRODUCTS}/${modelId}`, { params });
   }
 
   public statAllModels(beginDate: string, endDate: string, countProgress: boolean): Observable<any> {
@@ -30,7 +30,7 @@ export class StatsService {
       .set('endDate', endDate)
       .set('countProgress', countProgress);
 
-    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.ALL_MODELS}`, { params });
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.MODELS}`, { params });
   }
 
   public statStock(beginDate: string, endDate: string): Observable<any> {
@@ -72,7 +72,7 @@ export class StatsService {
       .set('beginDate', beginDate)
       .set('endDate', endDate);
 
-    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.MODEL_SOLD}/${modelId}`, { params });
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.MODEL}/${modelId}`, { params });
   }
 
   getStatsTreeNodesData(data: Packet[]) {
@@ -86,8 +86,6 @@ export class StatsService {
     let pageCounts: CountPage = {};
     let dateCounts: CountDate = {};
     data.forEach((packet) => {
-      //console.log('packet',packet);
-
       //count pages
       if (
         packet.fbPage != undefined

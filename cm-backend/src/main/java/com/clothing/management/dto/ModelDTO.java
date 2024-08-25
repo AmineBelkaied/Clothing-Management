@@ -21,6 +21,7 @@ public class ModelDTO {
     private boolean deleted;
     private List<Color> colors = new ArrayList<>();
     private List<Size> sizes = new ArrayList<>();
+    private boolean enabled;
 
     public ModelDTO(){
 
@@ -35,6 +36,7 @@ public class ModelDTO {
         this.deleted = model.isDeleted();
         this.colors = model.getColors();
         this.sizes = model.getSizes();
+        this.enabled = model.isEnabled();
     }
 
     public Long getId() {
@@ -101,6 +103,14 @@ public class ModelDTO {
         this.sizes = sizes;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     @Override
     public String toString() {
         return "ModelDTO{" +
@@ -112,6 +122,7 @@ public class ModelDTO {
                 ", deleted=" + deleted +
                 ", colors=" + colors +
                 ", sizes=" + sizes +
+                ", enabled=" + enabled +
                 '}';
     }
 }

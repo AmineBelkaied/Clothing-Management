@@ -39,6 +39,7 @@
                 <th pSortableColumn="colors">Couleurs <p-sortIcon field="colors"></p-sortIcon></th>
                 <th pSortableColumn="size">Taille (Max) <p-sortIcon field="size"></p-sortIcon></th>
                 <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
+                <th pSortableColumn="enabled">Activé <p-sortIcon field="enabled"></p-sortIcon></th>
                 <th>Actions</th>
             </tr>
         </ng-template>
@@ -60,6 +61,14 @@
                         {{ model.description }}
                         </span>
                     </div>
+                </td>
+                <td>
+                  <ng-container *ngIf="model.enabled;else disabled">
+                      <i class="pi pi-unlock" style="color: green;font-size: 17px;"></i>
+                  </ng-container>
+                  <ng-template #disabled>
+                      <i class="pi pi-lock" style="color: red;font-size: 17px;"></i>
+                  </ng-template>
                 </td>
                 <td>
                     <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2 buttonSize" (click)="editModel(model)"></button>

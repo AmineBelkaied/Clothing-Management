@@ -47,13 +47,13 @@ export const PRODUCT_HISTORY_ENDPOINTS = {
 
 export const STAT_ENDPOINTS = {
     BASE: '/stats',
-    MODEL_SOLD: '/model-sold',
-    ALL_MODELS: '/all-models',
+    MODEL: '/model',
+    MODELS: '/models',
     STOCK: '/stock',
     COLORS: '/colors',
     PACKETS: '/packets',
     OFFERS: '/offers',
-    PRODUCTS_COUNT: '/products-count',
+    PRODUCTS: '/products',
 };
 
 export const CITY_ENDPOINTS = {

@@ -328,8 +328,8 @@ public class PacketServiceImpl implements PacketService {
             DeliveryCompanyName deliveryCompanyName = DeliveryCompanyName.fromString(packet.getDeliveryCompany().getName());
             DeliveryCompanyService deliveryCompanyService = deliveryCompanyServiceFactory.getDeliveryCompanyService(deliveryCompanyName);
             DeliveryResponse deliveryResponse = deliveryCompanyService.getLastStatus(packet.getBarcode(), packet.getDeliveryCompany());
-            String deliveryState = deliveryResponse.getState();
-            if (deliveryState != null) {
+            if (deliveryResponse.getState() != null) {
+                String deliveryState = deliveryResponse.getState();
                 String packetStatus = packet.getStatus();
                 LOGGER.debug("deliveryResponse : " + deliveryResponse);
                 if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {

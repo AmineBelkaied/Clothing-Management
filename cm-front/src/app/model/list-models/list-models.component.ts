@@ -17,7 +17,7 @@ export class ListModelsComponent implements OnInit, OnDestroy{
   modelDialog!: boolean;
   msg :String = 'Erreur de connexion';
 
-  models: any[] = [];
+  models: Model[] = [];
 
   model: Model; /*  = {
     "id":"",
@@ -55,9 +55,7 @@ export class ListModelsComponent implements OnInit, OnDestroy{
       .pipe(
         tap((data: any) => {
           this.models = data;
-        }),
-        switchMap(()=>this.sizeService.loadSizes()),
-        switchMap(()=>this.colorService.loadColors()),
+        })
         )
       .subscribe();
   }

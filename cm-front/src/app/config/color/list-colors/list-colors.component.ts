@@ -21,7 +21,6 @@ export class ListColorsComponent implements OnInit,OnDestroy {
      }
 
   ngOnInit(): void {
-    this.colorService.loadColors();
     this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
     .subscribe((colorList: any) => {
       this.colors = colorList;

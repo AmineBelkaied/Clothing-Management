@@ -1,33 +1,32 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.dto.*;
+import com.clothing.management.dto.DayCount.*;
 import com.clothing.management.entities.*;
 import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
-import com.clothing.management.services.OfferService;
 import com.clothing.management.services.PacketService;
 import com.clothing.management.services.StatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional("tenantTransactionManager")
 public class StatServiceImpl implements StatService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PacketService.class);
     private final IProductsPacketRepository productsPacketRepository;
     private final IModelStockHistoryRepository modelStockHistoryRepository;
 
-    private final OfferService offerService;
-
-    public StatServiceImpl(IProductsPacketRepository productsPacketRepository, IModelStockHistoryRepository modelStockHistoryRepository,OfferService offerService) {
+    public StatServiceImpl(IProductsPacketRepository productsPacketRepository, IModelStockHistoryRepository modelStockHistoryRepository) {
         this.productsPacketRepository = productsPacketRepository;
         this.modelStockHistoryRepository = modelStockHistoryRepository;
-        this.offerService = offerService;
     }
 
     @Override
@@ -37,7 +36,7 @@ public class StatServiceImpl implements StatService {
         ArrayList<Integer> countTotalList = new ArrayList<>();
 
         List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statAllModels(beginDate,endDate);
-        Map<String, List<?>> uniqueValues = getUnique((existingProductsPacket),false);
+        Map<String, List<?>> uniqueValues = getUnique((existingProductsPacket));
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<String> uniqueModels = (List<String>) uniqueValues.get("uniqueModelNames");
 
@@ -55,7 +54,7 @@ public class StatServiceImpl implements StatService {
                 int countProgress = 0;
 
                 for (ProductsDayCountDTO row : existingProductsPacket) {
-                    if (row.getPacketDate().equals(uniqueDate) && row.getModelName().equals(uniqueModel))
+                    if (row.getDate().equals(uniqueDate) && row.getModelName().equals(uniqueModel))
                         {
                             if(countProgressEnabler) {
                                 count += row.getCountPayed() + row.getCountProgress();
@@ -195,13 +194,14 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
+    @Transactional("tenantTransactionManager")
     public Map<String , List<?>> statAllOffersChart(String beginDate, String endDate){
         //initialisation des lists
         List<Integer> countOffersList;
         ArrayList<Integer> countTotalList = new ArrayList<>();
 
-        List<ProductsDayCountDTO> existingOffersPacket = productsPacketRepository.offersCountByDate(beginDate,endDate);
-        Map<String, List<?>> uniqueValues = getUnique((existingOffersPacket),true);
+        List<OffersDayCountDTO> existingOffersPacket = productsPacketRepository.offersCountByDate(beginDate,endDate);
+        Map<String, List<?>> uniqueValues = getUniqueOffers(existingOffersPacket);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<OfferDTO> uniqueOffers = (List<OfferDTO>) uniqueValues.get("uniqueOffers");
 
@@ -218,10 +218,9 @@ public class StatServiceImpl implements StatService {
                 int countProgress = 0;
                 int countRetour = 0;
                 double countProfits = 0;
-                for (ProductsDayCountDTO row : existingOffersPacket) {
-                    if (row.getPacketDate().equals(uniqueDate) && row.getOffer().getId()==uniqueoffer.getId())
+                for (OffersDayCountDTO row : existingOffersPacket) {
+                    if (row.getDate().equals(uniqueDate) && row.getOffer().getId()==uniqueoffer.getId())
                     {
-
                         if (row.getCountPayed()>0){
                             countPayed+=1;
                             countProfits+=row.getProfits();
@@ -302,10 +301,10 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public Map<String , List<?>> statAllColorsChart(String beginDate, String endDate,List<Long> lookForModelIds){
-        List<ProductsDayCountDTO> existingProductsPacketColor = lookForModelIds.isEmpty() ?
+        List<ColorsDayCountDTO> existingProductsPacketColor = lookForModelIds.isEmpty() ?
                 productsPacketRepository.statAllModelsByColor(beginDate, endDate) :
                 productsPacketRepository.statByColorAndModels(beginDate, endDate, lookForModelIds);
-        Map<String, List<?>> uniqueValues = getUnique((existingProductsPacketColor),false);
+        Map<String, List<?>> uniqueValues = getUniqueColors(existingProductsPacketColor);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<Color> uniqueColors = (List<Color>) uniqueValues.get("uniqueColors");
 
@@ -320,8 +319,8 @@ public class StatServiceImpl implements StatService {
                 int count = 0;
                 int countRetour = 0;
                 int countProgress = 0;
-                for (ProductsDayCountDTO product : existingProductsPacketColor) {
-                    if (product.getPacketDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId()))
+                for (ColorsDayCountDTO product : existingProductsPacketColor) {
+                    if (product.getDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId()))
                     {
                         count+=product.getCountPayed();
                         countRetour+=product.getCountReturn();
@@ -443,73 +442,107 @@ public class StatServiceImpl implements StatService {
     }
 
 
-    public static Map<String, List<?>> getUnique(List<ProductsDayCountDTO> productsList,Boolean offerDto
-    ) {
+
+    public static Map<String, List<?>> getUnique(List<ProductsDayCountDTO> productsList) {
         Map<String, List<?>> uniqueAttributes = new HashMap<>();
-        List< Date > uniqueDates = new ArrayList<>();
-        List< Color > uniqueColors = new ArrayList<>();
-        List< Size > uniqueSizes = new ArrayList<>();
-        List< String > uniqueProductRefs = new ArrayList<>();
-        List< String > uniqueModelNames = new ArrayList<>();
-        List< Long > uniqueModelIds = new ArrayList<>();
-        List< OfferDTO > uniqueOffers = new ArrayList<>();
-        List< Long > uniqueOffersIds = new ArrayList<>();
-        List< Long > uniqueProductsIds = new ArrayList<>();
+        List<Date> uniqueDates = new ArrayList<>();
+        List<Color> uniqueColors = new ArrayList<>();
+        List<Size> uniqueSizes = new ArrayList<>();
+        List<String> uniqueProductRefs = new ArrayList<>();
+        List<String> uniqueModelNames = new ArrayList<>();
+        List<Long> uniqueModelIds = new ArrayList<>();
+        List<Long> uniqueProductsIds = new ArrayList<>();
 
         for (ProductsDayCountDTO product : productsList) {
-            Date packetDate = product.getPacketDate();
+            Date packetDate = product.getDate();
             if (!uniqueDates.contains(packetDate)) {
                 uniqueDates.add(packetDate);
             }
-            if(!offerDto){
-                Color color = product.getColor();
-                if (!uniqueColors.contains(color)) {
-                    uniqueColors.add(color);
-                }
-                String modelName = product.getModelName();
-                if (!uniqueModelNames.contains(modelName)) {
-                    uniqueModelNames.add(modelName);
-                    uniqueModelIds.add(product.getModelId());
-                }
-                if(product.getSize()!=null){
-                    Size size = product.getSize();
-                    if (!uniqueSizes.contains(size)) {
-                        uniqueSizes.add(size);
-                    }
-                }
-                if(product.getProductId()!=null){
-                    long id = product.getProductId();
-                    if (!uniqueProductsIds.contains(id)) {
-                        uniqueProductsIds.add(id);
-                    }
-                }
-                if(product.getColor()!=null){
-                    String productRef = product.getColor().getName()+" "+product.getSize().getReference() ;
-                    if (!uniqueProductRefs.contains(productRef)) {
-                        uniqueProductRefs.add(productRef);
-                    }
-                }
-            }
-            OfferDTO offer = product.getOffer();
-            if (!uniqueOffersIds.contains(offer.getId())) {
-                uniqueOffers.add(offer);
-                uniqueOffersIds.add(offer.getId());
-            }
-        }
 
+            Color color = product.getColor();
+            if (!uniqueColors.contains(color)) {
+                uniqueColors.add(color);
+            }
+            String modelName = product.getModelName();
+            if (!uniqueModelNames.contains(modelName)) {
+                uniqueModelNames.add(modelName);
+                uniqueModelIds.add(product.getModelId());
+            }
+            if (product.getSize() != null) {
+                Size size = product.getSize();
+                if (!uniqueSizes.contains(size)) {
+                    uniqueSizes.add(size);
+                }
+            }
+            if (product.getProductId() != null) {
+                long id = product.getProductId();
+                if (!uniqueProductsIds.contains(id)) {
+                    uniqueProductsIds.add(id);
+                }
+            }
+            if (product.getColor() != null) {
+                String productRef = product.getColor().getName() + " " + product.getSize().getReference();
+                if (!uniqueProductRefs.contains(productRef)) {
+                    uniqueProductRefs.add(productRef);
+                }
+            }
+
+        }
         uniqueAttributes.put("uniqueDates", uniqueDates);
         uniqueAttributes.put("uniqueColors", uniqueColors);
         uniqueAttributes.put("uniqueModelNames", uniqueModelNames);
         uniqueAttributes.put("uniqueModelIds", uniqueModelIds);
-        uniqueAttributes.put("uniqueOffers", uniqueOffers);
-        uniqueAttributes.put("uniqueOffersIds", uniqueOffersIds);
         uniqueAttributes.put("uniqueSizes", uniqueSizes);
         uniqueAttributes.put("uniqueProductRefs", uniqueProductRefs);
         uniqueAttributes.put("uniqueProductIds", uniqueProductsIds);
-
         return uniqueAttributes;
     }
-    private Map<String, List<?>> getUniqueValues(List<ProductsDayCountDTO> existingProductsPacket) {
+
+    public Map<String, List<?>> getUniqueColors(List<ColorsDayCountDTO> productsList) {
+        Map<String, List<?>> uniqueAttributes = new HashMap<>();
+        List<Date> uniqueDates = new ArrayList<>();
+        List<Color> uniqueColors = new ArrayList<>();
+
+        for (ColorsDayCountDTO product : productsList) {
+            Date packetDate = product.getDate();
+            if (!uniqueDates.contains(packetDate)) {
+                uniqueDates.add(packetDate);
+            }
+
+            Color color = product.getColor();
+            if (!uniqueColors.contains(color)) {
+                uniqueColors.add(color);
+            }
+        }
+        uniqueAttributes.put("uniqueDates", uniqueDates);
+        uniqueAttributes.put("uniqueColors", uniqueColors);
+        return uniqueAttributes;
+    }
+
+    @Transactional("tenantTransactionManager")
+    public Map<String, List<?>> getUniqueOffers(List<OffersDayCountDTO> productsList) {
+        Map<String, List<?>> uniqueAttributes = new HashMap<>();
+        List< Date > uniqueDates = new ArrayList<>();
+        List< OfferDTO > uniqueOffers = new ArrayList<>();
+        List< Long > uniqueOffersIds = new ArrayList<>();
+
+        for (OffersDayCountDTO product : productsList) {
+            Date packetDate = product.getDate();
+            Offer offer = product.getOffer();
+            if (!uniqueDates.contains(packetDate)) {
+                uniqueDates.add(packetDate);
+            }
+            if (!uniqueOffersIds.contains(offer.getId())) {
+                uniqueOffersIds.add(offer.getId());
+                uniqueOffers.add(new OfferDTO(offer));
+            }
+        }
+        uniqueAttributes.put("uniqueOffers", uniqueOffers);
+        uniqueAttributes.put("uniqueDates", uniqueDates);
+        return uniqueAttributes;
+    }
+
+    private Map<String, List<?>> getUniqueValues(List<ModelDayCountDTO> existingProductsPacket) {
         Map<String, List<?>> uniqueValues = new HashMap<>();
         List<Date> uniqueDates = new ArrayList<>();
         List<Color> uniqueColors = new ArrayList<>();
@@ -517,8 +550,8 @@ public class StatServiceImpl implements StatService {
         List<String> uniqueProductRefs = new ArrayList<>();
         List<Long> uniqueProductIds = new ArrayList<>();
 
-        for (ProductsDayCountDTO product : existingProductsPacket) {
-            if (!uniqueDates.contains(product.getPacketDate())) uniqueDates.add(product.getPacketDate());
+        for (ModelDayCountDTO product : existingProductsPacket) {
+            if (!uniqueDates.contains(product.getDate())) uniqueDates.add(product.getDate());
             if (!uniqueColors.contains(product.getColor())) uniqueColors.add(product.getColor());
             if (!uniqueSizes.contains(product.getSize())) uniqueSizes.add(product.getSize());
             String colorAndSize = product.getColor().getName() + " " + product.getSize().getReference();
@@ -538,7 +571,7 @@ public class StatServiceImpl implements StatService {
 
     @Override//used in stock(stock par model)
     public Map<String, List<?>> statModelSoldChart(Long modelId, String beginDate, String endDate) {
-        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSoldProgress(modelId, beginDate, endDate);
+        List<ModelDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSoldProgress(modelId, beginDate, endDate);
         Map<String, List<?>> uniqueValues = getUniqueValues(existingProductsPacket);
 
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
@@ -562,16 +595,16 @@ public class StatServiceImpl implements StatService {
         return dataHashMap;
     }
 
-    private List<List<Integer>> getProductCounts(List<ProductsDayCountDTO> existingProductsPacket, List<String> uniqueProductRefs, List<Date> uniqueDates) {
+    private List<List<Integer>> getProductCounts(List<ModelDayCountDTO> existingProductsPacket, List<String> uniqueProductRefs, List<Date> uniqueDates) {
         List<List<Integer>> listProductsCount = new ArrayList<>();
 
         for (String uniqueProductRef : uniqueProductRefs) {
             List<Integer> countProductsList = new ArrayList<>();
             for (Date uniqueDate : uniqueDates) {
                 int count = 0;
-                for (ProductsDayCountDTO productDto : existingProductsPacket) {
+                for (ModelDayCountDTO productDto : existingProductsPacket) {
                     String colorAndSize = productDto.getColor().getName() + " " + productDto.getSize().getReference();
-                    if (productDto.getPacketDate().equals(uniqueDate) && uniqueProductRef.equals(colorAndSize)) {
+                    if (productDto.getDate().equals(uniqueDate) && uniqueProductRef.equals(colorAndSize)) {
                         count += productDto.getCountPayed();
                     }
                 }
@@ -583,15 +616,15 @@ public class StatServiceImpl implements StatService {
         return listProductsCount;
     }
 
-    private List<List<Integer>> getColorCounts(List<ProductsDayCountDTO> existingProductsPacket, List<Color> uniqueColors, List<Date> uniqueDates) {
+    private List<List<Integer>> getColorCounts(List<ModelDayCountDTO> existingProductsPacket, List<Color> uniqueColors, List<Date> uniqueDates) {
         List<List<Integer>> listColorsCount = new ArrayList<>();
 
         for (Color uniqueColor : uniqueColors) {
             List<Integer> countColorsList = new ArrayList<>();
             for (Date uniqueDate : uniqueDates) {
                 int count = 0;
-                for (ProductsDayCountDTO product : existingProductsPacket) {
-                    if (product.getPacketDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId())) {
+                for (ModelDayCountDTO product : existingProductsPacket) {
+                    if (product.getDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId())) {
                         count += product.getCountPayed();
                     }
                 }
@@ -603,15 +636,15 @@ public class StatServiceImpl implements StatService {
         return listColorsCount;
     }
 
-    private List<List<Integer>> getSizeCounts(List<ProductsDayCountDTO> existingProductsPacket, List<Size> uniqueSizes, List<Date> uniqueDates) {
+    private List<List<Integer>> getSizeCounts(List<ModelDayCountDTO> existingProductsPacket, List<Size> uniqueSizes, List<Date> uniqueDates) {
         List<List<Integer>> listSizesCount = new ArrayList<>();
 
         for (Size uniqueSize : uniqueSizes) {
             List<Integer> countSizesList = new ArrayList<>();
             for (Date uniqueDate : uniqueDates) {
                 int count = 0;
-                for (ProductsDayCountDTO product : existingProductsPacket) {
-                    if (product.getPacketDate().equals(uniqueDate) && product.getSize().getId().equals(uniqueSize.getId())) {
+                for (ModelDayCountDTO product : existingProductsPacket) {
+                    if (product.getDate().equals(uniqueDate) && product.getSize().getId().equals(uniqueSize.getId())) {
                         count += product.getCountPayed();
                     }
                 }
@@ -628,190 +661,3 @@ public class StatServiceImpl implements StatService {
         return productsPacketRepository.productsCountByDate(modelId, beginDate,endDate);
     }
 }
-    /*public Map<String , List<?>> statAllPacketsChart(String beginDate, String endDate){
-
-        List<PacketsStatCountDTO> existingPackets = productsPacketRepository.statAllPackets(beginDate,endDate);
-        List<Date> uniqueDates = getUniqueDates((existingPackets));
-
-        List<List<Long>> statusCountLists = new ArrayList<>();
-        List<StatTableDTO> statusRecapCount= new ArrayList<>() ;
-
-        List<Long> countAll = new ArrayList<>();
-        List<Long> countExchange = new ArrayList<>();
-        List<Long> countOut = new ArrayList<>();
-        List<Long> countPayed = new ArrayList<>();
-        List<Long> countReturn = new ArrayList<>();
-        List<Long> countOos = new ArrayList<>();
-        List<Long> countProgress = new ArrayList<>();
-
-        StatTableDTO exchangeRecap= new StatTableDTO(SystemStatus.EXCHANGE.getStatus());
-        StatTableDTO returnRecap= new StatTableDTO(SystemStatus.RETURN.getStatus());
-        StatTableDTO payedRecap= new StatTableDTO(SystemStatus.PAID.getStatus());
-        StatTableDTO oosRecap= new StatTableDTO(SystemStatus.OOS.getStatus());
-        StatTableDTO outRecap= new StatTableDTO("Sortie");
-        StatTableDTO allRecap= new StatTableDTO("All");
-        StatTableDTO progressRecap= new StatTableDTO("En Cours");
-                for (PacketsStatCountDTO dayStat: existingPackets) {
-                    countAll.add(dayStat.getCountAll());
-                    countExchange.add(dayStat.getCountExchange());
-                    countOut.add(dayStat.getCountOut());
-                    countPayed.add(dayStat.getCountPayed());
-                    countReturn.add(dayStat.getCountReturn());
-                    countOos.add(dayStat.getCountOos());
-                    countProgress.add(dayStat.getCountProgress());
-
-                    exchangeRecap.setMin(dayStat.getCountExchange()<exchangeRecap.getMin()?dayStat.getCountExchange():exchangeRecap.getMin());
-                    exchangeRecap.setMax(dayStat.getCountExchange()>exchangeRecap.getMax()?dayStat.getCountExchange():exchangeRecap.getMax());
-                    exchangeRecap.setPayed(dayStat.getCountExchange()+exchangeRecap.getPayed());
-
-                    outRecap.setMin(dayStat.getCountOut()<outRecap.getMin()?dayStat.getCountOut():outRecap.getMin());
-                    outRecap.setMax(dayStat.getCountOut()>outRecap.getMax()?dayStat.getCountOut():outRecap.getMin());
-                    outRecap.setPayed(dayStat.getCountOut()+outRecap.getPayed());
-
-                    allRecap.setMin(dayStat.getCountAll()<allRecap.getMin()?dayStat.getCountAll():allRecap.getMin());
-                    allRecap.setMax(dayStat.getCountAll()>allRecap.getMax()?dayStat.getCountAll():allRecap.getMax());
-                    allRecap.setPayed(dayStat.getCountAll()+allRecap.getPayed());
-
-                    payedRecap.setMin(dayStat.getCountPayed()<payedRecap.getMin()?dayStat.getCountPayed():payedRecap.getMin());
-                    payedRecap.setMax(dayStat.getCountPayed()>payedRecap.getMax()?dayStat.getCountPayed():payedRecap.getMax());
-                    payedRecap.setPayed(dayStat.getCountPayed()+payedRecap.getPayed());
-
-                    returnRecap.setMin(dayStat.getCountReturn()<returnRecap.getMin()?dayStat.getCountReturn():returnRecap.getMin());
-                    returnRecap.setMax(dayStat.getCountReturn()>returnRecap.getMax()?dayStat.getCountReturn():returnRecap.getMax());
-                    returnRecap.setPayed(dayStat.getCountReturn()+returnRecap.getPayed());
-
-                    oosRecap.setMin(dayStat.getCountOos()<oosRecap.getMin()?dayStat.getCountOos():oosRecap.getMin());
-                    oosRecap.setMax(dayStat.getCountOos()>oosRecap.getMax()?dayStat.getCountOos():oosRecap.getMax());
-                    oosRecap.setPayed(dayStat.getCountOos()+oosRecap.getPayed());
-
-                    progressRecap.setMin(dayStat.getCountProgress()<progressRecap.getMin()?dayStat.getCountProgress():progressRecap.getMin());
-                    progressRecap.setMax(dayStat.getCountProgress()>progressRecap.getMax()?dayStat.getCountProgress():progressRecap.getMax());
-                    progressRecap.setPayed(dayStat.getCountProgress()+progressRecap.getPayed());
-                    }
-                int uniqueDatesSize = uniqueDates.size();
-                if( uniqueDatesSize == 0 )
-                    uniqueDatesSize = 1;
-        allRecap.setAvg(allRecap.getPayed()/uniqueDatesSize);
-        allRecap.setPer(100L);
-        double payedSum = payedRecap.getPayed();
-        double percentage= 0;
-        if (payedSum != 0) {
-            percentage = exchangeRecap.getPayed()*100/payedSum;
-            percentage = Math.round(percentage*10);
-            exchangeRecap.setPer(percentage/10);
-        }
-        double allSum = allRecap.getPayed();
-        if (allSum != 0) {
-            percentage = outRecap.getPayed() * 100 / allSum;
-            percentage = Math.round(percentage*10);
-            outRecap.setPer(percentage/10);
-
-            percentage = oosRecap.getPayed()*100/ allSum;
-            percentage = Math.round(percentage*10);
-            oosRecap.setPer(percentage/10);
-        }
-        double outSum = outRecap.getPayed();
-        if (allSum != 0) {
-            percentage = payedRecap.getPayed() * 100 / outSum;
-            percentage = Math.round(percentage*10);
-            payedRecap.setPer(percentage/10);
-            percentage = returnRecap.getPayed()*100/ outSum;
-            percentage = Math.round(percentage*10);
-            returnRecap.setPer(percentage/10);
-        }
-
-        exchangeRecap.setAvg(exchangeRecap.getPayed()/uniqueDatesSize);
-        outRecap.setAvg(outRecap.getPayed()/uniqueDatesSize);
-        payedRecap.setAvg(payedRecap.getPayed()/uniqueDatesSize);
-        returnRecap.setAvg(returnRecap.getPayed()/uniqueDatesSize);
-        oosRecap.setAvg(oosRecap.getPayed()/uniqueDatesSize);
-        progressRecap.setAvg(progressRecap.getPayed()/uniqueDatesSize);
-
-        statusRecapCount.add(exchangeRecap);
-        statusRecapCount.add(returnRecap);
-        statusRecapCount.add(payedRecap);
-        statusRecapCount.add(outRecap);
-        statusRecapCount.add(progressRecap);
-        statusRecapCount.add(oosRecap);
-        statusRecapCount.add(allRecap);
-
-        statusCountLists.add(countExchange);
-        statusCountLists.add(countReturn);
-        statusCountLists.add(countPayed);
-        statusCountLists.add(countOut);
-        statusCountLists.add(countProgress);
-        statusCountLists.add(countOos);
-        statusCountLists.add(countAll);
-
-        Map <String , List<?>> data =new HashMap<>();
-        data.put("dates",uniqueDates);
-        data.put("statusCountLists",statusCountLists);
-        data.put("statusRecapCount",statusRecapCount);
-        //System.out.println("data"+data);
-        return data;
-    }*/
-    /*public Map <String , List<?>> statModelSoldChart(Long modelId,String beginDate,String endDate){
-        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSoldProgress(modelId,beginDate,endDate);
-        Map<String, List<?>> uniqueValues = getUnique((existingProductsPacket),false);
-        List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
-        List<Color> uniqueColors = (List<Color>) uniqueValues.get("uniqueColors");
-        List<Size> uniqueSizes = (List<Size>) uniqueValues.get("uniqueSizes");
-        List<String> uniqueProductRefs = (List<String>) uniqueValues.get("uniqueProductRefs");
-        List<Long> uniqueProductIds = (List<Long>) uniqueValues.get("uniqueProductIds");
-
-        //System.out.println("uniqueValues"+uniqueValues);
-        List<List<Integer>> listProductsCount= new ArrayList<>() ;
-        List<List<Integer>> listColorsCount= new ArrayList<>() ;
-        List<List<Integer>> listSizesCount= new ArrayList<>() ;
-        List<Integer> countProductsList = new ArrayList<>();
-        List<Integer> countColorsList = new ArrayList<>();
-        List<Integer> countSizesList = new ArrayList<>();
-
-
-        for (String uniqueProductRef : uniqueProductRefs) {
-            countProductsList = new ArrayList<>();
-            for (Date uniqueDate : uniqueDates) {
-                int count = 0;
-                for (ProductsDayCountDTO productDto : existingProductsPacket) {
-                    String colorAndSize = productDto.getColor().getName()+" "+productDto.getSize().getReference();
-                    if (productDto.getPacketDate().equals(uniqueDate) && uniqueProductRef.equals(colorAndSize))
-                    count+=productDto.getCountPayed();
-                }
-                countProductsList.add(count);
-            }
-            listProductsCount.add(countProductsList);
-        }
-        for (Color uniqueColor : uniqueColors) {
-            countColorsList = new ArrayList<>();
-            for (Date uniqueDate : uniqueDates) {
-                int count = 0;
-                for (ProductsDayCountDTO product : existingProductsPacket) {
-                    if (product.getPacketDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId()))
-                        count+=product.getCountPayed();
-                }
-                countColorsList.add(count);
-            }
-            listColorsCount.add(countColorsList);
-        }
-        for (Size uniqueSize: uniqueSizes) {
-            countSizesList = new ArrayList<>();
-            for (Date uniqueDate : uniqueDates) {
-                int count = 0;
-                for (ProductsDayCountDTO product : existingProductsPacket) {
-                    if (product.getPacketDate().equals(uniqueDate) && product.getSize().getId().equals(uniqueSize.getId()))
-                        count+=product.getCountPayed();
-                }
-                countSizesList.add(count);
-            }
-            listSizesCount.add( countSizesList);
-        }
-        Map <String , List<?>> dataHashMap =new HashMap<>();
-        dataHashMap.put("sizes",uniqueSizes);
-        dataHashMap.put("colors",uniqueColors);
-        dataHashMap.put("productRefs",uniqueProductRefs);
-        dataHashMap.put("dates",uniqueDates);
-        dataHashMap.put("productsCount",listProductsCount);
-        dataHashMap.put("sizesCount",listSizesCount);
-        dataHashMap.put("colorsCount",listColorsCount);
-        return dataHashMap;
-    }*/
