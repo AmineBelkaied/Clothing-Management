@@ -5,6 +5,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { StorageService } from '../services/strorage.service';
 import { Router } from '@angular/router';
+import { ConfirmationService } from 'primeng/api';
 
 // const TOKEN_HEADER_KEY = 'Authorization';  // for Spring Boot back-end
 // const TOKEN_HEADER_KEY = 'x-access-token';    // for Node.js Express back-end
@@ -12,7 +13,7 @@ import { Router } from '@angular/router';
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-   constructor(private storageService: StorageService, private router: Router) {}
+   constructor(private storageService: StorageService,private confirmationService: ConfirmationService, private router: Router) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.storageService.getToken();
@@ -24,6 +25,48 @@ export class AuthInterceptor implements HttpInterceptor {
 
       return next.handle(cloned).pipe(
         catchError((error: HttpErrorResponse) => {
+          if (!navigator.onLine) {
+            // alert('You are offline. Please check your network connection.');
+             this.confirmationService.confirm({
+               message: "Problème de connexion. Veuillez vérifier votre connexion svp !",
+               header: 'Connection perdu',
+               icon: 'pi pi-exclamation-triangle',
+               accept: () => {
+                 window.location.reload();
+               },
+               rejectVisible: false,
+               acceptLabel: 'Reload'
+             });
+             return throwError(() => new Error('No Internet Connection'));
+           }
+          if (error.status === 500 || error.status === 501 || error.status === 502 || error.status === 503 ) {
+            // alert('You are offline. Please check your network connection.');
+             this.confirmationService.confirm({
+               message: "Problème serveur. Veuillez informer Ahmed au 94 988 499 !",
+               header: 'Problème envoie requete',
+               icon: 'pi pi-exclamation-triangle',
+               accept: () => {
+                 //window.location.reload();
+               },
+               rejectVisible: false,
+               acceptLabel: 'OK'
+             });
+             return throwError(() => new Error('No Internet Connection'));
+          }
+          if (error.status === 0) {  // Network error or server down
+            this.confirmationService.confirm({
+              message: "Le serveur est actuellement injoignable. Veuillez réessayer plus tard. Veuillez informer Ahmed au 94 988 499 !",
+              header: 'Problème de serveur',
+              icon: 'pi pi-exclamation-triangle',
+              accept: () => {
+                // You might want to add any specific logic here or just acknowledge the message
+              },
+              rejectVisible: false,
+              acceptLabel: 'OK'
+            });
+            return throwError(() => new Error('Server Unreachable'));
+          }
+
           if (error.status === 401 || error.status === 403) {
             this.storageService.isLoggedIn.next(false);
             this.storageService.removeUser();
@@ -33,6 +76,7 @@ export class AuthInterceptor implements HttpInterceptor {
           }
           return throwError(() => error);  // Updated throwError syntax
         })
+
       );
     } else {
       return next.handle(req);

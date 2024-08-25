@@ -22,8 +22,7 @@ export class OfferService {
   loadOffers() : Observable<Offer[]> {
     return this.findAllOffersDTO().pipe(
       tap((offers: Offer[]) => {
-        this.offers = offers;
-        this.offersSubscriber.next(this.offers);
+        this.setOffers(offers);
       }),
       catchError((error) => {
         // Handle the error here
@@ -32,6 +31,7 @@ export class OfferService {
       })
     )
   }
+
   findAllOffersDTO() : Observable<Offer[]>{
     return this.http.get<Offer[]>(`${this.baseUrl}`);
   }
@@ -50,6 +50,11 @@ cleanOffre() {
   setOffer(offer:any): void {
     this.offer = offer;
     this.offerSubscriber.next(offer);
+  }
+
+  setOffers(offers:Offer[]): void {
+    this.offers = offers;
+    this.offersSubscriber.next(offers);
   }
 
   /*findAllOffers() {

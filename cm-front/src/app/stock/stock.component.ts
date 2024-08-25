@@ -25,6 +25,12 @@ export class StockComponent implements OnInit,OnDestroy {
   chartOptions : string[] = ["Color","Size","Id"];
   selectedChart : string = "Color";
 
+  enablerHistoryOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
+  historyEnabler : boolean = false;
+
+  chartEnablerOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
+  chartEnabler : boolean = false;
+
   selectedModel: Model= {
     id: 0,
     name: '',
@@ -33,7 +39,8 @@ export class StockComponent implements OnInit,OnDestroy {
     products: [],
     purchasePrice:15,
     earningCoefficient:1,
-    deleted: false
+    deleted: false,
+    enabled: false
   };
 
 
@@ -95,19 +102,8 @@ export class StockComponent implements OnInit,OnDestroy {
 
   ngOnInit(): void {
     console.log("ngOnInit");
-    this.modelService.getModelsSubscriber()
-      .pipe(takeUntil(this.$unsubscribe))
-      .pipe(
-        tap((data: Model[]) => {
-          console.log(data);
+    this.getAllModel();
 
-          this.models = data;
-          let modelsLength = data.length-1;
-          this.modelId=data[0].id!;
-          this.selectedModel = data[this.modelId];
-        }),
-        )
-      .subscribe();
 
     // Create the line chart
     this.dataSetArray = [
@@ -165,50 +161,69 @@ export class StockComponent implements OnInit,OnDestroy {
   };
   }
 
-  selectModel(model: any): void {
+  selectModel(model: Model): void {
+    console.log("model",model);
+
     this.selectedModel = model;
+    this.getStats();
   }
 
-  getAllModel(){
-    this.modelService
-      .getModelsSubscriber()
-      .pipe(takeUntil(this.$unsubscribe))
+  getAllModel() {
+    this.modelService.getModelsSubscriber()
       .pipe(
-        tap((data: any) => {
-          this.models = data;
-          let modelsLength = data.length-1;
-          this.modelId=data[modelsLength].id;
-        }),
-        )
-      .subscribe();
-    /*this.modelService.findAllModels().subscribe((data: any) => {
-      this.models = data;
-      let modelsLength = data.length-1;
-      this.modelId=data[modelsLength].id;
-      /*this.activateRoute.params.subscribe(params => {
-        if (params['id'] == 0)this.navigateToStock(data[modelsLength].id);
-          else this.modelId = +params['id'];
-          this.setCalendar();
-          this.getStats();
+        takeUntil(this.$unsubscribe),
+        tap((models: Model[]) => {
+          if (models && models.length > 0) {
+            this.models = models.filter((model: Model) => model.enabled);
+            console.log("this.models inside subscribe:", this.models);
+            let modelsLength = this.models.length - 1;
+            this.modelId = this.models[modelsLength].id!;
+            this.selectedModel = this.models[modelsLength] || this.models[0];
+            this.getStats();
+          } else {
+            console.warn("No models available.");
+          }
+        })
+      )
+      .subscribe({
+        error: (err) => console.error('Error in getAllModel:', err)
       });
-    });*/
   }
+
+/*     this.modelService.getModelsSubscriber()
+      .pipe(takeUntil(this.$unsubscribe))
+      .subscribe({
+        next: (data: Model[]) => {
+            this.models = data;
+            console.log("this.models inside subscribe:", this.models);
+            // If you need to log or perform further actions after models is set:
+            this.doSomethingAfterModelsAreSet(this.models);
+        },
+        error: (err: any) => {
+          console.error('Error fetching models:', err);
+        }
+      }); */
+
+
+/*   doSomethingAfterModelsAreSet(data : Model[]) {
+    console.log("this.models in additional method:", data);
+    let modelsLength = data.length-1;
+    let model : Model = data[1];
+
+        this.modelId = model.id!;
+        this.selectedModel = data[modelsLength] || data[0];
+
+  } */
+
 
   getStats(){
-    console.log("getStat");
-
       this.modelId= this.selectedModel.id!;
       this.setCalendar();
-      this.getStatModelSoldChart(this.modelId,this.selectedChart);
       this.getStockByModelId(this.modelId);
-      this.getProductsCountByModelId(this.modelId);
-      this.getProductHistory();
+      //this.getProductsCountByModelId(this.modelId);
+      this.chartEnablerChange();
+      this.historyEnablerChange();
   }
-
-  /*navigateToStock(selectedModelId: number): void {
-    this.router.navigate(['/stock', selectedModelId]);
-  }*/
-
 
   getProductsCountByModelId(modelId : number){
 
@@ -233,7 +248,7 @@ export class StockComponent implements OnInit,OnDestroy {
     });
   }
 
-  getStatModelSoldChart(modelId: number,option : string){
+  getStatModelSoldChart(option : string){
     this.statsService.statModelSold(
       this.modelId,
       this.startDatestring,
@@ -256,7 +271,8 @@ export class StockComponent implements OnInit,OnDestroy {
   }
 
   selectChart($event: any){
-    this.getStatModelSoldChart(this.modelId,$event.option)
+    if(this.chartEnabler)
+      this.getStatModelSoldChart($event.option)
   }
 
   createChart(data: any , option : string){
@@ -361,30 +377,50 @@ export class StockComponent implements OnInit,OnDestroy {
 
 
   onCellClick(product: any, event: any, j: number) :void{
-    const i = this.products[j].findIndex(
-      (item: { id: number }) => item.id === product.id
-    );
-    if (this.selectedProducts.includes(product.id))
-      this.unSelectProduct(j, i, this.products[j][i].id);
-    else this.selectProduct(j, i, this.products[j][i].id);
-    console.log(this.selectedProducts);
+    if(this.hide0)this.hide0 = false;
+    else{
+      const i = this.products[j].findIndex(
+        (item: { id: number }) => item.id === product.id
+      );
+      if (this.selectedProducts.includes(product.id))
+        this.unSelectProduct(j, i, this.products[j][i].id);
+      else this.selectProduct(j, i, this.products[j][i].id);
+      console.log(this.selectedProducts);
+    }
   }
 
   handleColorClick(j: number) {
-
+    if(this.hide0)this.hide0 = false;
+    else{
+      let haveSelectedItems = false;
+      if (this.haveSelectedItems(j, true))
+        haveSelectedItems = true
       for (let i = 0; i < this.products[j].length; i++)
-        if (this.haveSelectedItems(j, true))
-            this.unSelectProduct(j, i, this.products[j][i].id);
-        else
-            this.selectProduct(j, i, this.products[j][i].id);
+        {
+          console.log('j:'+j,'i:'+i);
+          if (haveSelectedItems)
+              this.unSelectProduct(j, i, this.products[j][i].id);
+          else
+              this.selectProduct(j, i, this.products[j][i].id);
+        }
+    }
   }
 
   handleSizeClick(i: number) :void{
-    for (let j = 0; j < this.products.length; j++)
+    if(this.hide0)this.hide0 = false;
+    else{
+      let haveSelectedItems = false;
       if (this.haveSelectedItems(i, false))
-        this.unSelectProduct(j, i, this.products[j][i].id);
-      else
-        this.selectProduct(j, i, this.products[j][i].id);
+        haveSelectedItems = true
+      for (let j = 0; j < this.products.length; j++)
+        {
+          //console.log('j:'+j,'i:'+i);
+          if (haveSelectedItems)
+            this.unSelectProduct(j, i, this.products[j][i].id);
+          else
+            this.selectProduct(j, i, this.products[j][i].id);
+        }
+    }
   }
 
   selectProduct(j: number, i: number, productId: any) {
@@ -540,13 +576,13 @@ export class StockComponent implements OnInit,OnDestroy {
     if (row) {
       for (let i = 0; i < this.products[index].length; i++)
         if (this.selectedProducts.includes(this.products[index][i].id)){
-          console.log('have similar row',this.products[index][i].id);
+          //console.log('have similar row',this.products[index][i].id);
           return true
         }
     } else
       for (let j = 0; j < this.products.length; j++)
         if (this.selectedProducts.includes(this.products[j][index].id)){
-          console.log('have similar size',this.products[j][index].id);
+          //console.log('have similar size',this.products[j][index].id);
           return true
         }
     return false; // No common items found
@@ -691,6 +727,14 @@ export class StockComponent implements OnInit,OnDestroy {
     this.getStats();
   }
 
+  historyEnablerChange() {
+    if(this.historyEnabler)
+      this.getProductHistory();
+  }
+  chartEnablerChange(){
+    if(this.chartEnabler)
+      this.getStatModelSoldChart(this.selectedChart);
+  }
   clearDate(){
       this.rangeDates = [];
     this.getStats();

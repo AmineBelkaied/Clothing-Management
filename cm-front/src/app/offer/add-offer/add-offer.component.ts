@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { Model } from 'src/shared/models/Model';
-import { OfferService } from '../../../shared/services/offer.service';
+import { OfferService } from 'src/shared/services/offer.service';
 import { FbPage } from 'src/shared/models/FbPage';
-import { Subject, takeUntil } from 'rxjs';
 import { FbPageService } from 'src/shared/services/fb-page.service';
-import {Offer} from "../../../shared/models/Offer";
+import {Offer} from "src/shared/models/Offer";
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-add-offer',

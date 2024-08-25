@@ -45,6 +45,8 @@ import { StringUtils } from 'src/shared/utils/string-utils';
   providers: [DatePipe]
 })
 export class ListPacketsComponent implements OnInit, OnDestroy {
+  statusItemsLabel: string;
+
   onRowSelect($event: TableRowSelectEvent) {
     console.log($event);
 
@@ -250,7 +252,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   findAllFbPages(): void {
-    this.fbPageService.findAllFbPages().subscribe((result: any) => {
+    this.fbPageService.getFbPagesSubscriber().subscribe((result: any) => {
       this.fbPages = result.filter((fbPage: any) => fbPage.enabled);
     });
   }
@@ -609,10 +611,15 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   addNewRow(): void {
-    if (this.activeIndex != 2)
+    console.log("activeIndex", this.activeIndex);
+    if (this.activeIndex != 2){
+      console.log("activeIndex != 2", this.activeIndex);
       this.onActiveIndexChange(2);
-    if (!this.loading) {
+    }
+    else if (!this.loading) {
       //this.activeIndex=2;
+      console.log("new pack");
+
       this.loading = true;
       this.packetService
         .addPacket()
@@ -671,6 +678,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   handleInputChange() {
+    console.log("handleInputChange",this.filter);
+
     const inputValue = this.filter;
     const numbersCount = (inputValue.match(/\d/g) || []).length;
     if (numbersCount === 5 || numbersCount === 8 || numbersCount === 12  ) {
@@ -685,6 +694,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   filterPackets($event?: string): void {
+    console.log("filterPackets", this.filter);
+
     this.createRangeDate();
     let page = 0;
     if ($event == 'clear') {
@@ -694,9 +705,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       page = this.currentPage;
     if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
 
-    if (this.filter !== '')
-      { this.oldActiveIndex = this.activeIndex;this.activeIndex = 0;
-    }
+    if (this.filter !== '' && this.filter != undefined)
+      {
+        this.oldActiveIndex = this.activeIndex;
+        this.activeIndex = 0;
+      }
 
     this.params = {
       page: page,
@@ -725,10 +738,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   onPageChange($event: any): void {
+    console.log("onPageChange",this.filter);
+
     this.currentPage = $event.page;
     this.pageSize = $event.rows;
-    console.log("filterPackets-onPageChange");
-
     this.filterPackets('page');
   }
 
@@ -737,7 +750,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.selectedPackets = [];
     this.selectedStatus.setValue([]);
     this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now())];
-    console.log("filterPackets-resetTable");
     this.filterPackets('global');
   }
 
@@ -776,6 +788,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   clearStatus(): void {
+    console.log("clearStatus",this.filter);
+
     this.selectedStates = [];
     this.packetStatusList = this.statusList;
     this.selectedStatus.setValue([]);
@@ -795,16 +809,12 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   mandatoryDateChange(){
     if(this.selectedStatus.value != null && this.selectedStatus.value.length > 0)
-      //console.log("filterPackets-mandatoryDateChange");
     this.filterPackets('global')
   }
 
   oldDateFilter(){
       this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now() - 86400000)];
-      //console.log("filterPackets-oldDateFilter");
       this.filterPackets('global');
-
-    //console.log('aaa',this.rangeDates);
   }
   todayDate(){
     if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
@@ -830,8 +840,12 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   onActiveIndexChange(event: any) {
+    this.statusItemsLabel = this.statusItems[event].title;
+
     this.activeIndex = event;
-    if(this.statusItems[event].title == IN_PROGRESS)
+    console.log("this.activeIndex",this.activeIndex);
+
+    if(this.statusItemsLabel == IN_PROGRESS)
       {
         this.nonConfirmedOptionsValue=[];
         this.endedOptionsValue=[];
@@ -839,9 +853,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         if(this.enCoursOptionsValue != undefined && this.enCoursOptionsValue.length > 0)
         this.selectedStatus.patchValue(this.enCoursOptionsValue);
         else
-        this.selectedStatus.patchValue([ TO_VERIFY, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3]);
+        this.selectedStatus.patchValue([ TO_VERIFY, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3 ]);
       }
-    else if(this.statusItems[event].title == NOT_CONFIRMED)
+    else if(this.statusItemsLabel == NOT_CONFIRMED)
       {
         this.endedOptionsValue=[];
         this.canceledOptionsValue = [];
@@ -849,9 +863,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         if(this.nonConfirmedOptionsValue != undefined && this.nonConfirmedOptionsValue.length > 0)
             this.selectedStatus.patchValue(this.nonConfirmedOptionsValue);
         else
-            this.selectedStatus.patchValue([ NOT_CONFIRMED, UNREACHABLE]);
+            this.selectedStatus.patchValue([ NOT_CONFIRMED, UNREACHABLE ]);
       }
-    else if(this.statusItems[event].title == CANCELED)
+    else if(this.statusItemsLabel == CANCELED)
       {
         this.nonConfirmedOptionsValue=[];
         this.endedOptionsValue=[];
@@ -859,10 +873,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         if(this.canceledOptionsValue != undefined && this.canceledOptionsValue.length > 0)
             this.selectedStatus.patchValue(this.canceledOptionsValue);
         else
-            this.selectedStatus.patchValue([ CANCELED, DELETED]);
+            this.selectedStatus.patchValue([ CANCELED, DELETED ]);
       }
 
-    else if(this.statusItems[event].title == "Terminé")
+    else if(this.statusItemsLabel == "Terminé")
       {
         this.nonConfirmedOptionsValue=[];
         this.canceledOptionsValue = [];
@@ -870,15 +884,14 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         if(this.endedOptionsValue != undefined && this.endedOptionsValue.length > 0)
           this.selectedStatus.patchValue(this.endedOptionsValue);
       else{
-        this.selectedStatus.patchValue([DELIVERED,PAID,RETURN_RECEIVED]);
+        this.selectedStatus.patchValue( [ DELIVERED ,PAID ,RETURN_RECEIVED ]);
         }
       }
     else {
       this.clearAllSelectedStatus();
       this.selectedStatus.setValue([]);
-      this.selectedStatus.patchValue([this.statusItems[event].title]);
+      this.selectedStatus.patchValue([this.statusItemsLabel]);
     }
-    //console.log("filterPackets-onActiveIndexChange",this.params);
     this.filterPackets('status');
   }
 
@@ -939,8 +952,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   onEditInit($event: any): void {
-    //console.log("onEditInit", $event);
-
     this.selectedField = $event.field;
     this.oldFieldValue = $event.data[this.selectedField];
 
@@ -1034,7 +1045,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         badgeByDate:this.statusItems[0].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:"All", detail: event.item.label});
-          //this.onNotificationClick(event.item.title);
           this.onActiveIndexChange(event.index);
         },
         disabled:true
@@ -1048,7 +1058,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         badgeByDate:this.statusItems[1].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:OOS, detail: event.item.label});
-          //this.onActiveIndexChange(event.index);
         }
       },
       {
@@ -1060,7 +1069,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         badgeByDate:this.statusItems[2].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:NOT_CONFIRMED, detail: event.item.label});
-          //this.onActiveIndexChange(event.index);
         }
       },
       {
@@ -1072,7 +1080,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         badgeByDate:this.statusItems[3].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:NOT_CONFIRMED, detail: event.item.label});
-          //this.onActiveIndexChange(event.index);
         }
       },
       {
@@ -1084,7 +1091,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         badgeByDate:this.statusItems[4].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:IN_PROGRESS, detail: event.item.label});
-          //this.onActiveIndexChange(event.index);
         },
       },
       {
@@ -1096,7 +1102,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         badgeByDate:this.statusItems[5].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:RETURN, detail: event.item.label});
-          //this.onActiveIndexChange(event.index);
           }
       },
       {
@@ -1108,7 +1113,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         badgeByDate:this.statusItems[6].badgeByDate,
         command: (event: any) => {
           this.messageService.add({severity:'info', summary:RETURN, detail: event.item.label});
-          //this.onActiveIndexChange(event.index);
           }
       },
       {
@@ -1241,6 +1245,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           command: () => {
             this.filter= packet.customerPhoneNb;
             this.filterPackets('phone');
+            console.log("checkPhoneNbExist",this.filter);
           }
         },
         {
@@ -1285,16 +1290,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           }
         }
       ];
-      //contextMenu.show(event);
     }
   }
-
-  /*   this.contextMenu.target = $event.currentTarget;
-  if(this.contextMenu != null && this.contextMenu != undefined){
-    console.log(this.contextMenu);
-
-    this.contextMenu.show(event);
-  } */
 
   enCoursOptionsValue !:any;
   enCoursOptions: any[] = [
@@ -1324,312 +1321,3 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   ];
 
 }
-
-  /*private updatePacket(packet: any): void {
-    this.packetService.updatePacket(packet)
-      .pipe(
-        catchError((err: any, caught: Observable<any>): Observable<any> => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while updating ' + err.error.message });
-          const packetIndex = this.packets.findIndex((p: any) => p.id === packet.id);
-          if (packetIndex !== -1) {
-            this.packets[packetIndex][this.selectedField] = this.oldFieldValue;
-          }
-          this.loading = false;
-          return of();
-        })
-      )
-      .subscribe(() => {
-        this.loading = false;
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'The packet is successfully updated' });
-      });
-  }
-  download(text: any, filename: any) {
-    let element = document.createElement('a');
-    element.setAttribute(
-      'href',
-      'data:text/csv;charset=utf-8,' + encodeURIComponent(text)
-    );
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-  }
-
-  selectCity(packet: Packet) {
-    this.selectedCity = packet.city;
-  }
-  selectPhoneNumber(packet: any) {
-    this.selectedPhoneNumber = packet.customerPhoneNb;
-  }
-
-  onActiveIndexChange(event: any) {
-
-    console.log(event, this.canceledOptionsValue);
-    this.activeIndex = event;
-
-    if (this.statusItems[event].title == IN_PROGRESS) {
-      if (this.enCoursOptionsValue != undefined && this.enCoursOptionsValue.length > 0)
-        this.selectedStatus.patchValue(this.enCoursOptionsValue);
-      else
-        this.selectedStatus.patchValue([TO_VERIFY, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3]);
-    }
-    else if (this.statusItems[event].title == NOT_CONFIRMED) {
-      if (this.nonConfirmedOptionsValue != undefined && this.nonConfirmedOptionsValue.length > 0)
-        this.selectedStatus.patchValue(this.nonConfirmedOptionsValue);
-      else
-        this.selectedStatus.patchValue([NOT_CONFIRMED, UNREACHABLE]);
-    }
-    else if (this.statusItems[event].title == CANCELED) {
-      if (this.canceledOptionsValue != undefined && this.canceledOptionsValue.length > 0)
-        this.selectedStatus.patchValue(this.canceledOptionsValue);
-      else
-        this.selectedStatus.patchValue([CANCELED, DELETED]);
-    }
-
-    else if (this.statusItems[event].title == "Terminé") {
-      if (this.endedOptionsValue != undefined && this.endedOptionsValue.length > 0)
-        this.selectedStatus.patchValue(this.endedOptionsValue);
-      else
-        this.selectedStatus.patchValue([DELIVERED, PAID, RETURN_RECEIVED]);
-    }
-    else {
-      this.selectedStatus.setValue([]);
-      this.selectedStatus.patchValue([this.statusItems[event].title]);
-    }
-    //console.log("filterPackets-onActiveIndexChange",this.params);
-    this.filterPackets('status');
-  }
-
-  showStatusButton() {
-    this.showStatus = !this.showStatus;
-  }
-
-  getReasonOptionsByStatus(status: string) {
-    return (Object.keys(ClientReason) as (keyof typeof ClientReason)[])
-      .filter(key => isNaN(Number(key)) && ClientReasonDetails[ClientReason[key]].status === status)  // Filter out any non-number keys
-      .map(key => {
-        const reasonKey = ClientReason[key];
-        const clientReasonDetails = ClientReasonDetails[reasonKey];
-        return {
-          value: key,
-          label: clientReasonDetails.label,
-          description: clientReasonDetails.description,
-          status: clientReasonDetails.status,
-          text: clientReasonDetails.text,
-          outlined: clientReasonDetails.outlined,
-          severity: clientReasonDetails.severity,
-        }
-      })
-  }
-
-  onSelectReason(clientReason: ClientReason, index: number) {
-    this.explanationTitle = this.clientReasons[index]?.description;
-    if (this.explanationElement && this.explanationElement.nativeElement) {
-      setTimeout(() => {
-        this.explanationElement.nativeElement.focus();
-      }, 0);
-    }
-    this.clientReasons.forEach(clientReason => {
-      clientReason.text = true
-      clientReason.outlined = false
-    });
-    this.clientReasons[index].text = false;
-    this.clientReasons[index].outlined = true;
-
-    this.note.clientReason = clientReason;
-    this.note.status = this.clientReasons[index].status;
-  }
-
-  onNoteClick(event: MouseEvent, op: any, notes: Note[]): void {
-    event.stopPropagation(); // Prevent the click event from propagating
-    if (notes.length > 1) {
-      op.toggle(event);
-      this.selectedPacketNotes = notes;
-    }
-  }
-}
-/*notificationList : any [] = [
-  {
-    class:'pi-check-circle',
-    severity:'info',
-    status: CONFIRMEE,
-    count: this.nbrConfirmed
-  },
-  {
-    class:'pi-question-circle',
-    severity:'info',
-    status: A_VERIFIER,
-    count: '0'
-  },
-  {
-    class:'pi-power-off',
-    severity:'warning',
-    status: UNREACHABLE,
-    count: '0'
-  },
-  {
-    class:'pi-phone',
-    severity:'danger',
-    status: NOT_CONFIRMED,
-    count: '0'
-  }
-];*/
-
-/*exportCSV() {
-    let packets: any[] = [];
-    let selectedPackets = this.selectedPackets.map((p) => p.id);
-    packets = this.packets.slice();
-    if (this.filter != '' && this.filter != null)
-      packets = this.dt!.filteredValue;
-    if (this.selectedPackets.length > 0) {
-      let filteredPackets = packets.filter(
-        (packet) => selectedPackets.indexOf(packet.id) > -1
-      );
-      if (filteredPackets.length > 0) packets = filteredPackets.slice();
-    }
-
-    // map the packets to a customer packetList
-    packets = packets?.map(
-      (packet: any) =>
-      (packet = {
-        destinataire_nom: this.getValue(packet.customerName),
-        adresse: this.getValue(packet.address).replace(this.regBS, ' '),
-        ville: this.getValue(packet.city?.name),
-        gouvernorat: this.getValue(packet.city?.governorate.name),
-        telephone: this.getPhoneNumber1(packet.customerPhoneNb),
-        telephone2: this.getPhoneNumber2(packet.customerPhoneNb),
-        nombre_de_colis: 1,
-        prix: this.getValue(packet.price-packet.discount+packet.deliveryPrice),
-        designation:
-          this.getValue(packet.id) +
-          ' ' +
-          this.getValue(packet.fbPage?.name) +
-          ' | ' +
-          this.getValue(packet.packetDescription?.replace(this.regBS, ', ')),
-        commentaire:
-          'Le colis peut etre ouvert lors de la commande du client',
-        barcode: this.getValue(packet.barcode),
-      })
-    );
-
-    // prepare the columns to be exported
-    let cols: any[] = [
-      { field: 'destinataire_nom', header: 'destinataire_nom' },
-      { field: 'adresse', header: 'adresse' },
-      { field: 'ville', header: 'ville' },
-      { field: 'gouvernorat', header: 'gouvernorat' },
-      { field: 'telephone', header: 'telephone' },
-      { field: 'telephone2', header: 'telephone2' },
-      { field: 'nombre_de_colis', header: 'nombre_de_colis' },
-      { field: 'prix', header: 'prix' },
-      { field: 'designation', header: 'designation' },
-      { field: 'commentaire', header: 'commentaire' },
-      { field: 'barcode', header: 'Barcode' },
-    ];
-    let csv = '';
-    let csvSeparator = ';';
-    //headers
-    for (let i = 0; i < cols.length; i++) {
-      if (cols[i].field) {
-        csv += cols[i].field;
-
-        if (i < cols.length - 1) {
-          csv += csvSeparator;
-        }
-      }
-    }
-    //body
-    packets?.forEach((record: any, j) => {
-      csv += '\n';
-      for (let i = 0; i < cols.length; i++) {
-        if (cols[i].field) {
-          //console.log(record[cols[i].field]);
-          // resolveFieldData seems to check if field is nested e.g. data.something --> probably not needed
-          csv += record[cols[i].field]; //this.resolveFieldData(record, this.columns[i].field);
-          if (i < cols.length - 1) {
-            csv += csvSeparator;
-          }
-        }
-      }
-    });
-    this.download(csv, 'first - ' + this.dateUtils.formatDateToString(this.today));
-  }*/
-
-/*onNotificationClick($event?: string): void{
-  console.log("aaaa",$event);
-  //this.createNotification();
-  this.selectedStatus.setValue([]);
-  this.selectedStatus.patchValue([$event]);
-  console.log("filterPackets-onNotificationClick");
-  this.filterPackets('status');
-}*/
-
-/*onStateChange(): void {
-  this.selectedStatus.setValue([]);
-  //this.packetStatusList = [];
-  if (this.selectedStates.indexOf(CORBEIL) > -1) {
-    this.selectedStatus.patchValue([DELETED]);
-  }
-
-  if (this.selectedStates.indexOf(BUREAU) > -1) {
-    this.selectedStatus.patchValue([ NOT_CONFIRMED, OOS, A_VERIFIER, CONFIRMEE ]);
-  }
-  if (this.selectedStates.indexOf(IN_PROGRESS) > -1) {
-    this.selectedStatus.patchValue([ A_VERIFIER, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3]);
-    //this.packetStatusList = this.statusList;
-  }
-  if (this.selectedStates.indexOf(TERMINE) > -1) {
-    this.selectedStatus.patchValue([PAID, RETURN_RECEIVED]);
-  }
-}*/
-/*exportExcel() {
-console.log(this.dt?._totalRecords);
-console.log(this.dt?.totalRecords);
-let packets: any[] = [];
-let selectedPackets = this.selectedPackets.map((p) => p.id);
-packets = this.packets.slice();
-if (this.filter != '' && this.filter != null)
-  packets = this.dt!.filteredValue;
-if (this.selectedPackets.length > 0) {
-  let filteredPackets = packets.filter(
-    (packet) => selectedPackets.indexOf(packet.id) > -1
-  );
-  if (filteredPackets.length > 0) packets = filteredPackets.slice();
-}
-
-packets = packets?.map(
-  (packet: any) =>
-  (packet = {
-    Id: packet.id,
-    Prix: packet.price + packet.deliveryPrice - packet.discount,
-    Références: packet.packetDescription,
-    PageFB: packet.fbPage?.name,
-  })
-);
-import('xlsx').then((xlsx) => {
-  const worksheet = xlsx.utils.json_to_sheet(packets);
-  const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
-  const excelBuffer: any = xlsx.write(workbook, {
-    bookType: 'xlsx',
-    type: 'array',
-  });
-  this.saveAsExcelFile(excelBuffer, 'products');
-});
-}
-
-/*   saveAsExcelFile(buffer: any, fileName: string): void {
-let EXCEL_TYPE =
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-let EXCEL_EXTENSION = '.xlsx';
-const data: Blob = new Blob([buffer], {
-  type: EXCEL_TYPE,
-});
-FileSaver.saveAs(
-  data,
-  fileName + ' - ' + this.dateUtils.formatDateToString(new Date()) + EXCEL_EXTENSION
-);
-} */

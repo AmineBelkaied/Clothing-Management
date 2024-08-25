@@ -1,45 +1,22 @@
-package com.clothing.management.dto;
+package com.clothing.management.dto.DayCount;
 
 import java.util.Date;
 
-public class PacketsStatCountDTO {
-    private Date date;
-    private Long countPayed;
+public class PacketsStatCountDTO extends DayCountDTO {
     private Long countOut;
     private Long countExchange;
-    private Long countReturn;
     private Long countOos;
-    private Long countProgress;
     private Long countAll;
 
     public PacketsStatCountDTO() {
     }
 
     public PacketsStatCountDTO(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countOos, Long countProgress, Long countAll) {
-        this.date = date;
-        this.countPayed = countPayed;
+        super(date, countPayed, countProgress, countReturn);
         this.countOut = countOut;
         this.countExchange = countExchange;
-        this.countReturn = countReturn;
         this.countOos = countOos;
-        this.countProgress = countProgress;
         this.countAll = countAll;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Long getCountPayed() {
-        return countPayed;
-    }
-
-    public void setCountPayed(Long countPayed) {
-        this.countPayed = countPayed;
     }
 
     public Long getCountOut() {
@@ -58,14 +35,6 @@ public class PacketsStatCountDTO {
         this.countExchange = countExchange;
     }
 
-    public Long getCountReturn() {
-        return countReturn;
-    }
-
-    public void setCountReturn(Long countReturn) {
-        this.countReturn = countReturn;
-    }
-
     public Long getCountOos() {
         return countOos;
     }
@@ -74,13 +43,6 @@ public class PacketsStatCountDTO {
         this.countOos = countOos;
     }
 
-    public Long getCountProgress() {
-        return countProgress;
-    }
-
-    public void setCountProgress(Long countProgress) {
-        this.countProgress = countProgress;
-    }
 
     public Long getCountAll() {
         return countAll;
@@ -93,13 +55,9 @@ public class PacketsStatCountDTO {
     @Override
     public String toString() {
         return "PacketsStatCountDTO{" +
-                "date=" + date +
-                ", countPayed=" + countPayed +
                 ", countOut=" + countOut +
                 ", countExchange=" + countExchange +
-                ", countReturn=" + countReturn +
                 ", countEnded=" + countOos +
-                ", countProgress=" + countProgress +
                 ", countAll=" + countAll +
                 '}';
     }

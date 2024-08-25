@@ -79,6 +79,8 @@ export class PacketService {
   }
 
   public addPacket(): Observable<any> {
+    console.log("addPacket");
+
     return this.http.post(`${this.baseUrl}`, {});
   }
 

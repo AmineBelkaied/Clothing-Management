@@ -1,8 +1,8 @@
 package com.clothing.management.controllers;
 
-import com.clothing.management.dto.ProductsDayCountDTO;
+import com.clothing.management.dto.DayCount.OffersDayCountDTO;
+import com.clothing.management.dto.DayCount.ProductsDayCountDTO;
 import com.clothing.management.services.StatService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class StatController {
         this.statService = statService;
     }
 
-    @GetMapping("/model-sold/{modelId}")
+    @GetMapping("/model/{modelId}")
     public ResponseEntity<Map<String, List<?>>> getModelSoldStats(
             @PathVariable Long modelId,
             @RequestParam String beginDate,
@@ -32,7 +32,7 @@ public class StatController {
         }
     }
 
-    @GetMapping("/all-models")
+    @GetMapping("/models")
     public ResponseEntity<Map<String, List<?>>> getAllModelsStats(
             @RequestParam String beginDate,
             @RequestParam String endDate,
@@ -95,7 +95,7 @@ public class StatController {
         }
     }
 
-    @GetMapping("/products-count/{modelId}")
+    @GetMapping("/products/{modelId}")
     public ResponseEntity<List<ProductsDayCountDTO>> getProductsCount(
             @PathVariable Long modelId,
             @RequestParam String beginDate,

@@ -11,7 +11,6 @@ import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 export class ModelService {
 
   private baseUrl: string = environment.baseUrl + `${MODEL_ENDPOINTS.BASE}`;
-  public modelsSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   model : Model;
 
   defaultModel: Model = {
@@ -24,27 +23,32 @@ export class ModelService {
     earningCoefficient: 2,
     purchasePrice: 15,
     deleted: false,
+    enabled: false
   };
 
   public modelSubscriber: BehaviorSubject<Model> = new BehaviorSubject<Model>(
     this.defaultModel
   );
-  models: Model[];
+
+  public modelsSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
+  models: Model[] = [];
 
   constructor(private http: HttpClient) { }
 
   loadModels(): Observable<Model[]> {
     return this.findAllModelsDTO().pipe(
-      tap((models: Model[]) => {
-        this.models = models;
-        this.modelsSubscriber.next(this.models);
-      }),
+      tap((models: Model[]) => this.setModels(models)),
       catchError((error) => {
         // Handle the error here
         console.error('Error fetching offers', error);
         return throwError(() => error);
       })
     );
+  }
+
+  findAllModelsDTO(): Observable<Model[]> {
+    console.log("findAllModelsDTO");
+    return this.http.get<Model[]>(`${this.baseUrl}`);
   }
 
   getModelsSubscriber(): Observable<Model[]> {
@@ -54,9 +58,16 @@ export class ModelService {
     return this.modelsSubscriber.asObservable();
   }
 
+
+
   setModel(model: Model) {
     this.model = model;
     this.modelSubscriber.next(model);
+  }
+
+  setModels(models: Model[]) {
+    this.models = models;
+    this.modelsSubscriber.next(models);
   }
 
   cleanModel() {
@@ -89,11 +100,6 @@ export class ModelService {
 
   getModelSubscriber(): Observable<Model> {
     return this.modelSubscriber.asObservable();
-  }
-
-  findAllModelsDTO(): Observable<Model[]> {
-    console.log("findAllModelsDTO");
-    return this.http.get<Model[]>(`${this.baseUrl}`);
   }
 
   findAllModels() {

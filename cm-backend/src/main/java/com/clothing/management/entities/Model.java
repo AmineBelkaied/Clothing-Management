@@ -35,6 +35,8 @@ public class Model {
 
     private boolean deleted;
 
+    private boolean enabled;
+
     @ManyToMany(cascade = { CascadeType.MERGE } , fetch = FetchType.EAGER)
     @JoinTable(
             name = "model_colors",
@@ -165,6 +167,14 @@ public class Model {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override
