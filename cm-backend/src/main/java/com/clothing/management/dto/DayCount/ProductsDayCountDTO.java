@@ -18,6 +18,9 @@ public class ProductsDayCountDTO extends DayCountDTO {
     private long countExchange;
     private long countOos;
 
+    private long countReturn;
+    private double profits;
+
     public ProductsDayCountDTO() {
     }
 
@@ -27,12 +30,14 @@ public class ProductsDayCountDTO extends DayCountDTO {
             Color color, Size size,
             long countPayed, long countProgress, long countReturn, double profits
     ) {
-        super(packetDate, countPayed, countProgress, countReturn, profits);
+        super(packetDate, countPayed, countProgress);
         this.productId = productId;
         this.modelId = modelId;
         this.modelName = modelName;
         this.color = color;
         this.size = size;
+        this.countReturn = countReturn;
+        this.profits = profits;
     }
 
     public ProductsDayCountDTO(
@@ -41,13 +46,15 @@ public class ProductsDayCountDTO extends DayCountDTO {
             Color color, Size size,
             long countPayed, long countProgress, long countOos, long countReturn, double profits
     ) {
-        super(packetDate, countPayed, countProgress, countReturn, profits);
+        super(packetDate, countPayed, countProgress);
         this.productId = productId;
         this.modelId = modelId;
         this.modelName = modelName;
         this.color = color;
         this.size = size;
         this.countOos = countOos;
+        this.countReturn = countReturn;
+        this.profits = profits;
     }
 
     public Long getProductId() {
@@ -92,6 +99,21 @@ public class ProductsDayCountDTO extends DayCountDTO {
         this.countOos = countOos;
     }
 
+    public long getCountReturn() {
+        return countReturn;
+    }
+
+    public void setCountReturn(long countReturn) {
+        this.countReturn = countReturn;
+    }
+
+    public double getProfits() {
+        return profits;
+    }
+
+    public void setProfits(double profits) {
+        this.profits = profits;
+    }
 
     public String getModelName() {
         return modelName;

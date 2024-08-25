@@ -29,8 +29,7 @@ export class StatistiqueComponent implements OnInit {
   offersChartEnabler : boolean = false;
   colorsChartEnabler : boolean = false;
   stockChartEnabler : boolean = false;
-  pagesChartEnabler : boolean = false;
-  statesChartEnabler : boolean = false;
+  statesAndPagesChartEnabler : boolean = false;
   countProgressEnabler : boolean = false;
   //countProductsPerDay : Number[] = [];
   packets: Packet[] = [];
@@ -72,7 +71,7 @@ export class StatistiqueComponent implements OnInit {
   //end packet by date
 
   startDateString: string;
-  endDateString: string;
+  endDateString: string | null;
 
   cityCounts: CountCitys = {};
   pagesCounts: CountPages = {};
@@ -168,37 +167,42 @@ export class StatistiqueComponent implements OnInit {
 
   findAllPackets(): void {
     this.setCalendar();
-    if(this.packetsChartEnabler)this.getStatAllPacketsChart();
-    if(this.modelsChartEnabler)this.getStatAllModelsChart();
-    if(this.offersChartEnabler)this.getStatAllOffersChart();
-    if(this.stockChartEnabler)this.getStatStockChart();
-    if(this.colorsChartEnabler)this.getStatAllColorsChart();
+    if(this.endDateString){
+      this.packetsChartEnablerChange();
+      this.modelsChartEnablerChange();
+      this.offersChartEnablerChange();
+      this.stockChartEnablerChange();
+      this.colorsChartEnablerChange();
+      this.statesAndPagesChartEnablerChange();
+      //if(this.pagesChartEnabler || this.statesChartEnabler)this.getAllPacketsByDate();
+    }
 
-
-
-    this.packetService
-      .findAllPacketsByDate(this.startDateString, this.endDateString)
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe({
-        next: (response: any) => {
-          console.log('response findAllPacketsByDate:', response);
-          this.packets = response;
-          this.totalItems = response.totalItems;
-          this.filtredCitysCount = this.statsService.getStatsTreeNodesData(
-            this.packets
-          );
-
-          this.createCityStatChart(this.filtredCitysCount.cityCounts);
-          this.createPageStatChart(this.filtredCitysCount.pageCounts);
-          //this.createPacketStatChart(this.filtredCitysCount.dateCounts);
-        },
-        error: (error: Error) => {
-          console.log('Error:', error);
-        },
-      });
   }
 
+  getAllPacketsByDate(){
+    if(this.endDateString)
+    this.packetService
+    .findAllPacketsByDate(this.startDateString, this.endDateString)
+    .pipe(takeUntil(this.$unsubscribe))
+    .subscribe({
+      next: (response: any) => {
+        console.log('response findAllPacketsByDate:', response);
+        this.packets = response;
+        this.totalItems = response.totalItems;
+        this.filtredCitysCount = this.statsService.getStatsTreeNodesData(
+          this.packets
+        );
+        this.createCityStatChart(this.filtredCitysCount.cityCounts);
+        this.createPageStatChart(this.filtredCitysCount.pageCounts);
+        //this.createPacketStatChart(this.filtredCitysCount.dateCounts);
+      },
+      error: (error: Error) => {
+        console.log('Error:', error);
+      },
+    });
+  }
   getStatAllModelsChart() {
+    if(this.endDateString)
     this.statsService
       .statAllModels(this.startDateString, this.endDateString,this.countProgressEnabler)
       .pipe(takeUntil(this.$unsubscribe))
@@ -217,6 +221,7 @@ export class StatistiqueComponent implements OnInit {
   }
 
   getStatStockChart() {
+    if(this.endDateString)
     this.statsService
       .statStock(this.startDateString, this.endDateString)
       .pipe(takeUntil(this.$unsubscribe))
@@ -235,7 +240,9 @@ export class StatistiqueComponent implements OnInit {
   }
 
   getStatAllPacketsChart() {
+
     if(this.deliveryCompanyName==null)this.deliveryCompanyName="ALL";
+    if(this.endDateString)
     this.statsService
       .statAllPackets(this.startDateString, this.endDateString, this.deliveryCompanyName)
       .pipe(takeUntil(this.$unsubscribe))
@@ -252,6 +259,7 @@ export class StatistiqueComponent implements OnInit {
       });
   }
   getStatAllOffersChart() {
+    if(this.endDateString)
     this.statsService
       .statAllOffers(this.startDateString, this.endDateString)
       .pipe(takeUntil(this.$unsubscribe))
@@ -272,6 +280,7 @@ export class StatistiqueComponent implements OnInit {
     const modelsListIdsArray: number[] = this.selectedModels.value.flatMap(
       (obj: any) => obj.id
     );
+    if(this.endDateString)
     this.statsService
       .statAllColors(
         this.startDateString,
@@ -550,7 +559,7 @@ export class StatistiqueComponent implements OnInit {
     this.endDateString =
       this.rangeDates[1] != null
         ? this.dateUtils.formatDateToString(this.rangeDates[1])
-        : this.startDateString;
+        : null;//this.startDateString;
   }
 
   getRandomColor(x: string) {
@@ -693,14 +702,9 @@ export class StatistiqueComponent implements OnInit {
       this.getStatAllOffersChart();
   }
 
-  pagesChartEnablerChange() {
-    if(this.pagesChartEnabler)
-      this.getStatAllPacketsChart();
-  }
-
-  statesChartEnablerChange() {
-    if(this.statesChartEnabler)
-      this.getStatAllPacketsChart();
+  statesAndPagesChartEnablerChange() {
+    if(this.statesAndPagesChartEnabler)
+      this.getAllPacketsByDate();
   }
 
   stockChartEnablerChange() {

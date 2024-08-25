@@ -98,6 +98,8 @@
               class="ml-0"
               [style]="{ width: '250px' }"
               [touchUI]="true"
+              [showOnFocus]="true"
+              [iconDisplay]="'input'"
             >
               <ng-template pTemplate="footer">
                 <div style="display: flex; align-items: center">
@@ -132,10 +134,10 @@
                     (click)="monthDate()"
                   ></p-button>
                   <p-button styleClass="p-button-text" (click)="previousDate()">
-                    <i class="fa fa-arrow-left"></i>
+                    <i class="pi pi-arrow-left"></i>
                   </p-button>
                   <p-button styleClass="p-button-text" (click)="nextDate()">
-                    <i class="fa fa-arrow-right"></i>
+                    <i class="pi pi-arrow-right"></i>
                   </p-button>
                   <p-button
                     label="Clear"
@@ -166,7 +168,7 @@
                   *ngFor="let model of models"
                   [class.selected]="model === selectedModel"
                   class="model-item p-2 mb-2 rounded shadow-sm"
-                  style="cursor: pointer; border: 1px solid #ddd"
+                  style="cursor: pointer; border: 1px solid #ddd; background-color: #ffffff"
                 >
                   <div
                     class="d-flex align-items-center"
@@ -185,7 +187,7 @@
 
       <div class="col-md-9 col-sm-12 mb-3 mt-3">
         <!-- Middle Column: Product Table -->
-        <div class="card shadow-sm rounded" style="background-color: #f8f9fa">
+        <div class="card shadow-sm rounded mb-3" style="background-color: #f8f9fa">
           <div class="card-body p-3">
             <p-table [value]="products" styleClass="p-datatable-gridlines" #dt>
               <ng-template pTemplate="body" let-productSizes let-j="rowIndex">
@@ -287,7 +289,7 @@
           </div>
         </div>
         <!-- Right Column: Stock History -->
-        <div class="card shadow-sm rounded" style="background-color: #f8f9fa">
+        <div class="card shadow-sm rounded mb-3 mt-3" style="background-color: #f8f9fa">
           <div class="card-body p-3">
             <div class="d-flex justify-content-between align-items-center">
               <div>
@@ -317,7 +319,7 @@
   </div>
 
   <div class="container-fluid">
-    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card ml-4 mt-2 mb-3 p-3" style="background-color: #fbfbfb">
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <H3>Chart</H3>
@@ -326,7 +328,7 @@
           <p-selectButton
             [options]="chartOptions"
             [(ngModel)]="selectedChart"
-            (onOptionClick)="selectChart($event)"
+            (onOptionClick)="chartEnablerChange()"
           ></p-selectButton>
         </div>
         <div>

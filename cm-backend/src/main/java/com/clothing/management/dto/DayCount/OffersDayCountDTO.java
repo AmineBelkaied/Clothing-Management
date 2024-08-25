@@ -9,6 +9,8 @@ public class OffersDayCountDTO  extends DayCountDTO {
     private Long packetId;
     private Long packetOfferId;
     private Offer offer;
+    private long countReturn;
+    private double profits;
 
     public OffersDayCountDTO() {
     }
@@ -19,10 +21,13 @@ public class OffersDayCountDTO  extends DayCountDTO {
                               Long packetOfferId,
                               long countPayed, long countProgress, long countReturn, double profits
     ) {
-        super(packetDate, countPayed, countProgress, countReturn, profits);
+        super(packetDate, countPayed, countProgress);
         this.packetId = packetId;
         this.offer = offer;
         this.packetOfferId = packetOfferId;
+        this.countReturn = countReturn;
+        this.profits = profits;
+
     }
 
     public Long getPacketId() {
@@ -47,6 +52,22 @@ public class OffersDayCountDTO  extends DayCountDTO {
 
     public void setPacketOfferId(Long packetOfferId) {
         this.packetOfferId = packetOfferId;
+    }
+
+    public long getCountReturn() {
+        return countReturn;
+    }
+
+    public void setCountReturn(long countReturn) {
+        this.countReturn = countReturn;
+    }
+
+    public double getProfits() {
+        return profits;
+    }
+
+    public void setProfits(double profits) {
+        this.profits = profits;
     }
 
     @Override

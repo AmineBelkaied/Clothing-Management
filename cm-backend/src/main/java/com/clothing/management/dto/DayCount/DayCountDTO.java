@@ -9,31 +9,18 @@ public class DayCountDTO {
     private Date date;
     private long countProgress;
     private long countPayed;
-    private long countReturn;
-    private double profits;
+
 
     public DayCountDTO() {
     }
 
     public DayCountDTO(
             Date packetDate,
-            long countPayed, long countProgress, long countReturn, double profits
+            long countPayed, long countProgress
     ) {
         this.date = packetDate;
         this.countPayed = countPayed;
         this.countProgress = countProgress;
-        this.countReturn = countReturn;
-        this.profits = profits;
-    }
-    public DayCountDTO(
-            Date date,
-            long countPayed, long countProgress, long countReturn
-    ) {
-        this.date = date;
-        this.countPayed = countPayed;
-        this.countProgress = countProgress;
-        this.countReturn = countReturn;
-        this.profits = profits;
     }
 
     public Date getDate() {
@@ -58,22 +45,6 @@ public class DayCountDTO {
         this.countPayed = countPayed;
     }
 
-    public long getCountReturn() {
-        return countReturn;
-    }
-
-    public void setCountReturn(long countReturn) {
-        this.countReturn = countReturn;
-    }
-
-    public double getProfits() {
-        return profits;
-    }
-
-    public void setProfits(double profits) {
-        this.profits = profits;
-    }
-
 
     @Override
     public String toString() {
@@ -81,8 +52,6 @@ public class DayCountDTO {
                 "packetDate=" + date +
                 ", countProgress=" + countProgress +
                 ", countPayed=" + countPayed +
-                ", countReturn=" + countReturn +
-                ", profits=" + profits +
                 '}';
     }
 }

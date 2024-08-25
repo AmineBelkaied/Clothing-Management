@@ -1,7 +1,9 @@
 package com.clothing.management.controllers;
 
+import com.clothing.management.dto.DayCount.DayCountDTO;
 import com.clothing.management.dto.DayCount.OffersDayCountDTO;
 import com.clothing.management.dto.DayCount.ProductsDayCountDTO;
+import com.clothing.management.dto.DayCount.SoldProductsDayCountDTO;
 import com.clothing.management.services.StatService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,6 +104,19 @@ public class StatController {
             @RequestParam String endDate) {
         try {
             List<ProductsDayCountDTO> counts = statService.productsCountByDate(modelId, beginDate, endDate);
+            return ResponseEntity.ok(counts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/sold-products/{modelId}")
+    public ResponseEntity<List<SoldProductsDayCountDTO>> getSoldProductsCount(
+            @PathVariable Long modelId,
+            @RequestParam String beginDate,
+            @RequestParam String endDate) {
+        try {
+            List<SoldProductsDayCountDTO> counts = statService.soldProductsCountByDate(modelId, beginDate, endDate);
             return ResponseEntity.ok(counts);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

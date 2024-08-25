@@ -1,11 +1,14 @@
 package com.clothing.management.dto;
 
+import com.clothing.management.entities.Model;
 import com.clothing.management.entities.Size;
 
 import java.util.List;
 import java.util.Set;
 
 public class StockDTO {
+
+    Model model;
     List<List<ProductDTO>> productsByColor;
     List<Size> sizes;
 
@@ -13,6 +16,7 @@ public class StockDTO {
     }
 
     public StockDTO(List<List<ProductDTO>> productsByColor, List<Size> sizes) {
+
         this.productsByColor = productsByColor;
         this.sizes = sizes;
     }
@@ -31,6 +35,14 @@ public class StockDTO {
 
     public void setSizes(List<Size> sizes) {
         this.sizes = sizes;
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
     }
 
     @Override

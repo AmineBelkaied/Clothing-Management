@@ -263,7 +263,7 @@ public class PacketServiceImpl implements PacketService {
             Long offerId = groupedPackets.get(0).getOffer().getId();
 
             List<ProductDTO> products = groupedPackets.stream()
-                    .map(pp -> new ProductDTO(pp.getProduct()))
+                    .map(pp -> new ProductDTO(pp.getProduct(),true))
                     .collect(Collectors.toList());
 
             ProductsPacketDTO dto = new ProductsPacketDTO(

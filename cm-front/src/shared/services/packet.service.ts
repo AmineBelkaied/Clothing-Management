@@ -130,9 +130,9 @@ export class PacketService {
     return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.DUPLICATE}/${id}`);
   }
 
-  getLastStock(packetId: number): Observable<any> {
+  /*getLastStock(packetId: number): Observable<any> {
     return this.http.get(`${this.baseUrl}/${packetId}${PACKET_ENDPOINTS.CHECK_VALIDITY}`);
-  }
+  }*/
 
   getPacketTimeLine(packetId: number) {
     return this.http.get(`${this.baseUrl}/${packetId}${PACKET_ENDPOINTS.TIMELINE}`);

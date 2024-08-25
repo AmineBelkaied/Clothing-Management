@@ -47,7 +47,7 @@ export class ModelService {
   }
 
   findAllModelsDTO(): Observable<Model[]> {
-    console.log("findAllModelsDTO");
+    //console.log("findAllModelsDTO");
     return this.http.get<Model[]>(`${this.baseUrl}`);
   }
 
@@ -71,7 +71,7 @@ export class ModelService {
   }
 
   cleanModel() {
-    console.log("cleanModel");
+    //console.log("cleanModel");
     this.model = this.defaultModel;
     this.modelSubscriber.next(this.defaultModel);
   }

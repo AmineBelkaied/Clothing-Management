@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDTO> findAllProducts() {
-        return productRepository.findAll().stream().map(ProductDTO::new).collect(Collectors.toList());
+        return productRepository.findAll().stream().map(product -> new ProductDTO(product,true)).collect(Collectors.toList());
     }
 
     @Override
@@ -86,9 +86,10 @@ public class ProductServiceImpl implements ProductService {
             groupedProducts.forEach((color, products) -> {
                 List<ProductDTO> productDTOList = new ArrayList<>();
                 //objects.add(color);
-                productDTOList.addAll(sortProductBySize((products.stream().map(ProductDTO::new).collect(Collectors.toList()))));
+                productDTOList.addAll(sortProductBySize(products.stream().map(product -> new ProductDTO(product,false)).collect(Collectors.toList())));
                 productsByColors.add(productDTOList);
             });
+            stockDTO.setModel(model);
             stockDTO.setProductsByColor(productsByColors);
             stockDTO.setSizes(sortSizes(model.getSizes().stream().filter(size -> !size.getReference().equals("?")).collect(Collectors.toSet())));
         });
@@ -99,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
     private List<ProductDTO> sortProductBySize(List<ProductDTO> products) {
         Comparator<ProductDTO> sizeComparator = (product1, product2) -> {
             // Define the order of sizes
-            String[] order = {"XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"};
+            String[] order = {"14","16","XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"};
             int index1 = getIndex(product1.getSize().getReference(), order);
             int index2 = getIndex(product2.getSize().getReference(), order);
             return Integer.compare(index1, index2);
@@ -112,7 +113,7 @@ public class ProductServiceImpl implements ProductService {
     private List<Size> sortSizes(Set<Size> sizes) {
         Comparator<Size> sizeComparator = (size1, size2) -> {
             // Define the order of sizes
-            String[] order = {"XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "?"};
+            String[] order = {"14","16","XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "?"};
             int index1 = getIndex(size1.getReference(), order);
             int index2 = getIndex(size2.getReference(), order);
             return Integer.compare(index1, index2);

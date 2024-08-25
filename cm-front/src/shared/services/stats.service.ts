@@ -21,7 +21,7 @@ export class StatsService {
       .set('beginDate', beginDate)
       .set('endDate', endDate);
 
-    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.PRODUCTS}/${modelId}`, { params });
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.SOLD}/${modelId}`, { params });
   }
 
   public statAllModels(beginDate: string, endDate: string, countProgress: boolean): Observable<any> {

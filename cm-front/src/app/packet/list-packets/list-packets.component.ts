@@ -67,7 +67,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   selectedPackets: Packet[] = [];
   rangeDates: Date[] = [];
   startDate: Date = new Date();
-  endDate: Date = new Date();
+  endDate: Date | null = new Date();
   today: Date = new Date();
   today_2: Date = new Date(Date.now() - 172800000);
   editMode = false;
@@ -646,30 +646,32 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   filterPackets($event?: string): void {
     this.createRangeDate();
-    let page = 0;
-    if ($event == 'clear') {
-      this.selectedStates = [];
-      this.selectedStatus.setValue([]);
-    } else if ($event == 'page')
-      page = this.currentPage;
-    if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
+    if(this.endDate){
+      let page = 0;
+      if ($event == 'clear') {
+        this.selectedStates = [];
+        this.selectedStatus.setValue([]);
+      } else if ($event == 'page')
+        page = this.currentPage;
+      if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
 
-    if (this.filter !== '' && this.filter !== undefined)
-      {
-        this.oldActiveIndex = this.activeIndex;
-        this.activeIndex = 0;
-      }
+      if (this.filter !== '' && this.filter)
+        {
+          this.oldActiveIndex = this.activeIndex;
+          this.activeIndex = 0;
+        }
 
-    this.params = {
-      page: page,
-      size: this.pageSize,
-      searchText: this.filter != null && this.filter != '' ? this.filter : null,
-      startDate: this.dateUtils.formatDateToString(this.startDate),
-      endDate: this.dateUtils.formatDateToString(this.endDate),
-      status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join(),
-      mandatoryDate: this.mandatoryDateCheckBox
-    };
-    this.findAllPackets();
+      this.params = {
+        page: page,
+        size: this.pageSize,
+        searchText: this.filter != null && this.filter != '' ? this.filter : null,
+        startDate: this.dateUtils.formatDateToString(this.startDate),
+        endDate: this.dateUtils.formatDateToString(this.endDate),
+        status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join(),
+        mandatoryDate: this.mandatoryDateCheckBox
+      };
+      this.findAllPackets();
+    }
   }
 
   createRangeDate(): void {
@@ -678,7 +680,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       if (this.rangeDates[1]) {
         this.endDate = this.rangeDates[1];
       } else {
-        this.endDate = this.startDate;
+        this.endDate = null;
       }
     } else {
       this.startDate = this.today;

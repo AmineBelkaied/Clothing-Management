@@ -57,7 +57,7 @@
           </li>
         </ul>
       </p-card>
-      <p-card [header]="sourceString" [style]="{ width: '35rem' }">
+      <p-card [header]="targetString" [style]="{ width: '35rem' }">
         <ul [style]="{ 'max-height': '50rem', 'overflow-y': 'auto', 'list-style': 'none', 'padding': '0', 'margin': '0' }">
           <li *ngFor="let packet of targetPackets"
               style="cursor: pointer; padding: 1rem; border: 1px solid #ddd; margin-bottom: 0.5rem;">
@@ -75,25 +75,6 @@
         </ul>
       </p-card>
     </div>
-
-
-
-    <!--<p-pickList [source]="sourceProducts" [target]="targetProducts" [sourceHeader]="sourceString" [targetHeader]="targetString" [responsive]="true"
-      [sourceStyle]="{ height: '30rem' }" [targetStyle]="{ height: '30rem' }" breakpoint="1400px"
-      [showSourceControls]="false" [showTargetControls]="false" [metaKeySelection]="false">
-      <ng-template let-packet pTemplate="item">
-          <div class="flex flex-wrap p-2 align-items-center gap-3">
-              <div class="flex-1 flex flex-column gap-2">
-                <span class="font-bold">{{ packet.date | date : "dd/MM" }}---{{ packet.barcode }}</span>
-                  <div class="flex align-items-center gap-2">
-                      <i class="pi pi-tag text-sm"></i>
-                      <span>{{ packet.id }}---{{ packet.packetDescription }}</span>
-                  </div>
-              </div>
-              <span class="font-bold text-900">{{ '$' + packet.price }}</span>
-          </div>
-      </ng-template>
-    </p-pickList>-->
   </div>
 </div>
 

@@ -188,6 +188,7 @@ export class AddPacketComponent implements OnInit {
       }
     }
   }
+
   pushModelToOffer(
     offerIndex: number,
     model: Model,

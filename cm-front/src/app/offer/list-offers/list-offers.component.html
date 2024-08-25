@@ -55,10 +55,10 @@
                 <td>{{offer.price}} DT</td>
                 <td>
                     <ng-container *ngIf="offer.enabled;else disabled">
-                        <i class="fa fa-unlock" style="color: green;font-size: 17px;"></i>
+                        <i class="pi pi-unlock" style="color: green;font-size: 17px;"></i>
                     </ng-container>
                     <ng-template #disabled>
-                        <i class="fa fa-lock" style="color: red;font-size: 17px;"></i>
+                        <i class="pi pi-lock" style="color: red;font-size: 17px;"></i>
                     </ng-template>
                 </td>
                 <td>

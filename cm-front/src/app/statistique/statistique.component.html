@@ -27,10 +27,10 @@
                 <p-button label="Mois" styleClass="p-button-text" (click)="monthDate()"></p-button>
                 <p-button label="-4" styleClass="p-button-text" (click)="minus4daysDate()"></p-button>
                 <p-button styleClass="p-button-text" (click)="previousDate()">
-                  <i class="fa fa-arrow-left"></i>
+                  <i class="pi pi-arrow-left"></i>
                 </p-button>
                 <p-button styleClass="p-button-text" (click)="nextDate()">
-                  <i class="fa fa-arrow-right"></i>
+                  <i class="pi pi-arrow-right"></i>
                 </p-button>
                 <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
             </div>
@@ -41,39 +41,6 @@
     </div>
   </div>
 </div>
-
-<!---------------------------------Packets Chart----------------------------------------
-<div class="container-fluid">
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-    <p-card header="Packets Chart" [style]="{ width: '100%'}">
-      <p-tabView>
-        <p-tabPanel header="Chart">
-          <p-chart type="line" [data]="PacketsData" [options]="PacketsOptions"></p-chart>
-        </p-tabPanel>
-        <p-tabPanel header="Table">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Min-Max</th>
-                  <th>Average</th>
-                  <th>Sum</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of modelTable | keyvalue">
-                  <td>{{ item.key }}</td>
-                  <td>{{ item.value.min }}-{{ item.value.max }}</td>
-                  <td>{{ item.value.average.toFixed(2) }}</td>
-                  <td>{{ item.value.sum }}</td>
-                </tr>
-              </tbody>
-            </table>
-        </p-tabPanel>
-        </p-tabView>
-    </p-card>
-  </div>
-</div>-->
 
 <!-----------------------------------Packets Chart---------------------------------------->
 <div class="container-fluid">
@@ -290,54 +257,50 @@
           <div>
             <H3>Stock Chart</H3>
           </div>
-          <div class="mb-3">
-            <p-selectButton [options]="enablerOptions" [(ngModel)]="stockChartEnabler" optionLabel="label" optionValue="value" (click)="stockChartEnablerChange()"></p-selectButton>
+          <div>
+            <p-selectButton
+            [options]="enablerOptions"
+            [(ngModel)]="stockChartEnabler"
+            optionLabel="label"
+            optionValue="value"
+            (click)="stockChartEnablerChange()">
+          </p-selectButton>
           </div>
-          <div></div>
         </div>
         <p-tabView *ngIf="stockChartEnabler">
           <p-chart type="line" [data]="stockData" [options]="stockOptions"></p-chart>
         </p-tabView>
-
       </p-card>
   </div>
 </div>
 
-<!--------------------------------States Chart---------------------------------------->
+<!-------------------------------------States/Pages Chart---------------------------------------->
 <div class="container-fluid">
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
     <p-card [style]="{ width: '100%'}">
       <div class="d-flex justify-content-between align-items-center">
         <div>
-          <H3>Gouvernerat Chart</H3>
+          <H3>States and pages chart</H3>
         </div>
-        <div class="mb-3">
-          <p-selectButton [options]="enablerOptions" [(ngModel)]="statesChartEnabler" optionLabel="label" optionValue="value" (click)="statesChartEnablerChange()"></p-selectButton>
+        <div>
+          <p-selectButton
+          [options]="enablerOptions"
+          [(ngModel)]="statesAndPagesChartEnabler"
+          optionLabel="label"
+          optionValue="value"
+          (click)="statesAndPagesChartEnablerChange()">
+        </p-selectButton>
         </div>
-        <div></div>
       </div>
-      <p-tabView *ngIf="statesChartEnabler">
-        <p-chart type="bar" [data]="StatesData" [options]="StatesOptions"></p-chart>
-      </p-tabView>
+        <p-tabView *ngIf="statesAndPagesChartEnabler">
+          <p-tabPanel header="Gouvernerat">
+                <p-chart type="bar" [data]="StatesData" [options]="StatesOptions"></p-chart>
+          </p-tabPanel>
+          <p-tabPanel header="Pages">
+                <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
+          </p-tabPanel>
+        </p-tabView>
     </p-card>
   </div>
 </div>
-<!-------------------------------------Pages Chart---------------------------------------->
-<div class="container-fluid">
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-      <p-card [style]="{ width: '100%'}">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <H3>Pages Chart</H3>
-          </div>
-          <div class="mb-3">
-            <p-selectButton [options]="enablerOptions" [(ngModel)]="pagesChartEnabler" optionLabel="label" optionValue="value" (click)="pagesChartEnablerChange()"></p-selectButton>
-          </div>
-          <div></div>
-        </div>
-        <p-tabView *ngIf="pagesChartEnabler">
-          <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
-        </p-tabView>
-      </p-card>
-  </div>
-</div>
+

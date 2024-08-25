@@ -54,6 +54,7 @@ export const STAT_ENDPOINTS = {
     PACKETS: '/packets',
     OFFERS: '/offers',
     PRODUCTS: '/products',
+    SOLD: '/sold-products',
 };
 
 export const CITY_ENDPOINTS = {

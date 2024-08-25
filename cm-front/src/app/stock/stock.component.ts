@@ -6,7 +6,6 @@ import { ProductService } from '../../shared/services/product.service';
 import { Model } from 'src/shared/models/Model';
 import { ProductHistoryService } from 'src/shared/services/product-history.service';
 import { Subject, takeUntil, tap } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
 import { StatsService } from 'src/shared/services/stats.service';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { DateUtils } from 'src/shared/utils/date-utils';
@@ -62,7 +61,7 @@ export class StockComponent implements OnInit,OnDestroy {
   rangeDates: Date[] = [];
   range: number = 30;
   startDatestring : string;
-  endDatestring : string;
+  endDatestring : string | null;
 
   searchField: string = '';
   $unsubscribe: Subject<void> = new Subject();
@@ -94,17 +93,13 @@ export class StockComponent implements OnInit,OnDestroy {
     private productService: ProductService,
     private productHistoryService: ProductHistoryService,
     private messageService: MessageService,
-    private activateRoute: ActivatedRoute,
     private statsService: StatsService,
     private modelService: ModelService,
     private dateUtils: DateUtils
   ) {}
 
   ngOnInit(): void {
-    console.log("ngOnInit");
     this.getAllModel();
-
-
     // Create the line chart
     this.dataSetArray = [
       {
@@ -175,7 +170,6 @@ export class StockComponent implements OnInit,OnDestroy {
         tap((models: Model[]) => {
           if (models && models.length > 0) {
             this.models = models.filter((model: Model) => model.enabled);
-            //console.log("this.models inside subscribe:", this.models);
             let modelsLength = this.models.length - 1;
             this.modelId = this.models[modelsLength].id!;
             this.selectedModel = this.models[modelsLength] || this.models[0];
@@ -190,43 +184,17 @@ export class StockComponent implements OnInit,OnDestroy {
       });
   }
 
-/*     this.modelService.getModelsSubscriber()
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe({
-        next: (data: Model[]) => {
-            this.models = data;
-            console.log("this.models inside subscribe:", this.models);
-            // If you need to log or perform further actions after models is set:
-            this.doSomethingAfterModelsAreSet(this.models);
-        },
-        error: (err: any) => {
-          console.error('Error fetching models:', err);
-        }
-      }); */
-
-
-/*   doSomethingAfterModelsAreSet(data : Model[]) {
-    console.log("this.models in additional method:", data);
-    let modelsLength = data.length-1;
-    let model : Model = data[1];
-
-        this.modelId = model.id!;
-        this.selectedModel = data[modelsLength] || data[0];
-
-  } */
-
-
   getStats(){
       this.modelId= this.selectedModel.id!;
       this.setCalendar();
       this.getStockByModelId(this.modelId);
-      //this.getProductsCountByModelId(this.modelId);
+      this.getProductsCountByModelId(this.modelId);
       this.chartEnablerChange();
       this.historyEnablerChange();
   }
 
   getProductsCountByModelId(modelId : number){
-
+    if(this.endDatestring)
     this.statsService.productsCount(
       modelId,
       this.startDatestring,
@@ -235,8 +203,6 @@ export class StockComponent implements OnInit,OnDestroy {
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
       next: (response: any) => {
-        console.log("statProductSold",response);
-        //this.statsService.getStatsTreeNodesData(response);
         this.productsCount = response;
       },
       error: (error: any) => {
@@ -249,6 +215,7 @@ export class StockComponent implements OnInit,OnDestroy {
   }
 
   getStatModelSoldChart(option : string){
+    if(this.endDatestring)
     this.statsService.statModelSold(
       this.modelId,
       this.startDatestring,
@@ -268,11 +235,6 @@ export class StockComponent implements OnInit,OnDestroy {
         console.log('Observable completed-- All statProductSold --');
       }
     });
-  }
-
-  selectChart($event: any){
-    if(this.chartEnabler)
-      this.getStatModelSoldChart($event.option)
   }
 
   createChart(data: any , option : string){
@@ -343,12 +305,9 @@ export class StockComponent implements OnInit,OnDestroy {
 
   getStockByModelId(modelId: number) {
     this.productService.getStock(modelId).subscribe((result: any) => {
+      this.modelName=result.model.name!;
+      this.colors=result.model.colors!;
       this.products = result.productsByColor;
-      let productByColor = this.products[0]
-      if(this.products)
-        this.modelName=productByColor[0].model?.name!;
-        this.colors=productByColor[0].model?.colors!;
-      //console.log('this.products[0]',this.products[0]);
       this.sizes = result.sizes;
     });
   }
@@ -360,7 +319,7 @@ export class StockComponent implements OnInit,OnDestroy {
 
   getCountProgress(productId:number): number{
     let product = this.productsCount.find(item => item.productId === productId);
-    console.log("product",product);
+    //console.log("id:"+productId+"/product",product);
     return (product) ? product.countProgress: 0;
   }
 
@@ -544,7 +503,9 @@ export class StockComponent implements OnInit,OnDestroy {
 
   dateFilterChange() {
     this.setCalendar();
-    this.getStats();
+    if(this.endDatestring){
+      this.getStats();
+    }
   }
 
   getProductHistory(){
@@ -569,7 +530,7 @@ export class StockComponent implements OnInit,OnDestroy {
     }
 
     this.startDatestring = this.dateUtils.formatDateToString(this.rangeDates[0])
-    this.endDatestring = this.rangeDates[1] != null? this.dateUtils.formatDateToString(this.rangeDates[1]): this.startDatestring;
+    this.endDatestring = this.rangeDates[1] != null? this.dateUtils.formatDateToString(this.rangeDates[1]): null;//this.startDatestring;
   }
 
   haveSelectedItems(index: number, row: boolean):boolean {

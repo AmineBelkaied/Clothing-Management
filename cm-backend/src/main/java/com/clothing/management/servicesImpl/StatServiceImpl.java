@@ -323,7 +323,6 @@ public class StatServiceImpl implements StatService {
                     if (product.getDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId()))
                     {
                         count+=product.getCountPayed();
-                        countRetour+=product.getCountReturn();
                         countProgress+=product.getCountProgress();
                     }
                 }if(count==0)colorRecap.setMin(0L);
@@ -659,5 +658,10 @@ public class StatServiceImpl implements StatService {
     @Override
     public List<ProductsDayCountDTO> productsCountByDate(Long modelId,String beginDate,String endDate){
         return productsPacketRepository.productsCountByDate(modelId, beginDate,endDate);
+    }
+
+    @Override
+    public List<SoldProductsDayCountDTO> soldProductsCountByDate(Long modelId,String beginDate,String endDate){
+        return productsPacketRepository.soldProductsCountByDate(modelId, beginDate,endDate);
     }
 }

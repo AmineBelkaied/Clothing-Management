@@ -5,26 +5,31 @@ import com.clothing.management.entities.Size;
 
 import java.util.Date;
 
-public class ModelDayCountDTO extends DayCountDTO {
+public class SoldProductsDayCountDTO extends DayCountDTO {
 
     private Long productId;
+
+    private long countExchange;
+    private long countOos;
+
     private Color color;
     private Size size;
-    private long countReturn;
 
-    public ModelDayCountDTO() {
+
+    public SoldProductsDayCountDTO() {
     }
 
-    public ModelDayCountDTO(
+    public SoldProductsDayCountDTO(
             Date packetDate, Long productId,
             Color color, Size size,
-            long countPayed, long countProgress, long countReturn
+            long countPayed, long countProgress, long countExchange, long countOos
     ) {
         super(packetDate, countPayed, countProgress);
         this.productId = productId;
+        this.countExchange =countExchange;
+        this.countOos = countOos;
         this.color = color;
         this.size = size;
-        this.countReturn = countReturn;
     }
 
     public Long getProductId() {
@@ -32,6 +37,22 @@ public class ModelDayCountDTO extends DayCountDTO {
     }
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public long getCountExchange() {
+        return countExchange;
+    }
+
+    public void setCountExchange(long countExchange) {
+        this.countExchange = countExchange;
+    }
+
+    public long getCountOos() {
+        return countOos;
+    }
+
+    public void setCountOos(long countOos) {
+        this.countOos = countOos;
     }
 
     public Color getColor() {
