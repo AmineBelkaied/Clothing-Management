@@ -23,7 +23,10 @@ export const OFFER_ENDPOINTS = {
     BASE: '/offers',
     MODEL_QUANTITIES: '/model-quantities',
     BY_FB_PAGE: '/fb-page',
-    BATCH_DELETE: '/batch-delete'
+    BATCH_DELETE: '/batch-delete',
+    UPDATE_DATA: '/update-data',
+    UPDATE_OFFER_FB_PAGES: '/update-offer-fb-pages',
+    UPDATE_OFFER_MODESLS: '/update-offer-models'
 };
 
 export const MODEL_ENDPOINTS = {
@@ -55,6 +58,8 @@ export const STAT_ENDPOINTS = {
     OFFERS: '/offers',
     PRODUCTS: '/products',
     SOLD: '/sold-products',
+    PAGES: '/pages',
+    STATES: '/states'
 };
 
 export const CITY_ENDPOINTS = {

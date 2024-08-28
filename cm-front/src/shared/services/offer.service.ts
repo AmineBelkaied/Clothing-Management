@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Offer } from '../models/Offer';
@@ -57,11 +57,6 @@ cleanOffre() {
     this.offersSubscriber.next(offers);
   }
 
-  /*findAllOffers() {
-    return this.http.get(`${this.baseUrl}`);
-  }*/
-
-
   findOffersByFbPageId(id: number) : Observable<Offer[]>{
     return this.http.get<Offer[]>(`${this.baseUrl}${OFFER_ENDPOINTS.BY_FB_PAGE}/${id}`);
   }
@@ -87,15 +82,48 @@ cleanOffre() {
   }
 
   updateData(offer: Offer) {
-    return this.http.put(this.baseUrl + "/update-data?id="+offer.id+"&name="+offer.name+"&price="+offer.price+"&enabled="+offer.enabled , {headers : { 'content-type': 'application/json'}})
+    const params = new HttpParams().set('id', offer.id)
+                                   .set('name',offer.name)
+                                   .set('price',offer.price)
+                                   .set('enabled',offer.enabled);
+    return this.http.put(`${this.baseUrl}${OFFER_ENDPOINTS.UPDATE_DATA}`, {
+      headers: { 'content-type': 'application/json' },
+      params: params
+    }).pipe(
+      catchError((error) => {
+        console.error('Error:', error);
+        return throwError(error);
+      })
+    );
+    //return this.http.put(`${this.baseUrl}${OFFER_ENDPOINTS.UPDATE_DATA}`+ ?id="+offer.id+"&name="+offer.name+"&price="+offer.price+"&enabled="+offer.enabled , {headers : { 'content-type': 'application/json'}})
   }
 
   updateOfferFbPages(offerId: number, fbPages: FbPage[]) {
-    return this.http.put(this.baseUrl + "/update-offer-fb-pages?offerId="+offerId , fbPages , {headers : { 'content-type': 'application/json'}})
+    const params = new HttpParams().set('offerId', offerId)
+    return this.http.put(`${this.baseUrl}${OFFER_ENDPOINTS.UPDATE_OFFER_FB_PAGES}`, fbPages ,
+      {
+        headers : { 'content-type': 'application/json'},
+        params: params
+      }).pipe(
+        catchError((error) => {
+          console.error('Error:', error);
+          return throwError(error);
+        })
+      );
   }
 
   updateOfferModels(offerId: number, offerModelsDTO: OfferModelsDTO[]) : Observable<any> {
-    return this.http.put(this.baseUrl + "/update-offer-models?offerId=" + offerId , offerModelsDTO , {headers : { 'content-type': 'application/json'}})
+    const params = new HttpParams().set('offerId', offerId)
+    return this.http.put(`${this.baseUrl}${OFFER_ENDPOINTS.UPDATE_OFFER_MODESLS}`, offerModelsDTO ,
+      {
+        headers : { 'content-type': 'application/json'},
+        params: params
+      }).pipe(
+        catchError((error) => {
+          console.error('Error:', error);
+          return throwError(error);
+        })
+      );
   }
 
   deleteOfferById(id: number) {

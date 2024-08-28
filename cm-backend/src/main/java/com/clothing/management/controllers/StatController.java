@@ -1,9 +1,6 @@
 package com.clothing.management.controllers;
 
-import com.clothing.management.dto.DayCount.DayCountDTO;
-import com.clothing.management.dto.DayCount.OffersDayCountDTO;
-import com.clothing.management.dto.DayCount.ProductsDayCountDTO;
-import com.clothing.management.dto.DayCount.SoldProductsDayCountDTO;
+import com.clothing.management.dto.DayCount.*;
 import com.clothing.management.services.StatService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,10 +59,9 @@ public class StatController {
     @GetMapping("/colors")
     public ResponseEntity<Map<String, List<?>>> getColorsStats(
             @RequestParam String beginDate,
-            @RequestParam String endDate,
-            @RequestParam List<Long> modelIds) {
+            @RequestParam String endDate) {//,@RequestParam List<Long> modelIds
         try {
-            Map<String, List<?>> stats = statService.statAllColorsChart(beginDate, endDate, modelIds);
+            Map<String, List<?>> stats = statService.statAllColorsChart(beginDate, endDate);//, modelIds
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -118,6 +114,30 @@ public class StatController {
         try {
             List<SoldProductsDayCountDTO> counts = statService.soldProductsCountByDate(modelId, beginDate, endDate);
             return ResponseEntity.ok(counts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/pages")
+    public ResponseEntity<List<PagesStatCountDTO>> getPacketsPagesCount(
+            @RequestParam String beginDate,
+            @RequestParam String endDate) {
+        try {
+            List<PagesStatCountDTO> pagesStatCountDTO = statService.findAllPacketsPages( beginDate, endDate);
+            return ResponseEntity.ok(pagesStatCountDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/states")
+    public ResponseEntity<List<StatesStatCountDTO>> getPacketsStatesCount(
+            @RequestParam String beginDate,
+            @RequestParam String endDate) {
+        try {
+            List<StatesStatCountDTO> statesStatCountDTO = statService.findAllPacketsStates( beginDate, endDate);
+            return ResponseEntity.ok(statesStatCountDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

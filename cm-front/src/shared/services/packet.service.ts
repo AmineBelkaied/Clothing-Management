@@ -62,14 +62,6 @@ export class PacketService {
     return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.NOTIFICATIONS_SYNC}`, { params });
   }
 
-  public findAllPacketsByDate(beginDate: string, endDate: string): Observable<any> {
-    //if(endDate == null) endDate = beginDate;
-    let params = new HttpParams()
-    .set('beginDate', beginDate)
-    .set('endDate', endDate);
-    return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.BY_DATE_RANGE}`, { params });
-  }
-
   public findPacketById(id: number): Observable<any> {
     return this.http.get(`${this.baseUrl}/${id}`);
   }

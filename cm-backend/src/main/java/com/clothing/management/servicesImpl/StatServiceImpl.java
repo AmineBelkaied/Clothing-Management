@@ -5,6 +5,7 @@ import com.clothing.management.dto.DayCount.*;
 import com.clothing.management.entities.*;
 import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.repository.IModelStockHistoryRepository;
+import com.clothing.management.repository.IPacketRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.services.PacketService;
 import com.clothing.management.services.StatService;
@@ -23,10 +24,14 @@ public class StatServiceImpl implements StatService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PacketService.class);
     private final IProductsPacketRepository productsPacketRepository;
     private final IModelStockHistoryRepository modelStockHistoryRepository;
+    private final IPacketRepository packetRepository;
 
-    public StatServiceImpl(IProductsPacketRepository productsPacketRepository, IModelStockHistoryRepository modelStockHistoryRepository) {
+    public StatServiceImpl(IProductsPacketRepository productsPacketRepository,
+                           IModelStockHistoryRepository modelStockHistoryRepository,
+                           IPacketRepository packetRepository) {
         this.productsPacketRepository = productsPacketRepository;
         this.modelStockHistoryRepository = modelStockHistoryRepository;
+        this.packetRepository = packetRepository;
     }
 
     @Override
@@ -83,7 +88,20 @@ public class StatServiceImpl implements StatService {
         }
 
         //total models Count
-        Integer i = 0;
+        listModelsCount.add(countTotal(uniqueDates,listModelsCount));
+
+        //total recap product table: table recap des models
+        StatTableDTO modelTotalRecap = createTableRecap(modelsRecapCount);
+        modelsRecapCount.add(modelTotalRecap);
+        Map <String , List<?>> data =new HashMap<>();
+        data.put("dates",uniqueDates);
+        data.put("modelsCount",listModelsCount);
+        data.put("modelsRecapCount",modelsRecapCount);
+        return data;
+    }
+    private ArrayList<Integer> countTotal(List<Date> uniqueDates,List<List<Integer>> listModelsCount){
+        ArrayList<Integer> countTotalList = new ArrayList<>();
+        int i = 0;
         for (Date uniqueDate : uniqueDates) {
             Integer sum = 0;
             for (List<Integer> totalPerDay : listModelsCount) {
@@ -92,18 +110,7 @@ public class StatServiceImpl implements StatService {
             countTotalList.add(sum);
             i++;
         }
-        listModelsCount.add(countTotalList);
-
-        //total recap product table: table recap des models
-        StatTableDTO modelTotalRecap = createTableRecap(modelsRecapCount);
-        modelsRecapCount.add(modelTotalRecap);
-        uniqueModels.add("Total");
-        Map <String , List<?>> data =new HashMap<>();
-        data.put("dates",uniqueDates);
-        data.put("models",uniqueModels);
-        data.put("modelsCount",listModelsCount);
-        data.put("modelsRecapCount",modelsRecapCount);
-        return data;
+        return countTotalList;
     }
 
     public StatTableDTO createTableRecap(List<StatTableDTO> recapCount){
@@ -129,11 +136,11 @@ public class StatServiceImpl implements StatService {
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<Long> uniqueModelsIds = (List<Long>) uniqueValues.get("modelsIds");
         List<String> uniqueModels = (List<String>) uniqueValues.get("uniqueModelsNames");
-        List<List<Long>> modelsStockHistory = new ArrayList<>();
+        List<List<Integer>> modelsStockHistory = new ArrayList<>();
         for (Long uniqueModelId : uniqueModelsIds) {
-            ArrayList<Long> uniqueModelStockHistory = new ArrayList<>();
+            ArrayList<Integer> uniqueModelStockHistory = new ArrayList<>();
             for (Date uniqueDate : uniqueDates) {
-                Long quantity = statStock.stream()
+                Integer quantity = statStock.stream()
                         .filter(statStockRow -> {
                             try {
                                 return statStockRow.getDate().equals(uniqueDate) && statStockRow.getModelId() == uniqueModelId;
@@ -143,24 +150,14 @@ public class StatServiceImpl implements StatService {
                         })
                         .map(ModelStockHistory::getQuantity)
                         .findFirst()
-                        .orElse(2L);
+                        .orElse(2);
                 uniqueModelStockHistory.add(quantity);
             }
             modelsStockHistory.add(uniqueModelStockHistory);
         }
 
         //total modelsTotalStockHistory: calculate les totals par jours des models
-        List<Long> modelsTotalStockHistory = new ArrayList<>();
-        int i =0;
-        for (Date uniqueDate : uniqueDates) {
-            Long sum = Long.valueOf(0);
-            for (List<Long> modelsTSH : modelsStockHistory) {
-                sum += modelsTSH.get(i);
-            }
-            modelsTotalStockHistory.add(sum);
-            i++;
-        }
-        modelsStockHistory.add(modelsTotalStockHistory);
+        modelsStockHistory.add(countTotal(uniqueDates,modelsStockHistory));
         uniqueModels.add("Total");
         Map <String , List<?>> data =new HashMap<>();
         data.put("dates",uniqueDates);
@@ -198,7 +195,7 @@ public class StatServiceImpl implements StatService {
     public Map<String , List<?>> statAllOffersChart(String beginDate, String endDate){
         //initialisation des lists
         List<Integer> countOffersList;
-        ArrayList<Integer> countTotalList = new ArrayList<>();
+        //ArrayList<Integer> countTotalList = new ArrayList<>();
 
         List<OffersDayCountDTO> existingOffersPacket = productsPacketRepository.offersCountByDate(beginDate,endDate);
         Map<String, List<?>> uniqueValues = getUniqueOffers(existingOffersPacket);
@@ -251,25 +248,16 @@ public class StatServiceImpl implements StatService {
 
         //total models Count
         //ajout la courbe total des objets calculé precedament
-        Integer i = 0;
-        for (Date uniqueDate : uniqueDates) {
-            Integer sum = 0;
-            for (List<Integer> offerPerDay : listOffersCount) {
-                sum += offerPerDay.get(i);
-            }
-            countTotalList.add(sum);
-            i++;
-        }
-        listOffersCount.add(countTotalList);
+        listOffersCount.add(countTotal(uniqueDates,listOffersCount));
 
         //create table
         StatOfferTableDTO offerTotalRecap = createOfferTableTotalRecap(offersRecapCount);
         offersRecapCount.add(offerTotalRecap);
-        uniqueOffers.add(new OfferDTO("Total"));
+        //uniqueOffers.add(new OfferDTO("Total"));
 
         Map <String , List<?>> data =new HashMap<>();
         data.put("dates",uniqueDates);
-        data.put("offers",uniqueOffers);
+        //data.put("offers",uniqueOffers);
         data.put("countOffersLists",listOffersCount);
         data.put("offersRecapCount",offersRecapCount);
         return data;
@@ -300,10 +288,11 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
-    public Map<String , List<?>> statAllColorsChart(String beginDate, String endDate,List<Long> lookForModelIds){
-        List<ColorsDayCountDTO> existingProductsPacketColor = lookForModelIds.isEmpty() ?
+    public Map<String , List<?>> statAllColorsChart(String beginDate, String endDate){//List<Long> lookForModelIds
+        List<ColorsDayCountDTO> existingProductsPacketColor = productsPacketRepository.statAllModelsByColor(beginDate, endDate);
+        /*lookForModelIds.isEmpty() ?
                 productsPacketRepository.statAllModelsByColor(beginDate, endDate) :
-                productsPacketRepository.statByColorAndModels(beginDate, endDate, lookForModelIds);
+                productsPacketRepository.statByColorAndModels(beginDate, endDate, lookForModelIds);*/
         Map<String, List<?>> uniqueValues = getUniqueColors(existingProductsPacketColor);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<Color> uniqueColors = (List<Color>) uniqueValues.get("uniqueColors");
@@ -340,7 +329,6 @@ public class StatServiceImpl implements StatService {
 
         Map <String , List<?>> data =new HashMap<>();
         data.put("dates",uniqueDates);
-        data.put("colors",uniqueColors);
         data.put("countColorsLists",countColorsLists);
         data.put("colorsRecapCount",colorsRecapCount);
         return data;
@@ -396,7 +384,7 @@ public class StatServiceImpl implements StatService {
     }
 
     //for packets chart
-    private List<StatTableDTO> createStatusRecapCount(List<PacketsStatCountDTO> existingPackets, int uniqueDatesSize) {
+    private List<StatTableDTO> createStatusRecapCount(List<PacketsStatCountDTO> existingPackets, int datesSize) {
         StatTableDTO exchangeRecap = new StatTableDTO(SystemStatus.EXCHANGE.getStatus());
         StatTableDTO returnRecap = new StatTableDTO(SystemStatus.RETURN.getStatus());
         StatTableDTO payedRecap = new StatTableDTO(SystemStatus.PAID.getStatus());
@@ -415,13 +403,13 @@ public class StatServiceImpl implements StatService {
             updateRecapStats(progressRecap, dayStat.getCountProgress());
         }
 
-        finalizeRecapStats(exchangeRecap, uniqueDatesSize, payedRecap.getPayed());
-        finalizeRecapStats(outRecap, uniqueDatesSize, allRecap.getPayed());
-        finalizeRecapStats(allRecap, uniqueDatesSize, allRecap.getPayed());
-        finalizeRecapStats(payedRecap, uniqueDatesSize, outRecap.getPayed());
-        finalizeRecapStats(returnRecap, uniqueDatesSize, outRecap.getPayed());
-        finalizeRecapStats(oosRecap, uniqueDatesSize, allRecap.getPayed());
-        finalizeRecapStats(progressRecap, uniqueDatesSize, allRecap.getPayed()); // No percentage for progressRecap
+        finalizeRecapStats(exchangeRecap, datesSize, payedRecap.getPayed());
+        finalizeRecapStats(outRecap, datesSize, allRecap.getPayed());
+        finalizeRecapStats(allRecap, datesSize, allRecap.getPayed());
+        finalizeRecapStats(payedRecap, datesSize, outRecap.getPayed());
+        finalizeRecapStats(returnRecap, datesSize, outRecap.getPayed());
+        finalizeRecapStats(oosRecap, datesSize, allRecap.getPayed());
+        finalizeRecapStats(progressRecap, datesSize, allRecap.getPayed()); // No percentage for progressRecap
 
         return Arrays.asList(exchangeRecap, returnRecap, payedRecap, outRecap, progressRecap, oosRecap, allRecap);
     }
@@ -437,7 +425,7 @@ public class StatServiceImpl implements StatService {
     private void finalizeRecapStats(StatTableDTO recap, int uniqueDatesSize, double total) {
         if (uniqueDatesSize == 0) uniqueDatesSize = 1;
         recap.setAvg(recap.getPayed() / uniqueDatesSize);
-        recap.setPer(total == 0 ? 0 : Math.round(recap.getPayed() * 1000.0 / total) / 10.0);
+        recap.setPer(total == 0 ? 0 : Math.round(recap.getPayed() * 10000.0 / total) / 100.0);
     }
 
 
@@ -663,5 +651,14 @@ public class StatServiceImpl implements StatService {
     @Override
     public List<SoldProductsDayCountDTO> soldProductsCountByDate(Long modelId,String beginDate,String endDate){
         return productsPacketRepository.soldProductsCountByDate(modelId, beginDate,endDate);
+    }
+
+    @Override
+    public List<PagesStatCountDTO> findAllPacketsPages(String beginDate, String endDate) {
+        return packetRepository.findAllPacketsPages(beginDate,endDate);
+    }
+    @Override
+    public List<StatesStatCountDTO> findAllPacketsStates(String beginDate, String endDate) {
+        return packetRepository.findAllPacketsStates(beginDate, endDate);
     }
 }

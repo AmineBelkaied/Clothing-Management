@@ -245,7 +245,7 @@ export class StockComponent implements OnInit,OnDestroy {
       chartList = data.sizes;
       chartCounts =data.sizesCount;
     } else if (option == "Id"){
-      console.log('data',data);
+      //console.log('data',data);
       chartList = data.productRefs;
       chartCounts =data.productsCount;
     } else {
@@ -428,8 +428,8 @@ export class StockComponent implements OnInit,OnDestroy {
   }
 
   getDaysStock(qte: any,productId: any): number {
-    let aa= qte/(this.getCount(productId)/this.datesList.length);
-    return Number(aa.toFixed(1));
+    let dayStock= qte/(this.getCount(productId)/this.datesList.length);
+    return Number(dayStock.toFixed(1));
   }
 
   totalColumn(i: number) {

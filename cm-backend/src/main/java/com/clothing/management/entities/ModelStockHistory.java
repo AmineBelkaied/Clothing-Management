@@ -16,19 +16,19 @@ public class ModelStockHistory {
     private Long modelId;
     @Column(name = "model_name")
     private String modelName;
-    private Long quantity;
+    private Integer quantity;
 
     public ModelStockHistory() {
     }
 
-    public ModelStockHistory(Long modelId, String modelName, Long quantity) {
+    public ModelStockHistory(Long modelId, String modelName, Integer quantity) {
         this.date = new Date();
         this.modelId = modelId;
         this.modelName = modelName;
         this.quantity = quantity;
     }
 
-    public ModelStockHistory(Long id,Date date,Long modelId,String modelName, Long quantity) {
+    public ModelStockHistory(Long id,Date date,Long modelId,String modelName, Integer quantity) {
         this.id = id;
         this.date = date;
         this.modelId = modelId;
@@ -68,11 +68,11 @@ public class ModelStockHistory {
         this.modelName = modelName;
     }
 
-    public Long getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Long quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 

@@ -90,33 +90,33 @@ public class PacketServiceImpl implements PacketService {
 
     @Override
     @Transactional(readOnly = true, transactionManager = "tenantTransactionManager")
-    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String startDate, String endDate, String status, boolean mandatoryDate) throws ParseException {
+    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status, boolean mandatoryDate) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         if (mandatoryDate) {
             if (searchText != null)
-                return packetRepository.findAllPacketsByFieldAndDate(searchText, dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
+                return packetRepository.findAllPacketsByFieldAndDate(searchText, dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable);
 
             if (status != null) {
                 if (status.equals("Tous"))
-                    return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
-                return packetRepository.findAllPacketsByDateAndStatus(dateFormat.parse(startDate), dateFormat.parse(endDate), convertStatusToList(status), pageable);
+                    return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable);
+                return packetRepository.findAllPacketsByDateAndStatus(dateFormat.parse(beginDate), dateFormat.parse(endDate), convertStatusToList(status), pageable);
             }
 
         } else {
             if (searchText != null)
                 return packetRepository.findAllPacketsByField(searchText, pageable);
-            if (startDate != null && status != null) {
+            if (beginDate != null && status != null) {
                 if (status.equals("Tous"))
-                    return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
-                return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status), dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
+                    return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable);
+                return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status), dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable);
             }
             if (status != null) {
                 return packetRepository.findAllPacketsByStatus(convertStatusToList(status), pageable);
             }
         }
 
-        return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate), pageable);
+        return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable);
     }
 
 
@@ -134,10 +134,10 @@ public class PacketServiceImpl implements PacketService {
     }
 
 
-    public List<PacketDTO> findAllPacketsByDate(String startDate, String endDate) throws ParseException {
-        //System.out.println("startDate:"+startDate+"/endDate"+endDate);
+    public List<PacketDTO> findAllPacketsByDate(String beginDate, String endDate) throws ParseException {
+        //System.out.println("beginDate:"+beginDate+"/endDate"+endDate);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        return packetRepository.findAllPacketsByDate(dateFormat.parse(startDate), dateFormat.parse(endDate))
+        return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate))
                 .stream().map(PacketDTO::new).collect(Collectors.toList());
     }
 
@@ -283,8 +283,8 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public List<DashboardCard> syncNotification(String startDate, String endDate) {
-        return packetRepository.createNotification(startDate, endDate);
+    public List<DashboardCard> syncNotification(String beginDate, String endDate) {
+        return packetRepository.createNotification(beginDate, endDate);
     }
 
     @Override

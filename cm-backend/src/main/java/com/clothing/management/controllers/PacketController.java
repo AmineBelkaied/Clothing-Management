@@ -45,13 +45,13 @@ public class PacketController {
     public ResponseEntity<ResponsePage> findAllPaginatedPackets(@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "100") int size,
                                                                 @RequestParam(required = false) String searchText,
-                                                                @RequestParam(required = false) String startDate,
+                                                                @RequestParam(required = false) String beginDate,
                                                                 @RequestParam(required = false) String endDate,
                                                                 @RequestParam(required = false) String status,
                                                                 @RequestParam(required = false) boolean mandatoryDate) {
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-            Page<Packet> allPackets = packetService.findAllPackets(pageable, searchText, startDate, endDate, status, mandatoryDate);
+            Page<Packet> allPackets = packetService.findAllPackets(pageable, searchText, beginDate, endDate, status, mandatoryDate);
 
             // Map each Packet entity to PacketDTO
             List<PacketDTO> packetDTOList = allPackets.getContent().stream()
@@ -159,9 +159,9 @@ public class PacketController {
     }
 
     @GetMapping("/notifications/sync")
-    public List<DashboardCard> syncNotifications(@RequestParam(required = false) String startDate,
+    public List<DashboardCard> syncNotifications(@RequestParam(required = false) String beginDate,
                                                  @RequestParam(required = false) String endDate) {
-        return packetService.syncNotification(startDate, endDate);
+        return packetService.syncNotification(beginDate, endDate);
     }
 
     @GetMapping("/duplicate/{id}")

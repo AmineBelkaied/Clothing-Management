@@ -5,7 +5,7 @@ export interface Offer {
     id: number;
     name: string;
     price: number;
-    enabled?: boolean;
+    enabled: boolean;
     offerModels: any[];
     fbPages: FbPage[];
 }

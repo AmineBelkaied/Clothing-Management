@@ -104,14 +104,12 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "GROUP BY pp.product.color.id, DATE(pp.packet.date) ORDER BY DATE(pp.packet.date) ASC")
     List<ColorsDayCountDTO> statByColorAndModels(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("modelIds") List<Long> modelIds);
 
-
+    //Date packetDate, Color color, countPayed, long countProgress
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.ColorsDayCountDTO(" +
             "DATE(pp.packet.date), " +
             "pp.product.color, "+
             "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN pp.packet.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN (pp.packet.status = 'Retour' OR pp.packet.status = 'Retour reçu') AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END), " +//retour
-            "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN pp.profits ELSE 0 END))" +
+            "SUM(CASE WHEN pp.packet.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END))" +
             "FROM ProductsPacket pp " +
             "WHERE DATE(pp.packet.date) >= DATE(:beginDate) " +
             "AND DATE(pp.packet.date) <= DATE(:endDate) " +
@@ -134,7 +132,6 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "AND p.deliveryCompany.name = :deliveryCompanyName " +
             "GROUP BY DATE(p.date) ORDER BY DATE(p.date) ASC")
     List<PacketsStatCountDTO> statAllPackets(@Param("beginDate") String beginDate, @Param("endDate") String endDate,@Param("deliveryCompanyName") String deliveryCompanyName);
-
 
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.PacketsStatCountDTO(" +
             "DATE(p.date), " +
@@ -166,25 +163,3 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     List<ModelDayCountDTO> statModelSoldProgress(@Param("modelId") Long modelId, @Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
 }
-/*
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE packet p " +
-            "SET p.stock = :stock, " +
-            "p.status = (CASE WHEN :stock = 0 THEN 'En rupture' " +
-            "WHEN (p.stock = 0 AND :stock > 0) THEN 'Non confirmée' " +
-            "ELSE p.status " +
-            "END) " +
-            "WHERE p.id IN :productIds", nativeQuery = true)
-    int updateUnconfirmedPacketStock_By_ProductId(@Param("productIds") List<Long> productIds, @Param("stock") Integer stock);
-
-    @Query(value = "SELECT p.id " +
-            "FROM packet p " +
-            "JOIN products_packet pp ON pp.packet_id = p.id " +
-            "WHERE pp.packet_id = p.id " +
-            "AND pp.product_id = :productId " +
-            "AND pp.status = 0 " +
-            "AND p.status IN ('Non confirmée', 'En Rupture','Injoignable') " +
-            "GROUP BY pp.packet_id", nativeQuery = true)
-    List<Long> getUnconfirmedPacketStock_By_ProductId(Long productId);
- */
