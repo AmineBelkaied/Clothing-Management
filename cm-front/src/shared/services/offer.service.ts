@@ -86,7 +86,7 @@ cleanOffre() {
                                    .set('name',offer.name)
                                    .set('price',offer.price)
                                    .set('enabled',offer.enabled);
-    return this.http.put(`${this.baseUrl}${OFFER_ENDPOINTS.UPDATE_DATA}`, {
+    return this.http.get(`${this.baseUrl}${OFFER_ENDPOINTS.UPDATE_DATA}`, {
       headers: { 'content-type': 'application/json' },
       params: params
     }).pipe(

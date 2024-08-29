@@ -32,7 +32,7 @@ export class StockHistoryComponent implements OnInit {
   }
 
   loadProductsHistory(page: number, rows: number): void {
-    const startDate = this.convertDateToString(this.rangeDates[0]);
+    const beginDate = this.convertDateToString(this.rangeDates[0]);
     const endDate = this.convertDateToString(this.rangeDates[1]);
 
     this.productHistoryService.findAllProductsHistory(
@@ -40,7 +40,7 @@ export class StockHistoryComponent implements OnInit {
       page,
       rows,
       this.searchField,
-      startDate,
+      beginDate,
       endDate
     ).subscribe((result: any) => {
       this.productsHistory = result;

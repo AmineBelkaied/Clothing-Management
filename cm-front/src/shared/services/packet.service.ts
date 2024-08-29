@@ -37,10 +37,10 @@ export class PacketService {
     if (params.searchText) {
       httpParams = httpParams.set('searchText', params.searchText);
     }
-    if (params.startDate) {
-      httpParams = httpParams.set('startDate', params.startDate);
+    if (params.beginDate) {
+      httpParams = httpParams.set('beginDate', params.beginDate);
     }
-    if (params.startDate && params.endDate) {
+    if (params.beginDate && params.endDate) {
       httpParams = httpParams.set('endDate', params.endDate);
     }
     if (params.status) {

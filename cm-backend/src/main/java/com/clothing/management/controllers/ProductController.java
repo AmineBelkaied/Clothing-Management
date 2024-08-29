@@ -64,8 +64,10 @@ public class ProductController {
     }
 
     @GetMapping("/stock/{modelId}")
-    public ResponseEntity<StockDTO> getStock(@PathVariable("modelId") Long modelId) {
-        StockDTO stock = productService.getStock(modelId);
+    public ResponseEntity<StockDTO> getStock(@PathVariable("modelId") Long modelId,
+                                             @RequestParam String beginDate,
+                                             @RequestParam String endDate) {
+        StockDTO stock = productService.getStock(modelId,beginDate,endDate);
         return ResponseEntity.ok(stock);
     }
 

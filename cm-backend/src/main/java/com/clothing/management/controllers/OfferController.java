@@ -61,7 +61,7 @@ public class OfferController {
         return offerService.updateOfferModels(offerId,offerModelsDTO);
     }
 
-    @PutMapping(value = "/update-data" , produces = "application/json")
+    @GetMapping(value = "/update-data" , produces = "application/json")
     public OfferDTO updateOffer(@RequestParam("id") long id,@RequestParam("name") String name,@RequestParam("price") double price,@RequestParam("enabled") boolean enabled) throws Exception {
         return offerService.updateOfferData(id, name, price, enabled);
     }

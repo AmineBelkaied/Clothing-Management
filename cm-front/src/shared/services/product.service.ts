@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { PRODUCT_ENDPOINTS } from '../constants/api-endpoints';
@@ -43,8 +43,14 @@ export class ProductService {
     return this.http.put(`${this.baseUrl}`, product , {headers : {'content-type': 'application/json'}});
   }
 
-  getStock(modelId: number) {
-    return this.http.get(`${this.baseUrl}${PRODUCT_ENDPOINTS.STOCK}/${modelId}`);
+  getStock(modelId: number,beginDate: string, endDate: string) {
+    const params = new HttpParams()
+                        .set('beginDate', beginDate)
+                        .set('endDate', endDate);
+    return this.http.get(`${this.baseUrl}${PRODUCT_ENDPOINTS.STOCK}/${modelId}`, {
+      headers : {'content-type': 'application/json'},
+      params : params
+      });
   }
 
   deleteSelectedProducts(productsId: number[]) {

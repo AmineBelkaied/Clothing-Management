@@ -1,5 +1,6 @@
 package com.clothing.management.dto;
 
+import com.clothing.management.dto.DayCount.SoldProductsDayCountDTO;
 import com.clothing.management.entities.Model;
 import com.clothing.management.entities.Size;
 
@@ -9,23 +10,23 @@ import java.util.Set;
 public class StockDTO {
 
     Model model;
-    List<List<ProductDTO>> productsByColor;
+    List<List<SoldProductsDayCountDTO>> productsByColor;
     List<Size> sizes;
 
     public StockDTO() {
     }
 
-    public StockDTO(List<List<ProductDTO>> productsByColor, List<Size> sizes) {
+    public StockDTO(List<List<SoldProductsDayCountDTO>> productsByColor, List<Size> sizes) {
 
         this.productsByColor = productsByColor;
         this.sizes = sizes;
     }
 
-    public List<List<ProductDTO>> getProductsByColor() {
+    public List<List<SoldProductsDayCountDTO>> getProductsByColor() {
         return productsByColor;
     }
 
-    public void setProductsByColor(List<List<ProductDTO>> productsByColor) {
+    public void setProductsByColor(List<List<SoldProductsDayCountDTO>> productsByColor) {
         this.productsByColor = productsByColor;
     }
 

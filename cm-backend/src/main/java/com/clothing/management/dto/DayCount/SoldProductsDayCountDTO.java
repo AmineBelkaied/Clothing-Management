@@ -3,11 +3,9 @@ package com.clothing.management.dto.DayCount;
 import com.clothing.management.entities.Color;
 import com.clothing.management.entities.Size;
 
-import java.util.Date;
-
 public class SoldProductsDayCountDTO extends DayCountDTO {
 
-    private Long productId;
+    private Long id;
 
     private long countExchange;
     private long countOos;
@@ -15,28 +13,33 @@ public class SoldProductsDayCountDTO extends DayCountDTO {
     private Color color;
     private Size size;
 
-
+    private int qte;
     public SoldProductsDayCountDTO() {
+        this.qte = 0;
+        this.countExchange = 0;
+        this.countOos = 0;
     }
 
+
     public SoldProductsDayCountDTO(
-            Date packetDate, Long productId,
-            Color color, Size size,
+            Long id,
+            Color color, Size size, int qte,
             long countPayed, long countProgress, long countExchange, long countOos
     ) {
-        super(packetDate, countPayed, countProgress);
-        this.productId = productId;
+        super(countPayed, countProgress);
+        this.id = id;
         this.countExchange =countExchange;
         this.countOos = countOos;
         this.color = color;
         this.size = size;
+        this.qte = qte;
     }
 
-    public Long getProductId() {
-        return productId;
+    public Long getId() {
+        return id;
     }
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public long getCountExchange() {
@@ -69,10 +72,18 @@ public class SoldProductsDayCountDTO extends DayCountDTO {
         this.size = size;
     }
 
+    public int getQte() {
+        return qte;
+    }
+
+    public void setQte(int qte) {
+        this.qte = qte;
+    }
+
     @Override
     public String toString() {
-        return "ProductsDayCountDTO{" +
-                ", productId=" + productId +
+        return "SoldProductsDayCountDTO{" +
+                "id=" + id +
                 ", color=" + color +
                 ", size=" + size +
                 '}';

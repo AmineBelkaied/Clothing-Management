@@ -57,7 +57,6 @@ export const STAT_ENDPOINTS = {
     PACKETS: '/packets',
     OFFERS: '/offers',
     PRODUCTS: '/products',
-    SOLD: '/sold-products',
     PAGES: '/pages',
     STATES: '/states'
 };

@@ -14,6 +14,7 @@ import { VerificationComponent } from './verification/verification.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import 'tslib';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 const routes: Routes = [
   { path: "", redirectTo: "/packets", pathMatch: "full" },
@@ -64,7 +65,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes , { useHash: true })],
+  imports: [RouterModule.forRoot(routes , { useHash: false })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

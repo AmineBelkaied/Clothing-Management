@@ -286,7 +286,6 @@
         <div class="mb-3">
           <p-selectButton [options]="enablerOptions" [(ngModel)]="statesChartEnabler" optionLabel="label" optionValue="value" (click)="statesChartEnablerChange()"></p-selectButton>
         </div>
-        <div></div>
       </div>
       <p-tabView *ngIf="statesChartEnabler">
         <p-chart type="bar" [data]="StatesData" [options]="StatesOptions"></p-chart>
@@ -305,7 +304,6 @@
           <div class="mb-3">
             <p-selectButton [options]="enablerOptions" [(ngModel)]="pagesChartEnabler" optionLabel="label" optionValue="value" (click)="pagesChartEnablerChange()"></p-selectButton>
           </div>
-          <div></div>
         </div>
         <p-tabView *ngIf="pagesChartEnabler">
           <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>

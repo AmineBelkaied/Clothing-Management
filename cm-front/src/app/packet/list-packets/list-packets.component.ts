@@ -60,13 +60,13 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   suiviHeader: string = 'Suivi';
   events: any[] = [];
   statusEvents: any[] = [];
-  packets: Packet[];
+  packets: Packet[] = [];
   totalItems: number;
   packet: Packet;
   cols: object[] = [];
   selectedPackets: Packet[] = [];
   rangeDates: Date[] = [];
-  startDate: Date = new Date();
+  beginDate: Date = new Date();
   endDate: Date | null = new Date();
   today: Date = new Date();
   today_2: Date = new Date(Date.now() - 172800000);
@@ -101,7 +101,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   params: any = {
     page: 0,
     size: this.pageSize,
-    startDate: this.dateUtils.formatDateToString(this.today),
+    beginDate: this.dateUtils.formatDateToString(this.today),
     endDate: this.dateUtils.formatDateToString(this.today),
     mandatoryDate: false
   };
@@ -242,11 +242,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
       this.activeClass = true;
     });
+    this.rangeDates = [this.today,this.today];
     this.offerService.getOffersSubscriber();
     this.createColumns();
     this.findAllGroupedCities();
     this.findAllFbPages();
-    this.rangeDates = [this.today];
     this.onActiveIndexChange(2);
     this.selectedStatus.setValue([]);
   }
@@ -665,7 +665,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         page: page,
         size: this.pageSize,
         searchText: this.filter != null && this.filter != '' ? this.filter : null,
-        startDate: this.dateUtils.formatDateToString(this.startDate),
+        beginDate: this.dateUtils.formatDateToString(this.beginDate),
         endDate: this.dateUtils.formatDateToString(this.endDate),
         status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join(),
         mandatoryDate: this.mandatoryDateCheckBox
@@ -676,14 +676,14 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   createRangeDate(): void {
     if (this.rangeDates !== null) {
-      this.startDate = this.rangeDates[0];
+      this.beginDate = this.rangeDates[0];
       if (this.rangeDates[1]) {
         this.endDate = this.rangeDates[1];
       } else {
         this.endDate = null;
       }
     } else {
-      this.startDate = this.today;
+      this.beginDate = this.today;
       this.endDate = this.today;
     }
   }
@@ -766,9 +766,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   todayDate(){
     if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
       {
-        this.rangeDates[0]=this.startDate;
+        this.rangeDates[0]=this.beginDate;
         this.endDate = this.today;
-        this.rangeDates= [this.startDate,this.today];
+        this.rangeDates= [this.beginDate,this.today];
       }
     else this.rangeDates = [this.today];
     this.filterPackets('global');
@@ -1093,7 +1093,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.statusItems[7].badgeByDate = 0;
       let all = 0;
 
-    this.packetService.syncNotification(this.params.startDate,this.params.endDate)
+    this.packetService.syncNotification(this.params.beginDate,this.params.endDate)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: DashboardCard[]) => {

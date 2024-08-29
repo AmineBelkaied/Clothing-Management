@@ -44,11 +44,11 @@
     </ul>
     <span style="color: lightgray;font-size: small;" class="mt-auto">Bienvenue, {{userName}}</span>
     <button type="button" class="btn btn-secondary mt-3" (click)="sync()" *ngIf="!isSuperAdmin">
-      <i class="pi pi-sync"></i>
+      <i class="pi pi-sync small pr-2"></i>
       <span>Sync</span>
     </button>
-    <button type="button" class="btn btn-success mt-2" (click)="logout()">
-      <i class="pi pi-sync"></i>
+    <button type="button" class="btn btn-danger mt-2" (click)="logout()">
+      <i class="pi pi-sign-out small pr-2"></i>
       <span>Logout</span>
     </button>
   </div>

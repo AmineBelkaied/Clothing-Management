@@ -10,7 +10,6 @@ import { StatsService } from 'src/shared/services/stats.service';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { Color } from 'src/shared/models/Color';
-import { Product } from '../../shared/models/Product';
 
 @Component({
   selector: 'app-stock',
@@ -18,7 +17,8 @@ import { Product } from '../../shared/models/Product';
   styleUrls: ['./stock.component.scss'],
 })
 export class StockComponent implements OnInit,OnDestroy {
-  products: Product[][] = [];
+
+  //products: any[][] = [];
   models: Model[] = [];
 
   chartOptions : string[] = ["Color","Size","Id"];
@@ -54,18 +54,18 @@ export class StockComponent implements OnInit,OnDestroy {
   selectAll: boolean = false;
   modelId: number;
   hide0 : boolean = false;
-  delai : boolean = false;
+  delaiEnabled : boolean = false;
   stock:boolean = true;
   today: Date = new Date();
 
   rangeDates: Date[] = [];
   range: number = 30;
-  startDatestring : string;
-  endDatestring : string | null;
+  beginDateString : string;
+  endDateString : string;
 
   searchField: string = '';
   $unsubscribe: Subject<void> = new Subject();
-  productsCount: ProductCountDTO[] = [];
+  productsCount: ProductCountDTO[][] = [];
 
   modelName:string;
 
@@ -172,7 +172,7 @@ export class StockComponent implements OnInit,OnDestroy {
             this.models = models.filter((model: Model) => model.enabled);
             let modelsLength = this.models.length - 1;
             this.modelId = this.models[modelsLength].id!;
-            this.selectedModel = this.models[modelsLength] || this.models[0];
+            this.selectedModel = this.models[modelsLength];
             this.getStats();
           } else {
             console.warn("No models available.");
@@ -188,17 +188,17 @@ export class StockComponent implements OnInit,OnDestroy {
       this.modelId= this.selectedModel.id!;
       this.setCalendar();
       this.getStockByModelId(this.modelId);
-      this.getProductsCountByModelId(this.modelId);
+      //this.getProductsCountByModelId(this.modelId);
       this.chartEnablerChange();
       this.historyEnablerChange();
   }
 
-  getProductsCountByModelId(modelId : number){
-    if(this.endDatestring)
+  /*getProductsCountByModelId(modelId : number){
+    if(this.endDateString)
     this.statsService.productsCount(
       modelId,
-      this.startDatestring,
-      this.endDatestring
+      this.beginDateString,
+      this.endDateString
       )
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
@@ -212,14 +212,14 @@ export class StockComponent implements OnInit,OnDestroy {
         console.log('Observable completed-- All statProductSold --');
       }
     });
-  }
+  }*/
 
   getStatModelSoldChart(option : string){
-    if(this.endDatestring)
+    if(this.endDateString)
     this.statsService.statModelSold(
       this.modelId,
-      this.startDatestring,
-      this.endDatestring
+      this.beginDateString,
+      this.endDateString
       )
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
@@ -304,46 +304,26 @@ export class StockComponent implements OnInit,OnDestroy {
 }
 
   getStockByModelId(modelId: number) {
-    this.productService.getStock(modelId).subscribe((result: any) => {
+    this.productService.getStock(
+            modelId,
+            this.beginDateString,
+            this.endDateString)
+              .subscribe((result: any) => {
+      this.productsCount = result.productsByColor;
       this.modelName=result.model.name!;
       this.colors=result.model.colors!;
-      this.products = result.productsByColor;
       this.sizes = result.sizes;
     });
   }
 
-  getCount(productId:number): number{
-    let products = this.productsCount.find(item => item.productId === productId);
-    return (products) ? products.countPayed: 0;
-  }
+  onCellClick(product: any, j: number,i:number) :void{
+    console.log("i",i);
 
-  getCountProgress(productId:number): number{
-    let product = this.productsCount.find(item => item.productId === productId);
-    //console.log("id:"+productId+"/product",product);
-    return (product) ? product.countProgress: 0;
-  }
-
-  getCountExchange(productId:number): number{
-    let products = this.productsCount.find(item => item.productId === productId);
-    return (products) ? products.countExchange: 0;
-  }
-
-  getCountRupture(productId:number): number{
-    let products = this.productsCount.find(item => item.productId === productId);
-    return (products) ? products.countOos: 0;
-  }
-
-
-
-  onCellClick(product: any, event: any, j: number) :void{
     if(this.hide0)this.hide0 = false;
     else{
-      const i = this.products[j].findIndex(
-        (item: { id: number }) => item.id === product.id
-      );
       if (this.selectedProducts.includes(product.id))
-        this.unSelectProduct(j, i, this.products[j][i].id);
-      else this.selectProduct(j, i, this.products[j][i].id);
+        this.unSelectProduct(j, i, product.id);
+      else this.selectProduct(j, i, product.id);
       console.log(this.selectedProducts);
     }
   }
@@ -354,13 +334,13 @@ export class StockComponent implements OnInit,OnDestroy {
       let haveSelectedItems = false;
       if (this.haveSelectedItems(j, true))
         haveSelectedItems = true
-      for (let i = 0; i < this.products[j].length; i++)
+      for (let i = 0; i < this.productsCount[j].length; i++)
         {
           console.log('j:'+j,'i:'+i);
           if (haveSelectedItems)
-              this.unSelectProduct(j, i, this.products[j][i].id);
+              this.unSelectProduct(j, i, this.productsCount[j][i].id);
           else
-              this.selectProduct(j, i, this.products[j][i].id);
+              this.selectProduct(j, i, this.productsCount[j][i].id);
         }
     }
   }
@@ -371,13 +351,13 @@ export class StockComponent implements OnInit,OnDestroy {
       let haveSelectedItems = false;
       if (this.haveSelectedItems(i, false))
         haveSelectedItems = true
-      for (let j = 0; j < this.products.length; j++)
+      for (let j = 0; j < this.productsCount.length; j++)
         {
           //console.log('j:'+j,'i:'+i);
           if (haveSelectedItems)
-            this.unSelectProduct(j, i, this.products[j][i].id);
+            this.unSelectProduct(j, i, this.productsCount[j][i].id);
           else
-            this.selectProduct(j, i, this.products[j][i].id);
+            this.selectProduct(j, i, this.productsCount[j][i].id);
         }
     }
   }
@@ -398,18 +378,18 @@ export class StockComponent implements OnInit,OnDestroy {
   }
 
   selectAllProducts() {
-    for (let j = 0; j < this.products.length; j++)
-      for (let i = 0; i < this.products[j].length; i++)
-        if (this.selectAll) this.selectProduct(j, i, this.products[j][i].id);
-        else this.unSelectProduct(j, i, this.products[j][i].id);
+    for (let j = 0; j < this.productsCount.length; j++)
+      for (let i = 0; i < this.productsCount[j].length; i++)
+        if (this.selectAll) this.selectProduct(j, i, this.productsCount[j][i].id);
+        else this.unSelectProduct(j, i, this.productsCount[j][i].id);
   }
 
   totalRow(j: number) {
     let totRow = 0;
-    for (let i = 0; i < this.products[j].length; i++)
+    for (let i = 0; i < this.productsCount[j].length; i++)
     {
-      if (this.stock)totRow += this.products[j][i].qte;
-      else totRow += this.getCount(this.products[j][i].id);
+      if (this.stock)totRow += this.productsCount[j][i].qte;
+      else totRow += this.productsCount[j][i].countPayed;
     }
     return totRow;
   }
@@ -417,42 +397,45 @@ export class StockComponent implements OnInit,OnDestroy {
   totalRow2(j: number) {
     let totRow = 0;
     let totRow2 = 0;
-    for (let i = 0; i < this.products[j].length; i++)
+    for (let i = 0; i < this.productsCount[j].length; i++)
     {
-      totRow += this.products[j][i].qte;
-      totRow2 += this.getCount(this.products[j][i].id);
+      totRow += this.productsCount[j][i].qte;
+      totRow2 += this.productsCount[j][i].countPayed;
     }
     let nbrJours = this.datesList.length+1;
     let delait = totRow/(totRow2/nbrJours);
     return Number(delait.toFixed(1))+" jours";
   }
 
-  getDaysStock(qte: any,productId: any): number {
-    let dayStock= qte/(this.getCount(productId)/this.datesList.length);
+  getDaysStock(productSize:any): number {
+    let nbrJours = this.datesList.length+1;
+    let countPayed = productSize.countPayed;
+    let qte = productSize.qte
+    let dayStock= qte/(countPayed/nbrJours);
     return Number(dayStock.toFixed(1));
   }
 
   totalColumn(i: number) {
     //console.log("products:",this.products);
     let totColumn = 0;
-    if(this.products.length<1)
+    if(this.productsCount.length<1)
       return 0;
-    for (let j = 0; j < this.products.length; j++)
-    if (this.products[j][i])
+    for (let j = 0; j < this.productsCount.length; j++)
+    if (this.productsCount[j][i])
     if (this.stock){
-       totColumn += this.products[j][i].qte;
+       totColumn += this.productsCount[j][i].qte;
       }
-    else totColumn += this.getCount(this.products[j][i].id);
+    else totColumn += this.productsCount[j][i].countPayed;
     return totColumn;
   }
 
   totalTable() {
     let tot = 0;
-    if(this.products.length<1)return 0;
-    for (let j = 0; j < this.products.length; j++)
-      for (let i = 0; i < this.products[j].length; i++)
-        if (this.stock)tot += this.products[j][i].qte;
-        else tot += this.getCount(this.products[j][i].id);
+    if(this.productsCount.length<1)return 0;
+    for (let j = 0; j < this.productsCount.length; j++)
+      for (let i = 0; i < this.productsCount[j].length; i++)
+        if (this.stock)tot += this.productsCount[j][i].qte;
+        else tot += this.productsCount[j][i].countPayed;
 
     return tot;
   }
@@ -477,10 +460,10 @@ export class StockComponent implements OnInit,OnDestroy {
       else this.productService
       .addStock(this.selectedProducts, this.qte, +this.modelId, this.comment)
       .subscribe((result: any) => {
-        for (let j = 0; j < this.products.length; j++)
-          for (let i = 0; i < this.products[j].length; i++)
-            if (this.selectedProducts.includes(this.products[j][i].id)) {
-              this.products[j][i].qte += this.qte;
+        for (let j = 0; j < this.productsCount.length; j++)
+          for (let i = 0; i < this.productsCount[j].length; i++)
+            if (this.selectedProducts.includes(this.productsCount[j][i].id)) {
+              this.productsCount[j][i].qte += this.qte;
               rows[j].cells[i + 1].setAttribute(
                 'style',
                 'background-color: rgb(152, 251, 152);'
@@ -503,7 +486,7 @@ export class StockComponent implements OnInit,OnDestroy {
 
   dateFilterChange() {
     this.setCalendar();
-    if(this.endDatestring){
+    if(this.endDateString){
       this.getStats();
     }
   }
@@ -513,8 +496,8 @@ export class StockComponent implements OnInit,OnDestroy {
     .findAll(
       this.modelId,
       this.searchField,
-      this.startDatestring,
-      this.endDatestring
+      this.beginDateString,
+      this.endDateString
     )
     .subscribe((result: any) => {
       this.productsHistory = result;
@@ -529,20 +512,20 @@ export class StockComponent implements OnInit,OnDestroy {
       this.rangeDates = [oneMonthAgo, today];
     }
 
-    this.startDatestring = this.dateUtils.formatDateToString(this.rangeDates[0])
-    this.endDatestring = this.rangeDates[1] != null? this.dateUtils.formatDateToString(this.rangeDates[1]): null;//this.startDatestring;
+    this.beginDateString = this.dateUtils.formatDateToString(this.rangeDates[0])
+    this.endDateString = this.rangeDates[1] != null? this.dateUtils.formatDateToString(this.rangeDates[1]): this.beginDateString;
   }
 
   haveSelectedItems(index: number, row: boolean):boolean {
     if (row) {
-      for (let i = 0; i < this.products[index].length; i++)
-        if (this.selectedProducts.includes(this.products[index][i].id)){
+      for (let i = 0; i < this.productsCount[index].length; i++)
+        if (this.selectedProducts.includes(this.productsCount[index][i].id)){
           //console.log('have similar row',this.products[index][i].id);
           return true
         }
     } else
-      for (let j = 0; j < this.products.length; j++)
-        if (this.selectedProducts.includes(this.products[j][index].id)){
+      for (let j = 0; j < this.productsCount.length; j++)
+        if (this.selectedProducts.includes(this.productsCount[j][index].id)){
           //console.log('have similar size',this.products[j][index].id);
           return true
         }
@@ -551,28 +534,27 @@ export class StockComponent implements OnInit,OnDestroy {
 
   hideRow(j:number){
     if(this.totalRow(j)==0)
-      this.products.splice(j,1);
+      this.productsCount.splice(j,1);
   }
 
   onDeleteProductsHistory($event: any): void {
     $event.products.forEach((product: any) => {
-      for (let j = 0; j < this.products.length; j++)
-        for (let i = 0; i < this.products[j].length; i++)
-        if(product.productId == this.products[j][i].id)
-          this.products[j][i].qte = this.products[j][i].qte - product.qte;
+      for (let j = 0; j < this.productsCount.length; j++)
+        for (let i = 0; i < this.productsCount[j].length; i++)
+        if(product.productId == this.productsCount[j][i].id)
+          this.productsCount[j][i].qte = this.productsCount[j][i].qte - product.qte;
     });
   }
 
-  existingColor(color: Color): boolean {
-    return this.colors.some(c => c.id === color.id);
+  existingColor(color: Color,noHide: boolean): Color | undefined{
+    if(noHide)
+    return this.colors.find(c => c.id === color.id);
 
   }
 
-  getSeverity(product: Product) {
-    let delait = this.getDaysStock(product.qte,product.id);
-
+  getSeverity(qte: number,delait : any) {
     switch (true) {
-      case product.qte <1:
+      case qte <1:
         return 'danger';
 
         case delait < this.stockFabricationDelait:
@@ -585,10 +567,9 @@ export class StockComponent implements OnInit,OnDestroy {
             return 'success';
     }
   }
-  getSeverityMsg(product: Product) {
-    let delait = this.getDaysStock(product.qte,product.id);
+  getSeverityMsg(qte: number, delait: any) {
     switch (true) {
-      case product.qte <1:
+      case qte <1:
         return 'RUPTURE';
         case delait < this.stockFabricationDelait:
             return 'LOW STOCK';
@@ -607,7 +588,7 @@ export class StockComponent implements OnInit,OnDestroy {
     this.range = 1;
     if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
       {
-        this.endDatestring = this.dateUtils.formatDateToString(this.today)
+        this.endDateString = this.dateUtils.formatDateToString(this.today)
         this.rangeDates= [this.rangeDates[0],this.today];
         //this.setCalendar();
       }
@@ -621,7 +602,7 @@ export class StockComponent implements OnInit,OnDestroy {
     //this.rangeDates= [yesterday,this.today];
     if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
       {
-        this.endDatestring = this.dateUtils.formatDateToString(this.today)
+        this.endDateString = this.dateUtils.formatDateToString(this.today)
         this.rangeDates= [this.rangeDates[0],yesterday];
         //this.setCalendar();
       }
