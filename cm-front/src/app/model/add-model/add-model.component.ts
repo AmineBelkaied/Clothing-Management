@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy} from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Color } from 'src/shared/models/Color';
 import { Model } from 'src/shared/models/Model';
@@ -11,59 +11,67 @@ import { SizeService } from 'src/shared/services/size.service';
   selector: 'app-add-model',
   templateUrl: './add-model.component.html'
 })
+export class AddModelComponent implements OnInit, OnDestroy {
 
-
-
-export class AddModelComponent implements OnInit,OnDestroy{
-  salePrice : number = 1;
+  salePrice: number = 1;
   model: Model;
-  @Input() editMode!: boolean;
+  @Input()
+  editMode!: boolean;
+  @Input()
+  modelNameExists: boolean;
+  @Output()
+  formValidationEmitter = new EventEmitter();
   colors: Color[] = [];
   sizes: Size[] = [];
   currentFile: any;
   progress = 0;
-  message : any;
+  message: any;
   allOffersList: any[] = [];
   $unsubscribe: Subject<void> = new Subject();
 
   constructor(
-    private modelService : ModelService,
-    private colorService : ColorService,
-    private sizeService : SizeService) {
+    private modelService: ModelService,
+    private colorService: ColorService,
+    private sizeService: SizeService) {
 
   }
 
   ngOnInit(): void {
 
     this.modelService.getModelSubscriber()
-    .pipe(takeUntil(this.$unsubscribe))
-    .subscribe((model: Model) => {
-      this.model = model;
-      this.model.colors = this.model.colors.filter((color: Color) => color.reference != "?");
-      this.model.sizes = this.model.sizes.filter((size: any) => size.reference != "?");
-      console.log(this.model);
-      this.salePrice = this.calculateSalePrice(this.model);
-    });
+      .pipe(takeUntil(this.$unsubscribe))
+      .subscribe((model: Model) => {
+        this.model = { ...model };
+        this.model.colors = this.model.colors.filter((color: Color) => color.reference != "?");
+        this.model.sizes = this.model.sizes.filter((size: any) => size.reference != "?");
+        this.salePrice = this.calculateSalePrice(this.model);
+      });
 
     this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
-    .subscribe((colorList: Color[]) => {
-      console.log("colorList",colorList);
-      this.colors = colorList.filter((color: Color) => color.reference != "?");
-    });
+      .subscribe((colorList: Color[]) => {
+        console.log("colorList", colorList);
+        this.colors = colorList.filter((color: Color) => color.reference != "?");
+      });
 
     this.sizeService.getSizesSubscriber().pipe(takeUntil(this.$unsubscribe))
       .subscribe((sizeList: Size[]) => {
-        this.sizes = sizeList.filter((size: any) => size.reference != "?");
+        this.sizes = sizeList.filter((size: Size) => size.reference != "?");
       })
 
   }
 
+  checkFormValidation(): void {
+    this.formValidationEmitter.next({model: this.model, salePrice: this.salePrice});
+  }
+
   calculateSalePrice(model: Model): any {
-    if(model.purchasePrice && model.earningCoefficient)
+    this.checkFormValidation();
+    if (model.purchasePrice && model.earningCoefficient)
       return Math.round(model.earningCoefficient * model.purchasePrice);
   }
 
   calculateGainCoefficient(model: Model): void {
+    this.checkFormValidation();
     if (model.purchasePrice && this.salePrice) {
       let gc = this.salePrice / model.purchasePrice;
       model.earningCoefficient = parseFloat(gc.toFixed(2))

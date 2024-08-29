@@ -71,7 +71,7 @@ export class StatistiqueComponent implements OnInit {
   packetsByDate: Packet[] = [];
   //end packet by date
 
-  startDateString: string;
+  beginDateString: string;
   endDateString: string | null;
 
   cityCounts: CountCitys = {};
@@ -184,7 +184,7 @@ export class StatistiqueComponent implements OnInit {
   getPagesChart(){
     if(this.endDateString)
     this.statsService
-    .statAllPages(this.startDateString, this.endDateString)
+    .statAllPages(this.beginDateString, this.endDateString)
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
       next: (response: any) => {
@@ -200,7 +200,7 @@ export class StatistiqueComponent implements OnInit {
   getStatesChart(){
     if(this.endDateString)
     this.statsService
-    .statAllStates(this.startDateString, this.endDateString)
+    .statAllStates(this.beginDateString, this.endDateString)
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe({
       next: (response: any) => {
@@ -271,7 +271,7 @@ export class StatistiqueComponent implements OnInit {
   getStatAllModelsChart() {
     if(this.endDateString)
     this.statsService
-      .statAllModels(this.startDateString, this.endDateString,this.countProgressEnabler)
+      .statAllModels(this.beginDateString, this.endDateString,this.countProgressEnabler)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: any) => {
@@ -290,7 +290,7 @@ export class StatistiqueComponent implements OnInit {
   getStatStockChart() {
     if(this.endDateString)
     this.statsService
-      .statStock(this.startDateString, this.endDateString)
+      .statStock(this.beginDateString, this.endDateString)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: any) => {
@@ -310,7 +310,7 @@ export class StatistiqueComponent implements OnInit {
     if(this.deliveryCompanyName==null)this.deliveryCompanyName="ALL";
     if(this.endDateString)
     this.statsService
-      .statAllPackets(this.startDateString, this.endDateString, this.deliveryCompanyName)
+      .statAllPackets(this.beginDateString, this.endDateString, this.deliveryCompanyName)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: any) => {
@@ -327,7 +327,7 @@ export class StatistiqueComponent implements OnInit {
   getStatAllOffersChart() {
     if(this.endDateString)
     this.statsService
-      .statAllOffers(this.startDateString, this.endDateString)
+      .statAllOffers(this.beginDateString, this.endDateString)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: any) => {
@@ -349,7 +349,7 @@ export class StatistiqueComponent implements OnInit {
     if(this.endDateString)
     this.statsService
       .statAllColors(
-        this.startDateString,
+        this.beginDateString,
         this.endDateString
       )
       .pipe(takeUntil(this.$unsubscribe))
@@ -560,13 +560,13 @@ export class StatistiqueComponent implements OnInit {
       this.rangeDates = [oneMonthAgo, today];
     }
 
-    this.startDateString = this.dateUtils.formatDateToString(
+    this.beginDateString = this.dateUtils.formatDateToString(
       this.rangeDates[0]
     );
     this.endDateString =
       this.rangeDates[1]
         ? this.dateUtils.formatDateToString(this.rangeDates[1])
-        : null;//this.startDateString;
+        : null;//this.beginDateString;
   }
 
   getRandomColor(x: string) {

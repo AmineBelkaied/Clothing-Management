@@ -2,6 +2,7 @@ package com.clothing.management.servicesImpl;
 import com.clothing.management.dto.OfferDTO;
 import com.clothing.management.dto.OfferModelsDTO;
 import com.clothing.management.entities.*;
+import com.clothing.management.exceptions.custom.notfound.OfferNotFoundException;
 import com.clothing.management.repository.IOfferModelRepository;
 import com.clothing.management.repository.IOfferRepository;
 import com.clothing.management.services.OfferService;
@@ -75,7 +76,7 @@ public class OfferServiceImpl implements OfferService {
     @Override
     public OfferDTO updateOfferFbPages(long offerId,Set<FbPage> fbPages) throws Exception {
         Offer offer = offerRepository.findById(offerId)
-                .orElseThrow( () -> new Exception("Offer not found with ID: " + offerId));
+                .orElseThrow( () -> new OfferNotFoundException(offerId));
         offer.setFbPages(fbPages);
         offerRepository.save(offer);
         return new OfferDTO(offer);
@@ -93,7 +94,7 @@ public class OfferServiceImpl implements OfferService {
     public OfferDTO updateOfferData(long id, String name, double price,boolean enabled) throws Exception {
         // Update the offer
         Offer offer = offerRepository.findById(id)
-                .orElseThrow( () -> new Exception("Offer not found with ID: " + id));
+                .orElseThrow( () -> new OfferNotFoundException(id, name));
 
         offer.setName(name);
         offer.setPrice(price);
@@ -103,15 +104,15 @@ public class OfferServiceImpl implements OfferService {
     }
     @Override
     @Transactional("tenantTransactionManager")
-    public OfferDTO updateOfferModels(long offerId, Set<OfferModelsDTO> modelQuantityList) throws Exception {
+    public OfferDTO updateOfferModels(long offerId, Set<OfferModelsDTO> modelQuantityList) {
         Set<OfferModel> oldOfferModels = offerModelRepository.findByOfferId(offerId);
-        if(oldOfferModels.size() > 0 )
+        if(!oldOfferModels.isEmpty())
             offerModelRepository.deleteByOfferId(offerId);
         for(OfferModelsDTO offerModelsDTO: modelQuantityList){
             offerModelRepository.addOfferModel(offerId , offerModelsDTO.getModel().getId() , offerModelsDTO.getQuantity());}
 
         return new OfferDTO(offerRepository.findById(offerId)
-                .orElseThrow(() -> new Exception("Offer not found with ID: " + offerId)));
+                .orElseThrow(() -> new OfferNotFoundException(offerId)));
     }
 
     @Override

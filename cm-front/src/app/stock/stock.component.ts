@@ -60,7 +60,7 @@ export class StockComponent implements OnInit,OnDestroy {
 
   rangeDates: Date[] = [];
   range: number = 30;
-  startDatestring : string;
+  beginDatestring : string;
   endDatestring : string | null;
 
   searchField: string = '';
@@ -197,7 +197,7 @@ export class StockComponent implements OnInit,OnDestroy {
     if(this.endDatestring)
     this.statsService.productsCount(
       modelId,
-      this.startDatestring,
+      this.beginDatestring,
       this.endDatestring
       )
     .pipe(takeUntil(this.$unsubscribe))
@@ -218,7 +218,7 @@ export class StockComponent implements OnInit,OnDestroy {
     if(this.endDatestring)
     this.statsService.statModelSold(
       this.modelId,
-      this.startDatestring,
+      this.beginDatestring,
       this.endDatestring
       )
     .pipe(takeUntil(this.$unsubscribe))
@@ -513,7 +513,7 @@ export class StockComponent implements OnInit,OnDestroy {
     .findAll(
       this.modelId,
       this.searchField,
-      this.startDatestring,
+      this.beginDatestring,
       this.endDatestring
     )
     .subscribe((result: any) => {
@@ -529,8 +529,8 @@ export class StockComponent implements OnInit,OnDestroy {
       this.rangeDates = [oneMonthAgo, today];
     }
 
-    this.startDatestring = this.dateUtils.formatDateToString(this.rangeDates[0])
-    this.endDatestring = this.rangeDates[1] != null? this.dateUtils.formatDateToString(this.rangeDates[1]): null;//this.startDatestring;
+    this.beginDatestring = this.dateUtils.formatDateToString(this.rangeDates[0])
+    this.endDatestring = this.rangeDates[1] != null? this.dateUtils.formatDateToString(this.rangeDates[1]): null;//this.beginDatestring;
   }
 
   haveSelectedItems(index: number, row: boolean):boolean {

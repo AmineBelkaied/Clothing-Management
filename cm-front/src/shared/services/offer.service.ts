@@ -81,12 +81,12 @@ cleanOffre() {
     return this.http.put(`${this.baseUrl}`, offer , {headers : {'content-type': 'application/json'}});
   }
 
-  updateData(offer: Offer) {
+  updatOfferFields(offer: Offer) {
     const params = new HttpParams().set('id', offer.id)
-                                   .set('name',offer.name)
-                                   .set('price',offer.price)
-                                   .set('enabled',offer.enabled);
-    return this.http.put(`${this.baseUrl}${OFFER_ENDPOINTS.UPDATE_DATA}`, {
+                                   .set('name', offer.name)
+                                   .set('price', offer.price)
+                                   .set('enabled', offer.enabled);
+    return this.http.get(`${this.baseUrl}${OFFER_ENDPOINTS.UPDATE_DATA}`, {
       headers: { 'content-type': 'application/json' },
       params: params
     }).pipe(

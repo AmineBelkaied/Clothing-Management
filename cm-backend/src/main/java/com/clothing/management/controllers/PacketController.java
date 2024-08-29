@@ -51,21 +51,12 @@ public class PacketController {
                                                                 @RequestParam(required = false) boolean mandatoryDate) {
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-            Page<Packet> allPackets = packetService.findAllPackets(pageable, searchText, beginDate, endDate, status, mandatoryDate);
-
-            // Map each Packet entity to PacketDTO
-            List<PacketDTO> packetDTOList = allPackets.getContent().stream()
-                    .map(PacketDTO::new) // Assuming PacketDTO has a constructor that takes a Packet entity
-                    .collect(Collectors.toList());
-
-            // Create a new Page object for PacketDTO
-            Page<PacketDTO> packetDTOPage = new PageImpl<>(packetDTOList, pageable, allPackets.getTotalElements());
-
+            Page<PacketDTO> allPackets = packetService.findAllPackets(pageable, searchText, beginDate, endDate, status, mandatoryDate);
             return new ResponseEntity<>(new ResponsePage.Builder()
-                    .result(packetDTOPage.getContent())
-                    .currentPage(packetDTOPage.getNumber())
-                    .totalItems(packetDTOPage.getTotalElements())
-                    .totalPages(packetDTOPage.getTotalPages())
+                    .result(allPackets.getContent())
+                    .currentPage(allPackets.getNumber())
+                    .totalItems(allPackets.getTotalElements())
+                    .totalPages(allPackets.getTotalPages())
                     .build(), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();

@@ -7,6 +7,8 @@ import { Size } from 'src/shared/models/Size';
 import { ColorService } from 'src/shared/services/color.service';
 import { ModelService } from 'src/shared/services/model.service';
 import { SizeService } from 'src/shared/services/size.service';
+import { NumberUtils } from 'src/shared/utils/number-utils';
+import { StringUtils } from 'src/shared/utils/string-utils';
 
 @Component({
   selector: 'app-list-models',
@@ -35,6 +37,8 @@ export class ListModelsComponent implements OnInit, OnDestroy{
   colors: Color[] = [];
   sizes: Size[] = [];
   selectedModels: Model[] = [];
+  isValidModel: boolean = false;
+  modelNameExists: boolean = false;
 
   submitted: boolean = false;
   selectedFile: any;
@@ -62,14 +66,14 @@ export class ListModelsComponent implements OnInit, OnDestroy{
 
   saveModel() {
     this.submitted = true;
-
+    if(this.isValidModel) {
     // Get the current model from the subscriber
     this.modelService.getModelSubscriber().pipe(
       take(1),  // Ensure we take only the first emission and then complete
       switchMap((model: Model) => {
         this.model = model;
         console.log('this.model', this.model);
-
+        
         // Save the model
         return this.modelService.addModel(this.model).pipe(
           tap((response: Model) => {
@@ -104,9 +108,20 @@ export class ListModelsComponent implements OnInit, OnDestroy{
         this.model = Object.assign({}, this.modelService.defaultModel);  // Reset model to default
       }
     });
+    }
   }
 
+  checkFormValidation(event: any): void {
+    this.modelNameExists = this.modelAlreadyExists(event.model.name);
 
+    this.isValidModel = StringUtils.isStringValid(event.model.name) && NumberUtils.isNumberValid(event.model.purchasePrice) &&
+    NumberUtils.isNumberValid(event.salePrice) && event.model.sizes.length > 0 && event.model.colors.length > 0 && !this.modelNameExists;
+  }
+
+  private modelAlreadyExists(name: string): boolean {
+    return this.models.some(model => model.name.toLowerCase() === name.toLowerCase());
+  }
+ 
   openNew() {
     this.submitted = false;
     this.modelDialog = true;

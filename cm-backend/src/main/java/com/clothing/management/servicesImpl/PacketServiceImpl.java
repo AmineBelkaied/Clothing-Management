@@ -90,7 +90,7 @@ public class PacketServiceImpl implements PacketService {
 
     @Override
     @Transactional(readOnly = true, transactionManager = "tenantTransactionManager")
-    public Page<Packet> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status, boolean mandatoryDate) throws ParseException {
+    public Page<PacketDTO> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status, boolean mandatoryDate) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         if (mandatoryDate) {

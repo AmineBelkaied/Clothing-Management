@@ -51,7 +51,7 @@ export class AuthInterceptor implements HttpInterceptor {
                rejectVisible: false,
                acceptLabel: 'OK'
              });
-             return throwError(() => new Error('No Internet Connection'));
+             return throwError(() => new Error('Problème serveur'));
           }
           if (error.status === 0) {  // Network error or server down
             this.confirmationService.confirm({

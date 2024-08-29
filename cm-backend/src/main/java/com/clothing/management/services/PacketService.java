@@ -22,7 +22,7 @@ public interface PacketService {
  Packet getPacketByBarcode(String barCode) throws Exception;
 
  List<Packet> findAllPackets();
-  Page<Packet> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status, boolean mandatoryDate) throws ParseException;
+  Page<PacketDTO> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status, boolean mandatoryDate) throws ParseException;
  public List<PacketValidationDTO> findValidationPackets();
  List<PacketDTO> findAllPacketsByDate(String start,String end) throws ParseException;
  List<Packet> findAllPacketsByDate(Date date);

@@ -81,11 +81,11 @@
 
 <p-dialog [(visible)]="modelDialog" [style]="{width: '60%'}" header="Détails du modèle" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
-        <app-add-model [editMode]="editMode"></app-add-model>
+        <app-add-model [editMode]="editMode" [modelNameExists]="modelNameExists" (formValidationEmitter)="checkFormValidation($event)"></app-add-model>
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'" [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"  class="p-button-text" (click)="saveModel()"></button>
+        <button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'" [icon]="editMode ? 'pi pi-pencil small' : 'pi pi-plus small'" class="p-button-text" [disabled]="!isValidModel" (click)="saveModel()"></button>
     </ng-template>
 </p-dialog>
 

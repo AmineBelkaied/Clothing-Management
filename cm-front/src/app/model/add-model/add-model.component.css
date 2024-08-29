@@ -1,0 +1,4 @@
+
+:host ::ng-deep .p-inputswitch-slider {
+    transform: scale(0.75); /* Adjust the scale to make it smaller */
+  }
