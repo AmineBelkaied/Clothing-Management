@@ -12,6 +12,8 @@ public class DayCountDTO {
 
 
     public DayCountDTO() {
+        this.countPayed = 0;
+        this.countProgress = 0;
     }
 
     public DayCountDTO(
@@ -19,6 +21,12 @@ public class DayCountDTO {
             long countPayed, long countProgress
     ) {
         this.date = packetDate;
+        this.countPayed = countPayed;
+        this.countProgress = countProgress;
+    }
+    public DayCountDTO(
+            long countPayed, long countProgress
+    ) {
         this.countPayed = countPayed;
         this.countProgress = countProgress;
     }

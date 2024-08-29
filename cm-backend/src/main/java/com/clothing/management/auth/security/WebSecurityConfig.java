@@ -64,7 +64,7 @@ import java.util.Arrays;
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**", "/tenant/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/cm/**","/api/auth/**", "/tenant/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/", "/index.html", "/static/**", "/public/**").permitAll()
                         .requestMatchers("/assets/**","/**.js","/**.css").permitAll()
                         .anyRequest().authenticated())

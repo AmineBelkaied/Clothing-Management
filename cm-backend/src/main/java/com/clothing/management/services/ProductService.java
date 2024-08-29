@@ -22,7 +22,7 @@ public interface ProductService {
     public Product updateProduct(Product product);
     public void deleteProduct(Product product);
     void deleteSelectedProducts(List<Long> productsId);
-    StockDTO getStock(Long modelId);
+    StockDTO getStock(Long modelId, String beginDate, String endDate);
     List<ModelStockHistory> countStock();
     Page<ProductHistoryDTO> addStock(StockUpdateDto updateStock);
     Product findByModelAndColorAndSize(Long modelId, Long colorId, Long sizeId);

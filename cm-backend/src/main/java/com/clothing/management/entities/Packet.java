@@ -37,7 +37,7 @@ public class Packet {
     @Column(name = "old_client")
     private Integer oldClient;
 
-    @OneToMany(mappedBy = "packet" , cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "packet" , cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<ProductsPacket> productsPackets;
 
     @JsonIgnore

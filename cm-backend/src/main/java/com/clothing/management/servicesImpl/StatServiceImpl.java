@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
+
 @Service
 @Transactional("tenantTransactionManager")
 public class StatServiceImpl implements StatService {
@@ -461,8 +463,8 @@ public class StatServiceImpl implements StatService {
                     uniqueSizes.add(size);
                 }
             }
-            if (product.getProductId() != null) {
-                long id = product.getProductId();
+            if (product.getId() != null) {
+                long id = product.getId();
                 if (!uniqueProductsIds.contains(id)) {
                     uniqueProductsIds.add(id);
                 }
@@ -646,11 +648,6 @@ public class StatServiceImpl implements StatService {
     @Override
     public List<ProductsDayCountDTO> productsCountByDate(Long modelId,String beginDate,String endDate){
         return productsPacketRepository.productsCountByDate(modelId, beginDate,endDate);
-    }
-
-    @Override
-    public List<SoldProductsDayCountDTO> soldProductsCountByDate(Long modelId,String beginDate,String endDate){
-        return productsPacketRepository.soldProductsCountByDate(modelId, beginDate,endDate);
     }
 
     @Override

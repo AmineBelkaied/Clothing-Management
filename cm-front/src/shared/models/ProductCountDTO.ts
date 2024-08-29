@@ -1,6 +1,6 @@
 export interface ProductCountDTO {
+    id:number;
     packetDate: Date;
-    productId: number;
     offerId: number;
     modelId: number;
     modelName: string;
@@ -11,4 +11,5 @@ export interface ProductCountDTO {
     countProgress: number;
     countPayed: number;
     count: number;
+    qte:number;
 }

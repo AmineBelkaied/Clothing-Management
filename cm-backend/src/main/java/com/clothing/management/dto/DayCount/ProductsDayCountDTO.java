@@ -1,16 +1,13 @@
 package com.clothing.management.dto.DayCount;
 
-import com.clothing.management.dto.DeliveryCompanyDTOs.DeliveryResponse;
-import com.clothing.management.dto.OfferDTO;
 import com.clothing.management.entities.Color;
-import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.Size;
 
 import java.util.Date;
 
 public class ProductsDayCountDTO extends DayCountDTO {
 
-    private Long productId;
+    private Long id;
     private Long modelId;
     private String modelName;
     private Color color;
@@ -25,29 +22,13 @@ public class ProductsDayCountDTO extends DayCountDTO {
     }
 
     public ProductsDayCountDTO(
-            Date packetDate, Long productId,
-            Long modelId, String modelName,
-            Color color, Size size,
-            long countPayed, long countProgress, long countReturn, double profits
-    ) {
-        super(packetDate, countPayed, countProgress);
-        this.productId = productId;
-        this.modelId = modelId;
-        this.modelName = modelName;
-        this.color = color;
-        this.size = size;
-        this.countReturn = countReturn;
-        this.profits = profits;
-    }
-
-    public ProductsDayCountDTO(
-            Date packetDate, Long productId,
+            Date packetDate, Long id,
             Long modelId, String modelName,
             Color color, Size size,
             long countPayed, long countProgress, long countOos, long countReturn, double profits
     ) {
         super(packetDate, countPayed, countProgress);
-        this.productId = productId;
+        this.id = id;
         this.modelId = modelId;
         this.modelName = modelName;
         this.color = color;
@@ -57,11 +38,11 @@ public class ProductsDayCountDTO extends DayCountDTO {
         this.profits = profits;
     }
 
-    public Long getProductId() {
-        return productId;
+    public Long getId() {
+        return id;
     }
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getModelId() {
@@ -125,7 +106,7 @@ public class ProductsDayCountDTO extends DayCountDTO {
     @Override
     public String toString() {
         return "ProductsDayCountDTO{" +
-                ", productId=" + productId +
+                ", id=" + id +
                 ", modelId=" + modelId +
                 ", modelName='" + modelName + '\'' +
                 ", color=" + color +

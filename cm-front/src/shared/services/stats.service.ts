@@ -16,14 +16,6 @@ export class StatsService {
 
   private baseUrl: string = environment.baseUrl + `${STAT_ENDPOINTS.BASE}`;
 
-  public productsCount(modelId: number, beginDate: string, endDate: string): Observable<any> {
-    let params = new HttpParams()
-      .set('beginDate', beginDate)
-      .set('endDate', endDate);
-
-    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.SOLD}/${modelId}`, { params });
-  }
-
   public statAllStates(beginDate: string, endDate: string): Observable<any> {
     let params = new HttpParams()
       .set('beginDate', beginDate)

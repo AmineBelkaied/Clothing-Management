@@ -60,7 +60,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   suiviHeader: string = 'Suivi';
   events: any[] = [];
   statusEvents: any[] = [];
-  packets: Packet[];
+  packets: Packet[] = [];
   totalItems: number;
   packet: Packet;
   cols: object[] = [];
@@ -242,11 +242,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
       this.activeClass = true;
     });
+    this.rangeDates = [this.today,this.today];
     this.offerService.getOffersSubscriber();
     this.createColumns();
     this.findAllGroupedCities();
     this.findAllFbPages();
-    this.rangeDates = [this.today];
     this.onActiveIndexChange(2);
     this.selectedStatus.setValue([]);
   }
