@@ -6,6 +6,8 @@ import com.clothing.management.dto.DeliveryCompanyDTOs.DeliveryResponse;
 import com.clothing.management.enums.DeliveryCompanyName;
 import com.clothing.management.enums.DeliveryCompanyStatus;
 import com.clothing.management.enums.SystemStatus;
+import com.clothing.management.exceptions.custom.notfound.PacketNotFoundException;
+import com.clothing.management.exceptions.generic.EntityNotFoundException;
 import com.clothing.management.models.DashboardCard;
 import com.clothing.management.servicesImpl.api.DeliveryCompanyService;
 import com.clothing.management.servicesImpl.api.DeliveryCompanyServiceFactory;
@@ -39,23 +41,21 @@ public class PacketServiceImpl implements PacketService {
     private final IPacketRepository packetRepository;
     private final IProductRepository productRepository;
     private final IProductsPacketRepository productsPacketRepository;
-    private final IPacketStatusRepository packetStatusRepository;
     private final DeliveryCompanyServiceFactory deliveryCompanyServiceFactory;
     private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
-    private final INoteRepository noteRepository;
     private final static List<String> ignoredDateStatusList = List.of(new String[]{RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus()});
 
     @Override
-    public Packet getPacketById(Long packetId) throws Exception {
+    public Packet getPacketById(Long packetId) throws PacketNotFoundException {
         return packetRepository.findById(packetId)
-                .orElseThrow(() -> new PacketNotFoundException("Packet not found!"));
+                .orElseThrow(() -> new PacketNotFoundException(packetId,"Packet not found!"));
     }
 
     @Override
-    public Packet getPacketByBarcode(String barCode) throws Exception {
+    public Packet getPacketByBarcode(String barCode) throws EntityNotFoundException {
         return packetRepository.findByBarCode(barCode)
-                .orElseThrow(() -> new PacketNotFoundException("Packet not found!"));
+                .orElseThrow(() -> new EntityNotFoundException("BarCode",0L,barCode));
     }
 
     @Autowired
@@ -63,21 +63,16 @@ public class PacketServiceImpl implements PacketService {
             IPacketRepository packetRepository,
             IProductRepository productRepository,
             IProductsPacketRepository productsPacketRepository,
-            IPacketStatusRepository packetStatusRepository,
             DeliveryCompanyServiceFactory deliveryCompanyServiceFactory,
             SessionUtils sessionUtils,
-            IGlobalConfRepository globalConfRepository,
-            IFbPageRepository fbPageRepository,
-            INoteRepository noteRepository
+            IGlobalConfRepository globalConfRepository
     ) {
         this.packetRepository = packetRepository;
         this.productRepository = productRepository;
         this.productsPacketRepository = productsPacketRepository;
-        this.packetStatusRepository = packetStatusRepository;
         this.deliveryCompanyServiceFactory = deliveryCompanyServiceFactory;
         this.globalConfRepository = globalConfRepository;
         this.sessionUtils = sessionUtils;
-        this.noteRepository = noteRepository;
     }
 
     @Override
@@ -185,8 +180,7 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public PacketValidationDTO updatePacketValid(String barCode, String type) throws Exception {
-        //System.out.println("updatePacketValid:"+barCode);
+    public PacketValidationDTO updatePacketValid(String barCode, String type) {
         Packet nonValidPacket = getPacketByBarcode(barCode);
         Packet packet;
         try {
@@ -210,7 +204,6 @@ public class PacketServiceImpl implements PacketService {
             String firstKey = firstKeyOptional.get();
             Field fieldPacket = ReflectionUtils.findField(Packet.class, firstKey);
             String value = String.valueOf(field.get(firstKey));
-            //fieldPacket.setAccessible(true);
             switch (firstKey) {
                 case "status" -> {
                     packet = getPacketById(idPacket);
@@ -235,12 +228,15 @@ public class PacketServiceImpl implements PacketService {
                 }
                 case "barcode" -> packetRepository.saveBarcode(idPacket, value);
                 default -> {
-                    ReflectionUtils.setField(fieldPacket, packet, field.get(firstKey));
-                    System.out.println("no" + firstKey);
-                    packetRepository.save(packet);
+                    if(fieldPacket != null){
+                        packet = getPacketById(idPacket);
+                        ReflectionUtils.setField(fieldPacket, packet, field.get(firstKey));
+                        packetRepository.save(packet);
+                    }
+
                 }
             }
-            packet = packetRepository.findById(idPacket).orElseThrow(() -> new PacketNotFoundException("Packet not found!"));
+            packet = packetRepository.findById(idPacket).orElseThrow(() -> new PacketNotFoundException(idPacket,"Packet not found!"));
         }
         return packet;
     }
@@ -288,9 +284,9 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public List<PacketStatusDTO> findPacketTimeLineById(Long idPacket) throws Exception {
+    public List<PacketStatusDTO> findPacketTimeLineById(Long idPacket) throws PacketNotFoundException {
         return packetRepository.findById(idPacket)
-                .orElseThrow(() -> new PacketNotFoundException("Packet not found!"))
+                .orElseThrow(() -> new PacketNotFoundException(idPacket,"Packet not found!"))
                 .getPacketStatus().stream()
                 .map(PacketStatusDTO::new)
                 .collect(Collectors.toList());
@@ -337,7 +333,7 @@ public class PacketServiceImpl implements PacketService {
 
                     if (deliveryResponse.getStatus() == 404 || deliveryState.equals("")) {
                         throw new Exception("Problem API");
-                    } else if (deliveryResponse.getStatus() > 199 && deliveryState != null) {
+                    } else if (deliveryResponse.getStatus() > 199) {
                         //Convert input from first to System Status
 
                         packet.getPacketStatus().add(new PacketStatus(deliveryCompanyName + ":" + deliveryState, packet, currentUser));
@@ -373,7 +369,7 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public Packet addAttempt(Note note, Long packetId) throws PacketNotFoundException {
         Packet packet = packetRepository.findById(packetId)
-                .orElseThrow(() -> new PacketNotFoundException("Packet with ID " + packetId + " does not exist."));
+                .orElseThrow(() -> new PacketNotFoundException(packetId," does not exist."));
 
         User currentUser = sessionUtils.getCurrentUser();
         note.setUser(currentUser);
@@ -431,7 +427,7 @@ public class PacketServiceImpl implements PacketService {
     @Transactional("tenantTransactionManager")
     public PacketDTO duplicatePacket(Long idPacket) throws Exception {
         GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElseThrow(() -> new Exception("Global configuration not found!"));
-        Packet packet = packetRepository.findById(idPacket).orElseThrow(() -> new PacketNotFoundException("Packet not found!"));
+        Packet packet = packetRepository.findById(idPacket).orElseThrow(() -> new PacketNotFoundException(idPacket,"Packet not found!"));
 
         Packet newPacket = new Packet(packet, globalConf.getDeliveryCompany());
 
@@ -469,7 +465,7 @@ public class PacketServiceImpl implements PacketService {
         return errors;
     }
 
-    public Packet updatePacketStatus(Packet packet, String status) throws Exception {
+    public Packet updatePacketStatus(Packet packet, String status) {
         if (packet.getExchangeId() != null) {
             if (status.equals(PAID.getStatus()) || status.equals(LIVREE.getStatus()))
                 return updateExchangePacketStatusToPaid(packet, status);
@@ -480,7 +476,7 @@ public class PacketServiceImpl implements PacketService {
         return updatePacketStatusAndSaveToHistory(packet, status);
     }
 
-    public Packet updateExchangePacketStatusToReturnReceived(Packet packet) throws Exception {
+    public Packet updateExchangePacketStatusToReturnReceived(Packet packet) {
         Long id = packet.getExchangeId();
         Packet exchangePacket = getPacketById(id);
         if (packet.getStatus().equals(LIVREE.getStatus())
@@ -491,7 +487,7 @@ public class PacketServiceImpl implements PacketService {
         else return updatePacketStatusAndSaveToHistory(packet, RETURN_RECEIVED.getStatus());
     }
 
-    public Packet updateExchangePacketStatusToPaid(Packet packet, String status) throws Exception {
+    public Packet updateExchangePacketStatusToPaid(Packet packet, String status) {
         Long id = packet.getExchangeId();
         Packet exchangePacket = getPacketById(id);
         packet.setPrice(exchangePacket.getPrice() - exchangePacket.getDiscount() + packet.getPrice() - packet.getDiscount());
@@ -559,7 +555,7 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public PacketDTO addProductsToPacket(SelectedProductsDTO selectedProductsDTO) throws Exception {
+    public PacketDTO addProductsToPacket(SelectedProductsDTO selectedProductsDTO) {
         String packetStatus = selectedProductsDTO.getStatus();
         Packet packet = getPacketById(selectedProductsDTO.getIdPacket());
 
@@ -592,65 +588,9 @@ public class PacketServiceImpl implements PacketService {
         );
     }
 
-    /*public void updateProducts_Status(Packet packet, String status) {
-        if (status.equals(LIVREE.getStatus())
-                || status.equals(PAID.getStatus())
-                || status.equals(CONFIRMED.getStatus())
-                || status.equals(RETURN_RECEIVED.getStatus())
-                || status.equals(CANCELED.getStatus()))
-            updateProductsPacket_Status_ByPacketId(packet, status);
-    }
-    public void updateProductsPacket_Status_ByPacketId(Packet packet, String status) {
-        int x = -1;
-        if (status.equals(RETURN_RECEIVED.getStatus()) || status.equals(CANCELED.getStatus())) x = 0;
-        if (status.equals(CONFIRMED.getStatus())) x = 1;
-        if (status.equals(LIVREE.getStatus()) || status.equals(PAID.getStatus())) x = 2;
-
-        List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
-        if (!productsPackets.isEmpty()) {
-            for (ProductsPacket product : productsPackets) {
-                product.setStatus(x);
-            }
-            productsPacketRepository.saveAll(productsPackets);
-        }
-    }
-
-    @Override
-    public Packet addAttempt(Long packetId, String note) throws PacketNotFoundException {
-        Packet packet = packetRepository.findById(packetId).orElseThrow(() -> new PacketNotFoundException("Packet not found!"+packetId));
-        packet.setAttempt(packet.getAttempt() + 1);
-
-        // Formatting the note date to "dd hh:mm" format
-        String noteWithDate = "-Le "+new SimpleDateFormat("dd-HH:mm").format(new Date()) + " " + note;
-        if(packet.getNote().equals("")){packet.setNote(noteWithDate);}
-        else packet.setNote(String.format("%s\n%s", packet.getNote(), noteWithDate));
-        //savePacketStatusToHistory(packet, "tentative: " + packet.getAttempt() + " " + note);
-        User currentUser = sessionUtils.getCurrentUser();
-        packet.getPacketStatus().add(new PacketStatus("tentative: " + packet.getAttempt() + " " + note, packet, currentUser));
-
-        return packetRepository.save(packet);
-    }*/
-
-    public class PacketNotFoundException extends Exception {
-        public PacketNotFoundException(String message) {
-            super(message);
-        }
-    }
-
-    @Override
-    public void deletePacketById(Long idPacket) throws Exception {
-        updatePacketStatusAndSaveToHistory(getPacketById(idPacket), DELETED.getStatus());
-    }
-
-    /**
-     * Delete selected packets by id
-     *
-     * @param packetsId
-     * @return
-     */
     @Override
     @Transactional("tenantTransactionManager")
-    public List<PacketDTO> deleteSelectedPackets(List<Long> packetsId, Note note) throws Exception {
+    public List<PacketDTO> deleteSelectedPackets(List<Long> packetsId, Note note) throws PacketNotFoundException {
         User currentUser = sessionUtils.getCurrentUser();
         List<Packet> packets = new ArrayList<>();
 
@@ -658,7 +598,7 @@ public class PacketServiceImpl implements PacketService {
             for (Long packetId : packetsId) {
                 try {
                     Packet packet = packetRepository.findById(packetId)
-                            .orElseThrow(() -> new PacketNotFoundException("Packet with ID " + packetId + " does not exist."));
+                            .orElseThrow(() -> new PacketNotFoundException(packetId,"does not exist."));
 
                     if (packet.getCustomerPhoneNb() == null || packet.getCustomerPhoneNb().isEmpty()) {
                         packetRepository.deleteById(packetId);

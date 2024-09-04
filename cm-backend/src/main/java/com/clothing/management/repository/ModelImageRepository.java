@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface ModelImageRepository extends JpaRepository<ModelImage, Long> {
-
     Optional<ModelImage> findByName(String fileName);
     @Query(value = "select * from model_image  where model_id = :modelId", nativeQuery = true)
     Optional<ModelImage> findByModelId(@Param("modelId") Long modelId);

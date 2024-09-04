@@ -39,7 +39,7 @@ public class StatServiceImpl implements StatService {
     @Override
     public Map<String , List<?>> statAllModelsChart(String beginDate, String endDate, Boolean countProgressEnabler){
         //initialisation des lists
-        List<Integer> countModelsList;
+        List<Long> countModelsList;
         ArrayList<Integer> countTotalList = new ArrayList<>();
 
         List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statAllModels(beginDate,endDate);
@@ -48,7 +48,7 @@ public class StatServiceImpl implements StatService {
         List<String> uniqueModels = (List<String>) uniqueValues.get("uniqueModelNames");
 
         //stat models chart
-        List<List<Integer>> listModelsCount= new ArrayList<>() ;
+        List<List<Long>> listModelsCount= new ArrayList<>() ;
         List<StatTableDTO> modelsRecapCount= new ArrayList<>() ;
         StatTableDTO modelRecap =null;
         for (String uniqueModel : uniqueModels) {
@@ -56,9 +56,9 @@ public class StatServiceImpl implements StatService {
             double countProfits = 0;
             modelRecap= new StatTableDTO(uniqueModel);
             for (Date uniqueDate : uniqueDates) {
-                int count = 0;
-                int countRetour = 0;
-                int countProgress = 0;
+                long count = 0;
+                long countRetour = 0;
+                long countProgress = 0;
 
                 for (ProductsDayCountDTO row : existingProductsPacket) {
                     if (row.getDate().equals(uniqueDate) && row.getModelName().equals(uniqueModel))
@@ -101,13 +101,13 @@ public class StatServiceImpl implements StatService {
         data.put("modelsRecapCount",modelsRecapCount);
         return data;
     }
-    private ArrayList<Integer> countTotal(List<Date> uniqueDates,List<List<Integer>> listModelsCount){
-        ArrayList<Integer> countTotalList = new ArrayList<>();
-        int i = 0;
+    private ArrayList<Long> countTotal(List<Date> uniqueDates,List<List<Long>> listModelsCount){
+        ArrayList<Long> countTotalList = new ArrayList<>();
+        long i = 0;
         for (Date uniqueDate : uniqueDates) {
-            Integer sum = 0;
-            for (List<Integer> totalPerDay : listModelsCount) {
-                sum += totalPerDay.get(i);
+            long sum = 0;
+            for (List<Long> totalPerDay : listModelsCount) {
+                sum += totalPerDay.get(Math.toIntExact(i));
             }
             countTotalList.add(sum);
             i++;
@@ -138,11 +138,11 @@ public class StatServiceImpl implements StatService {
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<Long> uniqueModelsIds = (List<Long>) uniqueValues.get("modelsIds");
         List<String> uniqueModels = (List<String>) uniqueValues.get("uniqueModelsNames");
-        List<List<Integer>> modelsStockHistory = new ArrayList<>();
+        List<List<Long>> modelsStockHistory = new ArrayList<>();
         for (Long uniqueModelId : uniqueModelsIds) {
-            ArrayList<Integer> uniqueModelStockHistory = new ArrayList<>();
+            ArrayList<Long> uniqueModelStockHistory = new ArrayList<>();
             for (Date uniqueDate : uniqueDates) {
-                Integer quantity = statStock.stream()
+                Long quantity = statStock.stream()
                         .filter(statStockRow -> {
                             try {
                                 return statStockRow.getDate().equals(uniqueDate) && statStockRow.getModelId() == uniqueModelId;
@@ -152,7 +152,7 @@ public class StatServiceImpl implements StatService {
                         })
                         .map(ModelStockHistory::getQuantity)
                         .findFirst()
-                        .orElse(2);
+                        .orElse(2L);
                 uniqueModelStockHistory.add(quantity);
             }
             modelsStockHistory.add(uniqueModelStockHistory);
@@ -196,7 +196,7 @@ public class StatServiceImpl implements StatService {
     @Transactional("tenantTransactionManager")
     public Map<String , List<?>> statAllOffersChart(String beginDate, String endDate){
         //initialisation des lists
-        List<Integer> countOffersList;
+        List<Long> countOffersList;
         //ArrayList<Integer> countTotalList = new ArrayList<>();
 
         List<OffersDayCountDTO> existingOffersPacket = productsPacketRepository.offersCountByDate(beginDate,endDate);
@@ -205,7 +205,7 @@ public class StatServiceImpl implements StatService {
         List<OfferDTO> uniqueOffers = (List<OfferDTO>) uniqueValues.get("uniqueOffers");
 
         //stat models chart
-        List<List<Integer>> listOffersCount= new ArrayList<>() ;
+        List<List<Long>> listOffersCount= new ArrayList<>() ;
         List<StatOfferTableDTO> offersRecapCount= new ArrayList<>() ;
         StatOfferTableDTO offerRecap =null;
         for (OfferDTO uniqueoffer : uniqueOffers) {
@@ -213,9 +213,9 @@ public class StatServiceImpl implements StatService {
             offerRecap= new StatOfferTableDTO(uniqueoffer);
 
             for (Date uniqueDate : uniqueDates) {
-                int countPayed = 0;
-                int countProgress = 0;
-                int countRetour = 0;
+                long countPayed = 0;
+                long countProgress = 0;
+                long countRetour = 0;
                 double countProfits = 0;
                 for (OffersDayCountDTO row : existingOffersPacket) {
                     if (row.getDate().equals(uniqueDate) && row.getOffer().getId()==uniqueoffer.getId())

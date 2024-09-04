@@ -159,23 +159,36 @@
       <div class="col-md-3 col-sm-12 mb-3">
         <div class="card shadow-sm rounded" style="background-color: #f8f9fa">
           <div class="card-body p-3">
+            <!-- Filter Input -->
+              <div class="flex flex-column gap-2">
+                <input
+                    pInputText
+                    id="username"
+                    aria-describedby="username-help"
+                    [(ngModel)]="filterQuery"
+                    (input)="filterModels()"/>
+                <small id="username-help">
+                    Filter models
+                </small>
+            </div>
+
             <div
               class="list-container"
               style="overflow-y: auto; max-height: 50rem"
             >
               <ul class="list-unstyled mb-0">
                 <li
-                  *ngFor="let model of models"
+                  *ngFor="let model of filteredModels"
                   [class.selected]="model === selectedModel"
                   class="model-item p-2 mb-2 rounded shadow-sm"
-                  style="cursor: pointer; border: 1px solid #ddd; background-color: #ffffff"
+                  style="cursor: pointer; border: 1px solid #ddd; background-color: #ffffff; color: rgb(31, 31, 31);"
                 >
                   <div
                     class="d-flex align-items-center"
                     (click)="selectModel(model)"
                   >
                     <div class="flex-1">
-                      <strong>{{ model.name }}</strong>
+                      <h6>{{ model.name }}</h6>
                     </div>
                   </div>
                 </li>
@@ -185,6 +198,7 @@
         </div>
       </div>
 
+
       <div class="col-md-9 col-sm-12 mb-3 mt-3">
         <!-- Middle Column: Product Table -->
         <div class="card shadow-sm rounded mb-3" style="background-color: #f8f9fa">
@@ -193,36 +207,22 @@
               <ng-template pTemplate="body" let-productSizes let-j="rowIndex">
                 <!--!(hide0 && totalRow(j) < 1)-->
                 <tr>
-                  <td
-                    class="text-center"
+                  <td class="text-center"
                     style="cursor: pointer; background-color: #e9ecef"
-                    (click)="handleColorClick(j)"
-                  >
-                    <h6 class="mb-0">
-                      {{ productSizes[0].color.name }}: {{ totalRow(j) }}
-                    </h6>
+                    (click)="handleColorClick(j)" >
+                    <h6 class="mb-0">  {{ productSizes[0].color.name }}: {{ totalRow(j) }} </h6>
                   </td>
-                  <ng-container
-                    *ngFor="let productSize of productSizes; let colIndex = index"
-                  >
-                    <ng-container
-                      *ngIf="
-                        !(hide0) &&
-                        colIndex < sizes.length
-                      "
-                    >
-                      <td
-                        pEditableColumn
-                        (click)="onCellClick(productSize, j, colIndex)"
+                  <ng-container *ngFor="let productSize of productSizes; let colIndex = index" >
+                    <ng-container *ngIf="!(hide0) && colIndex < sizes.length">
+                      <td pEditableColumn
+                        (click)="onCellClick(productSize)"
                         class="text-center p-2"
                         style="cursor: pointer"
+                        [ngStyle]="{'background-color': isProductSelected(productSize.id) ? 'rgb(220, 231, 243)' : isProductEdited(productSize.id) ? 'rgb(152, 251, 152)':''}"
                       >
                       <ng-container>
                         <div *ngIf="productSize.countOos !== 0">
-                          <span class="badge badge-danger">{{
-                            productSize.countOos
-                          }}</span>
-
+                          <span class="badge badge-danger">{{ productSize.countOos }}</span>
                         </div>
                         <h6 class="mt-2">
                           {{ productSize.color.name }}
@@ -235,26 +235,26 @@
                               </span>
                               <h4>{{ productSize.countPayed }}</h4>
                               <small *ngIf="productSize.countExchange !== 0">
-                                Exchange: {{ productSize.countExchange }}
+                                Echange: {{ productSize.countExchange }}
                               </small>
                             </div>
-                            <ng-container *ngIf="getDaysStock(productSize) as delai">
+
                               <div *ngIf="stock">
                                 <h6>{{ productSize.qte }}</h6>
-                                <div class="text-center mt-2">
-                                  <p-tag
-                                    [value]="getSeverityMsg(productSize.qte,delai)"
-                                    [severity]="getSeverity(productSize.qte,delai)"
-                                  ></p-tag>
-                                </div>
-                            </div>
-
-                            <div *ngIf="delaiEnabled">
-                              <h4>
-                                {{ delai }} days
-                              </h4>
-                            </div>
-                            </ng-container>
+                                <ng-container *ngIf="getDaysStock(productSize) as delai">
+                                  <div class="text-center mt-2">
+                                    <p-tag
+                                      [value]="getSeverityMsg(productSize.qte,delai)"
+                                      [severity]="getSeverity(productSize.qte,delai)"
+                                    ></p-tag>
+                                  </div>
+                                  <div *ngIf="delaiEnabled">
+                                    <h4>
+                                      {{ delai }} days
+                                    </h4>
+                                  </div>
+                                </ng-container>
+                              </div>
                         </div>
 
                       </ng-container>

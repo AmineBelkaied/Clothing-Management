@@ -1,16 +1,12 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.auth.util.SessionUtils;
+import com.clothing.management.dto.*;
 import com.clothing.management.dto.DayCount.SoldProductsDayCountDTO;
-import com.clothing.management.dto.ProductDTO;
-import com.clothing.management.dto.ProductHistoryDTO;
-import com.clothing.management.dto.StockDTO;
-import com.clothing.management.dto.StockUpdateDto;
 import com.clothing.management.entities.*;
 import com.clothing.management.exceptions.custom.notfound.ProductNotFoundException;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,13 +26,14 @@ public class ProductServiceImpl implements ProductService {
     private final IModelRepository modelRepository;
     private final IProductHistoryRepository productHistoryRepository;
     private final IProductsPacketRepository productsPacketRepository;
-    SessionUtils sessionUtils;
+    private final SessionUtils sessionUtils;
 
-    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository) {
+    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository,SessionUtils sessionUtils) {
         this.productRepository = productRepository;
         this.modelRepository = modelRepository;
         this.productHistoryRepository = productHistoryRepository;
         this.productsPacketRepository = productsPacketRepository;
+        this.sessionUtils = sessionUtils;
     }
 
     @Override
@@ -69,30 +66,30 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteAllById(productsId);
     }
 
+    @Transactional("tenantTransactionManager")
     public StockDTO getStock(Long modelId,String beginDate, String endDate) {// correction ----------------------------
         StockDTO stockDTO = new StockDTO();
         List<List<SoldProductsDayCountDTO>> productsByColors = new ArrayList<>();
-        //List<List<ProductDTO>> productsByColors2 = new ArrayList<>();
-
         modelRepository.findById(modelId).ifPresent((Model model) -> {
             // 1. Sort Sizes for the Model
+            List<Product> listProducts = model.getProducts();
             List<Size> orderedSizes = sortSizes(
                     model.getSizes().stream()
                             .filter((Size size) -> !size.getReference().equals("?"))
                             .collect(Collectors.toSet())
             );
+            Map<Color, List<Product>> groupedProductsByColor = listProducts.stream()
+                    .filter(product -> !product.getColor().getName().equals("?") && !product.getSize().getReference().equals("?"))
+                    .collect(groupingBy(Product::getColor));
 
             // 2. Fetch and Group Products by Color
-            Map<Color, List<SoldProductsDayCountDTO>> groupedProductsPacket = productsPacketRepository
-                    .soldProductsCountByDate(modelId, beginDate, endDate)
-                    .stream()
-                    .filter(product -> !product.getColor().getReference().equals("?") && !product.getSize().getReference().equals("?"))
-                    .collect(groupingBy(SoldProductsDayCountDTO::getColor));
+            List<SoldProductsDayCountDTO> productsDayCountDTO = productsPacketRepository.soldProductsCountByDate(modelId, beginDate, endDate);
 
             // 3. Process Each Group of Products by Color
-            groupedProductsPacket.forEach((color, products) -> {
+            groupedProductsByColor.forEach((color, products) -> {
                 // 3.1 Sort products by size and add missing sizes
-                List<SoldProductsDayCountDTO> productDTOList = sortSoldProductsDayCountDTOBySize2(products, orderedSizes, color);
+                List<SoldProductsDayCountDTO> productsDayCountDTOByColor = productsDayCountDTO.stream().filter(productDayCountDTO -> productDayCountDTO.getColor().equals(color)).collect(Collectors.toList());
+                List<SoldProductsDayCountDTO> productDTOList = sortSoldProductsDayCountDTOBySize2(productsDayCountDTOByColor,products, orderedSizes);
 
                 // 3.2 Add the sorted list to productsByColors
                 productsByColors.add(productDTOList);
@@ -104,51 +101,7 @@ public class ProductServiceImpl implements ProductService {
             stockDTO.setProductsByColor(productsByColors);
             stockDTO.setSizes(orderedSizes);
         });
-
-        /*modelRepository.findById(modelId).ifPresent(model -> {
-            Map<Color, List<Product>> groupedProducts = model.getProducts()
-                    .stream()
-                    .filter(product -> !product.getColor().getReference().equals("?") && !product.getSize().getReference().equals("?"))
-                    .collect(groupingBy(Product::getColor));
-
-            groupedProducts.forEach((color, products) -> {
-                List<ProductDTO> productDTOList2 = new ArrayList<>();
-                //objects.add(color);
-                productDTOList2.addAll(sortProductBySize(products.stream().map(product -> new ProductDTO(product,false)).collect(Collectors.toList())));
-                productsByColors.add(productDTOList2);
-            });
-            stockDTO.setModel(model);
-            stockDTO.setProductsByColor(productsByColors);
-            stockDTO.setSizes(sortSizes(model.getSizes().stream().filter(size -> !size.getReference().equals("?")).collect(Collectors.toSet())));
-        });*/
         return stockDTO;
-    }
-
-
-    private List<ProductDTO> sortProductBySize(List<ProductDTO> products) {
-        Comparator<ProductDTO> sizeComparator = (product1, product2) -> {
-            // Define the order of sizes
-            String[] order = {"14","16","XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"};
-            int index1 = getIndex(product1.getSize().getReference(), order);
-            int index2 = getIndex(product2.getSize().getReference(), order);
-            return Integer.compare(index1, index2);
-        };
-        return products.stream()
-                .sorted(sizeComparator)
-                .collect(Collectors.toList());
-    }
-
-    private List<SoldProductsDayCountDTO> sortSoldProductsDayCountDTOBySize(List<SoldProductsDayCountDTO> products, List<Size> orderedSizes) {
-        Comparator<SoldProductsDayCountDTO> sizeComparator = (product1, product2) -> {
-            // Define the order of sizes
-            String[] order = {"14","16","XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"};
-            int index1 = getIndex(product1.getSize().getReference(), order);
-            int index2 = getIndex(product2.getSize().getReference(), order);
-            return Integer.compare(index1, index2);
-        };
-        return products.stream()
-                .sorted(sizeComparator)
-                .collect(Collectors.toList());
     }
 
     private List<Size> sortSizes(Set<Size> sizes) {
@@ -163,11 +116,12 @@ public class ProductServiceImpl implements ProductService {
                 .sorted(sizeComparator)
                 .collect(Collectors.toList());
     }
-    private List<SoldProductsDayCountDTO> sortSoldProductsDayCountDTOBySize2(List<SoldProductsDayCountDTO> products, List<Size> orderedSizes, Color color) {
+    private List<SoldProductsDayCountDTO> sortSoldProductsDayCountDTOBySize2(List<SoldProductsDayCountDTO> productsSold,List<Product> products, List<Size> orderedSizes) {
         // Create a map to quickly find products by size reference
-        Map<String, SoldProductsDayCountDTO> productMap = new HashMap<>();
-        for (SoldProductsDayCountDTO product : products) {
-            productMap.put(product.getSize().getReference(), product);
+        Map<String, SoldProductsDayCountDTO> soldProductMap = new HashMap<>();
+
+        for (SoldProductsDayCountDTO product : productsSold) {
+            soldProductMap.put(product.getSize().getReference(), product);
         }
 
         // Create the sorted list based on orderedSizes
@@ -175,29 +129,25 @@ public class ProductServiceImpl implements ProductService {
 
         for (Size size : orderedSizes) {
             String sizeRef = size.getReference();
-            SoldProductsDayCountDTO productsDayCountDTO = productMap.get(sizeRef);
+            SoldProductsDayCountDTO productsDayCountDTO = soldProductMap.get(sizeRef);
             if(productsDayCountDTO != null){
                 sortedProducts.add(productsDayCountDTO);
             }
             else {
-                SoldProductsDayCountDTO defaultProduct = new SoldProductsDayCountDTO();
-                defaultProduct.setSize(size);
-                defaultProduct.setColor(color);
-                sortedProducts.add(defaultProduct);
+                Product productBySize = products.stream()
+                        .filter(product -> size.equals(product.getSize()))
+                        .findFirst()
+                        .orElse(null);
+                if(productBySize != null)
+                {
+                    SoldProductsDayCountDTO defaultProduct = new SoldProductsDayCountDTO(productBySize);
+                    sortedProducts.add(defaultProduct);
+                }
             }
         }
         return sortedProducts;
     }
 
-    // Helper method to get the index of a size in the order array
-    private static int getIndex0(String size, String[] order) {
-        for (int i = 0; i < order.length; i++) {
-            if (order[i].equals(size)) {
-                return i;
-            }
-        }
-        return -1; // Default index if not found (shouldn't happen in this example)
-    }
 
     private int getIndex(String reference, String[] order) {
         // Loop through the order array to find the index of the reference
@@ -211,8 +161,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+
+    @Transactional("tenantTransactionManager")
     public Page<ProductHistoryDTO> addStock(StockUpdateDto updateIdStockList) {
             // Iterate through the list of product IDs to update each product's stock
+            User currentUser = sessionUtils.getCurrentUser();
             updateIdStockList.getProductsId().forEach(productId -> {
                 // Find the product by its ID
                 Product product = findProductById(productId)
@@ -225,8 +178,9 @@ public class ProductServiceImpl implements ProductService {
                     new ProductHistory(
                             product,
                             updateIdStockList.getQte(),
-                            new Date(), product.getModel(),
-                            sessionUtils.getCurrentUser(),
+                            new Date(),
+                            product.getModel(),
+                            currentUser,
                             updateIdStockList.getComment()
                     );
             productHistoryRepository.save(productHistory);
@@ -235,42 +189,9 @@ public class ProductServiceImpl implements ProductService {
         Pageable paging = PageRequest.of(0, 10, Sort.by("lastModificationDate").descending());
         return productHistoryRepository.findAll(updateIdStockList.getModelId(), paging);
     }
-
     @Override
     public List<ModelStockHistory> countStock() {
         return productRepository.countStock();
     }
 
-    @Override
-    public Product findByModelAndColorAndSize(Long modelId, Long colorId, Long sizeId) {
-        return productRepository.findByModelAndColorAndSize(modelId,colorId,sizeId);
-    }
 }
-  /*
-    private Product mapToProduct(Product product) {
-        Product newProduct = new Product();
-        newProduct.setId(product.getId());
-        newProduct.setColor(product.getColor());
-        newProduct.setSize(product.getSize());
-        //newProduct.setReference(product.getReference());
-        newProduct.setModel(mapToModel(product.getModel()));
-        newProduct.setQuantity(product.getQuantity());
-        newProduct.setDate(product.getDate());
-        return newProduct;
-    }
-
-    private Model mapToModel(Model model) {
-        Model newModel = new Model();
-        newModel.setId(model.getId());
-        newModel.setColors(model.getColors());
-        newModel.setSizes(model.getSizes());
-        newModel.setDescription(model.getDescription());
-        newModel.setName(model.getName());
-        newModel.setPurchasePrice(model.getPurchasePrice());
-        newModel.setEarningCoefficient(model.getEarningCoefficient());
-        return newModel;
-    }
-    @Override
-    public Product findProductByReference(String reference) {
-        return productRepository.findByReference(reference);
-    }*/

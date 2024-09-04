@@ -39,7 +39,7 @@ export class AddModelComponent implements OnInit,OnDestroy{
     .pipe(takeUntil(this.$unsubscribe))
     .subscribe((model: Model) => {
       this.model = model;
-      this.model.colors = this.model.colors.filter((color: Color) => color.reference != "?");
+      this.model.colors = this.model.colors.filter((color: Color) => color.name != "?");
       this.model.sizes = this.model.sizes.filter((size: any) => size.reference != "?");
       console.log(this.model);
       this.salePrice = this.calculateSalePrice(this.model);
@@ -48,7 +48,7 @@ export class AddModelComponent implements OnInit,OnDestroy{
     this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
     .subscribe((colorList: Color[]) => {
       console.log("colorList",colorList);
-      this.colors = colorList.filter((color: Color) => color.reference != "?");
+      this.colors = colorList.filter((color: Color) => color.name != "?");
     });
 
     this.sizeService.getSizesSubscriber().pipe(takeUntil(this.$unsubscribe))

@@ -12,6 +12,13 @@ public class AlreadyExistsException extends RuntimeException {
         this.entityId = entityId;
     }
 
+    public AlreadyExistsException(String entityName, String name) {
+        super(entityName + " with name " + name + " already exists.");
+        this.entityName = entityName;
+        this.entityId = 0L;
+    }
+
+
     public AlreadyExistsException(String entityName, Long entityId, String entityFieldName) {
         super(entityName + " with ID " + entityId + " and name " + entityFieldName + " already exists.");
         this.entityName = entityName;

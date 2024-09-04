@@ -1,3 +1,13 @@
 ::ng-deep .p-splitter-panel-nested {
     display: block !important;
 }
+.card-body {
+  display: flex; /* Ensure it can handle flex children */
+  width: 100%; /* Make sure the card body takes the full width */
+  padding: 0; /* Optional: Remove padding if needed */
+}
+
+.tab-view-full-width {
+  width: 100%; /* Make sure tab view takes the full width */
+  box-sizing: border-box; /* Include padding and borders in width calculations */
+}

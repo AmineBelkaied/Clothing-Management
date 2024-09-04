@@ -31,9 +31,15 @@ public class FbPageServiceImpl implements FbPageService {
     }
 
     @Override
+    public Optional<FbPage> findFbPageById(String name) {
+        return fbPageRepository.findByNameIsIgnoreCase(name);
+    }
+
+    @Override
     public FbPage addFbPage(FbPage fbPage) {
-        if (findFbPageById(fbPage.getId()).isPresent()) {
-            throw new FbPageAlreadyExistsException(fbPage.getId(), fbPage.getName());
+        if (fbPageRepository.findByNameIsIgnoreCase(fbPage.getName()).isPresent()) {
+
+            throw new FbPageAlreadyExistsException(fbPage.getName());
         }
         return fbPageRepository.save(fbPage);
     }

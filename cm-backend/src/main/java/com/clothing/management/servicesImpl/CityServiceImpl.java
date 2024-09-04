@@ -2,7 +2,6 @@ package com.clothing.management.servicesImpl;
 
 import com.clothing.management.dto.GroupedCitiesDTO;
 import com.clothing.management.entities.City;
-import com.clothing.management.entities.Governorate;
 import com.clothing.management.exceptions.custom.notfound.GovernorateNotFoundException;
 import com.clothing.management.repository.ICityRepository;
 import com.clothing.management.repository.IGovernorateRepository;

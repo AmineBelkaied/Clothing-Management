@@ -18,11 +18,14 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationController.class);
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    CurrentTenantIdentifierResolver tenantResolver;
+    private final CurrentTenantIdentifierResolver tenantResolver;
+
+    public UserServiceImpl(UserRepository userRepository, CurrentTenantIdentifierResolver tenantResolver) {
+        this.userRepository = userRepository;
+        this.tenantResolver = tenantResolver;
+    }
 
     @Override
     public User addUser(User user) {

@@ -12,9 +12,12 @@ import java.util.Optional;
 @Service
 public class NoteServiceImpl implements NoteService {
 
-    @Autowired
-    INoteRepository noteRepository;
-    
+    private final INoteRepository noteRepository;
+
+    public NoteServiceImpl(INoteRepository noteRepository) {
+        this.noteRepository = noteRepository;
+    }
+
     @Override
     public List<Note> findAllNotes() {
         return noteRepository.findAll();

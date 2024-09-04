@@ -81,15 +81,13 @@ public enum DeliveryCompanyStatus {
     }
 
     public static Object getStatus(DeliveryCompanyName deliveryCompanyName, DeliveryCompanyStatus status) {
-        switch (deliveryCompanyName) {
-            case NAVEX:
-                return status.getNavex();
-            case FIRST:
-                return status.getFirst();
-            case JAX:
-                return status.getJax();
-            // Add more cases here for other delivery companies if needed
-        }
-        return "Unknown delivery company";
+        return switch (deliveryCompanyName) {
+            case NAVEX -> status.getNavex();
+            case FIRST -> status.getFirst();
+            case JAX -> status.getJax();
+            default ->
+                // Add more cases here for other delivery companies if needed
+                    "Unknown delivery company";
+        };
     }
 }

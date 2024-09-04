@@ -86,9 +86,9 @@ public class ModelServiceImpl implements ModelService {
 
     private Model addUnknownColorsAndSizes(Model model) {
         return modelRepository.findById(model.getId()).map(existingModel -> {
-            if (existingModel.getColors().stream().noneMatch(color -> color.getReference().equals("?"))
+            if (existingModel.getColors().stream().noneMatch(color -> color.getName().equals("?"))
                     && existingModel.getSizes().stream().noneMatch(size -> size.getReference().equals("?"))) {
-                existingModel.getColors().add(colorRepository.findByReferenceIsIgnoreCase("?").get());
+                existingModel.getColors().add(colorRepository.findByNameIsIgnoreCase("?").get());
                 existingModel.getSizes().add(sizeRepository.findByReferenceIsIgnoreCase("?").get());
             }
             return modelRepository.save(existingModel);

@@ -7,10 +7,13 @@ import java.util.Optional;
 
 public interface FbPageService {
 
-    public List<FbPage> findAllFbPages();
-    public Optional<FbPage> findFbPageById(Long idFbPage);
-    public FbPage addFbPage(FbPage fbPage);
-    public FbPage updateFbPage(FbPage fbPage);
-    public void deleteFbPage(FbPage fbPage);
-    public void deleteFbPageById(Long idFbPage);
+    List<FbPage> findAllFbPages();
+    Optional<FbPage> findFbPageById(Long idFbPage);
+
+    Optional<FbPage> findFbPageById(String name);
+
+    FbPage addFbPage(FbPage fbPage);
+    FbPage updateFbPage(FbPage fbPage);
+    void deleteFbPage(FbPage fbPage);
+    void deleteFbPageById(Long idFbPage);
 }

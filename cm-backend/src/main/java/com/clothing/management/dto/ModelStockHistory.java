@@ -1,4 +1,4 @@
-package com.clothing.management.entities;
+package com.clothing.management.dto;
 
 import jakarta.persistence.*;
 import java.util.*;
@@ -16,19 +16,19 @@ public class ModelStockHistory {
     private Long modelId;
     @Column(name = "model_name")
     private String modelName;
-    private Integer quantity;
+    private Long quantity;
 
     public ModelStockHistory() {
     }
 
-    public ModelStockHistory(Long modelId, String modelName, Integer quantity) {
+    public ModelStockHistory(Long modelId, String modelName, Long quantity) {
         this.date = new Date();
         this.modelId = modelId;
         this.modelName = modelName;
         this.quantity = quantity;
     }
 
-    public ModelStockHistory(Long id,Date date,Long modelId,String modelName, Integer quantity) {
+    public ModelStockHistory(Long id,Date date,Long modelId,String modelName, Long quantity) {
         this.id = id;
         this.date = date;
         this.modelId = modelId;
@@ -68,11 +68,11 @@ public class ModelStockHistory {
         this.modelName = modelName;
     }
 
-    public Integer getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 

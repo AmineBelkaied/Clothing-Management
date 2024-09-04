@@ -261,7 +261,7 @@ export class AddPacketComponent implements OnInit {
     console.log('model', model);
     return this.allProducts.find(
       (product: Product) =>
-        product.color.reference == '?' &&
+        product.color.name == '?' &&
         product.size.reference == '?' &&
         model.id == product.modelId
     )!;
@@ -275,7 +275,7 @@ export class AddPacketComponent implements OnInit {
 
     if (!selectedModel.get('selectedColor')?.value) {
       let noChoiceColor: Color = offer.offerModels[index].model.colors.find(
-        (color: Color) => color.reference == '?'
+        (color: Color) => color.name == '?'
       );
       selectedModel.get('selectedColor')?.setValue(noChoiceColor);
     }
@@ -498,7 +498,7 @@ export class AddPacketComponent implements OnInit {
 
   newModel(model: Model,selectedProduct:Product): FormGroup {
     return this.fb.group({name: [model.name],
-      colors: this.fb.array(model.colors ? model.colors.filter((color: Color) => color.reference != "?").map(color => this.fb.control(color)) : []),
+      colors: this.fb.array(model.colors ? model.colors.filter((color: Color) => color.name != "?").map(color => this.fb.control(color)) : []),
       sizes: this.fb.array(model.sizes ? model.sizes.filter((size: any) => size.reference != "?").map(size => this.fb.control(size)) : []),
       purchasePrice: [model.purchasePrice],
       earningCoefficient: [model.earningCoefficient],
@@ -549,70 +549,3 @@ export class AddPacketComponent implements OnInit {
     this.$unsubscribe.complete();
   }
 }
-/*
-
-  createPacketDescription() {
-    this.packetDescription = '';
-    let packet = this.packetForm.value;
-    for (var i = 0; i < packet.offers.length; i++) {
-      let offer: Offer = packet.offers[i];
-
-      if (offer.id != null && offer.id != undefined) {
-        if (offer.offerModels != null && offer.offerModels.length > 0) {
-          for (var j = 0; j < offer.offerModels.length; j++) {
-            let model: Model = offer.offerModels[j];
-            this.addProductToPacketDescription(
-              offer.offerModels[j].name,
-              this.getElement(model, 'selectedColor', 'name'),
-              this.getElement(model, 'selectedSize', 'reference'),
-              this.getElement(model, 'selectedSizeReel', 'reference')
-            );
-          }
-        }
-      }
-    }
-  }
-  setModelControlValues(
-    offerIndex: number,
-    modelIndex:number,
-    modelControl: AbstractControl,
-    selectedModel: Model,
-    selectedProduct: Product
-  ): void {
-    console.log('selectedModelXXX',selectedModel);
-    //this.setControlValue(modelControl, 'name', selectedModel.name);
-
-    //this.noChoiceColor = selectedModel.colors.find((color: Color) => color.reference === "?")!;
-    let colors: Color[] = selectedModel.colors.filter(
-      (color: Color) => color.reference != '?'
-    );
-    this.setControlValue(modelControl, 'colors', colors);
-
-    let sizes: Size[] = selectedModel.sizes.filter(
-      (size: Size) => size.reference != '?'
-    );
-    this.setControlValue(modelControl, 'sizes', sizes);
-
-    this.setProductControlValues(modelControl, selectedProduct);
-  }
-
-  setProductControlValues(
-    productControl: AbstractControl,
-    selectedProduct: Product
-  ): void {
-    this.setControlValue(productControl, 'selectedProduct', selectedProduct);
-    this.setControlValue(productControl,'selectedColor',selectedProduct.color);
-    this.setControlValue(productControl, 'selectedSize', selectedProduct.size);
-    this.setControlValue(productControl, 'qte', selectedProduct.qte);
-  }
-clearModel(offerName: any, index: number): void {
-    this.models(index).clear();
-    let offer: Offer = this.offersSelected.find(off => off.name == offerName)!;
-    if (offer != null && offer.offerModels.length > 0) {
-      this.setOfferControlValues(this.offers().at(index), offer);
-      for (var i = 0; i < offer.offerModels.length; i++) {
-          this.addModel(index);
-          this.setModelControlValues(this.models(index).controls[i],offer.offerModels[i].model);
-        }
-      }
-  }*/

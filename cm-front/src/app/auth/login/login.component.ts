@@ -47,7 +47,7 @@ export class LoginComponent {
 
       onSubmit(): void {
         //const { userName, password } = this.form;
-        console.log(this.form);
+        //console.log(this.form);
 
         this.form.tenantName ? this.login() : this.loginMaster();
 /*         this.authService.getTenantsByUs :er(this.form)
@@ -64,7 +64,7 @@ export class LoginComponent {
            // this.router.navigate(["/"]);
            // this.router.navigateByUrl('/auth/tenants/', { state: {userName: this.form.userName, password: this.form.password } });
             //this.reloadPage();
-            console.log("data", data);
+            //console.log("data", data);
 
             this.storageService.saveUser(data);
             this.storageService.saveTenant(this.form.tenantName);
@@ -73,7 +73,7 @@ export class LoginComponent {
             this.isLoggedIn = true;
             this.storageService.isLoggedIn.next(true);
             this.roles = this.storageService.getUser().roles;
-            this.router.navigate(["/"]);
+            this.router.navigate(["/packets"]);
           },
           error: (err: any) => {
             console.log(err);
@@ -87,11 +87,7 @@ export class LoginComponent {
       loginMaster(): void {
         this.authService.loginMaster(this.form).subscribe({
           next: (data: any) => {
-          //  this.router.navigate(["/auth/tenants/", this.form.userName]);
-           // this.router.navigate(["/"]);
-           // this.router.navigateByUrl('/auth/tenants/', { state: {userName: this.form.userName, password: this.form.password } });
-            //this.reloadPage();
-            console.log("data", data);
+            //console.log("data", data);
 
             this.storageService.saveUser(data);
 
@@ -103,7 +99,6 @@ export class LoginComponent {
           },
           error: (err: any) => {
             console.log(err);
-
            // this.errorMessage = err.error.message;
             this.isLoginFailed = true;
           }

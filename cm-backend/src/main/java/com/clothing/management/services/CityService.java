@@ -8,12 +8,12 @@ import java.util.Optional;
 
 public interface CityService {
     
-    public List<City> findAllCities();
-    public Optional<City> findCityById(Long idCity);
-    public List<GroupedCitiesDTO> findGroupedCities();
-    public City addCity(City city);
-    public City updateCity(City city);
-    public void deleteCity(City city);
-    public void deleteSelectedCities(List<Long> citiesId);
-    public void deleteCityById(Long id);
+    List<City> findAllCities();
+    Optional<City> findCityById(Long idCity);
+    List<GroupedCitiesDTO> findGroupedCities();
+    City addCity(City city);
+    City updateCity(City city);
+    void deleteCity(City city);
+    void deleteSelectedCities(List<Long> citiesId);
+    void deleteCityById(Long id);
 }

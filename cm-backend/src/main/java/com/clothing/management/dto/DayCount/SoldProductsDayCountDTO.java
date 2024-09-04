@@ -1,6 +1,7 @@
 package com.clothing.management.dto.DayCount;
 
 import com.clothing.management.entities.Color;
+import com.clothing.management.entities.Product;
 import com.clothing.management.entities.Size;
 
 public class SoldProductsDayCountDTO extends DayCountDTO {
@@ -13,7 +14,7 @@ public class SoldProductsDayCountDTO extends DayCountDTO {
     private Color color;
     private Size size;
 
-    private int qte;
+    private long qte;
     public SoldProductsDayCountDTO() {
         this.qte = 0;
         this.countExchange = 0;
@@ -23,8 +24,8 @@ public class SoldProductsDayCountDTO extends DayCountDTO {
 
     public SoldProductsDayCountDTO(
             Long id,
-            Color color, Size size, int qte,
-            long countPayed, long countProgress, long countExchange, long countOos
+            Color color, Size size, long qte,
+            long countPayed, long countProgress, long countOos, long countExchange
     ) {
         super(countPayed, countProgress);
         this.id = id;
@@ -33,6 +34,15 @@ public class SoldProductsDayCountDTO extends DayCountDTO {
         this.color = color;
         this.size = size;
         this.qte = qte;
+    }
+    public SoldProductsDayCountDTO(Product product) {
+        super(0, 0);
+        this.id = product.getId();
+        this.countExchange =0;
+        this.countOos = 0;
+        this.color = product.getColor();
+        this.size = product.getSize();
+        this.qte = product.getQuantity();
     }
 
     public Long getId() {
@@ -72,11 +82,11 @@ public class SoldProductsDayCountDTO extends DayCountDTO {
         this.size = size;
     }
 
-    public int getQte() {
+    public long getQte() {
         return qte;
     }
 
-    public void setQte(int qte) {
+    public void setQte(long qte) {
         this.qte = qte;
     }
 

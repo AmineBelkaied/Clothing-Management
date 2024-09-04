@@ -27,7 +27,6 @@ export class AddColorComponent implements OnInit,OnDestroy {
   addColor(form: NgForm) {
     if(this.colorService.editMode){
       this.color.name = form.value.name;
-      this.color.reference = form.value.reference;
       this.colorService.updateColor(this.color)
       .pipe(
         catchError((err: any): any => {

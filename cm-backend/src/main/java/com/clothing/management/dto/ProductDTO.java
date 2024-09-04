@@ -14,7 +14,7 @@ public class ProductDTO {
     private Long id;
     private ModelDTO model;
 
-    int qte;
+    Long qte;
     private boolean deleted;
     private long modelId;
 
@@ -68,11 +68,11 @@ public class ProductDTO {
         this.deleted = deleted;
     }
 
-    public int getQte() {
+    public Long getQte() {
         return qte;
     }
 
-    public void setQte(int qte) {
+    public void setQte(long qte) {
         this.qte = qte;
     }
 

@@ -7,10 +7,10 @@ import java.util.Optional;
 
 public interface DeliveryCompanyService {
 
-    public List<DeliveryCompany> findAllDeliveryCompanies();
-    public Optional<DeliveryCompany> findDeliveryCompanyById(Long id);
-    public DeliveryCompany addDeliveryCompany(DeliveryCompany deliveryCompany);
-    public DeliveryCompany updateDeliveryCompany(DeliveryCompany deliveryCompany);
-    public void deleteDeliveryCompany(DeliveryCompany deliveryCompany);
-    public void deleteDeliveryCompanyById(Long id);
+    List<DeliveryCompany> findAllDeliveryCompanies();
+    Optional<DeliveryCompany> findDeliveryCompanyById(Long id);
+    DeliveryCompany addDeliveryCompany(DeliveryCompany deliveryCompany);
+    DeliveryCompany updateDeliveryCompany(DeliveryCompany deliveryCompany);
+    void deleteDeliveryCompany(DeliveryCompany deliveryCompany);
+    void deleteDeliveryCompanyById(Long id);
 }

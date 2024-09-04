@@ -17,7 +17,7 @@ public class ProductHistory {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-    private int quantity;
+    private Long quantity;
     @Column(name = "last_modification_date")
     private Date lastModificationDate;
     @JoinColumn(name = "model_id")
@@ -32,7 +32,7 @@ public class ProductHistory {
     public ProductHistory() {
     }
 
-    public ProductHistory(Product product, int quantity, Date lastModificationDate, Model model, User user, String comment) {
+    public ProductHistory(Product product, Long quantity, Date lastModificationDate, Model model, User user, String comment) {
         this.product = product;
         this.quantity = quantity;
         this.lastModificationDate = lastModificationDate;
@@ -57,11 +57,11 @@ public class ProductHistory {
         this.product = product;
     }
 
-    public int getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 

@@ -22,7 +22,8 @@
             <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"></button>
         </ng-template> -->
     <!--     </p-toolbar> -->
-
+</div>
+<div class="container-fluid" [style]="{ width: '99%'}">
     <p-table #dt [value]="offers" [rows]="10" responsiveLayout="scroll" [(selection)]="selectedOffers" [rowHover]="true"
         dataKey="id" [rowTrackBy]="trackByFunction"
         selectionMode="multiple">

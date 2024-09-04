@@ -1,7 +1,6 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.dto.DayCount.*;
-import com.clothing.management.entities.Color;
 import com.clothing.management.services.StatService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -11,6 +11,5 @@ import java.util.Optional;
 
 @Repository
 public interface ISizeRepository extends JpaRepository<Size, Long> {
-
     Optional<Size> findByReferenceIsIgnoreCase(String sizeRef);
 }

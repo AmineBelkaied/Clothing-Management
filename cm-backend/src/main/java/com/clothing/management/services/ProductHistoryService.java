@@ -10,12 +10,11 @@ import java.util.Optional;
 
 public interface ProductHistoryService {
 
-    public Page<ProductHistoryDTO> findAllProductsHistory(Long modelId, int page, int size, String colorSize, String beginDate, String endDate) throws ParseException;
-    public List<ProductHistory> findAllProductsHistory(int limit, int skip);
-    public Optional<ProductHistory> findProductHistoryById(Long idProductHistory);
-    public ProductHistory addProductHistory(ProductHistory productHistory);
-    public List<ProductHistory> addManyProductHistory(List<ProductHistory> productsHistory);
-    public ProductHistory updateProductHistory(ProductHistory productHistory);
-    public void deleteProductHistory(ProductHistory productHistory);
+    Page<ProductHistoryDTO> findAllProductsHistory(Long modelId, int page, int size, String colorSize, String beginDate, String endDate) throws ParseException;
+    Optional<ProductHistory> findProductHistoryById(Long idProductHistory);
+    ProductHistory addProductHistory(ProductHistory productHistory);
+    List<ProductHistory> addManyProductHistory(List<ProductHistory> productsHistory);
+    ProductHistory updateProductHistory(ProductHistory productHistory);
+    void deleteProductHistory(ProductHistory productHistory);
     Page<ProductHistoryDTO> deleteProductsHistory(List<ProductHistory> productsHistory, Long modelId, int page);
 }
