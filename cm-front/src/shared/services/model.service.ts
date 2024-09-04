@@ -11,7 +11,6 @@ import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 export class ModelService {
 
   private baseUrl: string = environment.baseUrl + `${MODEL_ENDPOINTS.BASE}`;
-  model : Model;
 
   defaultModel: Model = {
     id: 0, // Or any default value
@@ -25,10 +24,6 @@ export class ModelService {
     deleted: false,
     enabled: false
   };
-
-  public modelSubscriber: BehaviorSubject<Model> = new BehaviorSubject<Model>(
-    this.defaultModel
-  );
 
   public modelsSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   models: Model[] = [];
@@ -58,31 +53,17 @@ export class ModelService {
     return this.modelsSubscriber.asObservable();
   }
 
-
-
-  setModel(model: Model) {
-    this.model = model;
-    this.modelSubscriber.next(model);
-  }
-
   setModels(models: Model[]) {
     this.models = models;
     this.modelsSubscriber.next(models);
   }
 
-  cleanModel() {
-    //console.log("cleanModel");
-    this.model = this.defaultModel;
-    this.modelSubscriber.next(this.defaultModel);
-  }
-
   updateModelsSubscriber(model: Model) {
     const index = this.findModelIndexById(model.id!);
     if (index !== -1) {
-      this.models[index] = this.model;
-      this.modelSubscriber.next(this.defaultModel);
+      this.models[index] = {...model};
     } else {
-      this.models.push(this.model);
+      this.models.push(model);
     }
     this.modelsSubscriber.next(this.models);
   }
@@ -96,10 +77,6 @@ export class ModelService {
       }
     }
     return index;
-  }
-
-  getModelSubscriber(): Observable<Model> {
-    return this.modelSubscriber.asObservable();
   }
 
   findAllModels() {

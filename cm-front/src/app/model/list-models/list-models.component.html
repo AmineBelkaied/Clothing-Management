@@ -81,7 +81,7 @@
 
 <p-dialog [(visible)]="modelDialog" [style]="{width: '60%'}" header="Détails du modèle" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
-        <app-add-model [editMode]="editMode" [modelNameExists]="modelNameExists" (formValidationEmitter)="checkFormValidation($event)"></app-add-model>
+        <app-add-model [editMode]="editMode" [model]="model" [modelNameExists]="modelNameExists" (formValidationEmitter)="checkFormValidation($event)"></app-add-model>
     </ng-template>
 
     <ng-template pTemplate="footer">

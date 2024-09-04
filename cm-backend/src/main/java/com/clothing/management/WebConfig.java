@@ -25,7 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         // Forward all requests that do not match a static resource to Angular's index.html
-        registry.addViewController("/**/{path:[^\\.]*}")
-                .setViewName("forward:/index.html");
+        registry.addViewController("/cm/**/{path:^(?!.*\\.).*}")
+                .setViewName("forward:/cm/index.html");
     }
+
 }

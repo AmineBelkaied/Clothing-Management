@@ -14,6 +14,7 @@ import { SizeService } from 'src/shared/services/size.service';
 export class AddModelComponent implements OnInit, OnDestroy {
 
   salePrice: number = 1;
+  @Input()
   model: Model;
   @Input()
   editMode!: boolean;
@@ -21,11 +22,12 @@ export class AddModelComponent implements OnInit, OnDestroy {
   modelNameExists: boolean;
   @Output()
   formValidationEmitter = new EventEmitter();
+
   colors: Color[] = [];
   sizes: Size[] = [];
   currentFile: any;
   progress = 0;
-  message: any;
+  message: string;
   allOffersList: any[] = [];
   $unsubscribe: Subject<void> = new Subject();
 
@@ -37,19 +39,12 @@ export class AddModelComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-
-    this.modelService.getModelSubscriber()
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe((model: Model) => {
-        this.model = { ...model };
-        this.model.colors = this.model.colors.filter((color: Color) => color.reference != "?");
-        this.model.sizes = this.model.sizes.filter((size: any) => size.reference != "?");
-        this.salePrice = this.calculateSalePrice(this.model);
-      });
+    this.model.colors = this.model.colors.filter((color: Color) => color.reference != "?");
+    this.model.sizes = this.model.sizes.filter((size: any) => size.reference != "?");
+    this.salePrice = this.calculateSalePrice(this.model);
 
     this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
       .subscribe((colorList: Color[]) => {
-        console.log("colorList", colorList);
         this.colors = colorList.filter((color: Color) => color.reference != "?");
       });
 
@@ -57,11 +52,12 @@ export class AddModelComponent implements OnInit, OnDestroy {
       .subscribe((sizeList: Size[]) => {
         this.sizes = sizeList.filter((size: Size) => size.reference != "?");
       })
-
   }
 
   checkFormValidation(): void {
-    this.formValidationEmitter.next({model: this.model, salePrice: this.salePrice});
+    console.log("checkFormValidation");
+    this.formValidationEmitter.next({ model: this.model, salePrice: this.salePrice });
+    console.log(this.model);
   }
 
   calculateSalePrice(model: Model): any {
@@ -81,7 +77,7 @@ export class AddModelComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.modelService.cleanModel();
+    this.model = {...this.modelService.defaultModel};
     this.$unsubscribe.next();
     this.$unsubscribe.complete();
   }

@@ -63,18 +63,47 @@ import java.util.Arrays;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
+                                /*.authorizeHttpRequests(authorize -> authorize
+                        // Allow unrestricted access to Angular app routes
+                        .requestMatchers("/cm/**").permitAll()
+                        // Allow access to API endpoints
+                        .requestMatchers("/api/auth/**", "/tenant/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                        // Allow access to static resources and assets
+                        .requestMatchers("/static/**", "/public/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/assets/**", "/**.js", "/**.css").permitAll()
+                        // Require authentication for all other requests
+                        .anyRequest().authenticated())*/
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/cm/**","/api/auth/**", "/tenant/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/", "/index.html", "/static/**", "/public/**").permitAll()
-                        .requestMatchers("/assets/**","/**.js","/**.css").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/**").permitAll())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .authenticationProvider(authenticationProvider()).addFilterBefore(
+                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
+    /*@Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize
+                        // Allow unrestricted access to /cm/api/auth/** endpoints
+                        .requestMatchers("/cm/api/auth/**").permitAll()
+                        // Allow unrestricted access to static resources and public paths
+                        .requestMatchers("/cm/static/**", "/cm/public/**", "/cm/favicon.ico").permitAll()
+                        // Require authentication for all other requests under /cm
+                        .requestMatchers("/cm/**").authenticated()
+                        // Allow access to Swagger UI and API docs
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                        // All other requests need authentication
+                        .anyRequest().authenticated())
+                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        @Bean
+        return http.build();
+    }*/
+
+
+    @Bean
         public FilterRegistrationBean platformCorsFilter() {
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
             CorsConfiguration configAutenticacao = new CorsConfiguration();

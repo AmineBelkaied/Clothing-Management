@@ -46,10 +46,12 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public Model saveModel(Model model) {
-        modelRepository.findByNameIsIgnoreCase(model.getName())
-                .ifPresent(existingModel -> {
-                    throw new ModelAlreadyExistsException(existingModel.getId(), existingModel.getName());
-                });
+        if (null == model.getId()) {
+            modelRepository.findByNameIsIgnoreCase(model.getName())
+                    .ifPresent(existingModel -> {
+                        throw new ModelAlreadyExistsException(existingModel.getId(), existingModel.getName());
+                    });
+        }
         model = modelRepository.save(model);
         model = addUnknownColorsAndSizes(model);
         // Generate products

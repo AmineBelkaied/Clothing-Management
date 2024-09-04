@@ -15,23 +15,24 @@ import { StringUtils } from 'src/shared/utils/string-utils';
   templateUrl: './list-models.component.html',
   styleUrls: ['./list-models.component.css'],
 })
-export class ListModelsComponent implements OnInit, OnDestroy{
+export class ListModelsComponent implements OnInit, OnDestroy {
   modelDialog!: boolean;
-  msg :String = 'Erreur de connexion';
+  msg: String = 'Erreur de connexion';
 
   models: Model[] = [];
 
-  model: Model; /*  = {
-    "id":"",
-    "name": "",
-    "description": "",
-    "colors": [],
-    "sizes": [],
-    "products":[],
-    "earningCoefficient":1,
-    "purchasePrice":15,
-    "deleted":false
-  } */
+  model: Model = {
+    id: 0, // Or any default value
+    name: '',
+    description: '',
+    colors: [] =[],
+    sizes: [] = [],
+    products: [] = [],
+    earningCoefficient: 2,
+    purchasePrice: 15,
+    deleted: false,
+    enabled: false
+  }
   editMode = false;
 
   colors: Color[] = [];
@@ -43,71 +44,61 @@ export class ListModelsComponent implements OnInit, OnDestroy{
   submitted: boolean = false;
   selectedFile: any;
   $unsubscribe: Subject<void> = new Subject();
+  clonedModel: Model;
 
   constructor(
     private modelService: ModelService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private sizeService: SizeService,
-    private colorService: ColorService
-  ) {}
+    private confirmationService: ConfirmationService
+  ) { }
 
   ngOnInit() {
     this.modelService
       .getModelsSubscriber()
       .pipe(takeUntil(this.$unsubscribe))
       .pipe(
-        tap((data: any) => {
-          this.models = data;
+        tap((models: Model[]) => {
+          this.models = models;
         })
-        )
+      )
       .subscribe();
   }
 
   saveModel() {
     this.submitted = true;
-    if(this.isValidModel) {
-    // Get the current model from the subscriber
-    this.modelService.getModelSubscriber().pipe(
-      take(1),  // Ensure we take only the first emission and then complete
-      switchMap((model: Model) => {
-        this.model = model;
-        console.log('this.model', this.model);
-        
-        // Save the model
-        return this.modelService.addModel(this.model).pipe(
-          tap((response: Model) => {
-            //console.log(response);
-            this.modelService.updateModelsSubscriber(response);
-            if (this.editMode) {
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Succés',
-                detail: 'Le modèle a été mise a jour avec succés',
-                life: 3000,
-              });
-            } else {
-              this.models.push(response);
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Succés',
-                detail: 'Le modèle a été crée avec succés',
-                life: 3000,
-              });
-            }
-          }),
-          catchError((error) => {//Correction a verifier
-            console.error('There was an error when saving model!', error);
-            return throwError(() => error);
-          })
-        );
-      })
-    ).subscribe({
-      complete: () => {
-        this.modelDialog = false;
-        this.model = Object.assign({}, this.modelService.defaultModel);  // Reset model to default
-      }
-    });
+    console.log(this.model);
+    
+    if (this.isValidModel) {
+      return this.modelService.addModel(this.model).pipe(
+        tap((response: Model) => {
+          this.modelService.updateModelsSubscriber(response);
+          if (this.editMode) {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Succés',
+              detail: 'Le modèle a été mise a jour avec succés',
+              life: 3000,
+            });
+          } else {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Succés',
+              detail: 'Le modèle a été crée avec succés',
+              life: 3000,
+            });
+          }
+        }),
+        catchError((error) => {//Correction a verifier
+          console.error('There was an error when saving model!', error);
+          return throwError(() => error);
+        })
+      )
+        .subscribe({
+          complete: () => {
+            this.modelDialog = false;
+            this.model = {...this.modelService.defaultModel};  // Reset model to default
+          }
+        });
     }
   }
 
@@ -115,17 +106,22 @@ export class ListModelsComponent implements OnInit, OnDestroy{
     this.modelNameExists = this.modelAlreadyExists(event.model.name);
 
     this.isValidModel = StringUtils.isStringValid(event.model.name) && NumberUtils.isNumberValid(event.model.purchasePrice) &&
-    NumberUtils.isNumberValid(event.salePrice) && event.model.sizes.length > 0 && event.model.colors.length > 0 && !this.modelNameExists;
-  }
+      NumberUtils.isNumberValid(event.salePrice) && event.model.sizes.length > 0 && event.model.colors.length > 0 && !this.modelNameExists;
+    console.log(this.modelNameExists);
+    
+    }
 
   private modelAlreadyExists(name: string): boolean {
-    return this.models.some(model => model.name.toLowerCase() === name.toLowerCase());
+    return this.editMode ?
+      this.models.filter(model => model.name !== this.clonedModel.name).some(model => model.name.toLowerCase() === name.toLowerCase()) :
+      this.models.some(model => model.name.toLowerCase() === name.toLowerCase());
   }
- 
+
   openNew() {
     this.submitted = false;
     this.modelDialog = true;
     this.editMode = false;
+    this.model = this.modelService.defaultModel;
   }
 
   deleteSelectedModels() {
@@ -158,7 +154,6 @@ export class ListModelsComponent implements OnInit, OnDestroy{
   }
 
   editModel(model: Model) {
-    console.log('editModel', model);
     this.model = { ...model };
     this.model.colors = this.model.colors?.filter(
       (color: Color) => color.reference != '?'
@@ -166,9 +161,10 @@ export class ListModelsComponent implements OnInit, OnDestroy{
     this.model.sizes = this.model.sizes?.filter(
       (size: Size) => size.reference != '?'
     );
-    this.modelService.setModel(model);
+   // this.modelService.setModel(model);
     this.modelDialog = true;
     this.editMode = true;
+    this.clonedModel = {...model};
   }
 
   deleteModel(model: Model) {

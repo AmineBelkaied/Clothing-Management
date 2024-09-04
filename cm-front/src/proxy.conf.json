@@ -5,7 +5,7 @@
     "changeOrigin": true
   },
   "/api": {
-    "target": "http://localhost:8080/cm",
+    "target": "https://diggie.jvmhost.net/cm/api",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
