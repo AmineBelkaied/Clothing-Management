@@ -4,11 +4,11 @@ import java.util.List;
 
 public class StockUpdateDto {
     List<Long> productsId;
-    int qte;
+    Long qte;
     Long modelId;
     String comment;
 
-    public StockUpdateDto(List<Long> productsId, int qte, String comment) {
+    public StockUpdateDto(List<Long> productsId, long qte, String comment) {
         this.productsId = productsId;
         this.qte = qte;
         this.comment = comment;
@@ -22,11 +22,11 @@ public class StockUpdateDto {
         this.productsId = productsId;
     }
 
-    public int getQte() {
+    public Long getQte() {
         return qte;
     }
 
-    public void setQte(int qte) {
+    public void setQte(long qte) {
         this.qte = qte;
     }
 

@@ -1,7 +1,6 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.entities.Governorate;
-import com.clothing.management.repository.IGlobalConfRepository;
 import com.clothing.management.repository.IGovernorateRepository;
 import com.clothing.management.services.GovernorateService;
 import org.springframework.beans.factory.annotation.Autowired;

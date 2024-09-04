@@ -118,15 +118,9 @@ public class PacketController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public void deletePacketById(@PathVariable Long id) throws Exception {
-        packetService.deletePacketById(id);
-    }
-
     @PostMapping("/batch-delete")
     public List<PacketDTO> deleteSelectedPackets(@RequestParam List<Long> packetsId, @RequestBody Note note) throws Exception {
         return packetService.deleteSelectedPackets(packetsId, note);
-        //return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/timeline")
@@ -140,7 +134,7 @@ public class PacketController {
     }
 
     @PostMapping("/{id}/attempt")
-    public ResponseEntity<PacketDTO> addAttempt(@RequestBody Note note, @PathVariable Long id) throws Exception {
+    public ResponseEntity<PacketDTO> addAttempt(@RequestBody Note note, @PathVariable Long id) {
         return new ResponseEntity<>(new PacketDTO(packetService.addAttempt(note, id)), HttpStatus.OK);
     }
 

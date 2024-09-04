@@ -14,8 +14,11 @@ import java.util.Optional;
 @Service
 public class SizeServiceImpl implements SizeService {
 
-    @Autowired
-    ISizeRepository sizeRepository;
+    private final ISizeRepository sizeRepository;
+
+    public SizeServiceImpl(ISizeRepository sizeRepository) {
+        this.sizeRepository = sizeRepository;
+    }
 
     @Override
     public List<Size> findAllSizes() {

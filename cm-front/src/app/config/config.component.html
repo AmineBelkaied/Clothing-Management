@@ -1,74 +1,70 @@
 <p-toast position="bottom-right"></p-toast>
 <div class="container-fluid">
-    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-        <div class="card-body">
-            <div class="row">
-              <p-tabView>
-                <p-tabPanel header="Couleurs">
-                  <ng-template pTemplate>
-                    <p-splitter [panelSizes]="[40,60]" [minSizes]="[30,70]" >
-                      <ng-template pTemplate>
-                        <app-add-color></app-add-color>
-                      </ng-template>
-                      <ng-template pTemplate>
-                          <app-list-colors></app-list-colors>
-                      </ng-template>
-                  </p-splitter>
-                  </ng-template>
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card-body">
+      <p-tabView class="tab-view-full-width">
+        <p-tabPanel header="Couleurs">
+          <ng-template pTemplate>
+            <p-splitter [panelSizes]="[40, 60]" [minSizes]="[30, 70]">
+              <ng-template pTemplate>
+                <app-add-color></app-add-color>
+              </ng-template>
+              <ng-template pTemplate>
+                <app-list-colors></app-list-colors>
+              </ng-template>
+            </p-splitter>
+          </ng-template>
+        </p-tabPanel>
 
-                </p-tabPanel>
+        <p-tabPanel header="Taille">
+          <ng-template pTemplate>
+            <p-splitter [panelSizes]="[40, 60]" [minSizes]="[30, 70]">
+              <ng-template pTemplate>
+                <app-add-size></app-add-size>
+              </ng-template>
+              <ng-template pTemplate>
+                <app-list-sizes></app-list-sizes>
+              </ng-template>
+            </p-splitter>
+          </ng-template>
+        </p-tabPanel>
 
+        <p-tabPanel header="Pages FB">
+          <ng-template pTemplate>
+            <p-splitter [panelSizes]="[40, 60]" [minSizes]="[30, 70]">
+              <ng-template pTemplate>
+                <app-add-fbpage></app-add-fbpage>
+              </ng-template>
+              <ng-template pTemplate>
+                <app-list-fbpages></app-list-fbpages>
+              </ng-template>
+            </p-splitter>
+          </ng-template>
+        </p-tabPanel>
 
-                <p-tabPanel header="Taille">
-                  <ng-template pTemplate>
-                    <p-splitter [panelSizes]="[40,60]" [minSizes]="[30,70]" >
-                      <ng-template pTemplate>
-                        <app-add-size></app-add-size>
-                      </ng-template>
-                      <ng-template pTemplate>
-                          <app-list-sizes></app-list-sizes>
-                      </ng-template>
-                  </p-splitter>
-                  </ng-template>
+        <p-tabPanel header="Ste livraison">
+          <table class="split-table">
+            <tr>
+              <td class="left-pane">
+                <app-add-ste-livraison></app-add-ste-livraison>
+              </td>
+              <td class="right-pane">
+                <app-list-ste-Livraison></app-list-ste-Livraison>
+              </td>
+            </tr>
+          </table>
+        </p-tabPanel>
 
-                </p-tabPanel>
+        <p-tabPanel header="Utilisateurs">
+          <ng-template pTemplate>
+            <app-user></app-user>
+          </ng-template>
+        </p-tabPanel>
 
-    <p-tabPanel header="Pages FB">
-      <ng-template pTemplate>
-      <p-splitter [panelSizes]="[40,60]" [minSizes]="[30,70]">
-        <ng-template pTemplate>
-              <app-add-fbpage></app-add-fbpage>
-           </ng-template>
-           <ng-template pTemplate>
-               <app-list-fbpages></app-list-fbpages>
-           </ng-template>
-      </p-splitter>
-    </ng-template>
-  </p-tabPanel>
-
-<p-tabPanel header="Ste livraison">
-  <table class="split-table">
-    <tr>
-      <td class="left-pane">
-        <app-add-ste-livraison></app-add-ste-livraison>
-      </td>
-      <td class="right-pane">
-        <app-list-ste-Livraison></app-list-ste-Livraison>
-      </td>
-    </tr>
-  </table>
-</p-tabPanel>
-
-  <p-tabPanel header="Utilisateurs">
-    <ng-template pTemplate>
-      <app-user></app-user>
-    </ng-template>
-  </p-tabPanel>
-
-<p-tabPanel header="Config Global">
-    <app-global-conf></app-global-conf>
-</p-tabPanel>
-    <!--p-tabPanel header="Gouvernorats / Villes">
+        <p-tabPanel header="Config Global">
+          <app-global-conf></app-global-conf>
+        </p-tabPanel>
+        <!--p-tabPanel header="Gouvernorats / Villes">
       <ng-template pTemplate>
         <p-splitter [panelSizes]="[20,80]" [minSizes]="[20,80]">
           <ng-template pTemplate>
@@ -81,9 +77,8 @@
       </ng-template>
 
     </p-tabPanel-->
-</p-tabView>
+      </p-tabView>
+    </div>
+  </div>
 </div>
-</div>
-</div>
-</div>
-<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

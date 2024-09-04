@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface IOfferModelRepository extends JpaRepository<OfferModel , Long> {
-
     @Transactional
     @Modifying
     @Query(value = "INSERT into offer_model (offer_id, model_id, quantity) values (:offerId, :modelId, :quantity)" , nativeQuery = true)

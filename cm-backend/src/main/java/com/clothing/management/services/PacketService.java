@@ -6,6 +6,7 @@ import com.clothing.management.dto.DeliveryCompanyDTOs.DeliveryResponse;
 import com.clothing.management.entities.Note;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.User;
+import com.clothing.management.exceptions.custom.notfound.PacketNotFoundException;
 import com.clothing.management.models.DashboardCard;
 import com.clothing.management.servicesImpl.PacketServiceImpl;
 import org.springframework.data.domain.Page;
@@ -32,13 +33,12 @@ public interface PacketService {
  Packet updatePacket(Packet packet);
  Packet patchPacket(Long idPacket , Map<String , Object> packet) throws Exception;
  PacketDTO addProductsToPacket(SelectedProductsDTO selectedProductsDTO) throws Exception;
- void deletePacketById(Long idPacket) throws Exception;
- List<PacketDTO> deleteSelectedPackets(List<Long> packetsId, Note note) throws PacketServiceImpl.PacketNotFoundException, Exception;
+ List<PacketDTO> deleteSelectedPackets(List<Long> packetsId, Note note) throws PacketNotFoundException, Exception;
  List<PacketStatusDTO> findPacketTimeLineById(Long idPacket) throws Exception;
  DeliveryResponse createBarCode(Packet packet) throws IOException, InterruptedException;
  PacketDTO getLastStatus(long packetId) throws Exception;
  PacketDTO getLastStatus(Packet packet, User user) throws Exception;
- Packet addAttempt(Note note, Long packetId) throws PacketServiceImpl.PacketNotFoundException;
+ Packet addAttempt(Note note, Long packetId) throws PacketNotFoundException;
  int checkPhone(String phoneNumber);
     //List<DashboardCard> createDashboard();
     List<DashboardCard> syncNotification(String beginDate, String endDate);
@@ -46,6 +46,5 @@ public interface PacketService {
     List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO);
     //Long getExchangeId(Packet packet);
     int deleteEmptyPacket();
-
     PacketValidationDTO updatePacketValid(String barCode, String type) throws Exception;
 }

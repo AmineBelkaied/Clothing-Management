@@ -7,4 +7,7 @@ public class FbPageAlreadyExistsException extends AlreadyExistsException {
     public FbPageAlreadyExistsException(Long fbPageId, String fbPageName) {
         super("FbPage", fbPageId, fbPageName);
     }
+    public FbPageAlreadyExistsException(String fbPageName) {
+        super("FbPage", fbPageName);
+    }
 }

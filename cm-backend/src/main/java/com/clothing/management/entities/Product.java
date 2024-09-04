@@ -27,7 +27,7 @@ public class Product {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "color_id")
     private Color color;
-    private int quantity;
+    private Long quantity;
     private Date date;
 
     @JsonIgnore
@@ -53,7 +53,7 @@ public class Product {
         this.id = id;
     }
 
-    public Product(Size size, Color color, int quantity, Date date, Model model) {
+    public Product(Size size, Color color, long quantity, Date date, Model model) {
         this.size = size;
         this.color = color;
         this.quantity = quantity;
@@ -68,7 +68,7 @@ public class Product {
         this.size = size;
     }
 
-    public Product(Long id, int quantity) {
+    public Product(Long id, long quantity) {
         this.id = id;
         this.quantity = quantity;
     }
@@ -97,11 +97,11 @@ public class Product {
         this.color = color;
     }
 
-    public int getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 

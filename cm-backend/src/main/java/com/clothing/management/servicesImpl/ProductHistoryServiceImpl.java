@@ -6,7 +6,6 @@ import com.clothing.management.entities.ProductHistory;
 import com.clothing.management.repository.IProductHistoryRepository;
 import com.clothing.management.repository.IProductRepository;
 import com.clothing.management.services.ProductHistoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +20,14 @@ import java.util.Optional;
 @Service
 public class ProductHistoryServiceImpl implements ProductHistoryService {
 
-    @Autowired
-    IProductHistoryRepository productHistoryRepository;
+    private final IProductHistoryRepository productHistoryRepository;
 
-    @Autowired
-    IProductRepository productRepository;
+    private final IProductRepository productRepository;
+
+    public ProductHistoryServiceImpl(IProductHistoryRepository productHistoryRepository, IProductRepository productRepository) {
+        this.productHistoryRepository = productHistoryRepository;
+        this.productRepository = productRepository;
+    }
 
     @Override
     public Page<ProductHistoryDTO> findAllProductsHistory(Long modelId , int page, int size, String colorSize, String beginDate, String endDate) throws ParseException {
@@ -36,17 +38,9 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
             else
                 return productHistoryRepository.findAllByReference(modelId, colorSize, paging);
         } else {
-
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            /*if(!reference.isEmpty())
-                return productHistoryRepository.findAllByDateRangeAndReference(modelId, reference, dateFormat.parse(beginDate), dateFormat.parse(endDate), paging);*/
-            //return productHistoryRepository.findAll(modelId, paging);
             return productHistoryRepository.findAllByDateRange(modelId, dateFormat.parse(beginDate), dateFormat.parse(endDate), paging);
         }
-    }
-    @Override
-    public List<ProductHistory> findAllProductsHistory(int limit, int skip) {
-        return productHistoryRepository.findAllProductsHistory(limit, skip);
     }
 
     @Override

@@ -446,15 +446,18 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   addAttempt(status: string,packet?: Packet): void {
+    console.log(this.selectedPackets);
 
     this.noteActionStatus = status;
-    if( status == 'DELETED' ){
+    /*if( status == 'DELETED' ){
       let index = this.selectedPackets.findIndex((selectedPacket: Packet) => selectedPacket.barcode == null || selectedPacket.barcode == "");
+      console.log(index);
+
       if (index > -1) {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please do not delete outgoing packets' });
         return;
       }
-    }
+    }*/
 
     if(packet)this.selectedPacket = packet;
     this.clientReasons = this.getReasonOptionsByStatus(status);
@@ -931,7 +934,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     switch (status) {
       case CANCELED:
         if (this.oldFieldValue !== CONFIRMED && this.oldFieldValue !== TO_VERIFY && this.oldFieldValue !== DELETED) {
-          errorMessage = 'Please do not cancel outgoing packets';
+          errorMessage = 'Please do not delete outgoing packets';
         }else if(barcode != null && barcode !== "") this.addAttempt('CANCELED',packet);
         break;
       case NOT_CONFIRMED:

@@ -18,7 +18,7 @@ public class Color {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String reference;
+    //private String reference;
     @ManyToMany(mappedBy = "colors")
     @JsonBackReference
     private Set<Model> models = new HashSet<>();
@@ -33,10 +33,10 @@ public class Color {
         this.id = id;
     }
 
-    public Color(Long id, String name, String reference) {
+    public Color(Long id, String name) {
         this.id = id;
         this.name = name;
-        this.reference = reference;
+        //this.reference = reference;
     }
 
     public Long getId() {
@@ -55,13 +55,7 @@ public class Color {
         this.name = name;
     }
 
-    public String getReference() {
-        return reference;
-    }
 
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
 
     public Set<Model> getModels() {
         return models;
@@ -84,7 +78,6 @@ public class Color {
         return "Color{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", reference='" + reference + '\'' +
                 ", deleted='" + deleted + '\'' +
                 '}';
     }

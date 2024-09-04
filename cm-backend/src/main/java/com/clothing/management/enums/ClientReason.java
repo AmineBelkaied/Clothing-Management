@@ -13,7 +13,8 @@ public enum ClientReason {
     PRODUCT_OOS_CANCEL("Produit indisponible"),
     NO_PHONE_NUMBER("Pas de téléphone"),
     CANCELED_BY_CLIENT("Annuler par le client"),
-    WANT_TO_OPEN("Il veut ouvrir");
+    WANT_TO_OPEN("Il veut ouvrir"),
+    DELETE_UNREACHABLE("Injoignable pendants 3 jours");
 
     private final String description;
 

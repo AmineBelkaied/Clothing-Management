@@ -6,7 +6,6 @@
             </th>
             <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
             </th>
-            <th pSortableColumn="reference">Référence <p-sortIcon field="reference"></p-sortIcon>
             <th>Actions</th>
         </tr>
     </ng-template>
@@ -14,7 +13,6 @@
         <tr>
             <td>{{color.id}}</td>
             <td>{{color.name}}</td>
-            <td style="font-weight: bold;">{{color.reference}}</td>
             <td>
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-4 buttonSize"
                     (click)="editColor(color)"></button>

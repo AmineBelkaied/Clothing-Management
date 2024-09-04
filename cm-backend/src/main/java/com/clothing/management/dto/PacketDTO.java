@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 public class PacketDTO {
-    private Long id;
+    private long id;
     private Date date;
     private String customerName;
     private String customerPhoneNb;
@@ -26,9 +26,9 @@ public class PacketDTO {
     private Date lastUpdateDate;
     private String printLink;
     private boolean valid;
-    private Integer stock;
+    private long stock;
     private Integer productCount;
-    private Long exchangeId;
+    private long exchangeId;
     private boolean haveExchange;
 
     private List<Note> notes;
@@ -62,25 +62,18 @@ public class PacketDTO {
             this.notes = packet.getNotes();
     }
 
-    private int getStock(List<ProductsPacket> productsPackets, String barcode){
+    private long getStock(List<ProductsPacket> productsPackets, String barcode){
         return (barcode == null || barcode.equals(""))?productsPackets.stream()
-                .mapToInt(productsPacket -> productsPacket.getProduct().getQuantity()) // Assuming getQte() returns the quantity
+                .mapToLong(productsPacket -> productsPacket.getProduct().getQuantity()) // Assuming getQte() returns the quantity
                 .min()
-                .orElse(100):100;
+                .orElse(-1):100;
     }
-    /*private void setPacketDescription(List<ProductsPacket> productsPackets, String barcode){
-        String description = productsPackets.stream()
-                .mapToInt(productsPacket -> productsPacket.getProduct().getQuantity()) // Assuming getQte() returns the quantity
-                .min()
-                .orElse(100);
-        return; description;
-    }*/
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -244,11 +237,11 @@ public class PacketDTO {
         this.valid = valid;
     }
 
-    public Integer getStock() {
+    public Long getStock() {
         return stock;
     }
 
-    public void setStock(Integer stock) {
+    public void setStock(Long stock) {
         this.stock = stock;
     }
 

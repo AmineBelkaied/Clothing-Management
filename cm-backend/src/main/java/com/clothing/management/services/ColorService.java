@@ -7,11 +7,11 @@ import java.util.Optional;
 
 public interface ColorService {
 
-    public List<Color> findAllColors();
-    public Optional<Color> findColorById(Long idColor);
-    public Optional<Color> findColorByName(String name);
-    public Color addColor(Color color) throws Exception;
-    public Color updateColor(Color color);
-    public void deleteColor(Color color);
-    public void deleteColorById(Long idColor);
+    List<Color> findAllColors();
+    Optional<Color> findColorById(Long idColor);
+    Optional<Color> findColorByName(String name);
+    Color addColor(Color color) throws Exception;
+    Color updateColor(Color color);
+    void deleteColor(Color color);
+    void deleteColorById(Long idColor);
 }

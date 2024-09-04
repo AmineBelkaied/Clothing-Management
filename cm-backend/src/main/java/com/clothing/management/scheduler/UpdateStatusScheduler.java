@@ -6,7 +6,7 @@ import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
 import com.clothing.management.auth.util.SessionUtils;
 import com.clothing.management.entities.GlobalConf;
-import com.clothing.management.entities.ModelStockHistory;
+import com.clothing.management.dto.ModelStockHistory;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.User;
 import com.clothing.management.services.GlobalConfService;
@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.*;
@@ -81,14 +82,14 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
                 });
     }
 
+    @Transactional("tenantTransactionManager")
     public int startUpdateStatusCronTask(MasterTenant masterTenant) {
         LOG.info("--- UPDATE STATUS CRON STARTED FOR TENANT --- " + masterTenant.getTenantName());
         DBContextHolder.setCurrentDb(masterTenant.getDbName());
         packetService.deleteEmptyPacket();
-
+        User currentUser = sessionUtils.getCurrentUser();
         List<Packet> packets = Collections.synchronizedList(packetService.findSyncPackets());
         synchronized (packets) {
-            User currentUser = sessionUtils.getCurrentUser();
             for (Packet packet : packets) {
                 try {
                     this.packetService.getLastStatus(packet,currentUser);

@@ -7,11 +7,11 @@ import java.util.Optional;
 
 public interface GovernorateService {
     
-    public List<Governorate> findAllGovernorates();
-    public Optional<Governorate> findGovernorateById(Long idGovernorate);
-    public Governorate addGovernorate(Governorate governorate);
-    public Governorate updateGovernorate(Governorate governorate);
-    public void deleteGovernorate(Governorate governorate);
-    public void deleteSelectedGovernorates(List<Long> governoratesId);
+    List<Governorate> findAllGovernorates();
+    Optional<Governorate> findGovernorateById(Long idGovernorate);
+    Governorate addGovernorate(Governorate governorate);
+    Governorate updateGovernorate(Governorate governorate);
+    void deleteGovernorate(Governorate governorate);
+    void deleteSelectedGovernorates(List<Long> governoratesId);
     void deleteGovernorateById(Long id);
 }

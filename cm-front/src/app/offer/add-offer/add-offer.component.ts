@@ -115,8 +115,6 @@ export class AddOfferComponent implements OnInit {
         this.offerService.updatOfferFields(offer).pipe(takeUntil(this.$unsubscribe))
         .subscribe(offerResponse => {
           console.log(offerResponse);
-          //this.offerService.setOffer(offerResponse)
-          //this.offerService.spliceOffer();
           this.submitEvent.emit(offerResponse);
         });
       }

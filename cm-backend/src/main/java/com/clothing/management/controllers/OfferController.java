@@ -51,7 +51,7 @@ public class OfferController {
     }
 
     @PutMapping
-    public ResponseEntity<OfferDTO> updateOffer(@RequestBody Offer offer) throws Exception {
+    public ResponseEntity<OfferDTO> updateOffer(@RequestBody Offer offer) {
         OfferDTO updatedOffer = offerService.updateOffer(offer);
         return ResponseEntity.ok(updatedOffer);
     }

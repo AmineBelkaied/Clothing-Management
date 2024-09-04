@@ -7,10 +7,10 @@ import java.util.Optional;
 
 public interface SizeService {
 
-    public List<Size> findAllSizes();
-    public Optional<Size> findSizeById(Long idSize);
-    public Optional<Size> findSizeByReference(String reference);
-    public Size addSize(Size size) throws Exception;
-    public Size updateSize(Size size) throws Exception;
-    public void deleteSizeById(Long idSize);
+    List<Size> findAllSizes();
+    Optional<Size> findSizeById(Long idSize);
+    Optional<Size> findSizeByReference(String reference);
+    Size addSize(Size size) throws Exception;
+    Size updateSize(Size size) throws Exception;
+    void deleteSizeById(Long idSize);
 }

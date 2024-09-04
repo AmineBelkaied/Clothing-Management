@@ -156,7 +156,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
   editModel(model: Model) {
     this.model = { ...model };
     this.model.colors = this.model.colors?.filter(
-      (color: Color) => color.reference != '?'
+      (color: Color) => color.name != '?'
     );
     this.model.sizes = this.model.sizes?.filter(
       (size: Size) => size.reference != '?'

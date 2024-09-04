@@ -2,13 +2,10 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.entities.Color;
 import com.clothing.management.services.ColorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +38,7 @@ public class ColorController {
     }
 
     @PutMapping
-    public ResponseEntity<Color> updateColor(@RequestBody Color color) throws Exception {
+    public ResponseEntity<Color> updateColor(@RequestBody Color color) {
         Color updatedColor = colorService.updateColor(color);
         return new ResponseEntity<>(updatedColor, HttpStatus.OK);
     }

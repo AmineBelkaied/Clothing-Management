@@ -6,7 +6,6 @@ import { Offer } from 'src/shared/models/Offer';
 import { ModelService } from '../../../shared/services/model.service';
 import { OfferService } from '../../../shared/services/offer.service';
 import { FbPage } from 'src/shared/models/FbPage';
-import { FbPageService } from 'src/shared/services/fb-page.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -42,7 +41,6 @@ export class ListOffersComponent implements OnInit {
   constructor(
     private offerService: OfferService,
     private modelService: ModelService,
-    private fbPageService: FbPageService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService) {
   }
@@ -127,7 +125,6 @@ export class ListOffersComponent implements OnInit {
   }
 
   displayOfferModels(modelQuantities: OfferModelsDTO[]) {
-//console.log("modelQuantities",modelQuantities);
     let offerModels = "";
     modelQuantities.forEach((modelQuantity, index) => {
       if (index < modelQuantities.length - 1 && index>0)
