@@ -4,9 +4,7 @@ import { catchError, Subject, switchMap, take, takeUntil, tap, throwError } from
 import { Color } from 'src/shared/models/Color';
 import { Model } from 'src/shared/models/Model';
 import { Size } from 'src/shared/models/Size';
-import { ColorService } from 'src/shared/services/color.service';
 import { ModelService } from 'src/shared/services/model.service';
-import { SizeService } from 'src/shared/services/size.service';
 import { NumberUtils } from 'src/shared/utils/number-utils';
 import { StringUtils } from 'src/shared/utils/string-utils';
 
@@ -67,7 +65,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
   saveModel() {
     this.submitted = true;
     console.log(this.model);
-    
+
     if (this.isValidModel) {
       return this.modelService.addModel(this.model).pipe(
         tap((response: Model) => {
@@ -108,7 +106,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     this.isValidModel = StringUtils.isStringValid(event.model.name) && NumberUtils.isNumberValid(event.model.purchasePrice) &&
       NumberUtils.isNumberValid(event.salePrice) && event.model.sizes.length > 0 && event.model.colors.length > 0 && !this.modelNameExists;
     console.log(this.modelNameExists);
-    
+
     }
 
   private modelAlreadyExists(name: string): boolean {
