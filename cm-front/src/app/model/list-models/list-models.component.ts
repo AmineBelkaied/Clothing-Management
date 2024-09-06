@@ -23,7 +23,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     id: 0, // Or any default value
     name: '',
     description: '',
-    colors: [] =[],
+    colors: [] = [],
     sizes: [] = [],
     products: [] = [],
     earningCoefficient: 2,
@@ -64,8 +64,6 @@ export class ListModelsComponent implements OnInit, OnDestroy {
 
   saveModel() {
     this.submitted = true;
-    console.log(this.model);
-
     if (this.isValidModel) {
       return this.modelService.addModel(this.model).pipe(
         tap((response: Model) => {
@@ -94,20 +92,18 @@ export class ListModelsComponent implements OnInit, OnDestroy {
         .subscribe({
           complete: () => {
             this.modelDialog = false;
-            this.model = {...this.modelService.defaultModel};  // Reset model to default
+            this.model = { ...this.modelService.defaultModel };  // Reset model to default
           }
         });
     }
   }
 
-  checkFormValidation(event: any): void {
-    this.modelNameExists = this.modelAlreadyExists(event.model.name);
+  checkFormValidation(salePrice: number): void {
+    this.modelNameExists = this.modelAlreadyExists(this.model.name);
 
-    this.isValidModel = StringUtils.isStringValid(event.model.name) && NumberUtils.isNumberValid(event.model.purchasePrice) &&
-      NumberUtils.isNumberValid(event.salePrice) && event.model.sizes.length > 0 && event.model.colors.length > 0 && !this.modelNameExists;
-    console.log(this.modelNameExists);
-
-    }
+    this.isValidModel = StringUtils.isStringValid(this.model.name) && NumberUtils.isNumberValid(this.model.purchasePrice) &&
+      NumberUtils.isNumberValid(salePrice) && this.model.sizes.length > 0 && this.model.colors.length > 0 && !this.modelNameExists;
+  }
 
   private modelAlreadyExists(name: string): boolean {
     return this.editMode ?
@@ -126,7 +122,6 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     let selectedModelsId = this.selectedModels.map(
       (selectedModel: any) => selectedModel.id
     );
-    console.log(selectedModelsId);
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer les modèles séléctionnés ?',
       header: 'Confirmation',
@@ -159,14 +154,12 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     this.model.sizes = this.model.sizes?.filter(
       (size: Size) => size.reference != '?'
     );
-   // this.modelService.setModel(model);
     this.modelDialog = true;
     this.editMode = true;
-    this.clonedModel = {...model};
+    this.clonedModel = { ...model };
   }
 
   deleteModel(model: Model) {
-    console.log(model.id);
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete ' + this.model.name + '?',
       header: 'Confirm',

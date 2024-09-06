@@ -76,9 +76,11 @@ import java.util.Arrays;
                         .anyRequest().authenticated())*/
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/**").permitAll())
-                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
-                .authenticationProvider(authenticationProvider()).addFilterBefore(
-                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // Set session management to stateless (no session will be created or used)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Register your custom JWT filter before the UsernamePasswordAuthenticationFilter
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
