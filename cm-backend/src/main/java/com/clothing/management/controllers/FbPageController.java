@@ -35,15 +35,9 @@ public class FbPageController {
     }
 
     @PostMapping
-    public ResponseEntity<FbPage> createFbPage(@RequestBody FbPage fbPage) {
-        FbPage createdFbPage = fbPageService.addFbPage(fbPage);
+    public ResponseEntity<FbPage> saveFbPage(@RequestBody FbPage fbPage) {
+        FbPage createdFbPage = fbPageService.saveFbPage(fbPage);
         return new ResponseEntity<>(createdFbPage, HttpStatus.CREATED);
-    }
-
-    @PutMapping
-    public ResponseEntity<FbPage> updateFbPage(@RequestBody FbPage fbPage) {
-        FbPage updatedFbPage = fbPageService.updateFbPage(fbPage);
-        return new ResponseEntity<>(updatedFbPage, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

@@ -37,6 +37,7 @@ import { ProductService } from 'src/shared/services/product.service';
 import { ClientReason, ClientReasonDetails } from 'src/shared/enums/client-reason';
 import { Note } from 'src/shared/models/Note';
 import { StringUtils } from 'src/shared/utils/string-utils';
+import { CustomSelectItem } from 'src/shared/models/CustomSelectItem';
 
 @Component({
   selector: 'app-list-packets',
@@ -85,7 +86,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   allOffersList: any[] = [];
   groupedCities: SelectItemGroup[] = [];
   fbPages: FbPage[] = [];
-  selectedCity: City | undefined;
+  selectedCityId: number | undefined;
   //selectedCity: string | undefined;
   filter: string;
 
@@ -251,6 +252,20 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.selectedStatus.setValue([]);
   }
 
+  getCityById(cityId: number): string {
+    for (const group of this.groupedCities) {
+      // Find the city with the matching ID in each group's items
+      const foundCity = group.items.find((city: any) => city.value === cityId);
+
+      if (foundCity) {
+        // Return the formatted string: governorate - city
+        return `${group.label} - ${foundCity.label}`;
+      }
+    }
+    // Return an empty string or a fallback message if the city is not found
+    return 'City not found';
+  }
+
   findAllFbPages(): void {
     this.fbPageService.getFbPagesSubscriber().subscribe((result: any) => {
       this.fbPages = result.filter((fbPage: any) => fbPage.enabled);
@@ -270,7 +285,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           let countConfirmed =response.result.filter(packet => packet.status === CONFIRMED).length;
           this.statusItems[3].badge = countConfirmed > 0 ? countConfirmed:0;
           this.loading = false;
-          this.createNotification();
+          this.showStatus = false;
         },
         error: (error: Error) => {
           console.log('Error:', error);
@@ -294,18 +309,17 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     ];
   }
 
-
-
   findAllGroupedCities(): void {
     this.cityService.findAllGroupedCities().subscribe((groupedCities: any) => {
       this.groupedCities = this.cityService.adaptListToDropDown(groupedCities);
-      this.groupedCities = [...new Set(this.groupedCities)];
     });
   }
 
   onEditComplete($event: any): void {
     const packet = $event.data;
     this.loading = true;
+    console.log('this.oldFieldValue',this.oldFieldValue);
+    console.log('packet[this.selectedField]',packet[this.selectedField]);
 
     try {
       if (this.oldFieldValue !== packet[this.selectedField] && packet[this.selectedField] !== undefined) {
@@ -331,11 +345,16 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   patchPacketService(packet: Packet) {
+    console.log('this.selectedField',this.selectedField);
+    console.log('packet',packet);
+
+
     let updatedField;
-    if (this.selectedField === 'city')
-      updatedField = { [this.selectedField]: packet.city?.id };
-    else if (this.selectedField === 'fbPage')
-      updatedField = { [this.selectedField]: packet.fbPage?.id };
+    if (this.selectedField === 'cityId')
+      updatedField = { ['city']: packet.cityId };
+    else if (this.selectedField === 'fbPage'){
+      updatedField = { ['fbPage']: packet.fbPage!.id };
+    }
     else if (this.selectedField === 'date')
       updatedField = { [this.selectedField]: this.onDateSelect(packet.date) };
     else
@@ -392,8 +411,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
 
   checkPacketValidity(packet: Packet): boolean {
-      if (!(this.isValid(packet.fbPage) && this.isValid(packet.address) && this.isValid(packet.customerName) &&
-      this.isValid(packet.customerPhoneNb) && this.isValid(packet.city) && this.isValid(packet.packetDescription)))
+      if (!(packet.fbPage!.id && this.isValid(packet.address) && this.isValid(packet.customerName) &&
+      this.isValid(packet.customerPhoneNb) && packet.cityId && this.isValid(packet.packetDescription)))
       {
         this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
         return false;
@@ -403,7 +422,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   checkPacketNotNull(packet: Packet): boolean {
     return (this.isValid(packet.address) || this.isValid(packet.customerName) ||
-      this.isValid(packet.customerPhoneNb) || this.isValid(packet.city) || this.isValid(packet.packetDescription));
+      this.isValid(packet.customerPhoneNb) || packet.cityId! >-1 || this.isValid(packet.packetDescription));
   }
 
   checkPacketDescription(packet: Packet): boolean {
@@ -424,16 +443,18 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         });
   }
 
-  updatePacketFields(packet: Packet, action?: string) {
+  updatePacketFields(updatedPacket: Packet, action?: string) {
+
     let listId = this.packets.map((packetX: Packet) => packetX.id);
-    let X = listId.indexOf(packet.id);
+    let X = listId.indexOf(updatedPacket.id);
     if (X > -1) {
-      this.packets[X].status = packet.status;
+      this.packets = [...this.packets.map(packet => packet.id === updatedPacket.id ? updatedPacket : packet)];
+      /*this.packets[X].status = packet.status;
       this.packets[X].lastDeliveryStatus = packet.lastDeliveryStatus;
       this.packets[X].lastUpdateDate = packet.lastUpdateDate;
       if (action === 'ADD_NOTE_ACTION') {
-        this.packets[X].notes!.length++;
-        this.packets[X].notes = packet.notes?.slice();
+        //this.packets[X].notes.length++;
+        this.packets[X].notes = packet.notes;
       }
       this.packets[X].barcode = packet.barcode;
       this.packets[X].packetDescription = packet.packetDescription;
@@ -441,7 +462,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.packets[X].stock = packet.stock;
       this.packets[X].price = packet.price;
       this.packets[X].deliveryPrice = packet.deliveryPrice;
-      this.packets[X].discount = packet.discount;
+      this.packets[X].discount = packet.discount;*/
     }
   }
 
@@ -586,6 +607,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           console.log("new pack", response);
 
           this.loading = false;
+          //this.packets = [...this.packets.map(packet => packet.id === updatedPacket.id ? updatedPacket : packet)];
           this.packets.unshift(response);
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
         });
@@ -721,10 +743,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     return field != null && field != '';
   }
 
-  trackByFunction = (index: any, item: { id: any }) => {
-    return item.id;
-  };
-
   getPhoneNumber1(phoneNumber1: string): string {
     if (this.getValue(phoneNumber1) != '' && phoneNumber1.includes('/')) {
       return phoneNumber1.substring(0, 8);
@@ -783,13 +801,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   selectCity( packet: Packet) {
-    this.selectedCity = packet.city;
+    this.selectedCityId = packet.cityId;
   }
   selectPhoneNumber( packet: any) {
     this.selectedPhoneNumber = packet.customerPhoneNb;
   }
-
-
 
   showStatusButton() {
     this.showStatus= !this.showStatus;
@@ -857,7 +873,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       if ($event.data.stock === -1) {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: "Please fill in all article fields" });
         this.packetStatusList = [UNREACHABLE];
-      } else if ([NOT_CONFIRMED, NOT_SERIOUS, UNREACHABLE, CANCELED, DELETED, OOS].includes(this.oldFieldValue)) {
+      } else if ([NOT_CONFIRMED].includes(this.oldFieldValue)) {
+        this.packetStatusList = [OOS, CONFIRMED, NOT_SERIOUS, UNREACHABLE];
+      } else if ([NOT_SERIOUS, UNREACHABLE, CANCELED, DELETED, OOS].includes(this.oldFieldValue)) {
         this.packetStatusList = [NOT_CONFIRMED, OOS, CONFIRMED, NOT_SERIOUS, UNREACHABLE, CANCELED];
       } else if ([CONFIRMED, TO_VERIFY].includes(this.oldFieldValue)) {
         this.packetStatusList = [IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, CANCELED, TO_VERIFY, DELIVERED, RETURN, PAID, RETURN_RECEIVED, PROBLEME];
@@ -933,8 +951,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
     switch (status) {
       case CANCELED:
-        if (this.oldFieldValue !== CONFIRMED && this.oldFieldValue !== TO_VERIFY && this.oldFieldValue !== DELETED) {
-          errorMessage = 'Please do not delete outgoing packets';
+        if (this.oldFieldValue == NOT_CONFIRMED)
+          errorMessage = "Delete don't cancel";
+        else if (this.oldFieldValue !== CONFIRMED && this.oldFieldValue !== TO_VERIFY && this.oldFieldValue !== DELETED) {
+          errorMessage = 'Please do not cancel outgoing packets';
         }else if(barcode != null && barcode !== "") this.addAttempt('CANCELED',packet);
         break;
       case NOT_CONFIRMED:

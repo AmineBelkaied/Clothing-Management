@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { DeliveryCompany } from '../models/DeliveryCompany';
 import { DELIVERY_COMPANY_ENDPOINTS } from '../constants/api-endpoints';
@@ -11,27 +11,46 @@ import { DELIVERY_COMPANY_ENDPOINTS } from '../constants/api-endpoints';
 export class DeliveryCompanyService {
 
   private baseUrl: string = environment.baseUrl + `${DELIVERY_COMPANY_ENDPOINTS.BASE}`;
+  public deliveryCompanyListSubscriber:  BehaviorSubject<DeliveryCompany[]> = new BehaviorSubject<DeliveryCompany[]>([]);
   public deliveryCompanySubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public deliveryCompany: BehaviorSubject<any> = new BehaviorSubject([]);
   public deliveryCompanyList: DeliveryCompany[] = [];
   public editMode = false;
 
   constructor(private http: HttpClient) {
-    this.findAllDeliveryCompanies()
+    this.getDeliveryCompaniesSubscriber();
+    /*this.findAllDeliveryCompanies()
     .subscribe((deliveryCompanyList: any) => {
-        this.deliveryCompanySubscriber.next(deliveryCompanyList);
-        this.deliveryCompanyList = deliveryCompanyList.filter((deliveryCompany: any) => deliveryCompany.enabled);
-    });
+        this.deliveryCompanyListSubscriber.next(deliveryCompanyList);
+        this.deliveryCompanyList = deliveryCompanyList;
+    });*/
   }
 
-  findAllDeliveryCompanies() {
-    return this.http.get(`${this.baseUrl}`);
+  findAllDeliveryCompanies(): Observable<DeliveryCompany[]> {
+    return this.http.get<DeliveryCompany[]>(`${this.baseUrl}`);
   }
 
-  /*findDeliveryCompanyById(id: number) {
-    return this.http.get(`${this.baseUrl}/${id}`);
-  }*/
+  getDeliveryCompaniesSubscriber():Observable<DeliveryCompany[]>{
+    if (this.deliveryCompanyListSubscriber.value.length === 0) {
+      this.loadDeliveryCompanies().subscribe();
+    }
+    return this.deliveryCompanyListSubscriber.asObservable();
 
+  }
+
+  loadDeliveryCompanies(): Observable<DeliveryCompany[]>{
+    return this.findAllDeliveryCompanies().pipe(
+    tap((deliveryCompanyList: DeliveryCompany[]) =>
+      {
+        this.deliveryCompanyListSubscriber.next(deliveryCompanyList);
+        this.deliveryCompanyList = deliveryCompanyList;
+      }
+    ),
+    catchError((error) => {
+      console.error('Error fetching delivery company', error);
+      return throwError(() => error);
+    }))
+  }
   addDeliveryCompany(deliveryCompany: DeliveryCompany) {
     return this.http.post(`${this.baseUrl}`, deliveryCompany , {observe: 'body'});
   }
@@ -44,24 +63,14 @@ export class DeliveryCompanyService {
     return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
-  loadDeliveryCompanies(){
-    this.findAllDeliveryCompanies()
-    .subscribe((deliveryCompanyList: any) => {
-        this.deliveryCompanySubscriber.next(deliveryCompanyList);
-        this.deliveryCompanyList = deliveryCompanyList.filter((deliveryCompany: any) => deliveryCompany.enabled);
-    });
-  }
-  getDCSubscriber(): Observable<DeliveryCompany[]> {
-    return this.deliveryCompanySubscriber.asObservable();
-  }
-
-  /*pushDeliveryCompany(deliveryCompany: DeliveryCompany){
-    this.deliveryCompanyList.push(deliveryCompany);
-  }*/
-
   spliceDeliveryCompany(updatedDeliveryCompany: any){
     let index = this.deliveryCompanyList.findIndex(deliveryCompany => deliveryCompany.id == updatedDeliveryCompany.id);
-    this.deliveryCompanyList.splice(index , 1 , updatedDeliveryCompany);
+    if(index>-1)
+      this.deliveryCompanyList.splice(index , 1 , updatedDeliveryCompany);
+    else this.deliveryCompanyList.push(updatedDeliveryCompany);
+
+    this.deliveryCompanySubscriber.next(this.deliveryCompanyList);
+
   }
 
   editDeliveryCompany(updatedDeliveryCompany: DeliveryCompany) {

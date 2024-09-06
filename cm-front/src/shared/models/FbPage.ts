@@ -2,5 +2,6 @@ export interface FbPage {
     id? : string;
     name: string;
     link?: string;
-    enabled: boolean;
+    enabled?: boolean;
+    deleted?: boolean;
 }

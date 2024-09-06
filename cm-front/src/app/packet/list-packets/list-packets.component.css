@@ -197,14 +197,6 @@ td {
 
   }
 
-  .p-speedDial-closed {
-    display: none;
-  }
-
-  .p-speedDial-open {
-    display: block;
-  }
-
   .notification-container {
     background-color: none;
     position: absolute;

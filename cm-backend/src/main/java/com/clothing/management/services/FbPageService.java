@@ -12,8 +12,7 @@ public interface FbPageService {
 
     Optional<FbPage> findFbPageById(String name);
 
-    FbPage addFbPage(FbPage fbPage);
-    FbPage updateFbPage(FbPage fbPage);
+    FbPage saveFbPage(FbPage fbPage);
     void deleteFbPage(FbPage fbPage);
     void deleteFbPageById(Long idFbPage);
 }

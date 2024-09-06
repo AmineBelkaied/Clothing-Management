@@ -136,8 +136,7 @@
     <div class="container-fluid" *ngIf="showStatus">
       <div
         class="card ml-1 mt-1 mb-1"
-        style="background-color: #fbfbfb; display: flex; align-items: center"
-        style="position: relative; padding: 2px"
+        style="background-color: #fbfbfb; display: flex; align-items: center; position: relative; padding: 2px"
       >
         <div class="px-4 py-2 md:px-6 lg:px-6">
           <div class="grid grid-cols-1 md:grid-cols-6 gap-2">
@@ -344,14 +343,24 @@
             </ng-template>
           </p-cellEditor>
         </td>
-        <td [pEditableColumn]="packet" pEditableColumnField="city"
+        <td [pEditableColumn]="packet" pEditableColumnField="cityId"
           style="cursor: pointer; padding: 0.1rem 0.1rem !important">
           <p-cellEditor>
             <ng-template pTemplate="input">
-              <p-dropdown [options]="groupedCities" [(ngModel)]="packet.city" placeholder="Choisr la ville"
-                [group]="true" [filter]="true" filterBy="label,value,governorate" [style]="{ width: '100%' }"
-                class="p-inputtext-sm" [panelStyle]="{ width: '15rem' }" appendTo="body">
-                <ng-template let-city pTemplate="group">
+              <p-dropdown
+                [options]="groupedCities"
+                [(ngModel)]="packet.cityId"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Choisir la ville"
+                [group]="true"
+                [filter]="true"
+                filterBy="label,value,governorate"
+                [style]="{ width: '100%' }"
+                class="p-inputtext-sm"
+                [panelStyle]="{ width: '15rem' }"
+                appendTo="body">
+                <ng-template let-city pTemplate="item">
                   <div class="p-d-flex p-ai-center">
                     <span>{{ city.label }}</span>
                   </div>
@@ -359,8 +368,9 @@
               </p-dropdown>
             </ng-template>
             <ng-template pTemplate="output">
-              <span *ngIf="packet.city != null">{{ packet.city?.governorate.name }} -
-                {{ packet.city?.name }}</span>
+              <span *ngIf="packet.cityId != null">
+                {{ getCityById(packet.cityId) }}
+              </span>
             </ng-template>
           </p-cellEditor>
         </td>
@@ -402,11 +412,11 @@
         <td [pEditableColumn]="packet" pEditableColumnField="status" [ngStyle]="{
             'border-right-width': '4px',
             'border-right-color':
-              packet.deliveryCompany?.name === 'FIRST'
+              packet.deliveryCompanyName === 'FIRST'
                 ? 'green'
-                : packet.deliveryCompany?.name === 'NAVEX'
+                : packet.deliveryCompanyName === 'NAVEX'
                 ? 'gold'
-                : packet.deliveryCompany?.name === 'JAX'
+                : packet.deliveryCompanyName === 'JAX'
                 ? 'purple'
                 : 'red'
           }">

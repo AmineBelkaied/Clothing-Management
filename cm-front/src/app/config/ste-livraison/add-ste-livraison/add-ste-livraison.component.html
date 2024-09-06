@@ -2,66 +2,102 @@
 <div class="card ml-4 mt-4 mb-4" style="width: 90%;">
   <div class="card-body">
     <div class="card-text">
-      <form #modelForm="ngForm" (ngSubmit)="addDeliveryCompany(modelForm)">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-6">
-              <label for="name">Nom</label>
-              <p>
-                <input pInputText id="name" placeholder="Nom de la société de livraison" name="name"
-                [(ngModel)]="deliveryCompany.name" />
-              </p>
-            </div>
-            <div class="col-md-6">
-              <label for="link">Token</label>
-              <p>
-                <input pInputText id="token" placeholder="Token" name="token"
-                [(ngModel)]="deliveryCompany.token" />
-              </p>
+      <form #modelForm="ngForm" (ngSubmit)="addDeliveryCompany(modelForm)" novalidate>
+        <div class="field mb-3">
+          <label for="name">Socièté de livraison</label>
+          <p-selectButton
+            [options]="deliveryOptions"
+            [(ngModel)]="deliveryCompany.name"
+            [multiple]="false"
+            name="name"
+            id="name"
+            optionLabel="label"
+            optionValue="value"
+          ></p-selectButton>
+        </div>
 
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <label for="apiName">Api Name</label>
-              <p>
-                <input pInputText id="apiName" placeholder="Nom api donnée par la société" name="apiName"
-                [(ngModel)]="deliveryCompany.apiName" />
-              </p>
-            </div>
-            <div class="col-md-6">
-              <label for="apiName">Nom supplimentaire:</label>
-              <p>
-                <input pInputText id="additionalName" placeholder="Nom supplimentaire descriptif" name="additionalName"
-                [(ngModel)]="deliveryCompany.additionalName" />
-              </p>
-
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-10">
-              <label for="barreCodeUrl" class="form-label">Lien colis par barreCode</label>
-              <input pInputText id="barreCodeUrl" placeholder="Lien d'accées recherche par code a barre" name="barreCodeUrl"
-                [(ngModel)]="deliveryCompany.barreCodeUrl" />
-            </div>
-          </div>
-          <br>
-          <div class="col-md-12 mt-2 pull-left">
-            <ng-container *ngIf="deliveryCompanyService.editMode;else addMode">
-              <div class="row">
-                <div class="col-md-3">
-                  <button type="submit" class="btn btn-success">Modifier</button>
-                </div>
-                <div class="col-md-9">
-                  <button type="button" class="btn btn-info" (click)="reset(modelForm)">Reset</button>
-                </div>
-              </div>
-            </ng-container>
-            <ng-template #addMode>
-              <button type="submit" class="btn btn-primary">Ajouter</button>
-            </ng-template>
+        <div class="field mb-3">
+          <label for="token">Token</label><span class="required pl-1">*</span>
+          <input
+            pInputText
+            id="token"
+            placeholder="Token"
+            name="token"
+            [(ngModel)]="deliveryCompany.token"
+            required
+            #token="ngModel"
+            [class.is-invalid]="token.invalid && token.touched"
+          />
+          <div *ngIf="token.invalid && token.touched" class="invalid-feedback">
+            Token is required.
           </div>
         </div>
+
+        <div class="field mb-3">
+          <label for="apiName">Api name</label><span class="required pl-1">*</span>
+          <input
+            pInputText
+            id="apiName"
+            placeholder="Nom api donnée par la société"
+            name="apiName"
+            [(ngModel)]="deliveryCompany.apiName"
+            required
+            #apiName="ngModel"
+            [class.is-invalid]="apiName.invalid && apiName.touched"
+          />
+          <div *ngIf="apiName.invalid && apiName.touched" class="invalid-feedback">
+            Api name is required.
+          </div>
+        </div>
+
+        <div class="field mb-3">
+          <label for="additionalName">Nom supplimentaire</label><span class="required pl-1">*</span>
+          <input
+            pInputText
+            id="additionalName"
+            placeholder="Nom supplimentaire descriptif"
+            name="additionalName"
+            [(ngModel)]="deliveryCompany.additionalName"
+            required
+            #additionalName="ngModel"
+            [class.is-invalid]="additionalName.invalid && additionalName.touched"
+          />
+          <div *ngIf="additionalName.invalid && additionalName.touched" class="invalid-feedback">
+            Additional name is required.
+          </div>
+        </div>
+
+        <div class="field mb-3">
+          <label for="barreCodeUrl">Lien colis par barreCode</label><span class="required pl-1">*</span>
+          <input
+            pInputText
+            id="barreCodeUrl"
+            placeholder="Lien d'accées recherche par code a barre"
+            name="barreCodeUrl"
+            [(ngModel)]="deliveryCompany.barreCodeUrl"
+            required
+            #barreCodeUrl="ngModel"
+            [class.is-invalid]="barreCodeUrl.invalid && barreCodeUrl.touched"
+          />
+          <div *ngIf="barreCodeUrl.invalid && barreCodeUrl.touched" class="invalid-feedback">
+            Barre code URL is required.
+          </div>
+        </div>
+
+        <ng-container *ngIf="deliveryCompanyService.editMode; else addMode">
+          <div class="row">
+            <div class="col-md-3">
+              <button type="submit" class="btn btn-success" [disabled]="modelForm.invalid">Modifier</button>
+            </div>
+            <div class="col-md-9">
+              <button type="button" class="btn btn-info" (click)="reset(modelForm)">Reset</button>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #addMode>
+          <button type="submit" class="btn btn-primary" [disabled]="modelForm.invalid">Ajouter</button>
+        </ng-template>
       </form>
     </div>
   </div>

@@ -24,25 +24,18 @@ export class AddFbpageComponent implements OnInit,OnDestroy {
     });
   }
 
-  addFbPage(form: NgForm) {
+  saveFbPage(form: NgForm) {
     if(this.fbPageService.editMode){
       this.fbPage.name = form.value.name;
       this.fbPage.link = form.value.link;
       this.fbPage.enabled = form.value.enabled;
-      this.fbPageService.updateFbPage(this.fbPage).pipe(takeUntil(this.$unsubscribe))
+      this.fbPageService.saveFbPage(this.fbPage).pipe(takeUntil(this.$unsubscribe))
       .subscribe((updatedFbPage: any) => {
         console.log(updatedFbPage)
         this.fbPageService.spliceFbPage(updatedFbPage);
-        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été modifiée avec succés", life: 1000 });
+
         form.reset();
         this.fbPageService.editMode = false;
-      });
-    } else {
-      this.fbPageService.addFbPage(form.value).pipe(takeUntil(this.$unsubscribe))
-      .subscribe((addedFbPage: any) => {
-        this.fbPageService.fbPages.push(addedFbPage);
-        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été crée avec succés", life: 1000 });
-        form.reset();
       });
     }
   }

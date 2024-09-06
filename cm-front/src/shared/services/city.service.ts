@@ -4,6 +4,7 @@ import { SelectItemGroup } from 'primeng/api';
 import { City } from 'src/shared/models/City';
 import { environment } from '../../environments/environment';
 import { CITY_ENDPOINTS } from '../constants/api-endpoints';
+import { CustomSelectItem } from '../models/CustomSelectItem';
 
 @Injectable({
   providedIn: 'root'
@@ -47,24 +48,40 @@ export class CityService {
     return this.http.delete(`${this.baseUrl}${CITY_ENDPOINTS.BATCH_DELETE}/${citiesId}`);
   }
 
-  adaptListToDropDown(groupedCities: any[]) {
+  adaptListToDropDown(groupedCities: any[]): SelectItemGroup[] {
+    const groupedCityList: SelectItemGroup[] = [];
+
     for (let i = 0; i < groupedCities.length; i++) {
       let groupedCity: SelectItemGroup = {
         label: groupedCities[i]?.governorate.name,
         value: groupedCities[i]?.governorate.id,
         items: []
-      }
+      };
+
+      const uniqueCities = new Set();
+
       for (let j = 0; j < groupedCities[i].cities.length; j++) {
-          let city: any = {
-            label: groupedCities[i].cities[j].name,
-            value: groupedCities[i].cities[j],
-            governorate : groupedCities[i].governorate.name
-          }
-          groupedCity.items.push(city);
+        const city = groupedCities[i].cities[j];
+
+        if (!uniqueCities.has(city.id)) {
+          uniqueCities.add(city.id);
+
+          // Using the custom interface
+          const customCity: CustomSelectItem = {
+            label: city.name,
+            value: city.id,  // Bind the city ID
+            governorate: groupedCities[i].governorate.name // Custom property
+          };
+
+          groupedCity.items.push(customCity);
+        }
       }
-      this.groupedCities.push(groupedCity);
+
+      groupedCityList.push(groupedCity);
     }
-    return this.groupedCities;
+
+    return groupedCityList;
   }
+
 
 }

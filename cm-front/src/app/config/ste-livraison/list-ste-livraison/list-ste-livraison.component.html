@@ -5,6 +5,8 @@
             </th>
             <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
             </th>
+            <th pSortableColumn="name">ApiName <p-sortIcon field="apiName"></p-sortIcon>
+            </th>
             <th pSortableColumn="name">Nom supplementaire<p-sortIcon field="additionalName"></p-sortIcon>
             </th>
             <th pSortableColumn="link">Token <p-sortIcon field="token"></p-sortIcon>
@@ -15,6 +17,7 @@
         <tr>
             <td>{{deliveryCompany.id}}</td>
             <td>{{deliveryCompany.name}}</td>
+            <td>{{deliveryCompany.apiName}}</td>
             <td>{{deliveryCompany.additionalName}}</td>
             <td style="font-weight: bold;">{{deliveryCompany.token.substring(0, 40)}}</td>
              <td>

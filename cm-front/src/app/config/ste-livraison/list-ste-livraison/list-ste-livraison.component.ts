@@ -21,7 +21,7 @@ export class ListSteLivraisonComponent implements OnInit,OnDestroy {
               }
 
   ngOnInit(): void {
-    this.deliveryCompanyService.getDCSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+    this.deliveryCompanyService.getDeliveryCompaniesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
       (deliveryCompany: DeliveryCompany[]) => {
         this.deliveryCompanyList = deliveryCompany;
       }

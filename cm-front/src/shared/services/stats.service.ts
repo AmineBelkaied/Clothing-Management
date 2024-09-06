@@ -98,11 +98,11 @@ export class StatsService {
       if (
         packet.fbPage != undefined
       ) {
-        if (pageCounts[packet.fbPage?.name]) {
-          pageCounts[packet.fbPage?.name].count++;
+        if (pageCounts[packet.fbPage.name]) {
+          pageCounts[packet.fbPage.name].count++;
         }
         else {
-          pageCounts[packet.fbPage?.name] = { count: 1, confirm: 0 };
+          pageCounts[packet.fbPage.name] = { count: 1, confirm: 0 };
         }
       }
 
@@ -137,11 +137,9 @@ export class StatsService {
 
 
       if (
-        packet.city != undefined &&
-        packet.city.name != undefined &&
-        packet.city.governorate?.name != undefined
-      ) {
-        if (cityCounts[packet.city?.governorate.name]) {
+        packet.cityId != undefined
+      ) {//correction ahmed
+        /*if (cityCounts[packet.city?.governorate.name]) {
           cityCounts[packet.city?.governorate.name].count++;
           if (cityCounts[packet.city?.governorate.name].citys[packet.city.name]) cityCounts[packet.city?.governorate.name].citys[packet.city.name].count++;
           else {
@@ -154,7 +152,7 @@ export class StatsService {
         if (packet.status == PAID || packet.status == DELIVERED) {
           cityCounts[packet.city?.governorate.name].confirm++;
           cityCounts[packet.city?.governorate.name].citys[packet.city.name].confirm++;
-        }
+        }*/
       }
     });
     let count: Count = { cityCounts, pageCounts, dateCounts }

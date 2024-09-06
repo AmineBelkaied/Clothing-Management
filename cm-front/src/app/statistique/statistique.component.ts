@@ -143,9 +143,9 @@ export class StatistiqueComponent implements OnInit {
 
   ngOnInit() {
 
-    this.deliveryCompanyService.getDCSubscriber()
+    this.deliveryCompanyService.getDeliveryCompaniesSubscriber()
     .subscribe((stesList: DeliveryCompany[]) => {
-      this.deliveryCompanyList = stesList;
+      this.deliveryCompanyList = stesList.filter((deliveryCompany: any) => deliveryCompany.enabled);
       //console.log("this.stes",this.deliveryCompanyList);
       const uniqueCompanies = new Map();
         stesList.forEach((company: DeliveryCompany) => {

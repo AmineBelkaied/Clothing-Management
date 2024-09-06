@@ -39,28 +39,26 @@ export class ListFbpagesComponent implements OnInit,OnDestroy {
   }
 
   deleteFbPage(fbPage: any)  {
-    console.log("okkk");
-
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer la page facebook séléctionnée ?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.fbPageService.deleteFbPageById(fbPage.id).pipe(takeUntil(this.$unsubscribe))
+        /*this.fbPageService.deleteFbPageById(fbPage.id).pipe(takeUntil(this.$unsubscribe))
           .subscribe(() => {
             this.fbPages = this.fbPages.filter(val => val.id !== fbPage.id);
             this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page faecbook a été supprimée avec succés", life: 1000 });
-          })
+          })*/
       }
     });
   }
 
   enableFbPage(fbPage: any)  {
-    this.fbPageService.setFbPagesConfSubscriber(fbPage);
+    this.fbPageService.spliceFbPage(fbPage);
   }
 
   ngOnDestroy(): void {
     this.$unsubscribe.next();
-this.$unsubscribe.complete();
+    this.$unsubscribe.complete();
   }
 }

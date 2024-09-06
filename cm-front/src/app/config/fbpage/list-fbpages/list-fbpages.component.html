@@ -6,6 +6,7 @@
             <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
             </th>
             <th pSortableColumn="link">Lien <p-sortIcon field="link"></p-sortIcon>
+              <th pSortableColumn="enabled">Enable <p-sortIcon field="enabled"></p-sortIcon>
             <th>Actions</th>
         </tr>
     </ng-template>
@@ -14,12 +15,13 @@
             <td>{{fbPage.id}}</td>
             <td>{{fbPage.name}}</td>
             <td style="font-weight: bold;">{{fbPage.link}}</td>
+            <td><p-inputSwitch class="ml-4" [(ngModel)]="fbPage.enabled" (onChange)="enableFbPage(fbPage)"></p-inputSwitch></td>
             <td>
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-4 buttonSize"
                     (click)="editFbPage(fbPage)"></button>
                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger buttonSize"
                     (click)="deleteFbPage(fbPage)"></button>
-                <p-inputSwitch class="ml-4" [(ngModel)]="fbPage.enabled" (onChange)="enableFbPage(fbPage)"></p-inputSwitch>
+
             </td>
         </tr>
     </ng-template>

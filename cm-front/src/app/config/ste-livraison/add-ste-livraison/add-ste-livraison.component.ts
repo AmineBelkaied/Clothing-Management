@@ -15,6 +15,11 @@ export class AddSteLivraisonComponent implements OnInit, OnDestroy {
   deliveryCompany!: DeliveryCompany;
   editMode!: boolean;
   $unsubscribe: Subject<void> = new Subject();
+  deliveryOptions = [
+    { label: 'FIRST', value: 'FIRST' },
+    { label: 'NAVEX', value: 'NAVEX' },
+    { label: 'JAX', value: 'JAX' },
+  ];
   constructor(public deliveryCompanyService: DeliveryCompanyService, private messageService: MessageService) { }
 
   ngOnInit(): void {

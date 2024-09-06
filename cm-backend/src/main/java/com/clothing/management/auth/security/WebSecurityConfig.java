@@ -28,6 +28,7 @@ import java.util.Arrays;
 // jsr250Enabled = true,
 // prePostEnabled = true) // by default
     public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
+
         @Autowired
         JwtUserDetailsService jwtUserDetailsService;
 

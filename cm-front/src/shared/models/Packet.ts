@@ -9,7 +9,7 @@ export interface Packet {
     date?: any;
     customerName?: string;
     customerPhoneNb?: string;
-    city?: City;
+    cityId?: number;
     address?: string;
     packetDescription?: string;
     barcode?: String;
@@ -17,7 +17,7 @@ export interface Packet {
     oldClient?: number;
     offers: Offer[];//??
     fbPage?: FbPage;
-    deliveryCompany?: DeliveryCompany;
+    deliveryCompanyName?: String;
     price: number;
     deliveryPrice: number;
     discount: number;
@@ -26,7 +26,7 @@ export interface Packet {
     printLink?:String;
     valid?: boolean;
     stock?: number;
-    notes?: Note[];
+    notes: Note[];
     lastNote?: Note;
     note?: String;
     productCount: number;

@@ -43,16 +43,16 @@
         </p-tabPanel>
 
         <p-tabPanel header="Ste livraison">
-          <table class="split-table">
-            <tr>
-              <td class="left-pane">
+          <ng-template pTemplate>
+            <p-splitter [panelSizes]="[40, 60]" [minSizes]="[30, 70]">
+              <ng-template pTemplate>
                 <app-add-ste-livraison></app-add-ste-livraison>
-              </td>
-              <td class="right-pane">
+              </ng-template>
+              <ng-template pTemplate>
                 <app-list-ste-Livraison></app-list-ste-Livraison>
-              </td>
-            </tr>
-          </table>
+              </ng-template>
+            </p-splitter>
+          </ng-template>
         </p-tabPanel>
 
         <p-tabPanel header="Utilisateurs">

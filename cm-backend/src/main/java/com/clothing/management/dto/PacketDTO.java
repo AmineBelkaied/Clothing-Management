@@ -10,15 +10,14 @@ public class PacketDTO {
     private Date date;
     private String customerName;
     private String customerPhoneNb;
-    private City city;
+    private Long cityId;
     private String address;
     private String packetDescription;
     private String barcode;
     private String lastDeliveryStatus;
     private Integer oldClient;
-    private List<ProductsPacketDTO> productsPackets;
-    private FbPage fbPage;
-    private DeliveryCompany deliveryCompany;
+    private FbPageDTO fbPage;
+    private String deliveryCompanyName;
     private double price;
     private double deliveryPrice;
     private double discount;
@@ -27,7 +26,6 @@ public class PacketDTO {
     private String printLink;
     private boolean valid;
     private long stock;
-    private Integer productCount;
     private long exchangeId;
     private boolean haveExchange;
 
@@ -37,16 +35,18 @@ public class PacketDTO {
     }
 
     public PacketDTO(Packet packet) {
+            FbPage fbPage =packet.getFbPage();
+            City city = packet.getCity();
             this.id = packet.getId();
             this.customerName= packet.getCustomerName();
             this.customerPhoneNb= packet.getCustomerPhoneNb();
             this.oldClient= packet.getOldClient();
-            this.city =packet.getCity();
+            this.cityId = city != null ? city.getId() : null;
             this.address= packet.getAddress();
             this.packetDescription= packet.getPacketDescription();
             this.barcode= packet.getBarcode();
             this.lastDeliveryStatus = packet.getLastDeliveryStatus();
-            this.fbPage = packet.getFbPage();
+            this.fbPage = new FbPageDTO(fbPage);
             this.price= packet.getPrice();
             this.deliveryPrice = packet.getDeliveryPrice();
             this.discount = packet.getDiscount();
@@ -56,9 +56,8 @@ public class PacketDTO {
             this.valid= packet.isValid();
             this.stock= packet.getProductsPackets().size()>0?getStock(packet.getProductsPackets(), packet.getBarcode()):0;
             this.printLink = packet.getPrintLink();
-            this.deliveryCompany=packet.getDeliveryCompany();
+            this.deliveryCompanyName =packet.getDeliveryCompany().getName();
             this.haveExchange=packet.isHaveExchange();
-            this.productCount=packet.getProductCount();
             this.notes = packet.getNotes();
     }
 
@@ -93,12 +92,12 @@ public class PacketDTO {
         this.customerPhoneNb = customerPhoneNb;
     }
 
-    public City getCity() {
-        return city;
+    public Long getCityId() {
+        return cityId;
     }
 
-    public void setCity(City city) {
-        this.city = city;
+    public void setCity(Long cityId) {
+        this.cityId = cityId;
     }
 
     public String getAddress() {
@@ -141,28 +140,20 @@ public class PacketDTO {
         this.oldClient = oldClient;
     }
 
-    public List<ProductsPacketDTO> getProductsPackets() {
-        return productsPackets;
-    }
-
-    public void setProductsPackets(List<ProductsPacketDTO> productsPackets) {
-        this.productsPackets = productsPackets;
-    }
-
-    public FbPage getFbPage() {
+    public FbPageDTO getFbPage() {
         return fbPage;
     }
 
-    public void setFbPage(FbPage fbPage) {
+    public void setFbPage(FbPageDTO fbPage) {
         this.fbPage = fbPage;
     }
 
-    public DeliveryCompany getDeliveryCompany() {
-        return deliveryCompany;
+    public String getDeliveryCompanyName() {
+        return deliveryCompanyName;
     }
 
-    public void setDeliveryCompany(DeliveryCompany deliveryCompany) {
-        this.deliveryCompany = deliveryCompany;
+    public void setDeliveryCompanyName(String deliveryCompanyName) {
+        this.deliveryCompanyName = deliveryCompanyName;
     }
 
     public double getPrice() {
@@ -243,14 +234,6 @@ public class PacketDTO {
 
     public void setStock(Long stock) {
         this.stock = stock;
-    }
-
-    public Integer getProductCount() {
-        return productCount;
-    }
-
-    public void setProductCount(Integer productCount) {
-        this.productCount = productCount;
     }
 
     public boolean isHaveExchange() {

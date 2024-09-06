@@ -42,33 +42,12 @@ export class FbPageService {
     return this.http.get<FbPage[]>(`${this.baseUrl}`);
   }
 
-  setFbPagesConfSubscriber(fbPage:FbPage){
-    this.updateFbPage(fbPage)
-      .pipe(
-        catchError((err: any): any => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: "Erreur lors de le modification' " + err.error.message,
-          });
-        })
-      )
-      .subscribe(() => {
-        this.pushFbPage(fbPage);
-        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page FB a été modifiée avec succés", life: 1000 });
-      });
-  }
-
   findFbPageById(id: number) {
     return this.http.get(`${this.baseUrl}/${id}`);
   }
 
-  addFbPage(fbPage: FbPage) {
-    return this.http.post(`${this.baseUrl}`, fbPage , {observe: 'body'});
-  }
-
-  updateFbPage(fbPage: FbPage) {
-    return this.http.put(`${this.baseUrl}`, fbPage , {headers : { 'content-type': 'application/json'}});
+  saveFbPage(fbPage: FbPage) {
+    return this.http.post(`${this.baseUrl}`, fbPage , {headers : { 'content-type': 'application/json'}});
   }
 
   deleteFbPageById(id: any) {
@@ -82,7 +61,15 @@ export class FbPageService {
 
   spliceFbPage(updatedFbPage: any){
     let index = this.fbPages.findIndex(fbPage => fbPage.id == updatedFbPage.id);
-    this.fbPages.splice(index , 1 , updatedFbPage);
+    if(index>-1)
+      {
+        this.fbPages.splice(index , 1 , updatedFbPage);
+        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été modifiée avec succés", life: 1000 });
+      }
+    else {
+      this.fbPages.push(updatedFbPage);
+      this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été ajouté avec succés", life: 1000 });
+    }
     this.fbPagesSubscriber.next(this.fbPages);
   }
 
