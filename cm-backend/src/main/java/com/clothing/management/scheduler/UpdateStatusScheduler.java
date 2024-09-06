@@ -68,7 +68,6 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
                     taskRegistrar.addTriggerTask(() -> startUpdateStatusCronTask(masterTenant), triggerContext -> {
                         CronTrigger cronTrigger = new CronTrigger(updateStatusCronExp);
                         Date nextExecutionTime = cronTrigger.nextExecutionTime(triggerContext);
-                        assert nextExecutionTime != null;
                         return nextExecutionTime.toInstant();
                     });
 
@@ -76,7 +75,6 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
                     taskRegistrar.addTriggerTask(() -> startCountStockCronTask(masterTenant), triggerContext -> {
                         CronTrigger cronTrigger = new CronTrigger(defaultCountStockCronExp);
                         Date nextExecutionTime = cronTrigger.nextExecutionTime(triggerContext);
-                        assert nextExecutionTime != null;
                         return nextExecutionTime.toInstant();
                     });
                 });
@@ -120,7 +118,6 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
             modelStockHistoryService.saveDayHistory(countStock);
             LOG.info("--- COUNT STOCK CRON ENDED FOR TENANT --- " + masterTenant.getTenantName());
         } catch (Exception e) {
-            System.out.println("e3"+e);
             e.printStackTrace();
         }
     }

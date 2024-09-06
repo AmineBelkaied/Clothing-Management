@@ -45,7 +45,7 @@
               <span class="small" style="color: red;">(*)</span>
               <p-multiSelect [options]="colors" [(ngModel)]="model.colors" name="colors" display="chip"
                 [style]="{ width: '100%' }" [panelStyle]="{ width: '50%' }" [placeholder]="'-- Choisir les couleurs --'"
-                optionLabel="name" appendTo="body" (onChange)="checkFormValidation()"></p-multiSelect>
+                optionLabel="name" appendTo="body" (onChange)="checkFormValidation()" [maxSelectedLabels]="undefined"></p-multiSelect>
             </div>
           </div>
           <div class="row mt-4">
@@ -54,7 +54,7 @@
               <span class="small" style="color: red;">(*)</span>
               <p-multiSelect [options]="sizes" [(ngModel)]="model.sizes" name="sizes" display="chip"
                 [style]="{ width: '100%' }" [panelStyle]="{ width: '50%' }" [placeholder]="'-- Choisir les tailles --'"
-                optionLabel="reference" appendTo="body" (onChange)="checkFormValidation()"></p-multiSelect>
+                optionLabel="reference" appendTo="body" (onChange)="checkFormValidation()" [maxSelectedLabels]="undefined"></p-multiSelect>
             </div>
           </div>
         </div>

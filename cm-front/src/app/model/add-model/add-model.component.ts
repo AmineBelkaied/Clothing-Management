@@ -39,13 +39,13 @@ export class AddModelComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.model.colors = this.model.colors.filter((color: Color) => color.reference != "?");
+    this.model.colors = this.model.colors.filter((color: Color) => color.name != "?");
     this.model.sizes = this.model.sizes.filter((size: any) => size.reference != "?");
     this.salePrice = this.calculateSalePrice(this.model);
 
     this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
       .subscribe((colorList: Color[]) => {
-        this.colors = colorList.filter((color: Color) => color.reference != "?");
+        this.colors = colorList.filter((color: Color) => color.name != "?");
       });
 
     this.sizeService.getSizesSubscriber().pipe(takeUntil(this.$unsubscribe))
@@ -55,9 +55,7 @@ export class AddModelComponent implements OnInit, OnDestroy {
   }
 
   checkFormValidation(): void {
-    console.log("checkFormValidation");
-    this.formValidationEmitter.next({ model: this.model, salePrice: this.salePrice });
-    console.log(this.model);
+    this.formValidationEmitter.next(this.salePrice);
   }
 
   calculateSalePrice(model: Model): any {
