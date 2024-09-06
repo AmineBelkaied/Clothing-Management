@@ -11,6 +11,8 @@ public class PacketDTO {
     private String customerName;
     private String customerPhoneNb;
     private Long cityId;
+
+    private String cityName;
     private String address;
     private String packetDescription;
     private String barcode;
@@ -28,6 +30,7 @@ public class PacketDTO {
     private long stock;
     private long exchangeId;
     private boolean haveExchange;
+    private double totalPrice;
 
     private List<Note> notes;
 
@@ -46,7 +49,7 @@ public class PacketDTO {
             this.packetDescription= packet.getPacketDescription();
             this.barcode= packet.getBarcode();
             this.lastDeliveryStatus = packet.getLastDeliveryStatus();
-            this.fbPage = new FbPageDTO(fbPage);
+            this.fbPage = fbPage != null ? new FbPageDTO(fbPage) : null;
             this.price= packet.getPrice();
             this.deliveryPrice = packet.getDeliveryPrice();
             this.discount = packet.getDiscount();
@@ -59,6 +62,8 @@ public class PacketDTO {
             this.deliveryCompanyName =packet.getDeliveryCompany().getName();
             this.haveExchange=packet.isHaveExchange();
             this.notes = packet.getNotes();
+            this.totalPrice = packet.getPrice()+packet.getDeliveryPrice()-packet.getDiscount();
+            this.cityName = city != null ? city.getGovernorate().getName() + '-' + city.getName() : "";
     }
 
     private long getStock(List<ProductsPacket> productsPackets, String barcode){
@@ -96,8 +101,15 @@ public class PacketDTO {
         return cityId;
     }
 
-    public void setCity(Long cityId) {
+    public void setCityId(Long cityId) {
         this.cityId = cityId;
+    }
+
+    public String getCityName() {
+        return cityName;
+    }
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
     }
 
     public String getAddress() {
@@ -154,6 +166,14 @@ public class PacketDTO {
 
     public void setDeliveryCompanyName(String deliveryCompanyName) {
         this.deliveryCompanyName = deliveryCompanyName;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public double getPrice() {
