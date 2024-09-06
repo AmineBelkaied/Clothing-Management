@@ -9,12 +9,12 @@
     <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
         <div class="card-body">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <h5>Liste des modèles</h5>
             </div>
-            <div class="col-md-4">
-                <button pButton pRipple icon="pi pi-plus" class="p-button-success mr-2 buttonSize pull-right" (click)="openNew()"></button>
-                <button pButton pRipple icon="pi pi-trash" class="p-button-danger mr-3 buttonSize pull-right" (click)="deleteSelectedModels()" [disabled]="!selectedModels || selectedModels.length == 0"></button>
+            <div class="col-md-2 d-flex justify-content-end">
+                <button pButton pRipple icon="pi pi-plus" class="p-button-success mr-2 buttonSize" (click)="openNew()"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-danger mr-3 buttonSize" (click)="deleteSelectedModels()" [disabled]="!selectedModels || selectedModels.length == 0"></button>
             </div>
         </div>
     </div>

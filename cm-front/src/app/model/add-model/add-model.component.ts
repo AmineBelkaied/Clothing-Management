@@ -55,9 +55,7 @@ export class AddModelComponent implements OnInit, OnDestroy {
   }
 
   checkFormValidation(): void {
-    console.log("checkFormValidation");
-    this.formValidationEmitter.next({ model: this.model, salePrice: this.salePrice });
-    console.log(this.model);
+    this.formValidationEmitter.next(this.salePrice);
   }
 
   calculateSalePrice(model: Model): any {

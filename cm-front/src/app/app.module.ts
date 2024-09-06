@@ -85,7 +85,7 @@ import { PasswordModule } from 'primeng/password';
 import 'tslib';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { OfferService } from 'src/shared/services/offer.service';
@@ -181,41 +181,11 @@ import { OfferService } from 'src/shared/services/offer.service';
     OfferService,
     DecimalPipe,
     {
-      provide: APP_INITIALIZER,
-      useFactory: initializeApp,
-      deps: [GlobalConfService],multi: true
-    },
-    {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
-      multi: true }],
+      multi: true
+    }],
   bootstrap: [AppComponent]
 })
 
-
 export class AppModule { }
-
-export function initializeApp(globalConfService: GlobalConfService): () => void {
-  return () => {
-    console.log("initializeApp");
-    globalConfService.loadGlobalConf();
-  }
-}
-
-
-
-    /*.pipe(
-    tap(() => {
-      console.log("loadOffers");
-      offerService.loadOffers();
-    }),
-    catchError((error) => {
-      // Handle the error here
-      console.error('Error loading offers:', error);
-      return throwError(() => error);
-    }),
-    finalize(() => {
-      console.log('Initialization finished.');
-    })
-  );}*/
-

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/shared/services/auth.service';
+import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { StorageService } from 'src/shared/services/strorage.service';
 
 
@@ -33,7 +34,7 @@ export class LoginComponent {
       errorMessage = '';
       roles: string[] = [];
 
-      constructor(private authService: AuthService, private storageService: StorageService, private router: Router, private route: ActivatedRoute) { }
+      constructor(private authService: AuthService, private storageService: StorageService, private globalConfService: GlobalConfService, private router: Router, private route: ActivatedRoute) { }
 
       ngOnInit(): void {
         this.route.paramMap.subscribe(params => this.form.tenantName = params.get('tenantName'));
@@ -46,26 +47,12 @@ export class LoginComponent {
       }
 
       onSubmit(): void {
-        //const { userName, password } = this.form;
-        //console.log(this.form);
-
         this.form.tenantName ? this.login() : this.loginMaster();
-/*         this.authService.getTenantsByUs :er(this.form)
-        .subscribe((result: any) => {
-          console.log(result);
-
-        })  */
       }
 
       login(): void {
         this.authService.login(this.form).subscribe({
           next: (data: any) => {
-          //  this.router.navigate(["/auth/tenants/", this.form.userName]);
-           // this.router.navigate(["/"]);
-           // this.router.navigateByUrl('/auth/tenants/', { state: {userName: this.form.userName, password: this.form.password } });
-            //this.reloadPage();
-            //console.log("data", data);
-
             this.storageService.saveUser(data);
             this.storageService.saveTenant(this.form.tenantName);
 
@@ -74,6 +61,7 @@ export class LoginComponent {
             this.storageService.isLoggedIn.next(true);
             this.roles = this.storageService.getUser().roles;
             this.router.navigate(["/packets"]);
+            this.globalConfService.loadGlobalConf();
           },
           error: (err: any) => {
             console.log(err);
@@ -87,8 +75,6 @@ export class LoginComponent {
       loginMaster(): void {
         this.authService.loginMaster(this.form).subscribe({
           next: (data: any) => {
-            //console.log("data", data);
-
             this.storageService.saveUser(data);
 
             this.isLoginFailed = false;
