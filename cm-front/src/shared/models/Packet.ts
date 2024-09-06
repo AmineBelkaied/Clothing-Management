@@ -18,8 +18,8 @@ export interface Packet {
     offers: Offer[];//??
     fbPage?: FbPage;
     deliveryCompanyName?: String;
-    price: number;
     deliveryPrice: number;
+    totalPrice?: number;
     discount: number;
     status?: String;
     lastUpdateDate?: Date;
@@ -32,6 +32,7 @@ export interface Packet {
     productCount: number;
     exchangeId?: number;
     haveExchange?:boolean;
+    cityName: String;
     //[key: string]: any;
 
 }

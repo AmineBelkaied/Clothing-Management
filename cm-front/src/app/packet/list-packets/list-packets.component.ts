@@ -412,7 +412,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   checkPacketValidity(packet: Packet): boolean {
       if (!(packet.fbPage!.id && this.isValid(packet.address) && this.isValid(packet.customerName) &&
-      this.isValid(packet.customerPhoneNb) && packet.cityId && this.isValid(packet.packetDescription)))
+      this.isValid(packet.customerPhoneNb) && packet.cityId! >-1 && this.isValid(packet.packetDescription)))
       {
         this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
         return false;
@@ -422,7 +422,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   checkPacketNotNull(packet: Packet): boolean {
     return (this.isValid(packet.address) || this.isValid(packet.customerName) ||
-      this.isValid(packet.customerPhoneNb) || packet.cityId! >-1 || this.isValid(packet.packetDescription));
+      this.isValid(packet.customerPhoneNb) || packet.cityId! >0 || this.isValid(packet.packetDescription));
   }
 
   checkPacketDescription(packet: Packet): boolean {
@@ -729,10 +729,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   changeColor(this: any): void {
     this.style.color = 'red';
-  }
-
-  calculatePrice(packet: Packet): number {
-    return packet.price! + packet.deliveryPrice! - packet.discount!;
   }
 
   getValue(fieldName: any): string {

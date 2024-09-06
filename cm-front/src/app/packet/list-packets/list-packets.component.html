@@ -369,7 +369,7 @@
             </ng-template>
             <ng-template pTemplate="output">
               <span *ngIf="packet.cityId != null">
-                {{ getCityById(packet.cityId) }}
+                {{ packet.cityName }}
               </span>
             </ng-template>
           </p-cellEditor>
@@ -407,7 +407,7 @@
           </ng-template>
         </td>
         <td style="padding: 0.1rem 0.1rem !important">
-          {{ calculatePrice(packet) }} DT
+          {{ packet.totalPrice }} DT
         </td>
         <td [pEditableColumn]="packet" pEditableColumnField="status" [ngStyle]="{
             'border-right-width': '4px',
