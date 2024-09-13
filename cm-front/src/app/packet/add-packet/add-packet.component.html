@@ -43,13 +43,15 @@
                           <!--img *ngIf="model.get('image')?.value != null" [src]="'data:image/jpeg;base64,' + model.get('image')?.value" width="60" height="60" class="shadow-4 mt-1" /-->
                         </td>
                         <td><!-- ... Dropdown for selecting colors ... -->
-                          <p-dropdown [options]="model.get('colors')?.value" (ngModelChange)="colorSizeChange(model, j, offer)" optionLabel="name"
+                          <p-dropdown [options]="model.get('colors')?.value" (ngModelChange)="colorSizeChange(model, j, offer)" optionLabel="name" optionValue="id"
                             formControlName="selectedColor" [style]="{ width: '300px'}" [panelStyle]="{ width: '300px' }" [showClear]="true" appendTo="body"
                             placeholder="Choisir la couleur">
                           </p-dropdown>
                         </td>
                         <td><!-- ... Dropdown for selecting sizes ... -->
-                          <p-dropdown [options]="model.get('sizes')?.value" (ngModelChange)="colorSizeChange(model, j, offer)" optionLabel="reference" formControlName="selectedSize" [style]="{ width: '150px'}" [panelStyle]="{ width: '80%' }" appendTo="body"
+                          <p-dropdown [options]="model.get('sizes')?.value" (ngModelChange)="colorSizeChange(model, j, offer)"
+                            optionLabel="reference" optionValue="id" formControlName="selectedSize"
+                            [style]="{ width: '150px'}" [panelStyle]="{ width: '80%' }" appendTo="body"
                             [panelStyle]="{ width: '100px' }" [showClear]="true" placeholder="Choisir la taille">
                           </p-dropdown>
                         </td>
@@ -62,7 +64,7 @@
                           </ng-container>
                         </td>
                         <td *ngIf="enableFakeSize == true"><!-- ... Fake size Box ... -->
-                          <p-dropdown [options]="model.get('sizes')?.value" (ngModelChange)="colorSizeChange(model, j, offer)" optionLabel="reference" formControlName="selectedSizeReel" [style]="{ width: '150px'}" [panelStyle]="{ width: '80%' }" appendTo="body"
+                          <p-dropdown [options]="model.get('sizes')?.value" (ngModelChange)="colorSizeChange(model, j, offer)" optionLabel="reference" optionValue="id" formControlName="selectedSizeReel" [style]="{ width: '150px'}" [panelStyle]="{ width: '80%' }" appendTo="body"
                             [panelStyle]="{ width: '100px' }" [showClear]="true" placeholder="msg">
                           </p-dropdown>
                         </td>
@@ -82,9 +84,6 @@
       <br>
 
       <div *ngIf="productsPrice > 0" class="row">
-<!--         <div class="col-md-2" >
-          <button pButton pRipple label="Annuler" icon="pi pi-times"  class="p-button-text p-button-sm" (click)="hideDialog()"></button>
-        </div> -->
         <div class="col-md-3" align="center">
           <span style="font-size: 15px;font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;font-weight: 580;color: blue">Prix Articles : </span>
           <label style="font-weight: bold">{{productsPrice}} DT</label>

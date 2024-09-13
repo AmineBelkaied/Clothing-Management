@@ -3,7 +3,7 @@ export interface DeliveryCompany {
     name: string;
     token?: string;
     apiName?: string;
-    barreCodeUrl?: string;
+    barCodeUrl?: string;
     additionalName?: string;
     deleted?: boolean;
 }

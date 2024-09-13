@@ -47,7 +47,7 @@ export class StockComponent implements OnInit, OnDestroy {
     purchasePrice: 15,
     earningCoefficient: 1,
     deleted: false,
-    enabled: false,
+    enabled: false
   };
 
   productsHistory: any;

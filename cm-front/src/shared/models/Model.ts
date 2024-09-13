@@ -6,16 +6,17 @@ export interface Model {
     id?: number;
     name: string;
     description?: string;
-    colors: Color[];
-    sizes: Size[];
+    colors: number[];
+    sizes: number[];
     products: any[],
     purchasePrice: number;
     earningCoefficient:number;
     deleted: boolean;
     enabled: boolean;
+    defaultId?: number;
 
-    selectedColor?:Color;
-    selectedSize?:Size;
-    selectedSizeReel?:Size;
+    selectedColor?:number;
+    selectedSize?:number;
+    selectedSizeReel?:number;
     selectedProduct?:Product;
 }

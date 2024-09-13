@@ -21,10 +21,13 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { OOS, NOT_CONFIRMED } from 'src/shared/utils/status-list';
 import { Offer } from 'src/shared/models/Offer';
 import { OfferService } from 'src/shared/services/offer.service';
-import { Subject, takeUntil, tap } from 'rxjs';
-import { Product } from 'src/shared/models/Product';
+import { Observable, Subject, takeUntil, tap } from 'rxjs';
+//import { Product } from 'src/shared/models/Product';
 import { ProductService } from 'src/shared/services/product.service';
 import { DecimalPipe } from '@angular/common';
+import { ProductResponse } from 'src/shared/models/ProductResponse';
+import { ColorService } from 'src/shared/services/color.service';
+import { SizeService } from 'src/shared/services/size.service';
 
 @Component({
   selector: 'app-add-packet',
@@ -49,16 +52,15 @@ export class AddPacketComponent implements OnInit {
   packetForm: FormGroup;
   packetPrice: number = 0;
   selectedSizeReel: string = '';
-  //noChoiceColor!: Color;
-  //noChoiceSize!: Size;
   stockAvailable: number;
   colorSizeChoosen: boolean = true;
-  productCount: number;
   packetEarningCoefficient = 0;
-  allProducts: Product[];
+  allProducts: ProductResponse[] = [];
   $unsubscribe: Subject<void> = new Subject();
   offersSelected: Offer[];
   allOffersListEnabled: Offer[];
+  //productsList: ProductResponse[];
+  modelIds: number[]=[];
 
   constructor(
     private fb: FormBuilder,
@@ -68,7 +70,9 @@ export class AddPacketComponent implements OnInit {
     private messageService: MessageService,
     private offersService: OfferService,
     private productService: ProductService,
-    private decimalPipe: DecimalPipe
+    private decimalPipe: DecimalPipe,
+    private colorService: ColorService,
+    private sizeService: SizeService
   ) {
     this.packetForm = this.fb.group({
       totalPrice: 0,
@@ -81,7 +85,7 @@ export class AddPacketComponent implements OnInit {
   ngOnInit(): void {
     this.productService.productsSubscriber
       .pipe(takeUntil(this.$unsubscribe))
-      .subscribe((products: Product[]) => (this.allProducts = products));
+      .subscribe((products: ProductResponse[]) => (this.allProducts = products));
 
     this.offersService
       .getOffersSubscriber()
@@ -101,6 +105,8 @@ export class AddPacketComponent implements OnInit {
                   .includes(this.packet.fbPage.id)
             );
             this.getOffersSwitch();
+            console.log("newOffer,tap");
+
             this.editMode ? this.getSelectedProducts() : this.addOffer();
           }
         })
@@ -116,20 +122,22 @@ export class AddPacketComponent implements OnInit {
       .subscribe((offers: any) => {
         offers.forEach((offer: any) => {
           let index = offer.packetOfferId;
-          let products: Product[] = offer.products;
+          this.productService.updateProducts(offer.products);
+          let productIds = offer.productIds;
+
           let offerX: Offer = this.allOffersList.find(
             (offerW) => offerW.id == offer.id
           );
-          //console.log("offerX",offerX);
+
           this.addSelectedOffer(offerX);
-          this.addSelectedModels(products, index);
+          this.addSelectedModels(offerX.offerModels,productIds, index);
         });
+
         this.packetForm.controls['deliveryPrice'].setValue(
           this.packet.deliveryPrice
         );
         this.packetForm.controls['discount'].setValue(this.packet.discount);
         this.calculateProductsPrice();
-        //this.calculatePacketPrice();
       });
   }
 
@@ -159,56 +167,68 @@ export class AddPacketComponent implements OnInit {
 
   //start set data block
   // edit mode after offer add (2)
-  addSelectedModels(products: Product[], offerIndex: number): void {
-    if (products.length > 0)
-      for (let j = 0; j < products.length; j++) {
-        console.log('products['+j+']', products[j]);
-        if (products[j].id != null && products[j].model?.id != null) {
-          let selectedModel: Model = products[j].model!;
-         /* let selectedProduct: Product = this.allProducts.find(
-            (product: Product) => product.id == products[j].id
-          )!;
-          if (selectedProduct) {*/
-            this.pushModelToOffer(offerIndex,selectedModel,products[j]);
-          //} else console.log('selectedProduct', products[j].id + ' =null');
-        } else console.log('product', products[j].id + ' introuvable');
+  addSelectedModels(offerModels: any,products: number[], offerIndex: number): void {
+    console.log("addSelectedModels");
+
+    if (offerModels.length > 0)
+      for (let j = 0; j < offerModels.length; j++) {
+        if (products[j] != null) {
+          this.pushModelToOffer(offerIndex, offerModels[j].model, products[j]);
+        } else console.log('product', products[j] + ' introuvable');
       }
     else console.log('products est vide');
   }
 
   setOfferModelsValues(offerIndex: number, offer: Offer): void {
+    console.log("setOfferModelsValues");
     this.setOfferControlValues(this.offers().at(offerIndex), offer);
-    let pos = 0;
     for (let i = 0; i < offer.offerModels.length; i++) {
       let selectedModel: Model = offer.offerModels[i].model;
       for (let j = 0; j < offer.offerModels[i].quantity; j++) {
-        let selectedProduct: Product = this.getNoChoiceColorSizeProduct(selectedModel);
-        this.pushModelToOffer(offerIndex, selectedModel, selectedProduct);
-        pos++;
+          if(selectedModel.defaultId! > -1){
+            this.pushModelToOffer(offerIndex, selectedModel, selectedModel.defaultId!);
+          }
       }
     }
+    this.calculateProductsPrice();
   }
 
-  pushModelToOffer(
-    offerIndex: number,
-    model: Model,
-    selectedProduct: Product
-  ) {
-    this.addModel(offerIndex,model,selectedProduct);
+  pushModelToOffer(offerIndex: number, model: Model, selectedProduct: number) {
+    console.log("pushModelToOffer");
+    this.addModel(offerIndex, model, selectedProduct);
   }
 
   onOfferChange(offerId: number, index: number): void {
     this.models(index).clear();
-    let offer: Offer = this.allOffersList.find(
-      (offer) => offer.id === offerId
-    )!;
+    let offer: Offer = this.allOffersList.find((offer) => offer.id === offerId)!;
+
     if (offer) {
       if (offer.offerModels.length > 0) {
-        this.setOfferModelsValues(index, offer);
+        this.loadOfferProducts(offer).subscribe({
+          next: () => {
+            this.setOfferModelsValues(index, offer);
+          },
+          error: (err) => {
+            console.error('Error loading products:', err);
+          }
+        });
       }
-      this.calculateProductsPrice();
-      //this.calculatePacketPrice();
     }
+  }
+
+  loadOfferProducts(offer: Offer): Observable<ProductResponse[]> {
+    for (let i = 0; i < offer.offerModels.length; i++) {
+      let selectedModel: Model = offer.offerModels[i].model;
+      if (!this.modelIds.includes(selectedModel.id!)) {
+        this.modelIds.push(selectedModel.id!);
+      }
+    }
+    return this.loadProducts(); // Return the observable from loadProducts
+  }
+
+
+  loadProducts(): Observable<ProductResponse[]> {
+    return this.productService.loadProductsByModels(this.modelIds);
   }
 
   colorSizeChange(
@@ -216,74 +236,80 @@ export class AddPacketComponent implements OnInit {
     modelIndex: number,
     selectedOffer: AbstractControl
   ): void {
-    let offer: Offer = this.allOffersList.find(
-      (offer) => offer.name == selectedOffer.get('name')?.value
+    // Find the offer by matching the name
+    let offer: Offer | undefined = this.allOffersList.find(
+      (offer) => offer.name === selectedOffer.get('name')?.value
     );
-    console.log('Offer0', offer);
-    if (offer) {
-      console.log('Offer1', offer);
-      this.setNoChoiceColorSize(selectedModel, modelIndex, offer);
-      console.log('modelIndex', modelIndex);
 
-      let pos = 0;
+    if (!offer) {
+      console.warn('Offer not found.');
+      return;
+    }
 
-      let model: Model | undefined;
-      for (let i = 0; i < offer.offerModels.length; i++) {
-        for (let j = 0; j < offer.offerModels[i].quantity; j++) {
-          if (pos === modelIndex) {
-            // Use '===' for comparison
-            console.log('offer.offerModels[i]', offer.offerModels[i]);
-            model = offer.offerModels[i].model;
-            break; // Exit the loop once the model is found
-          }
-          pos++;
+    let pos = 0;
+    let model: Model | undefined;
+
+    // Loop through the offer models to find the correct model
+    for (let i = 0; i < offer.offerModels.length; i++) {
+      for (let j = 0; j < offer.offerModels[i].quantity; j++) {
+        if (pos === modelIndex) {
+          model = offer.offerModels[i].model;
+          break; // Exit the inner loop once the model is found
         }
-        if (model) break; // Exit the outer loop if model is found
+        pos++;
       }
-      console.log('model', model);
-      console.log('selectedModel', selectedModel);
+      if (model) break; // Exit the outer loop if model is found
+    }
 
-      let color: Color = selectedModel.get('selectedColor')?.value;
-      let size: Size = selectedModel.get('selectedSize')?.value;
-      let selectedProduct: Product = this.allProducts.find(
-        (product: Product) =>
-          product.modelId == model?.id &&
-          product.color.id == color.id &&
-          product.size.id == size.id
-      )!;
-      if (selectedProduct) {
-        console.log('selectedProduct', selectedProduct);
+    // Log for debugging
+    if (!model) {
+      console.warn('Model is undefined, skipping product selection.');
+      return;
+    }
+
+    // Get selected color and size from the form control
+    let color: number = selectedModel.get('selectedColor')?.value || null;
+    let size: number = selectedModel.get('selectedSize')?.value || null;
+
+    // Log for debugging
+
+    let selectedProduct: ProductResponse | null = null;
+
+    // Conditional logic based on color and size selection
+    if (color == null && size == null) {
+      let selectedProductId = model?.defaultId!;//this.getNoChoiceColorSizeProduct(model);
+        let product = this.findProduct(selectedProductId);
+        if (product) {
+          selectedModel.get('selectedProduct')?.setValue(product);
+        }
+        return;
+    } else if (color === null) {
+      selectedProduct = this.allProducts
+        .filter(product => product.sizeId !== null && product.modelId === model?.id)
+        .find((product: ProductResponse) =>
+          product.colorId === null && product.sizeId === size
+        ) || null;
+    } else if (size === null) {
+      selectedProduct = this.allProducts
+        .filter(product => product.colorId !== null && product.modelId === model?.id)
+        .find((product: ProductResponse) =>
+          product.colorId === color && product.sizeId === null
+        ) || null;
+    } else {
+      selectedProduct = this.allProducts
+        .filter(product =>
+          product.sizeId !== null &&
+          product.colorId !== null &&
+          product.modelId === model?.id
+        )
+        .find((product: ProductResponse) =>
+          product.colorId === color && product.sizeId === size
+        ) || null;
+    }
+
+    if (selectedProduct) {
         selectedModel.get('selectedProduct')?.setValue(selectedProduct);
-      }
-    }
-  }
-  getNoChoiceColorSizeProduct(model: Model): Product {
-    console.log('model', model);
-    return this.allProducts.find(
-      (product: Product) =>
-        product.color.name == '?' &&
-        product.size.reference == '?' &&
-        model.id == product.modelId
-    )!;
-  }
-  setNoChoiceColorSize(
-    selectedModel: AbstractControl,
-    index: number,
-    offer: Offer
-  ): void {
-    console.log('selectedModel', selectedModel);
-
-    if (!selectedModel.get('selectedColor')?.value) {
-      let noChoiceColor: Color = offer.offerModels[index].model.colors.find(
-        (color: Color) => color.name == '?'
-      );
-      selectedModel.get('selectedColor')?.setValue(noChoiceColor);
-    }
-    if (!selectedModel.get('selectedSize')?.value) {
-      let noChoiceSize: Size = offer.offerModels[index].model.sizes.find(
-        (size: Size) => size.reference == '?'
-      );
-      selectedModel.get('selectedSize')?.setValue(noChoiceSize);
+      //}
     }
   }
   //end set data
@@ -355,7 +381,6 @@ export class AddPacketComponent implements OnInit {
   }
 
   submitProductsOffers(productsOffers: ProductsPacket[], stock: number) {
-    console.log('start submit');
     let selectedProducts: {};
     let status = OOS;
     if (stock) status = NOT_CONFIRMED;
@@ -366,14 +391,11 @@ export class AddPacketComponent implements OnInit {
       packetDescription: this.packetDescription,
       deliveryPrice: this.packetForm.value.deliveryPrice,
       discount: this.packetForm.value.discount,
-      status: status,
-      productCount: this.productCount,
+      status: status
     };
-    console.log('selectedProducts', selectedProducts);
     this.packetService
       .addProductsToPacket(selectedProducts)
       .subscribe((packet: any) => {
-        console.log('end submit');
         let result = { packet: packet, modelDialog: false };
         this.submitEvent.emit(result);
       });
@@ -383,41 +405,45 @@ export class AddPacketComponent implements OnInit {
     packet: any,
     packetEarningCoefficient: number
   ): ProductsPacket[] {
-    console.log('start prepare');
     let productsOffers: ProductsPacket[] = [];
     this.packetDescription = '';
     this.stockAvailable = 200;
     this.colorSizeChoosen = true;
-    this.productCount = 0;
 
     for (let i = 0; i < packet.offers.length; i++) {
       let offer: Offer = packet.offers[i];
-      console.log('offer-' + i + ':', offer);
       if (offer.id != null) {
         if (offer.offerModels.length > 0) {
           for (let j = 0; j < offer.offerModels.length; j++) {
             let model: Model = offer.offerModels[j];
             //create packet description
+            let color = this.colorService.getColorNameById(model.selectedColor!);
+            let size = this.sizeService.getSizeNameById(model.selectedSize!);
+            let reelSize = this.sizeService.getSizeNameById(model.selectedSizeReel!);
+
             this.addProductToPacketDescription(
               offer.offerModels[j].name,
-              this.getElement(model, 'selectedColor', 'name'),
-              this.getElement(model, 'selectedSize', 'reference'),
-              this.getElement(model, 'selectedSizeReel', 'reference')
+              color,
+              size,
+              reelSize
             );
-
-            console.log('model-' + j + ':', model);
             let selectedProduct = model.selectedProduct;
             if (selectedProduct !== undefined) {
               let qte = selectedProduct.qte;
-              let colorSizeFalse: boolean =
-                offer.offerModels[j].selectedSize?.reference == '?' ||
-                offer.offerModels[j].selectedColor?.name == '?';
-              let x: number = colorSizeFalse ? -1 : qte < 1 ? 0 : qte ?? 0;
-              this.stockAvailable = x < this.stockAvailable ? x : this.stockAvailable;
-              this.productCount += 1;
 
-              const profits = packetEarningCoefficient * model.earningCoefficient;
-              const formatteProfits = this.decimalPipe.transform( profits, '1.2-2' );
+              let colorSizeFalse: boolean =
+                offer.offerModels[j].selectedSize == null ||
+                offer.offerModels[j].selectedColor == null;
+              let x: number = colorSizeFalse ? -1 : qte < 1 ? 0 : qte ?? 0;
+              this.stockAvailable =
+                x < this.stockAvailable ? x : this.stockAvailable;
+
+              const profits =
+                packetEarningCoefficient * model.earningCoefficient;
+              const formatteProfits = this.decimalPipe.transform(
+                profits,
+                '1.2-2'
+              );
 
               productsOffers.push({
                 productId: selectedProduct.id,
@@ -434,7 +460,6 @@ export class AddPacketComponent implements OnInit {
   }
   // end submit block
 
-
   getOffersSwitch() {
     this.offersSelected = this.enableAllOffer
       ? this.allOffersListEnabled
@@ -444,7 +469,6 @@ export class AddPacketComponent implements OnInit {
   ngAfterViewChecked(): void {
     this.cdRef.detectChanges();
   }
-
 
   offers(): FormArray {
     return this.packetForm.get('offers') as FormArray;
@@ -462,7 +486,7 @@ export class AddPacketComponent implements OnInit {
 
   // edit mode after get offer (1)
   addSelectedOffer(offer: Offer): void {
-    console.log(offer);
+    console.log("addSelectedOffer");
 
     this.offers().push(
       this.fb.group({
@@ -475,6 +499,8 @@ export class AddPacketComponent implements OnInit {
   }
 
   newOffer(): FormGroup {
+    console.log("newOffer");
+
     return this.fb.group({
       id: 0,
       name: '',
@@ -483,45 +509,69 @@ export class AddPacketComponent implements OnInit {
     });
   }
 
-
   getElement(model: any, field: string, field2: string) {
     return model[field] != null ? model[field][field2] : null;
   }
 
   addOffer(): void {
+    console.log("addOffer");
     this.offers().push(this.newOffer());
   }
 
-  addModel(modelIndex: number,model:Model,selectedProduct:Product): void {
-    this.models(modelIndex).push(this.newModel(model,selectedProduct));
+  addModel(modelIndex: number, model: Model, selectedProductId?: number): void {
+    this.models(modelIndex).push(this.newModel(model, selectedProductId!));
+  }
+  findProduct(selectedProductId: number) : ProductResponse{
+    return this.allProducts.find(
+      (product: ProductResponse) =>
+        product.id == selectedProductId
+    )!;
+  }
+  newModel(model: Model, selectedProductId: number): FormGroup {
+    const selectedProduct = this.findProduct(selectedProductId);
+
+    // Handling case where selectedProduct may be undefined or null
+    if (!selectedProduct) {
+        throw new Error(`Product with ID ${selectedProductId} not found.`);
+    }
+
+    const formControls = {
+        name: [model.name],
+        colors: this.getColors(model.colors),
+        sizes: this.getSizes(model.sizes),
+        purchasePrice: [model.purchasePrice],
+        earningCoefficient: [model.earningCoefficient],
+        selectedColor: [selectedProduct.colorId],
+        selectedSize: [selectedProduct.sizeId],
+        selectedProduct: [selectedProduct],
+        selectedSizeReel: [model.selectedSizeReel],
+    };
+
+    return this.fb.group(formControls);
   }
 
-  newModel(model: Model,selectedProduct:Product): FormGroup {
-    return this.fb.group({name: [model.name],
-      colors: this.fb.array(model.colors ? model.colors.filter((color: Color) => color.name != "?").map(color => this.fb.control(color)) : []),
-      sizes: this.fb.array(model.sizes ? model.sizes.filter((size: any) => size.reference != "?").map(size => this.fb.control(size)) : []),
-      purchasePrice: [model.purchasePrice],
-      earningCoefficient: [model.earningCoefficient],
-      selectedColor: [selectedProduct.color],
-      selectedSize: [selectedProduct.size],
-      selectedProduct: [selectedProduct],
-      selectedSizeReel: [model.selectedSizeReel]
-    });
+  // Abstracted method to get colors
+  private getColors(colorIds: number[]): FormArray {
+      return this.fb.array(this.colorService.getColorByIds(colorIds));
   }
+
+  // Abstracted method to get sizes
+  private getSizes(sizeIds: number[]): FormArray {
+      return this.fb.array(this.sizeService.getSizesByIds(sizeIds));
+  }
+
 
   addProductToPacketDescription(
-    modelName?: any,
-    color?: any,
-    size?: any,
-    fakeSize?: any
+    modelName: any,
+    color?: String,
+    size?: String,
+    fakeSize?: String
   ) {
-    //console.log('fakeSize',fakeSize);
     if (this.packetDescription.length > 0) this.packetDescription += ' , ';
     if (modelName != null) this.packetDescription += modelName;
-    if (color != null && color != '?') this.packetDescription += ' ' + color;
-    if (fakeSize != null) this.packetDescription += ' (' + fakeSize + ')';
-    else if (size != null && size != '?')
-      this.packetDescription += ' (' + size + ')';
+    if (color != "") this.packetDescription += ' ' + color;
+    if (fakeSize != "") this.packetDescription += ' (' + fakeSize + ')';
+    else if (size != "") this.packetDescription += ' (' + size + ')';
   }
 
   calculateProductsPrice() {

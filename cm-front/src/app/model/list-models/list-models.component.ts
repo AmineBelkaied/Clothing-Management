@@ -4,7 +4,9 @@ import { catchError, Subject, switchMap, take, takeUntil, tap, throwError } from
 import { Color } from 'src/shared/models/Color';
 import { Model } from 'src/shared/models/Model';
 import { Size } from 'src/shared/models/Size';
+import { ColorService } from 'src/shared/services/color.service';
 import { ModelService } from 'src/shared/services/model.service';
+import { SizeService } from 'src/shared/services/size.service';
 import { NumberUtils } from 'src/shared/utils/number-utils';
 import { StringUtils } from 'src/shared/utils/string-utils';
 
@@ -47,7 +49,9 @@ export class ListModelsComponent implements OnInit, OnDestroy {
   constructor(
     private modelService: ModelService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private colorService : ColorService,
+    private sizeService : SizeService,
   ) { }
 
   ngOnInit() {
@@ -148,12 +152,6 @@ export class ListModelsComponent implements OnInit, OnDestroy {
 
   editModel(model: Model) {
     this.model = { ...model };
-    this.model.colors = this.model.colors?.filter(
-      (color: Color) => color.name != '?'
-    );
-    this.model.sizes = this.model.sizes?.filter(
-      (size: Size) => size.reference != '?'
-    );
     this.modelDialog = true;
     this.editMode = true;
     this.clonedModel = { ...model };
@@ -200,9 +198,10 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  modelColorsDisplay(colors: any[]) {
+  modelColorsDisplay(colorsIds: number[]) {
+    let colors : Color[] = this.colorService.getColorByIds(colorsIds);
+
     let colorDisplay = '';
-    colors = [...colors.filter((color) => color.name != '?')];
     colors.forEach((color, index) => {
       colorDisplay += color.name;
       if (index < colors.length - 1) colorDisplay += ',';
@@ -210,9 +209,9 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     return colorDisplay;
   }
 
-  modelSizesDisplay(sizes: any[]) {
+  modelSizesDisplay(sizesIds: number[]) {
+    let sizes : Size[] = this.sizeService.getSizesByIds(sizesIds);
     let sizeDisplay = '';
-    sizes = [...sizes.filter((size) => size.reference != '?')];
     sizes.forEach((size, index) => {
       sizeDisplay += size.reference;
       if (index < sizes.length - 1) sizeDisplay += '-';

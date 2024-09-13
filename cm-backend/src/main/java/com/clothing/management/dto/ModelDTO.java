@@ -22,8 +22,9 @@ public class ModelDTO {
     private double earningCoefficient;
     private boolean deleted;
     @Builder.Default
-    private List<Color> colors = new ArrayList<>();
+    private List<Long> colors = new ArrayList<>();
     @Builder.Default
-    private List<Size> sizes = new ArrayList<>();
+    private List<Long> sizes = new ArrayList<>();
     private boolean enabled;
+    private Long defaultId;
 }

@@ -17,7 +17,7 @@ export interface Packet {
     oldClient?: number;
     offers: Offer[];//??
     fbPage?: FbPage;
-    deliveryCompanyName?: String;
+    deliveryCompany?: DeliveryCompany;
     deliveryPrice: number;
     totalPrice?: number;
     discount: number;

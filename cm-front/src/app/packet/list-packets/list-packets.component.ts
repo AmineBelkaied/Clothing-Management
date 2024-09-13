@@ -191,7 +191,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   countCanceled: number = 0;
   realTotalItems: number;
   selectedPhoneNumber: string = '';
-  //deliveryCompanyName?: DeliveryCompany;
   @Output() confirmEvent: EventEmitter<string> = new EventEmitter<string>();
   visibleNote: boolean = false;
   activeClass: boolean;
@@ -250,20 +249,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.findAllFbPages();
     this.onActiveIndexChange(2);
     this.selectedStatus.setValue([]);
-  }
-
-  getCityById(cityId: number): string {
-    for (const group of this.groupedCities) {
-      // Find the city with the matching ID in each group's items
-      const foundCity = group.items.find((city: any) => city.value === cityId);
-
-      if (foundCity) {
-        // Return the formatted string: governorate - city
-        return `${group.label} - ${foundCity.label}`;
-      }
-    }
-    // Return an empty string or a fallback message if the city is not found
-    return 'City not found';
   }
 
   findAllFbPages(): void {
@@ -376,6 +361,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (responsePacket: any) => {
+
           let msg = "Packet updated successfully";
           if (this.selectedField === 'status') {
             this.createNotification();
@@ -383,8 +369,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           if (this.selectedField === 'status' && status === CONFIRMED && responsePacket.barcode != null) {
             this.updatePacketFields(responsePacket);
             msg = 'Barcode created successfully';
+          } else if (this.selectedField === 'cityId') {
+            this.updateCityField(responsePacket);
+            msg = 'City updated successfully';
           } else if (responsePacket.oldClient !== undefined && this.selectedField === 'customerPhoneNb') {
-
             const packetIndex = this.packets.findIndex((p: Packet) => p.id === responsePacket.id);
             if (packetIndex !== -1) {
               this.packets[packetIndex].oldClient = responsePacket.oldClient;
@@ -448,21 +436,31 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     let listId = this.packets.map((packetX: Packet) => packetX.id);
     let X = listId.indexOf(updatedPacket.id);
     if (X > -1) {
-      this.packets = [...this.packets.map(packet => packet.id === updatedPacket.id ? updatedPacket : packet)];
-      /*this.packets[X].status = packet.status;
-      this.packets[X].lastDeliveryStatus = packet.lastDeliveryStatus;
-      this.packets[X].lastUpdateDate = packet.lastUpdateDate;
+      //this.packets = [...this.packets.map(packet => packet.id === updatedPacket.id ? updatedPacket : packet)];
+      this.packets[X].status = updatedPacket.status;
+      this.packets[X].lastDeliveryStatus = updatedPacket.lastDeliveryStatus;
+      this.packets[X].lastUpdateDate = updatedPacket.lastUpdateDate;
       if (action === 'ADD_NOTE_ACTION') {
         //this.packets[X].notes.length++;
-        this.packets[X].notes = packet.notes;
+        this.packets[X].notes = updatedPacket.notes;
       }
-      this.packets[X].barcode = packet.barcode;
-      this.packets[X].packetDescription = packet.packetDescription;
-      this.packets[X].oldClient = packet.oldClient;
-      this.packets[X].stock = packet.stock;
-      this.packets[X].price = packet.price;
-      this.packets[X].deliveryPrice = packet.deliveryPrice;
-      this.packets[X].discount = packet.discount;*/
+      this.packets[X].barcode = updatedPacket.barcode;
+      this.packets[X].packetDescription = updatedPacket.packetDescription;
+      this.packets[X].oldClient = updatedPacket.oldClient;
+      this.packets[X].stock = updatedPacket.stock;
+      this.packets[X].totalPrice = updatedPacket.totalPrice;
+      this.packets[X].deliveryPrice = updatedPacket.deliveryPrice;
+      this.packets[X].discount = updatedPacket.discount;
+    }
+  }
+  updateCityField(updatedPacket: Packet) {
+    let listId = this.packets.map((packetX: Packet) => packetX.id);
+    let X = listId.indexOf(updatedPacket.id);
+    console.log('X',X);
+
+    if (X > -1) {
+      this.packets[X].cityName = updatedPacket.cityName;
+      this.packets[X].cityId = updatedPacket.cityId;
     }
   }
 
@@ -470,16 +468,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     console.log(this.selectedPackets);
 
     this.noteActionStatus = status;
-    /*if( status == 'DELETED' ){
-      let index = this.selectedPackets.findIndex((selectedPacket: Packet) => selectedPacket.barcode == null || selectedPacket.barcode == "");
-      console.log(index);
-
-      if (index > -1) {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please do not delete outgoing packets' });
-        return;
-      }
-    }*/
-
     if(packet)this.selectedPacket = packet;
     this.clientReasons = this.getReasonOptionsByStatus(status);
     this.explanationTitle = '';
@@ -562,7 +550,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 }
 
   openLinkGetter(code: any, deliveryCompany: DeliveryCompany): void {
-    let link = deliveryCompany.barreCodeUrl + code;
+    let link = deliveryCompany.barCodeUrl + code;
     console.log("link", link + "/code:" + code);
     window.open(link, '_blank');
   }
@@ -629,11 +617,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   loadOfferListAndOpenOffersDialog(packet: Packet,editMode:boolean): void {
     if (packet.fbPage) {
-      this.productService.loadProducts().subscribe(() => {
+      //this.productService.loadProducts().subscribe(() => {});
         this.packet = Object.assign({}, packet);
         this.modelDialog = true;
         this.editMode = editMode;
-      });
+
     } else {
       this.messageService.add({ severity: 'info', summary: 'Info', detail: 'Pas de page Facebook selectionné', life: 1000 });
     }
@@ -1202,15 +1190,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
             this.addAttempt('UNREACHABLE',packet)
           }
         },
-        {
-          label: 'Chercher Tel',
-          icon: 'pi pi-phone',
-          disabled:!this.checkPhoneNbExist(packet),
-          command: () => {
-            this.filter= packet.customerPhoneNb;
-            this.filterPackets('phone');
-          }
-        },
+
         {
           label: 'History',
           icon: 'pi pi-history',
@@ -1219,41 +1199,55 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
             this.showTimeLineDialog(packet);
           }
         },
-        { separator: true },
-        {
-          label: 'Actualiser status',
-          icon: 'pi pi-sync',
-          disabled:!(this.checkCodeABarreExist(packet)),
-          command: () => {
-            this.getLastStatus(packet);
+      ];
+      if(this.checkCodeABarreExist(packet)){
+        this.optionButtons.push(
+          { separator: true },
+          {
+            label: 'Actualiser status',
+            icon: 'pi pi-sync',
+            command: () => {
+              this.getLastStatus(packet);
+            }
+          },
+          {
+            label: 'BarreCode',
+            icon: 'pi pi-qrcode',
+            command: () => {
+              this.openLinkGetter(packet.barcode,packet.deliveryCompany)
+            }
           }
-        },
-        {
-          label: 'Tel',
-          icon: 'pi pi-search-plus',
+        )
+      }
+      if(this.checkPhoneNbExist(packet))
+        this.optionButtons.push(
+          { separator: true },
+          {
+            label: 'Tel',
+            icon: 'pi pi-search-plus',
+            command: () => {
+              this.openLinkGetter(packet.customerPhoneNb,packet.deliveryCompany);
+            }
+          },{
+          label: 'Chercher Tel',
+          icon: 'pi pi-phone',
           disabled:!this.checkPhoneNbExist(packet),
           command: () => {
-            this.openLinkGetter(packet.customerPhoneNb,packet.deliveryCompany);
+            this.filter= packet.customerPhoneNb;
+            this.filterPackets('phone');
           }
-        },
-        {
-          label: 'BarreCode',
-          icon: 'pi pi-qrcode',
-          disabled:!this.checkCodeABarreExist(packet),
-          command: () => {
-            this.openLinkGetter(packet.barcode,packet.deliveryCompany)
-          }
-        },
-        {
+        });
+      if(packet.deliveryCompany.name != "JAX")
+        this.optionButtons.push({
           label: 'Print',
           icon: 'pi pi-print',
           disabled:!(this.checkCodeABarreExist(packet)),
           command: () => {
             this.printFirst(packet.printLink)
           }
-        }
-      ];
+        });
     }
+
   }
 
   enCoursOptionsValue !:any;
