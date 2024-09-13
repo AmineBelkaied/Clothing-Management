@@ -2,8 +2,6 @@ package com.clothing.management.dto;
 
 import com.clothing.management.entities.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

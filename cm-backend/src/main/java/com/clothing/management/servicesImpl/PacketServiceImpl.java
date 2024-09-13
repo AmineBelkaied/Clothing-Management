@@ -14,6 +14,8 @@ import com.clothing.management.servicesImpl.api.DeliveryCompanyServiceFactory;
 import com.clothing.management.entities.*;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.PacketService;
+import com.clothing.management.utils.EntityBuilderHelper;
+import com.clothing.management.utils.PacketBuilderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,8 @@ public class PacketServiceImpl implements PacketService {
     private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
     private final static List<String> ignoredDateStatusList = List.of(new String[]{RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus()});
+    private final PacketBuilderHelper packetBuilderHelper;
+    private final EntityBuilderHelper entityBuilderHelper;
 
     @Override
     public Packet getPacketById(Long packetId) throws PacketNotFoundException {
@@ -65,14 +69,16 @@ public class PacketServiceImpl implements PacketService {
             IProductsPacketRepository productsPacketRepository,
             DeliveryCompanyServiceFactory deliveryCompanyServiceFactory,
             SessionUtils sessionUtils,
-            IGlobalConfRepository globalConfRepository
-    ) {
+            IGlobalConfRepository globalConfRepository, PacketBuilderHelper packetBuilderHelper,
+            EntityBuilderHelper entityBuilderHelper) {
         this.packetRepository = packetRepository;
         this.productRepository = productRepository;
         this.productsPacketRepository = productsPacketRepository;
         this.deliveryCompanyServiceFactory = deliveryCompanyServiceFactory;
         this.globalConfRepository = globalConfRepository;
         this.sessionUtils = sessionUtils;
+        this.packetBuilderHelper = packetBuilderHelper;
+        this.entityBuilderHelper = entityBuilderHelper;
     }
 
     @Override
@@ -166,11 +172,12 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public Packet addPacket() throws Exception {
         GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElseThrow(() -> new Exception("globalConf not found"));
-        Packet packet = new Packet(globalConf.getDeliveryCompany());
+        Packet packet = Packet.builder()
+                .deliveryCompany(globalConf.getDeliveryCompany())
+                .build();
         //savePacketStatusToHistory(packet,CREATION.getStatus());
         User currentUser = sessionUtils.getCurrentUser();
-        packet.getPacketStatus().add(new PacketStatus(CREATION.getStatus(), packet, currentUser));
-
+        packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(CREATION.getStatus(), packet, currentUser).build());
         return packetRepository.save(packet);
     }
 
@@ -336,7 +343,7 @@ public class PacketServiceImpl implements PacketService {
                     } else if (deliveryResponse.getStatus() > 199) {
                         //Convert input from first to System Status
 
-                        packet.getPacketStatus().add(new PacketStatus(deliveryCompanyName + ":" + deliveryState, packet, currentUser));
+                        packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(deliveryCompanyName + ":" + deliveryState, packet, currentUser).build());
                         //this.savePacketStatusToHistory(packet,deliveryCompanyName+":"+deliveryState);
 
                         DeliveryCompanyStatus dcStatus = DeliveryCompanyStatus.fromString(deliveryState, deliveryCompanyName);
@@ -377,7 +384,9 @@ public class PacketServiceImpl implements PacketService {
         //noteRepository.save(note);
         packet.getNotes().add(note);
 
-        packet.getPacketStatus().add(new PacketStatus("tentative: " + packet.getNotes().size() + " " + note.getExplanation(), packet, currentUser));
+        packet.getPacketStatus().add(entityBuilderHelper
+                .createPacketStatusBuilder("tentative: " + packet.getNotes().size() + " " + note.getExplanation(), packet, currentUser)
+                .build());
         //savePacketStatusToHistory(packet, "tentative: " + packet.getNotes().size() + " " + note.getExplanation());
         return packetRepository.save(packet);
     }
@@ -427,9 +436,9 @@ public class PacketServiceImpl implements PacketService {
     @Transactional("tenantTransactionManager")
     public PacketDTO duplicatePacket(Long idPacket) throws Exception {
         GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElseThrow(() -> new Exception("Global configuration not found!"));
-        Packet packet = packetRepository.findById(idPacket).orElseThrow(() -> new PacketNotFoundException(idPacket,"Packet not found!"));
+        Packet packet = packetRepository.findById(idPacket).orElseThrow(() -> new PacketNotFoundException(idPacket, "Packet not found!"));
 
-        Packet newPacket = new Packet(packet, globalConf.getDeliveryCompany());
+        Packet newPacket = packetBuilderHelper.duplicatePacket(packet, globalConf.getDeliveryCompany());
 
         packetRepository.save(newPacket);
 
@@ -437,7 +446,7 @@ public class PacketServiceImpl implements PacketService {
                 .map(productPacket -> new ProductsPacket(productPacket, newPacket))
                 .collect(Collectors.toList()));
         User currentUser = sessionUtils.getCurrentUser();
-        newPacket.getPacketStatus().add(new PacketStatus(CREATION.getStatus(), newPacket, currentUser));
+        newPacket.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(CREATION.getStatus(), newPacket, currentUser).build());
 
         packetRepository.save(newPacket);
         packet.setHaveExchange(true);
@@ -511,7 +520,7 @@ public class PacketServiceImpl implements PacketService {
             //updateProducts_Status(packet, status);
             updateProducts_Quantity(packet, status);
             User currentUser = sessionUtils.getCurrentUser();
-            packet.getPacketStatus().add(new PacketStatus(status, packet, currentUser));
+            packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(status, packet, currentUser).build());
 
             return savePacketStatus(packet, status);
         }
@@ -579,13 +588,13 @@ public class PacketServiceImpl implements PacketService {
     }
 
     private ProductsPacket addProductPacket(Packet packet, ProductOfferDTO productsPacket) {
-        return new ProductsPacket(
-                new Product(productsPacket.getProductId()),
-                packet,
-                new Offer(productsPacket.getOfferId()),
-                productsPacket.getPacketOfferIndex(),
-                productsPacket.getProfits()
-        );
+        return entityBuilderHelper.createProductsPacketBuilder(
+                        Product.builder().id(productsPacket.getProductId()).build(),
+                        packet,
+                        Offer.builder().id(productsPacket.getOfferId()).build(),
+                        productsPacket.getPacketOfferIndex(),
+                        productsPacket.getProfits())
+                .build();
     }
 
     @Override
@@ -609,7 +618,7 @@ public class PacketServiceImpl implements PacketService {
                         System.out.println("note.getStatus():"+note.getStatus());
                         packet.setStatus(DELETED.getStatus());
 
-                        packet.getPacketStatus().add(new PacketStatus(DELETED.getStatus(), packet, currentUser));
+                        packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(DELETED.getStatus(), packet, currentUser).build());
                         packets.add(packet);
                     }
                 } catch (PacketNotFoundException e) {

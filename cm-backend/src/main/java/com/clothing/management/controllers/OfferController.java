@@ -73,7 +73,8 @@ public class OfferController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOffer(@PathVariable Long id) {
-        offerService.deleteOffer(new Offer(id));
+        Offer offer = Offer.builder().id(id).build();
+        offerService.deleteOffer(offer);
         return ResponseEntity.noContent().build();
     }
 

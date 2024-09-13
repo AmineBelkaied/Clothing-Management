@@ -34,7 +34,7 @@ public class ModelImageServiceImpl implements ModelImageService{
         mImage.setName(file.getOriginalFilename());
         mImage.setType(file.getContentType());
         mImage.setImagePath(fullPath);
-        mImage.setModel(new Model(modelId));
+        mImage.setModel(Model.builder().id(modelId).build());
         try {
             Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
         } catch (Exception e) {
