@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 public class ProductsPacketDTO {// correction ----------------------a supprimé
     long id;
     long packetOfferId;
-    List<ProductDTO> products;
+
+    List<Long> productIds;
+    List<ProductResponse> products;
 
 
 
@@ -21,17 +23,18 @@ public class ProductsPacketDTO {// correction ----------------------a supprimé
         this.packetOfferId = productsPacket.getPacketOfferId();
         this.products = null;
     }
-    public ProductsPacketDTO(long offerId,long packetOfferId,List<ProductDTO> offerProducts) {
+    public ProductsPacketDTO(long offerId,long packetOfferId,List<Long> productIds,List<ProductResponse> offerProducts) {
         this.id = offerId;
         this.packetOfferId = packetOfferId;
+        this.productIds = productIds;
         this.products = offerProducts;
     }
 
-    public List<ProductDTO> getProducts() {
+    public List<ProductResponse> getProducts() {
         return products;
     }
 
-    public void setProducts(List<ProductDTO> products) {
+    public void setProducts(List<ProductResponse> products) {
         this.products = products;
     }
 
@@ -41,6 +44,14 @@ public class ProductsPacketDTO {// correction ----------------------a supprimé
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public List<Long> getProductIds() {
+        return productIds;
+    }
+
+    public void setProductIds(List<Long> productIds) {
+        this.productIds = productIds;
     }
 
     public long getPacketOfferId() {

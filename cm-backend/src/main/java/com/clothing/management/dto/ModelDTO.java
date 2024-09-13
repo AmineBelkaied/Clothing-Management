@@ -19,9 +19,11 @@ public class ModelDTO {
     private float purchasePrice;
     private double earningCoefficient;
     private boolean deleted;
-    private List<Color> colors = new ArrayList<>();
-    private List<Size> sizes = new ArrayList<>();
+    private List<Long> colors = new ArrayList<>();
+    private List<Long> sizes = new ArrayList<>();
     private boolean enabled;
+
+    private Long defaultId;
 
     public ModelDTO(){
 
@@ -34,9 +36,26 @@ public class ModelDTO {
         this.purchasePrice = model.getPurchasePrice();
         this.earningCoefficient = model.getEarningCoefficient();
         this.deleted = model.isDeleted();
-        this.colors = model.getColors();
-        this.sizes = model.getSizes();
+        this.colors = model.getColors().stream().map(color -> color.getId()).collect(Collectors.toList());
+        this.sizes = model.getSizes().stream().map(size -> size.getId()).collect(Collectors.toList());
         this.enabled = model.isEnabled();
+    }
+    public ModelDTO(Model model,Boolean needDefault){
+        this.id = model.getId();
+        this.name = model.getName();
+        this.description = model.getDescription();
+        this.purchasePrice = model.getPurchasePrice();
+        this.earningCoefficient = model.getEarningCoefficient();
+        this.deleted = model.isDeleted();
+        this.colors = model.getColors().stream().map(color -> color.getId()).collect(Collectors.toList());
+        this.sizes = model.getSizes().stream().map(size -> size.getId()).collect(Collectors.toList());
+        this.enabled = model.isEnabled();
+        this.defaultId = model.getProducts()
+                .stream()
+                .filter(product -> product.getColor() == null && product.getSize() == null)
+                .findFirst()
+                .map(Product::getId) // Assuming you want the ID of the product
+                .orElse(null); ;
     }
 
     public Long getId() {
@@ -87,19 +106,19 @@ public class ModelDTO {
         this.deleted = deleted;
     }
 
-    public List<Color> getColors() {
+    public List<Long> getColors() {
         return colors;
     }
 
-    public void setColors(List<Color> colors) {
+    public void setColors(List<Long> colors) {
         this.colors = colors;
     }
 
-    public List<Size> getSizes() {
+    public List<Long> getSizes() {
         return sizes;
     }
 
-    public void setSizes(List<Size> sizes) {
+    public void setSizes(List<Long> sizes) {
         this.sizes = sizes;
     }
 
@@ -109,6 +128,14 @@ public class ModelDTO {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Long getDefaultId() {
+        return defaultId;
+    }
+
+    public void setDefaultId(Long defaultId) {
+        this.defaultId = defaultId;
     }
 
     @Override
@@ -123,6 +150,7 @@ public class ModelDTO {
                 ", colors=" + colors +
                 ", sizes=" + sizes +
                 ", enabled=" + enabled +
+                ", defaultId=" + defaultId +
                 '}';
     }
 }

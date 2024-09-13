@@ -37,8 +37,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> findAllProducts() {
-        return productRepository.findAll().stream().map(product -> new ProductDTO(product,true)).collect(Collectors.toList());
+    public List<ProductResponse> findAllProducts() {
+        return productRepository.findAll().stream().map(product -> new ProductResponse(product)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProductResponse> fingProductsByModelIds(ModelIdsRequest request) {
+        List<Long> modelIds = request.getModelIds();
+        return productRepository.getProductsByModelIds(modelIds).stream().map(product -> new ProductResponse(product)).collect(Collectors.toList());
+    }
+
+    @Override
+    public int fingNullProductsByModelId(Long modelId) {
+        return productRepository.findNullProductsByModelId(modelId);
     }
 
     @Override
@@ -75,11 +86,11 @@ public class ProductServiceImpl implements ProductService {
             List<Product> listProducts = model.getProducts();
             List<Size> orderedSizes = sortSizes(
                     model.getSizes().stream()
-                            .filter((Size size) -> !size.getReference().equals("?"))
+                            .filter(Objects::nonNull)
                             .collect(Collectors.toSet())
             );
             Map<Color, List<Product>> groupedProductsByColor = listProducts.stream()
-                    .filter(product -> !product.getColor().getName().equals("?") && !product.getSize().getReference().equals("?"))
+                    .filter(product -> Objects.nonNull(product.getColor()) && Objects.nonNull(product.getSize()))
                     .collect(groupingBy(Product::getColor));
 
             // 2. Fetch and Group Products by Color
@@ -89,13 +100,13 @@ public class ProductServiceImpl implements ProductService {
             groupedProductsByColor.forEach((color, products) -> {
                 // 3.1 Sort products by size and add missing sizes
                 List<SoldProductsDayCountDTO> productsDayCountDTOByColor = productsDayCountDTO.stream().filter(productDayCountDTO -> productDayCountDTO.getColor().equals(color)).collect(Collectors.toList());
-                List<SoldProductsDayCountDTO> productDTOList = sortSoldProductsDayCountDTOBySize2(productsDayCountDTOByColor,products, orderedSizes);
+                List<SoldProductsDayCountDTO> productDTOList = sortSoldProductsDayCountDTOBySize(productsDayCountDTOByColor,products, orderedSizes);
 
                 // 3.2 Add the sorted list to productsByColors
                 productsByColors.add(productDTOList);
             });
             model.setColors(model.getColors().stream()
-                    .filter(color -> !color.getName().equals("?")).collect(Collectors.toList()));
+                    .filter(color -> !color.equals(null)).collect(Collectors.toList()));
             // 4. Set the Data in stockDTO
             stockDTO.setModel(model);
             stockDTO.setProductsByColor(productsByColors);
@@ -107,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
     private List<Size> sortSizes(Set<Size> sizes) {
         Comparator<Size> sizeComparator = (size1, size2) -> {
             // Define the order of sizes
-            String[] order = {"14","16","XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "?"};
+            String[] order = {"14","16","XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"};
             int index1 = getIndex(size1.getReference(), order);
             int index2 = getIndex(size2.getReference(), order);
             return Integer.compare(index1, index2);
@@ -116,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
                 .sorted(sizeComparator)
                 .collect(Collectors.toList());
     }
-    private List<SoldProductsDayCountDTO> sortSoldProductsDayCountDTOBySize2(List<SoldProductsDayCountDTO> productsSold,List<Product> products, List<Size> orderedSizes) {
+    private List<SoldProductsDayCountDTO> sortSoldProductsDayCountDTOBySize(List<SoldProductsDayCountDTO> productsSold,List<Product> products, List<Size> orderedSizes) {
         // Create a map to quickly find products by size reference
         Map<String, SoldProductsDayCountDTO> soldProductMap = new HashMap<>();
 

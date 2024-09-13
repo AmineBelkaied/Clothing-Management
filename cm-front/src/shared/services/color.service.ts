@@ -17,7 +17,7 @@ export class ColorService {
   public editMode = false;
 
   constructor(private http: HttpClient) {
-
+    this.getColorsSubscriber();
   }
 
   loadColors(): Observable<Color[]>{
@@ -41,6 +41,15 @@ export class ColorService {
     }
     return this.colorsSubscriber.asObservable();
   }
+  getColorNameById(id: number) : String{
+    let colorIndex = this.colors.findIndex(color => color.id == id);
+    return this.colors[colorIndex] != null ? this.colors[colorIndex].name : "";
+  }
+
+  getColorByIds(ids: number[]) : Color[]{
+    return this.colors.filter(color => ids.includes(color.id!));
+  }
+
 
   findAllColors() : Observable<Color[]> {
     return this.http.get<Color[]>(`${this.baseUrl}`);

@@ -258,15 +258,23 @@ public class PacketServiceImpl implements PacketService {
             List<ProductsPacket> groupedPackets = entry.getValue();
             Long offerId = groupedPackets.get(0).getOffer().getId();
 
-            List<ProductDTO> products = groupedPackets.stream()
-                    .map(pp -> new ProductDTO(pp.getProduct(),true))
+            List<Long> productIds = groupedPackets.stream()
+                    .map(pp -> pp.getProduct().getId())
                     .collect(Collectors.toList());
+
+            List<Long> modelIds = groupedPackets.stream()
+                    .map(pp -> pp.getProduct().getModel().getId())
+                    .collect(Collectors.toList());
+
+            List<ProductResponse> products = productRepository.getProductsByModelIds(modelIds).stream().map(product -> new ProductResponse(product)).collect(Collectors.toList());
 
             ProductsPacketDTO dto = new ProductsPacketDTO(
                     offerId,
                     packetOfferId,
+                    productIds,
                     products
             );
+
             productsPacketDTOs.add(dto);
         }
 
@@ -567,7 +575,7 @@ public class PacketServiceImpl implements PacketService {
             packet.setStatus(OOS.getStatus());
         }
 
-        packet.addProductsToPacket(selectedProductsDTO.getProductsOffers().stream()
+        addProductsToPacket(packet,selectedProductsDTO.getProductsOffers().stream()
                 .map(productOffer -> addProductPacket(packet, productOffer))
                 .toList());
         packet.setPacketDescription(selectedProductsDTO.getPacketDescription());
@@ -576,6 +584,16 @@ public class PacketServiceImpl implements PacketService {
         packet.setDiscount(selectedProductsDTO.getDiscount());
         packet.setProductCount(selectedProductsDTO.getProductCount());
         return new PacketDTO(packetRepository.save(packet));
+    }
+
+    @Transactional
+    public void addProductsToPacket(Packet packet, List<ProductsPacket> productsPackets) {
+        for (ProductsPacket productPacket : productsPackets) {
+            productPacket.setPacket(packet); // Set the reference to the packet
+        }
+        packet.getProductsPackets().clear(); // Clear existing productsPackets if necessary
+        packet.getProductsPackets().addAll(productsPackets);
+        packetRepository.save(packet); // Save the packet to persist changes
     }
 
     private ProductsPacket addProductPacket(Packet packet, ProductOfferDTO productsPacket) {
@@ -637,79 +655,3 @@ public class PacketServiceImpl implements PacketService {
         }
     }
 }
-
-     /*   public void savePacketStatusToHistory(Packet packet, String status) {
-        PacketStatus packetStatus = new PacketStatus();
-        packetStatus.setPacket(packet);
-        packetStatus.setStatus(status);
-        packetStatus.setDate(new Date());
-        packetStatus.setUser(sessionUtils.getCurrentUser());
-        packetStatusRepository.save(packetStatus);
-    }
-
-        private Model mapToModel(Model model) {
-        Model newModel = new Model();
-        newModel.setId(model.getId());
-        newModel.setColors(model.getColors());
-        newModel.setSizes(model.getSizes());
-        newModel.setDescription(model.getDescription());
-        newModel.setName(model.getName());
-        newModel.setPurchasePrice(model.getPurchasePrice());
-        newModel.setEarningCoefficient(model.getEarningCoefficient());
-        newModel.setDeleted(model.isDeleted());
-        }
-
-        private Product mapToProduct(Product product) throws IOException {
-        Product newProduct = new Product();
-        newProduct.setId(product.getId());
-        newProduct.setColor(product.getColor());
-        newProduct.setSize(product.getSize());
-        newProduct.setModel(mapToModel(product.getModel()));
-        newProduct.setQuantity(product.getQuantity());
-        newProduct.setDate(product.getDate());
-        return newProduct;
-    }
-        public List<Long> updateUnConfirmedStock(Long productId, Integer stock) {
-        List<Long> productIds = productsPacketRepository.getUnconfirmedPacketStock_By_ProductId(productId);
-        if(productIds.size()>0){
-            productsPacketRepository.updateUnconfirmedPacketStock_By_ProductId(productIds,stock);
-        }
-        //System.out.println(count+"updateUnConfirmedStock:"+productIds+" /id:"+productId+" /stock:"+stock);
-        return productIds;
-    }
-        private int getStock(List<ProductsPacket> productsPackets, String barcode){
-        return (barcode == null || barcode.equals(""))?productsPackets.stream()
-                .mapToInt(productsPacket -> productsPacket.getProduct().getQuantity()) // Assuming getQte() returns the quantity
-                .min()
-                .orElse(100):100;
-    }
-    @Override
-    public Optional<Packet> findPacketById(Long idPacket) {
-        return packetRepository.findById(idPacket);
-    }
-    @Override
-    public List<Packet> checkPacketProductsValidity(Long packetId) {
-        System.out.println("checkPacketProductsValidity");
-        List<ProductsPacket> existingProductsPacket = productsPacketRepository.findByPacketId(packetId);
-        Integer qte = 50;
-        boolean colorSizeFalse = false;
-        Long lowestProductQte =0L;
-        for (ProductsPacket productsPacket : existingProductsPacket) {
-            if (productsPacket.getProduct() != null) {
-                if(!colorSizeFalse) {
-                    Optional<Product> product = productRepository.findById(productsPacket.getProduct().getId());
-                    colorSizeFalse = product.get().getSize().getReference().equals("?") || product.get().getColor().getName().equals("?");
-                    if (colorSizeFalse) qte = -1;
-                    else {
-                        Integer oldQte = qte;
-                        qte = Math.min(qte, product.get().getQuantity());
-                        if(!qte.equals(oldQte))lowestProductQte = product.get().getId();
-                    }
-                }
-            }
-        }
-        if (qte < 0 && !colorSizeFalse)qte = 0;
-        List<Long> updatedPacketList = new ArrayList<>();
-        if (qte < 10) updatedPacketList = updateUnConfirmedStock(lowestProductQte, qte);
-        return packetRepository.findAllById(updatedPacketList);
-    }*/

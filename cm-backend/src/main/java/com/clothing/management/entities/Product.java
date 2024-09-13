@@ -53,11 +53,18 @@ public class Product {
         this.id = id;
     }
 
-    public Product(Size size, Color color, long quantity, Date date, Model model) {
+    public Product(long quantity, Model model) {
+        this.quantity = quantity;
+        this.date = new Date();
+        this.productsPacket = productsPacket;
+        this.model = model;
+    }
+
+    public Product(Size size, Color color, long quantity, Model model) {
         this.size = size;
         this.color = color;
         this.quantity = quantity;
-        this.date = date;
+        this.date = new Date();
         this.productsPacket = productsPacket;
         this.model = model;
     }

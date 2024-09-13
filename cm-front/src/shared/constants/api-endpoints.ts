@@ -37,7 +37,9 @@ export const MODEL_ENDPOINTS = {
 export const PRODUCT_ENDPOINTS = {
     BASE: '/products',
     BATCH_DELETE: '/batch-delete',
-    STOCK: '/stock'
+    STOCK: '/stock',
+    MODEL_IDS: '/byModelIds',
+
 };
 
 export const PRODUCT_HISTORY_ENDPOINTS = {

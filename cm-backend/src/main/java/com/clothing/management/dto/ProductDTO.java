@@ -24,26 +24,6 @@ public class ProductDTO {
 
     public ProductDTO() {}
 
-    public ProductDTO(Product product) {
-        this.id = product.getId();
-        this.model = new ModelDTO(product.getModel());
-        this.deleted = product.isDeleted();
-        this.qte = product.getQuantity();
-        this.color = product.getColor();
-        this.size = product.getSize();
-        this.modelId = product.getModel().getId();
-    }
-    public ProductDTO(Product product,boolean needModel) {
-        if(needModel)
-            this.model = new ModelDTO(product.getModel());
-        this.id = product.getId();
-        this.deleted = product.isDeleted();
-        this.qte = product.getQuantity();
-        this.color = product.getColor();
-        this.size = product.getSize();
-        this.modelId = product.getModel().getId();
-    }
-
     public Long getId() {
         return id;
     }

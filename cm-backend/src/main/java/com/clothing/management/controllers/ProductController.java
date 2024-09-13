@@ -1,9 +1,6 @@
 package com.clothing.management.controllers;
 
-import com.clothing.management.dto.ProductDTO;
-import com.clothing.management.dto.ProductHistoryDTO;
-import com.clothing.management.dto.StockDTO;
-import com.clothing.management.dto.StockUpdateDto;
+import com.clothing.management.dto.*;
 import com.clothing.management.entities.Product;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.services.ProductService;
@@ -13,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,8 +26,13 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        List<ProductDTO> products = productService.findAllProducts();
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
+        List<ProductResponse> products = productService.findAllProducts();
+        return ResponseEntity.ok(products);
+    }
+    @PostMapping("/byModelIds")
+    public ResponseEntity<List<ProductResponse>> getProductsByModelIds(@RequestBody ModelIdsRequest modelIds) {
+        List<ProductResponse> products = productService.fingProductsByModelIds(modelIds);
         return ResponseEntity.ok(products);
     }
 
@@ -45,6 +48,7 @@ public class ProductController {
         Product createdProduct = productService.addProduct(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
+
 
     @PutMapping
     public ResponseEntity<Product> updateProduct(@RequestBody Product product) {

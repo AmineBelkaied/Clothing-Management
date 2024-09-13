@@ -10,7 +10,5 @@ export interface Product {
     color:Color;
     size:Size;
     modelId:number;
-    earningCoefficient?: number;
-    purchasePrice?: number;
     model?:Model;
 }

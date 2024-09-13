@@ -1,5 +1,5 @@
 export interface Size {
-    id? : string;
+    id? : number;
     reference: string;
     description?: string;
 }

@@ -79,14 +79,6 @@ public class Packet {
     @Column(name = "have_exchange")
     private boolean haveExchange;
 
-    public void addProductsToPacket(List<ProductsPacket> productsPacket) {
-        for (ProductsPacket productPacket : productsPacket) {
-            productPacket.setPacket(this);
-        }
-        this.productsPackets.clear(); // Clear existing productsPackets if necessary
-        this.productsPackets.addAll(productsPacket);
-    }
-
     public Packet() {
         this.productsPackets=new ArrayList<>();
         this.packetStatus = new ArrayList<>();
@@ -114,18 +106,6 @@ public class Packet {
         this.lastUpdateDate = null;
         this.printLink = null;
         this.productsPackets = new ArrayList<>();
-    }
-
-    public void createProductsPacket(List<ProductsPacket> productsPacket){
-        this.setProductsPackets(
-                productsPacket.stream()
-                        .map(productPacket -> {
-                            productPacket.setPacket(this);  // Set the new packet reference
-                            productPacket.setId(null);  // Reset the ID to make it a new entity
-                            return productPacket;
-                        })
-                        .collect(Collectors.toList())
-        );
     }
 
     public Packet(DeliveryCompany deliveryCompany) {

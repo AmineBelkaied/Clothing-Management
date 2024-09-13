@@ -11,7 +11,6 @@ public class PacketDTO {
     private String customerName;
     private String customerPhoneNb;
     private Long cityId;
-
     private String cityName;
     private String address;
     private String packetDescription;
@@ -19,7 +18,7 @@ public class PacketDTO {
     private String lastDeliveryStatus;
     private Integer oldClient;
     private FbPageDTO fbPage;
-    private String deliveryCompanyName;
+    private DeliveryCompanyDTO deliveryCompany;
     private double price;
     private double deliveryPrice;
     private double discount;
@@ -40,6 +39,7 @@ public class PacketDTO {
     public PacketDTO(Packet packet) {
             FbPage fbPage =packet.getFbPage();
             City city = packet.getCity();
+            DeliveryCompany deliveryCompany = packet.getDeliveryCompany();
             this.id = packet.getId();
             this.customerName= packet.getCustomerName();
             this.customerPhoneNb= packet.getCustomerPhoneNb();
@@ -57,9 +57,9 @@ public class PacketDTO {
             this.date= packet.getDate();
             this.lastUpdateDate = packet.getLastUpdateDate();
             this.valid= packet.isValid();
-            this.stock= packet.getProductsPackets().size()>0?getStock(packet.getProductsPackets(), packet.getBarcode()):0;
+            this.stock= packet.getProductsPackets().size()>0 ? getStock(packet.getProductsPackets(), packet.getBarcode()):0;
             this.printLink = packet.getPrintLink();
-            this.deliveryCompanyName =packet.getDeliveryCompany().getName();
+            this.deliveryCompany = deliveryCompany!= null ? new DeliveryCompanyDTO(deliveryCompany) : null;
             this.haveExchange=packet.isHaveExchange();
             this.notes = packet.getNotes();
             this.totalPrice = packet.getPrice()+packet.getDeliveryPrice()-packet.getDiscount();
@@ -160,12 +160,12 @@ public class PacketDTO {
         this.fbPage = fbPage;
     }
 
-    public String getDeliveryCompanyName() {
-        return deliveryCompanyName;
+    public DeliveryCompanyDTO getDeliveryCompany() {
+        return deliveryCompany;
     }
 
-    public void setDeliveryCompanyName(String deliveryCompanyName) {
-        this.deliveryCompanyName = deliveryCompanyName;
+    public void setDeliveryCompany(DeliveryCompanyDTO deliveryCompany) {
+        this.deliveryCompany = deliveryCompany;
     }
 
     public double getTotalPrice() {

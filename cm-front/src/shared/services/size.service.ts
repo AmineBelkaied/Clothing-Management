@@ -18,6 +18,7 @@ export class SizeService {
   public editMode = false;
 
   constructor(private http: HttpClient) {
+    this.getSizesSubscriber();
   }
 
   loadSizes(): Observable<Size[]> {
@@ -32,6 +33,16 @@ export class SizeService {
         return throwError(() => error);
       })
     );
+  }
+
+
+  getSizesByIds(ids: number[]) : Size[]{
+    return this.sizes.filter(size => ids.includes(size.id!));
+  }
+
+  getSizeNameById(id: number) : String{
+    let sizeIndex = this.sizes.findIndex(size => size.id == id);
+    return this.sizes[sizeIndex] != null ? this.sizes[sizeIndex].reference : "";
   }
 
   getSizesSubscriber(): Observable<Size[]> {

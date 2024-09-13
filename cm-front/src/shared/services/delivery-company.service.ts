@@ -19,11 +19,6 @@ export class DeliveryCompanyService {
 
   constructor(private http: HttpClient) {
     this.getDeliveryCompaniesSubscriber();
-    /*this.findAllDeliveryCompanies()
-    .subscribe((deliveryCompanyList: any) => {
-        this.deliveryCompanyListSubscriber.next(deliveryCompanyList);
-        this.deliveryCompanyList = deliveryCompanyList;
-    });*/
   }
 
   findAllDeliveryCompanies(): Observable<DeliveryCompany[]> {
@@ -35,7 +30,6 @@ export class DeliveryCompanyService {
       this.loadDeliveryCompanies().subscribe();
     }
     return this.deliveryCompanyListSubscriber.asObservable();
-
   }
 
   loadDeliveryCompanies(): Observable<DeliveryCompany[]>{

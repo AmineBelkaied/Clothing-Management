@@ -34,24 +34,21 @@ export class AddModelComponent implements OnInit, OnDestroy {
   constructor(
     private modelService: ModelService,
     private colorService: ColorService,
-    private sizeService: SizeService) {
+    private sizeService: SizeService
+  ) {
 
   }
 
   ngOnInit(): void {
-    this.model.colors = this.model.colors.filter((color: Color) => color.name != "?");
-    this.model.sizes = this.model.sizes.filter((size: any) => size.reference != "?");
     this.salePrice = this.calculateSalePrice(this.model);
+  }
 
-    this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
-      .subscribe((colorList: Color[]) => {
-        this.colors = colorList.filter((color: Color) => color.name != "?");
-      });
+  getColors(colorIds: number[]): Color[] {
+    return this.colorService.getColorByIds(colorIds);
+  }
 
-    this.sizeService.getSizesSubscriber().pipe(takeUntil(this.$unsubscribe))
-      .subscribe((sizeList: Size[]) => {
-        this.sizes = sizeList.filter((size: Size) => size.reference != "?");
-      })
+  getSizes(sizeIds: number[]): Size[] {
+      return this.sizeService.getSizesByIds(sizeIds);
   }
 
   checkFormValidation(): void {

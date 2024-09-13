@@ -14,11 +14,12 @@ public class OfferModelsDTO {
     ModelDTO model;
     Integer quantity;
 
+
     public OfferModelsDTO() {
     }
 
     public OfferModelsDTO(OfferModel offerModel) {
-        this.model = new ModelDTO(offerModel.getModel());
+        this.model = new ModelDTO(offerModel.getModel(),true);
         this.quantity = offerModel.getQuantity();
     }
 

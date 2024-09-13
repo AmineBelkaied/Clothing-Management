@@ -25,8 +25,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN pp.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN (pp.packet.status = 'Retour' OR pp.packet.status = 'Retour reçu') AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END)) " +
             "FROM ProductsPacket pp " +
-            "WHERE pp.product.color.name <> '?' AND pp.product.size.reference <> '?' " +
-            "AND DATE(pp.packet.date) >= DATE(:beginDate) " +
+            "WHERE DATE(pp.packet.date) >= DATE(:beginDate) " +
             "AND DATE(pp.packet.date) <= DATE(:endDate) " +
             "AND pp.product.model.id = :modelId " +
             "AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','En rupture','Retour','Retour reçu') " +
@@ -78,8 +77,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN (pp.packet.status = 'Retour' OR pp.packet.status = 'Retour reçu') AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END), " +//retour
             "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN pp.profits ELSE 0 END)) " +
             "FROM ProductsPacket pp " +
-            "WHERE pp.product.color.name <> '?' AND pp.product.size.reference <> '?' " +// (p.status = 1 OR p.status = 2 OR p.packet.status = 'En rupture') " +
-            "AND DATE(pp.packet.date) >= DATE(:beginDate) " +
+            "WHERE DATE(pp.packet.date) >= DATE(:beginDate) " +
             "AND DATE(pp.packet.date) <= DATE(:endDate) " +
             "AND pp.product.model.id = :modelId " +
             "AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','En rupture','Retour', 'Retour reçu') " +
@@ -154,8 +152,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN pp.packet.status IN ('Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN (pp.packet.status = 'Retour' OR pp.packet.status = 'Retour reçu') AND pp.packet.haveExchange = false THEN 1 ELSE 0 END))" +
             "FROM ProductsPacket pp " +
-            "WHERE pp.product.color.name <> '?' AND pp.product.size.reference <> '?' " +
-            "AND DATE(pp.packet.date) >= DATE(:beginDate) AND DATE(pp.packet.date) <= DATE(:endDate) " +
+            "WHERE DATE(pp.packet.date) >= DATE(:beginDate) AND DATE(pp.packet.date) <= DATE(:endDate) " +
             "AND pp.product.model.id = :modelId " +
             "AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Retour', 'Retour reçu') " +
             "GROUP BY pp.product.id, DATE(pp.packet.date) ORDER BY DATE(pp.packet.date) ASC")
