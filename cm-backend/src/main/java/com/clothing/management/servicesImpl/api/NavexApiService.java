@@ -6,6 +6,8 @@ import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.IGlobalConfRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import java.net.URLEncoder;
 @Service
 public class NavexApiService extends DeliveryCompanyService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(NavexApiService.class);
     private static final String API_URL = "https://app.navex.tn/api/";
     private static final String END_URL = "/v1/post.php";
 
@@ -31,15 +34,23 @@ public class NavexApiService extends DeliveryCompanyService {
     public DeliveryResponseNavex createBarCode(Packet packet) throws IOException {
         String url = API_URL + packet.getDeliveryCompany().getApiName() + "-" + packet.getDeliveryCompany().getToken() + END_URL;
         String requestBody = createRequestBody(packet);
+
+        LOGGER.debug("Creating barcode for packet: {}", packet.getId());
         LOGGER.debug("Request URL: {}", url);
         LOGGER.debug("Request Body: {}", requestBody);
+
         return executeHttpRequest(url, requestBody);
     }
 
     public DeliveryResponseNavex getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException {
+        LOGGER.debug("Getting last status for barcode: {}", barCode);
+
         StringBuilder body = new StringBuilder();
         body.append("code=").append(URLEncoder.encode(barCode, StandardCharsets.UTF_8));
         String url = API_URL + deliveryCompany.getApiName() + "-etat-" + deliveryCompany.getToken() + END_URL;
+
+        LOGGER.debug("Request URL for last status: {}", url);
+
         return executeHttpRequest(url, body.toString());
     }
 
@@ -51,6 +62,8 @@ public class NavexApiService extends DeliveryCompanyService {
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         connection.setRequestProperty("User-Agent", "curl/7.29.0");
+
+        LOGGER.debug("Sending request to Navex API...");
 
         try (OutputStream out = connection.getOutputStream()) {
             out.write(body.getBytes());
@@ -66,10 +79,10 @@ public class NavexApiService extends DeliveryCompanyService {
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        finally {
+        } catch (Exception e) {
+            LOGGER.error("Error reading response from Navex API: {}", e.getMessage());
+            throw new IOException("Error reading response", e);
+        } finally {
             connection.disconnect();
         }
 
@@ -83,7 +96,7 @@ public class NavexApiService extends DeliveryCompanyService {
         }
 
         DeliveryResponseNavex deliveryResponse = getDeliveryResponseNavex(responseCode, responseMessage, response);
-        LOGGER.debug("deliveryResponse : {} ", deliveryResponse);
+        LOGGER.debug("Delivery response received: {}", deliveryResponse);
 
         return deliveryResponse;
     }
@@ -104,7 +117,7 @@ public class NavexApiService extends DeliveryCompanyService {
 
     private String createRequestBody(Packet packet) throws IOException {
         String adresse = this.getValue(packet.getAddress().replaceAll(REGEX_NEWLINE, " "));
-        return new StringBuilder()
+        String requestBody = new StringBuilder()
                 .append("nom=").append(URLEncoder.encode(this.getValue(packet.getCustomerName()), "UTF-8"))
                 .append("&gouvernerat=").append(URLEncoder.encode(packet.getCity().getGovernorate().getName(), "UTF-8"))
                 .append("&ville=").append(URLEncoder.encode(packet.getCity().getName(), "UTF-8"))
@@ -120,10 +133,15 @@ public class NavexApiService extends DeliveryCompanyService {
                 .append("&nb_article=").append(URLEncoder.encode("1", "UTF-8"))
                 .append("&prix=").append(URLEncoder.encode(this.getPacketPrice(packet).toString(), "UTF-8"))
                 .toString();
+
+        LOGGER.debug("Created request body: {}", requestBody);
+        return requestBody;
     }
 
     @Override
     public Double getPacketPrice(Packet packet) {
-        return packet.getPrice() + packet.getDeliveryPrice() - packet.getDiscount();
+        Double price = packet.getPrice() + packet.getDeliveryPrice() - packet.getDiscount();
+        LOGGER.debug("Calculated packet price: {}", price);
+        return price;
     }
 }

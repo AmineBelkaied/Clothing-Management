@@ -23,24 +23,29 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @Component
 public class UpdateStatusScheduler implements SchedulingConfigurer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UpdateStatusScheduler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateStatusScheduler.class);
+    private static final int THREAD_SLEEP_INTERVAL = 1000;
+
     private final ModelStockHistoryService modelStockHistoryService;
     private final PacketService packetService;
     private final ProductService productService;
     private final MasterTenantService masterTenantService;
     private final GlobalConfService globalConfService;
-
     private final SessionUtils sessionUtils;
-    private final static int THREAD_SLEEP_INTERVAL = 1000;
+
     @Value("${default.update.status.cron-expression}")
     private String defaultUpdateStatusCronExp;
+
     @Value("${default.count.stock.cron-expression}")
     private String defaultCountStockCronExp;
+
     @Value("${server.database.prefix}")
     private String serverDbPrefix;
 
@@ -56,7 +61,8 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         List<MasterTenant> masterTenants = masterTenantService.findAllMasterTenants();
-        masterTenants.stream().filter(masterTenant -> !masterTenant.getDbName().equalsIgnoreCase(serverDbPrefix + AppConstants.MASTER_DB))
+        masterTenants.stream()
+                .filter(masterTenant -> !masterTenant.getDbName().equalsIgnoreCase(serverDbPrefix + AppConstants.MASTER_DB))
                 .forEach(masterTenant -> {
                     DBContextHolder.setCurrentDb(masterTenant.getDbName());
                     GlobalConf globalConf = globalConfService.getGlobalConf();
@@ -64,64 +70,68 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
                             ? globalConf.getCronExpression()
                             : defaultUpdateStatusCronExp;
 
-                    // register cron task for updating packet status
-                    taskRegistrar.addTriggerTask(() -> startUpdateStatusCronTask(masterTenant), triggerContext -> {
-                        CronTrigger cronTrigger = new CronTrigger(updateStatusCronExp);
-                        Date nextExecutionTime = cronTrigger.nextExecutionTime(triggerContext);
-                        assert nextExecutionTime != null;
-                        return nextExecutionTime.toInstant();
-                    });
+                    // Register cron task for updating packet status
+                    taskRegistrar.addTriggerTask(
+                            () -> startUpdateStatusCronTask(masterTenant),
+                            triggerContext -> {
+                                CronTrigger cronTrigger = new CronTrigger(updateStatusCronExp);
+                                Date nextExecutionTime = cronTrigger.nextExecutionTime(triggerContext);
+                                return nextExecutionTime != null ? nextExecutionTime.toInstant() : null;
+                            }
+                    );
 
-                    // register cron task for counting stock
-                    taskRegistrar.addTriggerTask(() -> startCountStockCronTask(masterTenant), triggerContext -> {
-                        CronTrigger cronTrigger = new CronTrigger(defaultCountStockCronExp);
-                        Date nextExecutionTime = cronTrigger.nextExecutionTime(triggerContext);
-                        assert nextExecutionTime != null;
-                        return nextExecutionTime.toInstant();
-                    });
+                    // Register cron task for counting stock
+                    taskRegistrar.addTriggerTask(
+                            () -> startCountStockCronTask(masterTenant),
+                            triggerContext -> {
+                                CronTrigger cronTrigger = new CronTrigger(defaultCountStockCronExp);
+                                Date nextExecutionTime = cronTrigger.nextExecutionTime(triggerContext);
+                                return nextExecutionTime != null ? nextExecutionTime.toInstant() : null;
+                            }
+                    );
                 });
     }
 
     @Transactional("tenantTransactionManager")
     public int startUpdateStatusCronTask(MasterTenant masterTenant) {
-        LOG.info("--- UPDATE STATUS CRON STARTED FOR TENANT --- " + masterTenant.getTenantName());
+        LOGGER.info("UPDATE STATUS CRON STARTED FOR TENANT: {}", masterTenant.getTenantName());
         DBContextHolder.setCurrentDb(masterTenant.getDbName());
         packetService.deleteEmptyPacket();
         User currentUser = sessionUtils.getCurrentUser();
         List<Packet> packets = Collections.synchronizedList(packetService.findSyncPackets());
+
         synchronized (packets) {
             for (Packet packet : packets) {
                 try {
-                    this.packetService.getLastStatus(packet,currentUser);
-                    LOG.info("UPDATE STATUS FINISHED FOR PACKET >> " + packet.toString());
+                    packetService.getLastStatus(packet, currentUser);
+                    LOGGER.info("UPDATE STATUS FINISHED FOR PACKET: {}", packet);
                 } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Error updating status for packet {}: {}", packet, e.getMessage(), e);
                 } catch (Exception e) {
-                    throw new RuntimeException("e1" + e);
+                    LOGGER.error("Unexpected error occurred: {}", e.getMessage(), e);
+                    throw new RuntimeException("Unexpected error occurred", e);
                 }
                 try {
-                    //System.out.println("sleep");
                     Thread.sleep(THREAD_SLEEP_INTERVAL);
-                } catch (InterruptedException e2) {
-                    System.out.println("e2" + e2);
-                    e2.printStackTrace();
+                } catch (InterruptedException e) {
+                    LOGGER.error("Thread interrupted during sleep: {}", e.getMessage(), e);
+                    Thread.currentThread().interrupt();
                 }
             }
         }
-        LOG.info("--- UPDATE STATUS CRON ENDED FOR TENANT --- " + masterTenant.getTenantName());
+        LOGGER.info("UPDATE STATUS CRON ENDED FOR TENANT: {}", masterTenant.getTenantName());
         return packets.size();
     }
 
     public void startCountStockCronTask(MasterTenant masterTenant) {
         try {
-            LOG.info("--- COUNT STOCK CRON STARTED FOR TENANT --- " + masterTenant.getTenantName());
+            LOGGER.info("COUNT STOCK CRON STARTED FOR TENANT: {}", masterTenant.getTenantName());
             DBContextHolder.setCurrentDb(masterTenant.getDbName());
             List<ModelStockHistory> countStock = productService.countStock();
             modelStockHistoryService.saveDayHistory(countStock);
-            LOG.info("--- COUNT STOCK CRON ENDED FOR TENANT --- " + masterTenant.getTenantName());
+            LOGGER.info("COUNT STOCK CRON ENDED FOR TENANT: {}", masterTenant.getTenantName());
         } catch (Exception e) {
-            System.out.println("e3"+e);
-            e.printStackTrace();
+            LOGGER.error("Error while saving count stock: {}", e.getMessage(), e);
         }
     }
 }

@@ -1,8 +1,9 @@
-<div class="container-fluid">
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-    <div class="card-body">
-      <div class="row mt-3 ml-2 mr-3 mb-3">
-        <div class="col-md-5">
+<div class="p-d-flex p-flex-column">
+  <!-- Calendar section -->
+  <div class="p-mb-3 p-mt-2">
+    <p-card styleClass="p-p-3" [style]="{'background-color': '#fbfbfb', 'width': '100%'}">
+      <div class="p-grid p-mt-3 p-mb-3">
+        <div class="p-col-12 p-md-5">
           <p-calendar
             [(ngModel)]="rangeDates"
             (ngModelChange)="findAllPackets()"
@@ -15,12 +16,11 @@
             (onClearClick)="resetTable()"
             [showButtonBar]="false"
             [showIcon]="true"
-            class="ml-4"
-            [style]="{ width: '14rem'}"
+            [style]="{ width: '100%' }"
             [touchUI]="true"
           >
-          <ng-template pTemplate="footer">
-            <div style="display: flex; align-items: center;">
+            <ng-template pTemplate="footer">
+              <div class="p-d-flex p-ai-center p-jc-between">
                 <p-button label="All" styleClass="p-button-text" (click)="allDateFilter()"></p-button>
                 <p-button label="Semaine" styleClass="p-button-text" (click)="weekDate()"></p-button>
                 <p-button label="15 jours" styleClass="p-button-text" (click)="twoWeekDate()"></p-button>
@@ -33,42 +33,41 @@
                   <i class="pi pi-arrow-right"></i>
                 </p-button>
                 <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
-            </div>
-          </ng-template>
-        </p-calendar>
+              </div>
+            </ng-template>
+          </p-calendar>
         </div>
       </div>
-    </div>
+    </p-card>
   </div>
-</div>
-<div class="container-fluid" [style]="{ width: '99%'}">
-<!-----------------------------------Packets Chart---------------------------------------->
 
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-    <p-card [style]="{ width: '100%'}">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <H3>Packets Chart</H3>
-        </div>
-        <div class="d-flex align-items-center">
+  <!-- Packets Chart section -->
+  <div class="p-mb-3">
+    <p-card styleClass="p-p-3" [style]="{'background-color': '#fbfbfb', 'width': '100%'}">
+      <div class="p-d-flex p-jc-between p-ai-center">
+        <h3>Packets Chart</h3>
+        <div class="p-d-flex p-ai-center">
           <p-selectButton
-                [options]="deliveryCompanyList"
-                [(ngModel)]="deliveryCompanyName"
-                optionLabel="name"
-                optionValue="name"
-                (onOptionClick)="getStatAllPacketsChart()"/>
+            [options]="deliveryCompanyList"
+            [(ngModel)]="deliveryCompanyName"
+            optionLabel="name"
+            optionValue="name"
+            (onOptionClick)="getStatAllPacketsChart()"/>
         </div>
-        <div>
-          <p-selectButton [options]="enablerOptions" [(ngModel)]="packetsChartEnabler" optionLabel="label" optionValue="value" (click)="packetsChartEnablerChange()"></p-selectButton>
-        </div>
+        <p-selectButton
+          [options]="enablerOptions"
+          [(ngModel)]="packetsChartEnabler"
+          optionLabel="label"
+          optionValue="value"
+          (click)="packetsChartEnablerChange()"></p-selectButton>
       </div>
-      <p-tabView  *ngIf="packetsChartEnabler">
+      <p-tabView *ngIf="packetsChartEnabler">
         <p-tabPanel header="Chart">
           <p-chart type="line" [data]="packetsData" [options]="packetsOptions"></p-chart>
         </p-tabPanel>
         <p-tabPanel header="Table">
-          <table class="table">
-            <thead>
+          <p-table [value]="packetsTableData" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
               <tr>
                 <th>Model</th>
                 <th>Min-Max</th>
@@ -76,22 +75,21 @@
                 <th>Sum</th>
                 <th>Pourcentage</th>
               </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of packetsTableData">
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+              <tr>
                 <td>{{ item.name }}</td>
                 <td>{{ item.min }}-{{ item.max }}</td>
                 <td>{{ item.avg }}</td>
                 <td>{{ item.payed }}</td>
                 <td>{{ item.per }}%</td>
               </tr>
-            </tbody>
-          </table>
+            </ng-template>
+          </p-table>
         </p-tabPanel>
       </p-tabView>
     </p-card>
   </div>
-
 
 <!-----------------------------------Models Chart---------------------------------------->
 

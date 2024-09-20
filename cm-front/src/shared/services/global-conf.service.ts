@@ -42,6 +42,9 @@ export class GlobalConfService {
   }
 
   getGlobalConfSubscriber(): Observable<GlobalConf> {
+    if (this.globalConfSubscriber.value.length === 0) {
+      this.loadGlobalConf();
+    }
     return this.globalConfSubscriber.asObservable();
   }
 

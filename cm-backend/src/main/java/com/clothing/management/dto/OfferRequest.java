@@ -1,32 +1,23 @@
 package com.clothing.management.dto;
 
-import com.clothing.management.entities.*;
+import com.clothing.management.entities.FbPage;
+import com.clothing.management.entities.Offer;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class OfferDTO {
+public class OfferRequest {
     private Long id;
     private String name;
     private Set<OfferModelsDTO> offerModels;
-    private Set<Long> fbPages;
+    private Set<FbPage> fbPages;
     private Double price;
     private boolean enabled;
 
-    public OfferDTO(){}
-    public OfferDTO(String name){
-        this.name = name;
-    }
+    public OfferRequest(){}
 
-    public OfferDTO(Offer offer){
-        this.id = offer.getId();
-        this.name = offer.getName();
-        this.offerModels = offer.getOfferModels().stream().map(offerModels -> new OfferModelsDTO(offerModels)).collect(Collectors.toSet());
-        this.fbPages = offer.getFbPages().stream().map(fbPage -> fbPage.getId()).collect(Collectors.toSet());
-        this.price = offer.getPrice();
-        this.enabled = offer.isEnabled();
+    public OfferRequest(String name){
+        this.name = name;
     }
 
     public Long getId() {
@@ -45,7 +36,6 @@ public class OfferDTO {
         this.name = name;
     }
 
-
     public Double getPrice() {
         return price;
     }
@@ -61,15 +51,13 @@ public class OfferDTO {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
-
-    public Set<Long> getFbPages() {
+    public Set<FbPage> getFbPages() {
         return fbPages;
     }
 
-    public void setFbPages(Set<Long> fbPages) {
+    public void setFbPages(Set<FbPage> fbPages) {
         this.fbPages = fbPages;
     }
-
     public Set<OfferModelsDTO> getOfferModels() {
         return offerModels;
     }

@@ -6,6 +6,8 @@ import com.clothing.management.entities.Packet;
 import com.clothing.management.repository.IGlobalConfRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -19,8 +21,11 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class JaxApiService extends DeliveryCompanyService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JaxApiService.class);  // Logger instance
+
     private final static String apiUrl = "https://core.jax-delivery.com/api/user/colis/";
     protected String comment = " يسمح بفتح الطرد عند طلب الحريف ";
+
     protected JaxApiService(IGlobalConfRepository globalConfRepository) {
         super(globalConfRepository);
     }
@@ -28,69 +33,48 @@ public class JaxApiService extends DeliveryCompanyService {
     @Override
     public DeliveryResponseJax createBarCode(Packet packet) throws IOException {
         String url = apiUrl + "add?token=" + packet.getDeliveryCompany().getToken();
+        LOGGER.debug("Creating barcode for packet: {}", packet.getId());
+        LOGGER.debug("Request URL: {}", url);
         return executeHttpRequest(url, createRequestBody(packet), packet.getDeliveryCompany(), HttpMethod.POST);
     }
 
     @Override
     public DeliveryResponseJax getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException {
         String url = apiUrl + "getstatut_uptated/" + barCode + "?token=" + deliveryCompany.getToken();
+        LOGGER.debug("Getting last status for barcode: {}", barCode);
+        LOGGER.debug("Request URL: {}", url);
         return executeHttpRequest(url, null, deliveryCompany, HttpMethod.GET);
     }
-
-    /*private DeliveryResponseJax executeHttpRequest(String url, String body) throws IOException {
-        setUpGlobalConfParams();
-        // Create a new HTTP connection and set the request method to POST
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod(HttpMethod.POST.toString());
-
-        // Enable output and send the request body
-        connection.setDoOutput(true);
-        try (OutputStream out = connection.getOutputStream()) {
-            out.write(body.getBytes());
-        }
-        DeliveryResponseJax deliveryResponse;
-        int responseCode = connection.getResponseCode();
-        String responseMessage = connection.getResponseMessage();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            deliveryResponse = getDeliveryResponseJax(responseCode, responseMessage, response);
-        }
-        LOGGER.debug("deliveryResponse : {} ", deliveryResponse);
-        // Disconnect the connection
-        connection.disconnect();
-        return deliveryResponse;
-    }*/
 
     private DeliveryResponseJax executeHttpRequest(String url, String jsonBody, DeliveryCompany deliveryCompany, HttpMethod method) throws IOException {
         HttpsURLConnection connection = getHttpsURLConnection(url, deliveryCompany, method);
         DeliveryResponseJax deliveryResponse = new DeliveryResponseJax();
         StringBuilder response = new StringBuilder();
+
         if (method == HttpMethod.POST) {
             connection.setDoOutput(true);
             try (OutputStream outputStream = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 outputStream.write(input, 0, input.length);
+                LOGGER.debug("Sent POST request to Jax API with body: {}", jsonBody);
             } catch (Exception e) {
-                LOGGER.error("Error in writing to OutputStream : ", e);
+                LOGGER.error("Error in writing to OutputStream: ", e);
             }
         }
 
-//first
         int responseCode = connection.getResponseCode();
         String responseMessage = connection.getResponseMessage();
+
         if (responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
             deliveryResponse = getDeliveryResponseJaxSuccess(connection, response, responseCode, responseMessage);
         } else {
             getDeliveryResponseJaxError(connection, response, deliveryResponse, responseCode);
         }
-        //first end
 
-        LOGGER.debug("deliveryResponse : {} ", deliveryResponse);
-        // Disconnect the connection
+        LOGGER.debug("Response Code: {}", responseCode);
+        LOGGER.debug("Response Message: {}", responseMessage);
+        LOGGER.debug("Delivery Response: {}", deliveryResponse);
+
         connection.disconnect();
         return deliveryResponse;
     }
@@ -104,7 +88,7 @@ public class JaxApiService extends DeliveryCompanyService {
                     response.append(line);
                 }
             } catch (Exception e) {
-                LOGGER.error("Error in reading ErrorStream : ",  e);
+                LOGGER.error("Error in reading ErrorStream: ", e);
             }
         } else {
             LOGGER.error("Error stream is null.");
@@ -115,20 +99,18 @@ public class JaxApiService extends DeliveryCompanyService {
     }
 
     private static DeliveryResponseJax getDeliveryResponseJaxSuccess(HttpsURLConnection connection, StringBuilder response, int responseCode, String responseMessage) throws JsonProcessingException {
-
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                LOGGER.info("line-: {}", line);
+                LOGGER.debug("Received line from InputStream: {}", line);
                 response.append(line);
             }
         } catch (Exception e) {
-            LOGGER.error("Error in reading InputStream : ", e);
+            LOGGER.error("Error in reading InputStream: ", e);
         }
 
         return getDeliveryResponseJax(responseCode, responseMessage, response);
     }
-
 
     private static DeliveryResponseJax getDeliveryResponseJax(int responseCode, String responseMessage, StringBuilder response) throws JsonProcessingException {
         DeliveryResponseJax deliveryResponse;
@@ -143,7 +125,6 @@ public class JaxApiService extends DeliveryCompanyService {
         return deliveryResponse;
     }
 
-
     private static HttpsURLConnection getHttpsURLConnection(String url, DeliveryCompany deliveryCompany, HttpMethod method) throws IOException {
         URL urlConnection = new URL(url);
         HttpsURLConnection connection = (HttpsURLConnection) urlConnection.openConnection();
@@ -152,12 +133,13 @@ public class JaxApiService extends DeliveryCompanyService {
         connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
         connection.setRequestProperty(HttpHeaders.USER_AGENT, "curl/7.29.0");
         connection.setDoOutput(method == HttpMethod.POST);
+        LOGGER.debug("Setting up HTTPS connection with URL: {}", url);
         return connection;
     }
 
     private String createRequestBody(Packet packet) {
-        String adresse = this.getValue(packet.getAddress().replaceAll(REGEX_NEWLINE," "));
-        LOGGER.info(adresse);
+        String adresse = this.getValue(packet.getAddress().replaceAll(REGEX_NEWLINE, " "));
+        LOGGER.info("Creating request body with address: {}", adresse);
 
         return new StringBuilder()
                 .append("{")
@@ -178,6 +160,7 @@ public class JaxApiService extends DeliveryCompanyService {
     @Override
     public Double getPacketPrice(Packet packet) {
         Double price = packet.getPrice() + packet.getDeliveryPrice() - packet.getDiscount();
+        LOGGER.debug("Calculated packet price: {}", price);
         return (price == 0.0) ? 0.1 : price;
     }
 }

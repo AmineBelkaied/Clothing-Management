@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  height: 100vh;
+}
+#main-content {
+  flex-grow: 1;
+  transition: margin-left 0.3s ease;
+  margin-left: 0;
+  width: 100vh;
+}
+#main-content.content-shifted {
+  margin-left: 5rem;
+}
+

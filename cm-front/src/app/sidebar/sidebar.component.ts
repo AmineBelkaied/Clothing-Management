@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
@@ -13,6 +13,9 @@ import { StorageService } from 'src/shared/services/strorage.service';
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
+  @Output() expansionChanged = new EventEmitter<boolean>();
+  isExpanded: boolean = false;
+  menuItems: any[];
 
   $unsubscribe: Subject<void> = new Subject();
   activeClass: boolean;
@@ -23,29 +26,32 @@ export class SidebarComponent implements OnInit {
   isAdmin: boolean;
   isSuperAdmin: boolean;
   globalConf: GlobalConf = {
-    applicationName: ""
+    applicationName: "AbySoft"
   };
   readonly clothingManagementLabel: string = 'Clothing Management';
 
   constructor(private packetService: PacketService, private globalConfService: GlobalConfService,private messageService: MessageService,
               private router: Router,  public storageService: StorageService) {
+                this.menuItems = [
+                  { label: 'Commandes', icon: 'pi pi-shopping-cart', routerLink: "/packets" },
+                  { label: 'Modèles', icon: 'pi pi-th-large', routerLink: "/models" },
+                  { label: 'Offres', icon: 'pi pi-gift', routerLink: "/offers" },
+                  { label: 'Stock', icon: 'pi pi-box', routerLink: "/stock" },
+                  { label: 'Configuration', icon: 'pi pi-cog', routerLink: "/config" },
+                  { label: 'Statistique', icon: 'pi pi-chart-bar', routerLink: "/statistique" },
+                  { label: 'Suivie packet', icon: 'pi pi-map-marker', routerLink: "/payed-return" },
+                  { label: 'Validation', icon: 'pi pi-check-square', routerLink: "/verification" },
+                ];
+                    this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+                      (globalConf: GlobalConf) => {
+                        this.globalConf = globalConf;
+                        console.log(this.globalConf);
+                      })
    }
 
   ngOnInit(): void {
-    this.storageService.isLoggedIn.subscribe(isLoggedIn => {
-      this.isLoggedIn = isLoggedIn;
-      this.userName = this.storageService.getUserName();
-      this.isAdmin = this.storageService.hasRoleAdmin();
-      this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
-      this.activeClass = true;
-      if(this.isLoggedIn) {
-        this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
-          (globalConf: GlobalConf) => {
-            this.globalConf = globalConf;
-          }
-        );
-      }
-    });
+
+    this.emitExpansionState();
   }
 
   changeClass() {
@@ -78,4 +84,13 @@ export class SidebarComponent implements OnInit {
       this.storageService.removeUser();
     }
 
+
+  toggleSidebar() {
+    this.isExpanded = !this.isExpanded;
+    this.emitExpansionState();
+  }
+
+  private emitExpansionState() {
+    this.expansionChanged.emit(this.isExpanded);
+  }
 }

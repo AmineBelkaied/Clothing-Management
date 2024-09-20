@@ -12,6 +12,8 @@ import com.clothing.management.repository.IProductRepository;
 import com.clothing.management.repository.ISizeRepository;
 import com.clothing.management.services.ModelService;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +23,13 @@ import java.util.stream.Collectors;
 @Service
 public class ModelServiceImpl implements ModelService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModelServiceImpl.class);
+
     private final IModelRepository modelRepository;
     private final IColorRepository colorRepository;
     private final ISizeRepository sizeRepository;
     private final IProductRepository productRepository;
-    
+
     public ModelServiceImpl(IModelRepository modelRepository, IColorRepository colorRepository,
                             ISizeRepository sizeRepository, IProductRepository productRepository) {
         this.modelRepository = modelRepository;
@@ -36,27 +40,41 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public List<Model> findAllModels() {
-        return modelRepository.findAll();
+        LOGGER.info("Retrieving all models.");
+        List<Model> models = modelRepository.findAll();
+        LOGGER.info("Found {} models.", models.size());
+        return models;
     }
 
     @Override
     public Optional<Model> findModelById(Long idModel) {
-        return modelRepository.findById(idModel);
+        LOGGER.info("Finding model by ID: {}", idModel);
+        Optional<Model> model = modelRepository.findById(idModel);
+        if (model.isPresent()) {
+            LOGGER.info("Model found: {}", model.get());
+        } else {
+            LOGGER.warn("Model with ID: {} not found.", idModel);
+        }
+        return model;
     }
 
     @Override
     public Model saveModel(Model model) {
-        if (null == model.getId()) {
+        LOGGER.info("Saving model: {}", model);
+        if (model.getId() == null) {
             modelRepository.findByNameIsIgnoreCase(model.getName())
                     .ifPresent(existingModel -> {
+                        LOGGER.error("Model already exists with ID: {} and name: {}", existingModel.getId(), existingModel.getName());
                         throw new ModelAlreadyExistsException(existingModel.getId(), existingModel.getName());
                     });
         }
         model = modelRepository.save(model);
-        //model = addUnknownColorsAndSizes(model);
+        LOGGER.info("Model saved with ID: {}", model.getId());
+
         // Generate products
+        LOGGER.info("Generating products for model ID: {}", model.getId());
         generateModelProducts(model);
-        
+
         return model;
     }
 
@@ -66,12 +84,13 @@ public class ModelServiceImpl implements ModelService {
         List<Size> sizes = model.getSizes();
         colors.add(null);
         sizes.add(null);
+
         try {
             // Generate products
-            if(!model.getColors().isEmpty()) {
-                for(Color color : colors) {
-                    if(!model.getSizes().isEmpty()) {
-                        for(Size size : sizes) {
+            if (!model.getColors().isEmpty()) {
+                for (Color color : colors) {
+                    if (!model.getSizes().isEmpty()) {
+                        for (Size size : sizes) {
                             Product existingProduct = productRepository.findByModelAndColorAndSize(
                                     model.getId(),
                                     color != null ? color.getId() : null,
@@ -81,40 +100,44 @@ public class ModelServiceImpl implements ModelService {
                             if (existingProduct == null) {
                                 Product product = new Product(size, color, 0, model);
                                 productRepository.save(product);
+                                LOGGER.info("Product created: {}", product);
                             }
                         }
                     }
                 }
             }
         } catch (EntityNotFoundException e) {
-            System.out.println(e);
+            LOGGER.error("Error generating products: {}", e.getMessage());
         }
 
-        //deleteUnusedProducts(model);
+        // Optionally delete unused products
+        // deleteUnusedProducts(model);
         return model;
     }
 
     @Override
     public void deleteModelById(Long idModel) {
+        LOGGER.info("Deleting model by ID: {}", idModel);
         modelRepository.deleteById(idModel);
+        LOGGER.info("Model with ID: {} deleted.", idModel);
     }
 
-    /**
-     * Delete selected models by their IDs.
-     *
-     * @param modelsId a list of IDs representing the models to be deleted
-     */
     @Override
     public void deleteSelectedModels(List<Long> modelsId) {
+        LOGGER.info("Deleting models with IDs: {}", modelsId);
         modelRepository.deleteAllById(modelsId);
+        LOGGER.info("Models with IDs: {} deleted.", modelsId);
     }
 
     @Override
     @Transactional("tenantTransactionManager")
-    public List<ModelDTO> getModels(){
-        return modelRepository.findAll()
+    public List<ModelDTO> getModels() {
+        LOGGER.info("Retrieving all models as DTOs.");
+        List<ModelDTO> modelDTOs = modelRepository.findAll()
                 .stream()
                 .map(ModelDTO::new)
                 .collect(Collectors.toList());
+        LOGGER.info("Found {} model DTOs.", modelDTOs.size());
+        return modelDTOs;
     }
 }

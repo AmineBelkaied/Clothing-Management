@@ -120,7 +120,6 @@ public class FbPage {
 
     @Override
     public boolean equals(Object o) {
-        System.out.println("oFBPage"+o);
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FbPage fbPage = (FbPage) o;

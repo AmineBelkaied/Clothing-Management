@@ -7,5 +7,5 @@ export interface Offer {
     price: number;
     enabled: boolean;
     offerModels: any[];
-    fbPages: FbPage[];
+    fbPages: any[]; // Pages in request / number in response
 }

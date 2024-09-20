@@ -1,11 +1,11 @@
 
-import { ConfirmationService, SelectItemGroup, PrimeIcons, MenuItem } from 'primeng/api';
+import { SelectItemGroup, PrimeIcons, MenuItem } from 'primeng/api';
 import { MessageService } from 'primeng/api';
 import { Packet } from '../../../shared/models/Packet';
 import { OfferService } from '../../../shared/services/offer.service';
 import { PacketService } from '../../../shared/services/packet.service';
 import { DatePipe } from '@angular/common';
-import { Table, TableRowSelectEvent } from 'primeng/table';
+import { Table } from 'primeng/table';
 import { CityService } from '../../../shared/services/city.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../../../shared/services/fb-page.service';
@@ -26,18 +26,16 @@ import { CANCELED, OOS, NOT_SERIOUS, PROBLEME,
   DELIVERED,
   UNREACHABLE,
   IN_PROGRESS} from 'src/shared/utils/status-list';
-import { City } from 'src/shared/models/City';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
-import { DashboardCard } from 'src/shared/models/DashboardCard';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { ContextMenu } from 'primeng/contextmenu';
-import { ProductService } from 'src/shared/services/product.service';
 import { ClientReason, ClientReasonDetails } from 'src/shared/enums/client-reason';
 import { Note } from 'src/shared/models/Note';
 import { StringUtils } from 'src/shared/utils/string-utils';
-import { CustomSelectItem } from 'src/shared/models/CustomSelectItem';
+import { FormControl } from '@angular/forms';
+import { StatusContainerComponent } from 'src/app/status-container/status-container.component';
+import { Status } from 'src/shared/models/status';
 
 @Component({
   selector: 'app-list-packets',
@@ -46,15 +44,12 @@ import { CustomSelectItem } from 'src/shared/models/CustomSelectItem';
   providers: [DatePipe]
 })
 export class ListPacketsComponent implements OnInit, OnDestroy {
-  statusItemsLabel: string;
+  oldStatusLabel: string;
 
-  onRowSelect($event: TableRowSelectEvent) {
-    console.log($event);
-
-  }
-
-  x: number;
-
+  activeIndex: number = 2;
+  oldActiveIndex: number;
+  //@Output() confirmEvent: EventEmitter<string> = new EventEmitter<string>();
+  @ViewChild(StatusContainerComponent) statusContainerComponent!: StatusContainerComponent;
   @ViewChild('contextMenu', { static: false }) contextMenu: ContextMenu;
   display: boolean = false;
   displayStatus: boolean = false;
@@ -95,7 +90,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   optionButtons: MenuItem[];
   packetStatusList: string[] = [];
   statesList: string[] = [];
-  selectedStatus: FormControl = new FormControl();
+
   selectedStates: string[] = [];
   $unsubscribe: Subject<void> = new Subject();
   pageSize: number = 100;
@@ -114,75 +109,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   nbrConfirmed: number = 0;
   countUNREACHABLE: string = "0";
 
-  statusItems: any[] = [
-    {
-      label: "Erreur Chargement",
-      title: "Tous",
-      badge: 0,
-      badgeByDate: 0,
-      command: () => {
-      },
-      disabled: true
-    },
-    {
-      label: OOS,
-      title: OOS,
-      badge: 0,
-      badgeByDate: 0,
-      command: () => {
-      }
-    },
-    {
-      label: NOT_CONFIRMED,
-      title: NOT_CONFIRMED,
-      badge: 0,
-      badgeByDate: 0,
-      command: () => {
-      }
-    },
-    {
-      label: UNREACHABLE,
-      title: UNREACHABLE,
-      icon: 'pi-power-off',
-      badge: 0,
-      badgeByDate: 0,
-      command: () => {
-      }
-    },
-    {
-      label: CONFIRMED,
-      title: CONFIRMED,
-      badge: 0,
-      badgeByDate: 0
-    },
-    {
-      label: IN_PROGRESS,
-      title: IN_PROGRESS,
-      badge: 0,
-      badgeByDate: 0
-    },
-    {
-      label: RETURN,
-      title: RETURN,
-      badge: 0,
-      badgeByDate: 0
-    },
-    {
-      label: CANCELED,
-      title: CANCELED,
-      badge: 0,
-      badgeByDate: 0
-    },
-    {
-      label: 'Terminé',
-      title: 'Terminé',
-      badge: 0,
-      badgeByDate: 0
-    }
-  ];
   showStatus: boolean = false;
-  activeIndex: number = 2;
-  oldActiveIndex: number = 2;
+
 
   @ViewChild('dt') dt: Table;
   //private readonly reg: RegExp = /,/gi;
@@ -191,7 +119,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   countCanceled: number = 0;
   realTotalItems: number;
   selectedPhoneNumber: string = '';
-  @Output() confirmEvent: EventEmitter<string> = new EventEmitter<string>();
+
   visibleNote: boolean = false;
   activeClass: boolean;
   userName: string;
@@ -211,24 +139,22 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   @ViewChild("expRef") explanationElement: ElementRef;
   explanationTitle: string;
   noteActionStatus: string;
+  selectedStatus: string[] = [NOT_CONFIRMED];
+  statusItemsLabel: string;
 
   constructor(
     private packetService: PacketService,
-    private confirmationService: ConfirmationService,
     private offerService: OfferService,
     private cityService: CityService,
     private fbPageService: FbPageService,
     private dateUtils: DateUtils,
     public storageService: StorageService,
     public messageService:MessageService,
-    private cdRef: ChangeDetectorRef,
-    private productService : ProductService
+    private cdRef: ChangeDetectorRef
     ) {
     this.statusList = statusList;
     this.statesList = statesList;
   }
-
-
 
   ngAfterViewChecked(){
     this.cdRef.detectChanges();
@@ -242,13 +168,13 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
       this.activeClass = true;
     });
+    this.statusItemsLabel = this.selectedStatus[0];
     this.rangeDates = [this.today,this.today];
     this.offerService.getOffersSubscriber();
     this.createColumns();
     this.findAllGroupedCities();
     this.findAllFbPages();
-    this.onActiveIndexChange(2);
-    this.selectedStatus.setValue([]);
+    this.filterPackets('global');
   }
 
   findAllFbPages(): void {
@@ -258,6 +184,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   findAllPackets(): void {
+
     this.loading = true;
     this.packetService.findAllPackets(this.params)
       .pipe(takeUntil(this.$unsubscribe))
@@ -267,10 +194,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           this.packets = response.result.filter((packet: any) => this.checkPacketNotNull(packet));
           this.realTotalItems = response.totalItems;
           this.totalItems = this.packets.length;
-          let countConfirmed =response.result.filter(packet => packet.status === CONFIRMED).length;
-          this.statusItems[3].badge = countConfirmed > 0 ? countConfirmed:0;
+          //let countConfirmed =response.result.filter(packet => packet.status === CONFIRMED).length;
+          //this.statusItems[3].badge = countConfirmed > 0 ? countConfirmed:0;
           this.loading = false;
-          this.showStatus = false;
+          //this.showStatus = false;
+          console.log("findAllPackets", this.showStatus);
         },
         error: (error: Error) => {
           console.log('Error:', error);
@@ -283,15 +211,19 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.cols = [
       { field: 'date', header: 'Date' },
       { field: 'fbPage.name', header: 'PageFB' },
-      { field: 'customerName', header: 'Client', customExportHeader: 'Product Code'},
-      { field: 'customerPhoneNb', header: 'Téléphone' },
-      { field: 'city', header: 'Ville' },
-      { field: 'address', header: 'Adresse' },
+      { field: 'customerNamePhone', header: 'Client'},
+      { field: 'cityAddress', header: 'Ville & Adresse' },  // Combine city and address here
       { field: 'relatedProducts', header: 'Articles' },
       { field: 'price', header: 'Prix' },
       { field: 'status', header: 'Statut' },
       { field: 'barcode', header: 'Barcode' },
     ];
+  }
+  formatPhoneNumber(phoneNumber: string): string {
+    if (!phoneNumber) {
+      return '';
+    }
+    return phoneNumber.replace('/', '<br />');
   }
 
   findAllGroupedCities(): void {
@@ -299,15 +231,20 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.groupedCities = this.cityService.adaptListToDropDown(groupedCities);
     });
   }
+  onActiveIndexChange(index: number) {
+    if (this.statusContainerComponent) {
+      this.statusContainerComponent.onActiveIndexChange(index);
+    }
+  }
 
   onEditComplete($event: any): void {
     const packet = $event.data;
     this.loading = true;
     console.log('this.oldFieldValue',this.oldFieldValue);
     console.log('packet[this.selectedField]',packet[this.selectedField]);
-
     try {
-      if (this.oldFieldValue !== packet[this.selectedField] && packet[this.selectedField] !== undefined) {
+      if (packet[this.selectedField] !== undefined
+        && this.oldFieldValue !== packet[this.selectedField]) {//handle to field in 1 <td>
         switch (this.selectedField) {
           case 'status':
             this.handleStatusField(packet);
@@ -330,15 +267,12 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   patchPacketService(packet: Packet) {
-    console.log('this.selectedField',this.selectedField);
-    console.log('packet',packet);
-
-
     let updatedField;
-    if (this.selectedField === 'cityId')
-      updatedField = { ['city']: packet.cityId };
-    else if (this.selectedField === 'fbPage'){
-      updatedField = { ['fbPage']: packet.fbPage!.id };
+    if (this.selectedField === 'cityId'){
+       updatedField = { ['city']: packet.cityId };
+    }
+    else if (this.selectedField === 'fbPageId'){
+      updatedField = { ['fbPage']: packet.fbPageId };
     }
     else if (this.selectedField === 'date')
       updatedField = { [this.selectedField]: this.onDateSelect(packet.date) };
@@ -361,11 +295,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (responsePacket: any) => {
-
           let msg = "Packet updated successfully";
-          if (this.selectedField === 'status') {
-            this.createNotification();
-          }
           if (this.selectedField === 'status' && status === CONFIRMED && responsePacket.barcode != null) {
             this.updatePacketFields(responsePacket);
             msg = 'Barcode created successfully';
@@ -399,7 +329,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
 
   checkPacketValidity(packet: Packet): boolean {
-      if (!(packet.fbPage!.id && this.isValid(packet.address) && this.isValid(packet.customerName) &&
+      if (!(packet.fbPageId && this.isValid(packet.address) && this.isValid(packet.customerName) &&
       this.isValid(packet.customerPhoneNb) && packet.cityId! >-1 && this.isValid(packet.packetDescription)))
       {
         this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
@@ -423,7 +353,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       .subscribe({
           next: (response: any) => {//correction Packet
             this.updatePacketFields(response);
-            this.createNotification();
           },
           error : (error: Error) => {
             console.log(error);
@@ -456,8 +385,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   updateCityField(updatedPacket: Packet) {
     let listId = this.packets.map((packetX: Packet) => packetX.id);
     let X = listId.indexOf(updatedPacket.id);
-    console.log('X',X);
-
     if (X > -1) {
       this.packets[X].cityName = updatedPacket.cityName;
       this.packets[X].cityId = updatedPacket.cityId;
@@ -580,12 +507,12 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   addNewRow(): void {
     console.log("activeIndex", this.activeIndex);
+
     if (this.activeIndex != 2){
       console.log("activeIndex != 2", this.activeIndex);
       this.onActiveIndexChange(2);
     }
     else if (!this.loading) {
-      //this.activeIndex=2;
       console.log("new pack");
 
       this.loading = true;
@@ -616,7 +543,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   loadOfferListAndOpenOffersDialog(packet: Packet,editMode:boolean): void {
-    if (packet.fbPage) {
+    if (packet.fbPageId) {
       //this.productService.loadProducts().subscribe(() => {});
         this.packet = Object.assign({}, packet);
         this.modelDialog = true;
@@ -659,14 +586,15 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   filterPackets($event?: string): void {
     this.createRangeDate();
+    this.showStatus = false;
     if(this.endDate){
       let page = 0;
       if ($event == 'clear') {
         this.selectedStates = [];
-        this.selectedStatus.setValue([]);
+        this.selectedStatus=[];
       } else if ($event == 'page')
         page = this.currentPage;
-      if (this.selectedStatus.value == null) this.selectedStatus.setValue([]);
+      if (this.selectedStatus == null) this.selectedStatus =[];
 
       if (this.filter !== '' && this.filter)
         {
@@ -680,10 +608,13 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         searchText: this.filter != null && this.filter != '' ? this.filter : null,
         beginDate: this.dateUtils.formatDateToString(this.beginDate),
         endDate: this.dateUtils.formatDateToString(this.endDate),
-        status: this.selectedStatus.value.length == 0 ? null : this.selectedStatus.value.join(),
+        status: this.selectedStatus.length == 0 ? null : this.selectedStatus,
         mandatoryDate: this.mandatoryDateCheckBox
       };
       this.findAllPackets();
+      if ($event == 'noClose') {
+        this.showStatus = true
+      } else this.showStatus = false
     }
   }
 
@@ -710,7 +641,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   resetTable(): void {
     this.selectedStates = [];
     this.selectedPackets = [];
-    this.selectedStatus.setValue([]);
+    this.selectedStatus=[];
     this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now())];
     this.filterPackets('global');
   }
@@ -744,7 +675,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   clearStatus(): void {
     this.selectedStates = [];
     this.packetStatusList = this.statusList;
-    this.selectedStatus.setValue([]);
+    this.selectedStatus=[];
     if (this.filter != '' && this.filter != null) {
       this.dt!.reset();
       this.dt!.filterGlobal(this.filter, 'contains');
@@ -760,8 +691,18 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   mandatoryDateChange(){
-    if(this.selectedStatus.value != null && this.selectedStatus.value.length > 0)
+    if(this.selectedStatus != null && this.selectedStatus.length > 0)
     this.filterPackets('global')
+  }
+  onStatusChange(status: Status) {
+    console.log('Selected statuses in parent:', status);
+    this.activeIndex = status.id;
+    this.statusItemsLabel = status.label;
+    this.selectedStatus = status.statusList;
+    if(status.noClose)
+      this.filterPackets('noClose')
+    else
+      this.filterPackets('global')
   }
 
   oldDateFilter(){
@@ -793,7 +734,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   showStatusButton() {
     this.showStatus= !this.showStatus;
-    this.createNotification();
   }
 
   getReasonOptionsByStatus(status: string) {
@@ -840,17 +780,18 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     }
   }
 
-  clearAllSelectedStatus(){
-    this.nonConfirmedOptionsValue=[];
-    this.endedOptionsValue=[];
-    this.canceledOptionsValue = [];
-    this.enCoursOptionsValue = [];
+
+  getFbPageNameById(fbPageId: number) : String {
+    return this.fbPageService.getFbPageNameById(fbPageId);
   }
 
   onEditInit($event: any): void {
     this.selectedField = $event.field;
-    this.oldFieldValue = $event.data[this.selectedField];
+    console.log($event);
 
+    console.log("this.selectedField",this.selectedField);
+
+    this.oldFieldValue = $event.data[this.selectedField];
     if (this.selectedField === 'status') {
       this.packetStatusList = [];
 
@@ -875,58 +816,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onActiveIndexChange(event: any) {
-    this.statusItemsLabel = this.statusItems[event].title;
-    this.activeIndex = event;
-    if(this.statusItemsLabel == IN_PROGRESS)
-      {
-        this.nonConfirmedOptionsValue=[];
-        this.endedOptionsValue=[];
-        this.canceledOptionsValue = [];
-        if(this.enCoursOptionsValue != undefined && this.enCoursOptionsValue.length > 0)
-        this.selectedStatus.patchValue(this.enCoursOptionsValue);
-        else
-        this.selectedStatus.patchValue([ TO_VERIFY, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3 ]);
-      }
-    else if(this.statusItemsLabel == NOT_CONFIRMED)
-      {
-        this.endedOptionsValue=[];
-        this.canceledOptionsValue = [];
-        this.enCoursOptionsValue = [];
-        if(this.nonConfirmedOptionsValue != undefined && this.nonConfirmedOptionsValue.length > 0)
-            this.selectedStatus.patchValue(this.nonConfirmedOptionsValue);
-        else
-            this.selectedStatus.patchValue([ NOT_CONFIRMED, UNREACHABLE ]);
-      }
-    else if(this.statusItemsLabel == CANCELED)
-      {
-        this.nonConfirmedOptionsValue=[];
-        this.endedOptionsValue=[];
-        this.enCoursOptionsValue = [];
-        if(this.canceledOptionsValue != undefined && this.canceledOptionsValue.length > 0)
-            this.selectedStatus.patchValue(this.canceledOptionsValue);
-        else
-            this.selectedStatus.patchValue([ CANCELED, DELETED ]);
-      }
-
-    else if(this.statusItemsLabel == "Terminé")
-      {
-        this.nonConfirmedOptionsValue=[];
-        this.canceledOptionsValue = [];
-        this.enCoursOptionsValue = [];
-        if(this.endedOptionsValue != undefined && this.endedOptionsValue.length > 0)
-          this.selectedStatus.patchValue(this.endedOptionsValue);
-      else{
-        this.selectedStatus.patchValue( [ DELIVERED ,PAID ,RETURN_RECEIVED ]);
-        }
-      }
-    else {
-      this.clearAllSelectedStatus();
-      this.selectedStatus.setValue([]);
-      this.selectedStatus.patchValue([this.statusItemsLabel]);
-    }
-    this.filterPackets('status');
-  }
 
   private handleStatusField(packet: any): void {
     const status = packet[this.selectedField];
@@ -984,182 +873,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     }
 
     this.patchPacketService(packet);
-
   }
 
-  loadNotification(){
-    this.statusItems= [
-      {
-        label: "Tous",
-        title: "Tous",
-        icon: 'pi pi-align-justify',
-        color: 'green',
-        badge:this.statusItems[0].badge,
-        badgeByDate:this.statusItems[0].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:"All", detail: event.item.label});
-          this.onActiveIndexChange(event.index);
-        },
-        disabled:true
-      },
-      {
-        label: OOS+"("+this.statusItems[1].badge+")",
-        title: OOS,
-        icon: 'pi pi-times',
-        color: 'red',
-        badge:this.statusItems[1].badge,
-        badgeByDate:this.statusItems[1].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:OOS, detail: event.item.label});
-        }
-      },
-      {
-        label: NOT_CONFIRMED+"("+this.statusItems[2].badge+")",
-        title: NOT_CONFIRMED,
-        icon: 'pi pi-phone',
-        color: 'orange',
-        badge:this.statusItems[2].badge,
-        badgeByDate:this.statusItems[2].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:NOT_CONFIRMED, detail: event.item.label});
-        }
-      },
-      {
-        label: CONFIRMED+"("+this.statusItems[3].badge+")",
-        title: CONFIRMED,
-        icon: 'pi pi-check',
-        color: 'green',
-        badge:this.statusItems[3].badge,
-        badgeByDate:this.statusItems[3].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:NOT_CONFIRMED, detail: event.item.label});
-        }
-      },
-      {
-        label: IN_PROGRESS+"("+this.statusItems[4].badge+")",
-        title: IN_PROGRESS,
-        icon: 'pi pi-truck',
-        color: 'purple',
-        badge:this.statusItems[4].badge,
-        badgeByDate:this.statusItems[4].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:IN_PROGRESS, detail: event.item.label});
-        },
-      },
-      {
-        label: RETURN+"("+this.statusItems[5].badge+")",
-        title: RETURN,
-        icon: 'pi pi-thumbs-down',
-        color: 'red',
-        badge:this.statusItems[5].badge,
-        badgeByDate:this.statusItems[5].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:RETURN, detail: event.item.label});
-          }
-      },
-      {
-        label: CANCELED+"("+this.statusItems[6].badge+")",
-        title: CANCELED,
-        icon: 'pi pi-thumbs-down',
-        color: 'red',
-        badge:this.statusItems[6].badge,
-        badgeByDate:this.statusItems[6].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:RETURN, detail: event.item.label});
-          }
-      },
-      {
-        label: 'Terminé',
-        title: 'Terminé',
-        icon: 'pi pi-flag',
-        color: 'red',
-        badge:this.statusItems[7].badge,
-        badgeByDate:this.statusItems[7].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:'Last Step', detail: event.item.label})
-        }
-      }
-  ];
-  }
 
-  createNotification(): void {
-    if(this.showStatus){
-      this.statusItems[1].badge = 0;
-      this.statusItems[1].badgeByDate = 0;
-      this.statusItems[2].badge = 0;
-      this.statusItems[2].badgeByDate = 0;
-      this.statusItems[3].badge = 0;
-      this.statusItems[3].badgeByDate = 0;
-      this.statusItems[4].badge = 0;
-      this.statusItems[4].badgeByDate = 0;
-      this.statusItems[5].badge = 0;
-      this.statusItems[5].badgeByDate = 0;
-      this.statusItems[6].badge = 0;
-      this.statusItems[6].badgeByDate = 0;
-      this.statusItems[7].badge = 0;
-      this.statusItems[7].badgeByDate = 0;
-      let all = 0;
-
-    this.packetService.syncNotification(this.params.beginDate,this.params.endDate)
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe({
-        next: (response: DashboardCard[]) => {
-          if (response.length > 0) {
-            response.forEach((element: any) => {
-
-              switch (element.status) {
-                case OOS:
-                  this.statusItems[1].badge = element.statusCount;
-                  this.statusItems[1].badgeByDate = element.statusByDateCount;
-                  break;
-                case NOT_CONFIRMED:
-                case UNREACHABLE:
-                  this.statusItems[2].badge += element.statusCount;
-                  this.statusItems[2].badgeByDate += element.statusByDateCount;
-                  break;
-                case CONFIRMED:
-                  this.statusItems[3].badge = element.statusCount;
-                  this.statusItems[3].badgeByDate += element.statusByDateCount;
-                  break;
-                case IN_PROGRESS_1:
-                case IN_PROGRESS_2:
-                case IN_PROGRESS_3:
-                case TO_VERIFY:
-                  this.statusItems[4].badge += element.statusCount;
-                  this.statusItems[4].badgeByDate += element.statusByDateCount;
-                  break;
-                case RETURN:
-                  this.statusItems[5].badge = element.statusCount;
-                  this.statusItems[5].badgeByDate = element.statusByDateCount;
-                  break;
-                case CANCELED:
-                case DELETED:
-                  this.statusItems[6].badge += element.statusCount;
-                  this.statusItems[6].badgeByDate += element.statusByDateCount;
-                  break;
-                case DELIVERED:
-                case PAID:
-                case RETURN_RECEIVED:
-                  this.statusItems[7].badge += element.statusCount;
-                  this.statusItems[7].badgeByDate += element.statusByDateCount;
-                  break;
-
-              }
-              all += element.statusCount;
-            });
-          }
-          this.statusItems[0].badge = all;
-
-
-          this.loadNotification();
-        },
-        error: (error: Error) => {
-          console.log('Error:', error);
-        }
-      });
-    }
-
-  }
 
   ngOnDestroy(): void {
     this.$unsubscribe.next();
@@ -1183,7 +899,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           }
         },
         {
-          label: 'Ajouter tentative',
+          label: 'Ajouter note',
           icon: 'pi pi-refresh',
           disabled:packet.status!=UNREACHABLE,
           command: () => {
@@ -1247,34 +963,5 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           }
         });
     }
-
   }
-
-  enCoursOptionsValue !:any;
-  enCoursOptions: any[] = [
-    { name: '1' , value:IN_PROGRESS_1},
-    { name: '2' , value:IN_PROGRESS_2},
-    { name: '3' , value:IN_PROGRESS_3},
-    { name: TO_VERIFY , value:TO_VERIFY}
-  ];
-
-  canceledOptionsValue !:any;
-  canceledOptions: any[] = [
-    { name: CANCELED , value:CANCELED},
-    { name: DELETED , value:DELETED}
-  ];
-
-  nonConfirmedOptionsValue !:any;
-  nonConfirmedOptions: any[] = [
-      { name: NOT_CONFIRMED , value:NOT_CONFIRMED},
-      { name: UNREACHABLE , value:UNREACHABLE},
-  ];
-
-  endedOptionsValue !:any;
-  endedOptions: any[] = [
-      { name: DELIVERED , value:DELIVERED},
-      { name: PAID , value:PAID},
-      { name: RETURN_RECEIVED , value:RETURN_RECEIVED}
-  ];
-
 }

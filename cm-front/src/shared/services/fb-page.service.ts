@@ -18,6 +18,7 @@ export class FbPageService {
   public editMode = false;
 
   constructor(private http: HttpClient, private messageService: MessageService) {
+    this.getFbPagesSubscriber();
   }
 
   loadFbPages() : void{
@@ -36,6 +37,15 @@ export class FbPageService {
       this.loadFbPages();
     }
     return this.fbPagesSubscriber.asObservable();
+  }
+
+  getFbPagesByIds(ids: number[]) : FbPage[]{
+    return this.fbPages.filter(fbPage => ids.includes(fbPage.id!));
+  }
+
+  getFbPageNameById(id: number) : String{
+    let fbPageIndex = this.fbPages.findIndex(fbPage => fbPage.id == id);
+    return this.fbPages[fbPageIndex] != null ? this.fbPages[fbPageIndex].name : "";
   }
 
   findAllFbPages() : Observable<FbPage[]> {

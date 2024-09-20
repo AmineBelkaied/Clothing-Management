@@ -12,8 +12,7 @@ export class StorageService {
 
   isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   constructor() {
-    if(this.isUserLoggedIn())
-      this.isLoggedIn.next(true);
+      this.isLoggedIn.next(this.isUserLoggedIn());
   }
 
   clean(): void {
@@ -59,6 +58,8 @@ export class StorageService {
 
   public isUserLoggedIn(): boolean {
     const user = window.localStorage.getItem(USER_KEY);
+    console.log("user",user);
+
     return !!user;
   }
 

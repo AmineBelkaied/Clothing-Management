@@ -96,13 +96,13 @@ export class StatsService {
     data.forEach((packet) => {
       //count pages
       if (
-        packet.fbPage != undefined
+        packet.fbPageId != undefined
       ) {
-        if (pageCounts[packet.fbPage.name]) {
-          pageCounts[packet.fbPage.name].count++;
+        if (pageCounts[packet.fbPageId]) {
+          pageCounts[packet.fbPageId].count++;
         }
         else {
-          pageCounts[packet.fbPage.name] = { count: 1, confirm: 0 };
+          pageCounts[packet.fbPageId] = { count: 1, confirm: 0 };
         }
       }
 
