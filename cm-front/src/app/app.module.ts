@@ -58,7 +58,6 @@ import { ListFbpagesComponent } from './config/fbpage/list-fbpages/list-fbpages.
 import { ListSteLivraisonComponent } from './config/ste-livraison/list-ste-livraison/list-ste-livraison.component';
 import { ListGovernoratesComponent } from './config/list-governorates/list-governorates.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
-import { Sidebar0Component } from './sidebar0/sidebar0.component';
 import { AddModelComponent } from './model/add-model/add-model.component';
 import { AddOfferComponent } from './offer/add-offer/add-offer.component';
 import { ListOffersComponent } from './offer/list-offers/list-offers.component';
@@ -92,7 +91,6 @@ import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { OfferService } from 'src/shared/services/offer.service';
 import { StatusContainerComponent } from "./status-container/status-container.component";
-import { StatusContainerV2Component} from "./status-container-v2/status-container-v2.component";
 
 @NgModule({
   declarations: [
@@ -126,9 +124,7 @@ import { StatusContainerV2Component} from "./status-container-v2/status-containe
     PayedReturnComponent,
     UserComponent,
     GlobalConfComponent,
-    StatusContainerComponent,
-    StatusContainerV2Component,
-    Sidebar0Component
+    StatusContainerComponent
   ],
   imports: [
     BrowserModule,
