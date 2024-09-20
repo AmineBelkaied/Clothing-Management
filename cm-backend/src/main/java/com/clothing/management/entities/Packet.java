@@ -41,7 +41,7 @@ public class Packet {
 
     private String address;
 
-    @Column(name = "packet_description")
+    @Column(name = "packet_description", length = 511)
     private String packetDescription;
 
     private String barcode;

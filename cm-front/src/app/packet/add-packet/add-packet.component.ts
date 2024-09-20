@@ -28,6 +28,8 @@ import { DecimalPipe } from '@angular/common';
 import { ProductResponse } from 'src/shared/models/ProductResponse';
 import { ColorService } from 'src/shared/services/color.service';
 import { SizeService } from 'src/shared/services/size.service';
+import { FbPage } from 'src/shared/models/FbPage';
+import { FbPageService } from 'src/shared/services/fb-page.service';
 
 @Component({
   selector: 'app-add-packet',
@@ -72,7 +74,8 @@ export class AddPacketComponent implements OnInit {
     private productService: ProductService,
     private decimalPipe: DecimalPipe,
     private colorService: ColorService,
-    private sizeService: SizeService
+    private sizeService: SizeService,
+    private fbPageService: FbPageService
   ) {
     this.packetForm = this.fb.group({
       totalPrice: 0,
@@ -101,12 +104,9 @@ export class AddPacketComponent implements OnInit {
             this.offersIdsListByFbPage = this.allOffersListEnabled.filter(
               (offer: Offer) =>
                 offer.fbPages
-                  .map((fbpage) => fbpage.id)
-                  .includes(this.packet.fbPage.id)
+                  .includes(this.packet.fbPageId!)
             );
             this.getOffersSwitch();
-            console.log("newOffer,tap");
-
             this.editMode ? this.getSelectedProducts() : this.addOffer();
           }
         })
@@ -168,8 +168,6 @@ export class AddPacketComponent implements OnInit {
   //start set data block
   // edit mode after offer add (2)
   addSelectedModels(offerModels: any,products: number[], offerIndex: number): void {
-    console.log("addSelectedModels");
-
     if (offerModels.length > 0)
       for (let j = 0; j < offerModels.length; j++) {
         if (products[j] != null) {
@@ -180,7 +178,6 @@ export class AddPacketComponent implements OnInit {
   }
 
   setOfferModelsValues(offerIndex: number, offer: Offer): void {
-    console.log("setOfferModelsValues");
     this.setOfferControlValues(this.offers().at(offerIndex), offer);
     for (let i = 0; i < offer.offerModels.length; i++) {
       let selectedModel: Model = offer.offerModels[i].model;
@@ -194,7 +191,6 @@ export class AddPacketComponent implements OnInit {
   }
 
   pushModelToOffer(offerIndex: number, model: Model, selectedProduct: number) {
-    console.log("pushModelToOffer");
     this.addModel(offerIndex, model, selectedProduct);
   }
 
@@ -326,8 +322,8 @@ export class AddPacketComponent implements OnInit {
         if (offer.offerModels.length > 0) {
           offer.offerModels.forEach((model: Model) => {
             if (model) {
-              packetGainCoefficient += model.earningCoefficient;
-              packetPurshasePrice += model.purchasePrice;
+              packetGainCoefficient += model.earningCoefficient;//=2.19+1.55+1.6
+              packetPurshasePrice += model.purchasePrice;//32+22+30=84
             }
           });
         }
@@ -338,7 +334,9 @@ export class AddPacketComponent implements OnInit {
         'packetGainCoefficient is zero, cannot calculate packetEarningCoefficient'
       );
     }
-    let gain = this.productsPrice - packet.discount - packetPurshasePrice;
+    let gain = this.productsPrice - packet.discount - packetPurshasePrice;//=223-7-(27+40+50)=216-117=99
+
+    //117+7+84
     packetEarningCoefficient = gain / packetGainCoefficient;
     let productsOffers: ProductsPacket[] = this.prepareProductsOffers(
       packet,
@@ -486,8 +484,6 @@ export class AddPacketComponent implements OnInit {
 
   // edit mode after get offer (1)
   addSelectedOffer(offer: Offer): void {
-    console.log("addSelectedOffer");
-
     this.offers().push(
       this.fb.group({
         id: offer.id,
@@ -499,8 +495,6 @@ export class AddPacketComponent implements OnInit {
   }
 
   newOffer(): FormGroup {
-    console.log("newOffer");
-
     return this.fb.group({
       id: 0,
       name: '',
@@ -514,7 +508,6 @@ export class AddPacketComponent implements OnInit {
   }
 
   addOffer(): void {
-    console.log("addOffer");
     this.offers().push(this.newOffer());
   }
 
@@ -557,7 +550,10 @@ export class AddPacketComponent implements OnInit {
 
   // Abstracted method to get sizes
   private getSizes(sizeIds: number[]): FormArray {
-      return this.fb.array(this.sizeService.getSizesByIds(sizeIds));
+    return this.fb.array(this.sizeService.getSizesByIds(sizeIds));
+  }
+  private getFbPages(fbPageIds: number[]): FbPage[] {
+    return this.fbPageService.getFbPagesByIds(fbPageIds);
   }
 
 
@@ -594,7 +590,6 @@ export class AddPacketComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    console.log('$unsubscribe');
     this.$unsubscribe.next();
     this.$unsubscribe.complete();
   }

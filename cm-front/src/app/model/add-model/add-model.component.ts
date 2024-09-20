@@ -36,7 +36,16 @@ export class AddModelComponent implements OnInit, OnDestroy {
     private colorService: ColorService,
     private sizeService: SizeService
   ) {
+    this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
+    .subscribe((colorList: Color[]) => {
+      console.log(colorList);
+      this.colors = colorList;
+    });
 
+    this.sizeService.getSizesSubscriber().pipe(takeUntil(this.$unsubscribe))
+      .subscribe((sizeList: Size[]) => {
+        this.sizes = sizeList;
+      })
   }
 
   ngOnInit(): void {

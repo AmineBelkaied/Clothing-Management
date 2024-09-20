@@ -7,6 +7,7 @@ import { ModelService } from '../../../shared/services/model.service';
 import { OfferService } from '../../../shared/services/offer.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { Subject, takeUntil } from 'rxjs';
+import { FbPageService } from 'src/shared/services/fb-page.service';
 
 @Component({
   selector: 'app-list-offers',
@@ -42,7 +43,8 @@ export class ListOffersComponent implements OnInit {
     private offerService: OfferService,
     private modelService: ModelService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService,
+    private fbPageService: FbPageService) {
   }
 
   ngOnInit() {
@@ -62,6 +64,10 @@ export class ListOffersComponent implements OnInit {
     this.modelService.loadModels().pipe(takeUntil(this.$unsubscribe)).subscribe((modelList: any) => {
       this.models = modelList;
     });
+  }
+
+  private getFbPages(pagesIds: number[]): FbPage[] {
+    return this.fbPageService.getFbPagesByIds(pagesIds);
   }
 
   openNew() {
@@ -126,20 +132,20 @@ export class ListOffersComponent implements OnInit {
 
   displayOfferModels(modelQuantities: OfferModelsDTO[]) {
     let offerModels = "";
-    modelQuantities.forEach((modelQuantity, index) => {
-      if (index < modelQuantities.length - 1 && index>0)
+    modelQuantities.forEach((modelQuantity) => {
+      if ( modelQuantities.length > 0 )
         offerModels += " , ";
       offerModels += modelQuantity.quantity + " " + modelQuantity.model.name;
     });
     return offerModels;
   }
 
-  displayPages(fbPages: FbPage[]) {
-
-    if(fbPages.length<1)return "null";
+  displayPages(fbPagesIds: number[]) {
+    let fbPages = this.getFbPages(fbPagesIds);
+    if(fbPages.length<1)return "";
     let fbPgaesList = "";
-    fbPages.forEach((fbPage, index) => {
-      if (index < fbPgaesList.length - 1 && index>0)
+    fbPages.forEach((fbPage) => {
+      if ( fbPgaesList.length > 0 )
         fbPgaesList += " , ";
       fbPgaesList += fbPage.name + " ";
     });

@@ -1,6 +1,5 @@
 package com.clothing.management.auth.security;
 
-
 import com.clothing.management.auth.constant.JWTConstants;
 import com.clothing.management.auth.mastertenant.config.DBContextHolder;
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
@@ -13,6 +12,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,12 +28,16 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
     @Autowired
     private JwtUserDetailsService jwtUserDetailsService;
+
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
     @Autowired
-    MasterTenantService masterTenantService;
+    private MasterTenantService masterTenantService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
@@ -52,8 +57,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     setAuthentication(httpServletRequest, userName, authToken);
                 }
             } catch (UserNotAuthenticatedException ex) {
-                logger.error("Authentication failed: {}");
+                logger.error("User not authenticated: {}", ex.getMessage());
                 httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+                return;
+            } catch (Exception ex) {
+                logger.error("Authentication error: {}", ex.getMessage(), ex);
+                httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed.");
                 return;
             }
         } else {
@@ -69,22 +78,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String tenant = jwtTokenUtil.getAudienceFromToken(token);
             MasterTenant masterTenant = masterTenantService.findByTenantName(tenant);
 
-            if (null == masterTenant) {
-                logger.error("An error during getting tenant name");
-                throw new BadCredentialsException("Invalid tenant and user.");
+            if (masterTenant == null) {
+                logger.error("Invalid tenant: {}", tenant);
+                throw new BadCredentialsException("Invalid tenant.");
             }
 
             DBContextHolder.setCurrentDb(masterTenant.getDbName());
             return userName;
         } catch (IllegalArgumentException ex) {
-            logger.error("An error during getting username from token", ex);
-            throw new IllegalArgumentException(ex.getMessage());
+            logger.error("Error getting username from token: {}", ex.getMessage(), ex);
+            throw new IllegalArgumentException("Invalid token: " + ex.getMessage(), ex);
         } catch (ExpiredJwtException ex) {
-            logger.error("The token is expired and not valid anymore");
-            throw new ExpiredJwtException(null, null, ex.getMessage());
+            logger.error("Token expired: {}", ex.getMessage(), ex);
+            throw new ExpiredJwtException(null, null, "Token expired: " + ex.getMessage(), ex);
         } catch (SignatureException ex) {
-            logger.error("Authentication Failed. Username or Password not valid.", ex);
-            throw new SignatureException(ex.getMessage());
+            logger.error("Token signature validation failed: {}", ex.getMessage(), ex);
+            throw new SignatureException("Token signature validation failed: " + ex.getMessage(), ex);
         }
     }
 
@@ -93,14 +102,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (jwtTokenUtil.validateToken(authToken, userDetails)) {
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-            //logger.info("authenticated user " + username + ", setting security context");
+            logger.info("Authenticated user: {}", username);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else {
+            logger.warn("Token validation failed for user: {}", username);
         }
     }
 
     private boolean shouldSkipFilter(HttpServletRequest request) {
-        // Add your logic to determine whether to skip the filter for this request
-        // For example, check the request URI
+        // Example logic to skip filter for login requests
         String requestUri = request.getRequestURI();
         return requestUri.equalsIgnoreCase("/api/auth/login") || requestUri.equalsIgnoreCase("/swagger-ui/index.html");
     }

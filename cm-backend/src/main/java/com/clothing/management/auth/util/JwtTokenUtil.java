@@ -41,6 +41,7 @@ public class JwtTokenUtil implements Serializable {
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(JWTConstants.SIGNING_KEY)
+                .setAllowedClockSkewSeconds(120)
                 .parseClaimsJws(token)
                 .getBody();
     }

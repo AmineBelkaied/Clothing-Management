@@ -18,7 +18,7 @@ public class OfferDTO {
     private Long id;
     private String name;
     private Set<OfferModelsDTO> offerModels;
-    private Set<FbPage> fbPages;
+    private Set<Long> fbPages;
     private Double price;
     private boolean enabled;
 }

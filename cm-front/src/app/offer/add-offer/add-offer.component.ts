@@ -50,13 +50,14 @@ export class AddOfferComponent implements OnInit {
       }
     );
     console.log(this.offer)
+    let selectedFbPages = this.fbPageService.getFbPagesByIds(this.offer.fbPages)
 
     if(this.editMode) {
       this.offerForm.get('offerId')?.setValue(this.offer.id);
       this.offerForm.get('name')?.setValue(this.offer.name);
       this.offerForm.get('price')?.setValue(this.offer.price);
       this.offerForm.get('enabled')?.setValue(this.offer.enabled);
-      this.offerForm.get('fbPages')?.setValue(this.offer.fbPages);
+      this.offerForm.get('fbPages')?.setValue(selectedFbPages);
       if(this.offer.offerModels.length > 0 )
         for(let i=0 ; i < this.offer.offerModels.length ; i++) {
             this.addModelQuantity();

@@ -1,7 +1,7 @@
-<div class="wrapper d-flex align-items-stretch">
-  <app-sidebar></app-sidebar>
+<div [class.sidebar-expanded]="isSidebarExpanded">
+  <app-sidebar (expansionChanged)="onSidebarExpansionChanged($event)"></app-sidebar>
   <!-- Page Content  -->
-  <div id="content">
+  <div id="main-content" [ngClass]="{'content-shifted': isSidebarExpanded}">
     <router-outlet></router-outlet>
   </div>
 </div>

@@ -25,7 +25,7 @@ public class PacketDTO {
     private String barcode;
     private String lastDeliveryStatus;
     private Integer oldClient;
-    private FbPageDTO fbPage;
+    private Long fbPageId;
     private DeliveryCompanyDTO deliveryCompany;
     private double price;
     private double deliveryPrice;
@@ -54,7 +54,7 @@ public class PacketDTO {
             this.packetDescription= packet.getPacketDescription();
             this.barcode= packet.getBarcode();
             this.lastDeliveryStatus = packet.getLastDeliveryStatus();
-            this.fbPage = fbPage != null ? FbPageDTO.builder().id(fbPage.getId()).name(fbPage.getName()).build() : null;
+            this.fbPageId = fbPage != null ? fbPage.getId() : null;
             this.price= packet.getPrice();
             this.deliveryPrice = packet.getDeliveryPrice();
             this.discount = packet.getDiscount();

@@ -3,13 +3,17 @@ package com.clothing.management.servicesImpl;
 import com.clothing.management.entities.Role;
 import com.clothing.management.repository.IRoleRepository;
 import com.clothing.management.services.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class RoleServiceImpl implements RoleService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoleServiceImpl.class);
+
     private final IRoleRepository roleRepository;
 
     public RoleServiceImpl(IRoleRepository roleRepository) {
@@ -18,16 +22,25 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<Role> findAllRoles() {
-        return roleRepository.findAll();
+        LOGGER.info("Fetching all roles");
+        List<Role> roles = roleRepository.findAll();
+        LOGGER.info("Fetched {} roles", roles.size());
+        return roles;
     }
 
     @Override
-    public Role addRole(Role Role) {
-        return roleRepository.save(Role);
+    public Role addRole(Role role) {
+        LOGGER.info("Adding role: {}", role);
+        Role savedRole = roleRepository.save(role);
+        LOGGER.info("Role added with ID: {}", savedRole.getId());
+        return savedRole;
     }
 
     @Override
-    public Role updateRole(Role Role) {
-        return roleRepository.save(Role);
+    public Role updateRole(Role role) {
+        LOGGER.info("Updating role: {}", role);
+        Role updatedRole = roleRepository.save(role);
+        LOGGER.info("Role updated with ID: {}", updatedRole.getId());
+        return updatedRole;
     }
 }

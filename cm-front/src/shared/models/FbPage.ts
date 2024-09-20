@@ -1,5 +1,5 @@
 export interface FbPage {
-    id? : string;
+    id? : number;
     name: string;
     link?: string;
     enabled?: boolean;

@@ -5,6 +5,8 @@ import com.clothing.management.entities.FbPage;
 import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.OfferModel;
 import com.clothing.management.services.OfferService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -21,54 +23,116 @@ import java.util.Set;
 public class OfferController {
 
     private final OfferService offerService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(OfferController.class);
 
-    public OfferController(OfferService offerService){
+    public OfferController(OfferService offerService) {
         this.offerService = offerService;
     }
 
     @GetMapping
-    public List<OfferDTO> getOffers(){
-        return offerService.getOffers();
+    public ResponseEntity<List<OfferDTO>> getOffers() {
+        LOGGER.info("Fetching all offers.");
+        try {
+            List<OfferDTO> offers = offerService.getOffers();
+            LOGGER.info("Successfully fetched {} offers.", offers.size());
+            return ResponseEntity.ok(offers);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching offers: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Offer> getOfferById(@PathVariable Long id) {
+        LOGGER.info("Fetching offer with id: {}", id);
         return offerService.findOfferById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(offer -> {
+                    LOGGER.info("Successfully fetched offer: {}", offer);
+                    return ResponseEntity.ok(offer);
+                })
+                .orElseGet(() -> {
+                    LOGGER.warn("Offer with id: {} not found.", id);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                });
     }
 
     @GetMapping("/fb-page/{fbPageId}")
     public ResponseEntity<List<OfferModel>> getOffersByFbPageId(@PathVariable("fbPageId") Long fbPageId) throws IOException {
-        List<OfferModel> offers = offerService.findOfferByFbPageId(fbPageId);
-        return ResponseEntity.ok(offers);
+        LOGGER.info("Fetching offers for fbPageId: {}", fbPageId);
+        try {
+            List<OfferModel> offers = offerService.findOfferByFbPageId(fbPageId);
+            LOGGER.info("Successfully fetched {} offers for fbPageId: {}", offers.size(), fbPageId);
+            return ResponseEntity.ok(offers);
+        } catch (IOException e) {
+            LOGGER.error("Error fetching offers for fbPageId: {}: ", fbPageId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PostMapping
-    public ResponseEntity<OfferDTO> addOffer(@RequestBody OfferDTO offerDTO) {
-        OfferDTO createdOffer = offerService.addOffer(offerDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdOffer);
+    public ResponseEntity<OfferDTO> addOffer(@RequestBody OfferRequest offerDTO) {
+        LOGGER.info("Creating new offer: {}", offerDTO);
+        try {
+            OfferDTO createdOffer = offerService.addOffer(offerDTO);
+            LOGGER.info("Offer created successfully: {}", createdOffer);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdOffer);
+        } catch (Exception e) {
+            LOGGER.error("Error creating offer: ", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @PutMapping
     public ResponseEntity<OfferDTO> updateOffer(@RequestBody Offer offer) {
-        OfferDTO updatedOffer = offerService.updateOffer(offer);
-        return ResponseEntity.ok(updatedOffer);
+        LOGGER.info("Updating offer: {}", offer);
+        try {
+            OfferDTO updatedOffer = offerService.updateOffer(offer);
+            LOGGER.info("Offer updated successfully: {}", updatedOffer);
+            return ResponseEntity.ok(updatedOffer);
+        } catch (Exception e) {
+            LOGGER.error("Error updating offer: ", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
-    @PutMapping(value = "/update-offer-models" , produces = "application/json")
-    public OfferDTO updateOfferModels(@RequestParam("offerId") long offerId, @RequestBody Set<OfferModelsDTO> offerModelsDTO) throws Exception {
-        return offerService.updateOfferModels(offerId,offerModelsDTO);
+    @PutMapping(value = "/update-offer-models", produces = "application/json")
+    public ResponseEntity<OfferDTO> updateOfferModels(@RequestParam("offerId") long offerId, @RequestBody Set<OfferModelsDTO> offerModelsDTO) {
+        LOGGER.info("Updating offer models for offerId: {}", offerId);
+        try {
+            OfferDTO updatedOffer = offerService.updateOfferModels(offerId, offerModelsDTO);
+            LOGGER.info("Offer models updated successfully for offerId: {}", offerId);
+            return ResponseEntity.ok(updatedOffer);
+        } catch (Exception e) {
+            LOGGER.error("Error updating offer models for offerId: {}: ", offerId, e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
-    @GetMapping(value = "/update-data" , produces = "application/json")
-    public OfferDTO updateOffer(@RequestParam("id") Long id,@RequestParam("name") String name,@RequestParam("price") double price,@RequestParam("enabled") boolean enabled) throws Exception {
-        return offerService.updateOfferData(id, name, price, enabled);
+    @GetMapping(value = "/update-data", produces = "application/json")
+    public ResponseEntity<OfferDTO> updateOffer(@RequestParam("id") Long id, @RequestParam("name") String name,
+                                                @RequestParam("price") double price, @RequestParam("enabled") boolean enabled) {
+        LOGGER.info("Updating offer data for id: {}", id);
+        try {
+            OfferDTO updatedOffer = offerService.updateOfferData(id, name, price, enabled);
+            LOGGER.info("Offer data updated successfully for id: {}", id);
+            return ResponseEntity.ok(updatedOffer);
+        } catch (Exception e) {
+            LOGGER.error("Error updating offer data for id: {}: ", id, e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
-    @PutMapping(value = "/update-offer-fb-pages" , produces = "application/json")
-    public OfferDTO updateOfferFbPages(@RequestParam("offerId") long offerId,@RequestBody Set<FbPage> fbPages) throws Exception {
-        return offerService.updateOfferFbPages(offerId,fbPages);
+    @PutMapping(value = "/update-offer-fb-pages", produces = "application/json")
+    public ResponseEntity<OfferDTO> updateOfferFbPages(@RequestParam("offerId") long offerId, @RequestBody Set<FbPage> fbPages) {
+        LOGGER.info("Updating offer fb pages for offerId: {}", offerId);
+        try {
+            OfferDTO updatedOffer = offerService.updateOfferFbPages(offerId, fbPages);
+            LOGGER.info("Offer fb pages updated successfully for offerId: {}", offerId);
+            return ResponseEntity.ok(updatedOffer);
+        } catch (Exception e) {
+            LOGGER.error("Error updating offer fb pages for offerId: {}: ", offerId, e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -76,31 +140,40 @@ public class OfferController {
         Offer offer = Offer.builder().id(id).build();
         offerService.deleteOffer(offer);
         return ResponseEntity.noContent().build();
+        LOGGER.info("Deleting offer with id: {}", id);
+        try {
+            offerService.deleteOffer(new Offer(id));
+            LOGGER.info("Offer with id: {} deleted successfully.", id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            LOGGER.error("Error deleting offer with id: {}: ", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    @DeleteMapping(value = "/delete" , produces = "application/json")
-    public void deleteOffer(@RequestBody Offer offer) {
-        offerService.deleteOffer(offer);
+    @DeleteMapping(value = "/delete", produces = "application/json")
+    public ResponseEntity<Void> deleteOffer(@RequestBody Offer offer) {
+        LOGGER.info("Deleting offer: {}", offer);
+        try {
+            offerService.deleteOffer(offer);
+            LOGGER.info("Offer deleted successfully: {}", offer);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            LOGGER.error("Error deleting offer: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/batch-delete/{offerIds}")
     public ResponseEntity<Void> deleteSelectedOffers(@PathVariable List<Long> offerIds) {
-        offerService.deleteSelectedOffers(offerIds);
-        return ResponseEntity.noContent().build();
+        LOGGER.info("Deleting offers with ids: {}", offerIds);
+        try {
+            offerService.deleteSelectedOffers(offerIds);
+            LOGGER.info("Offers with ids: {} deleted successfully.", offerIds);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            LOGGER.error("Error deleting offers with ids: {}: ", offerIds, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
-
-    /*@GetMapping(path = "/findAll")
-    public List<OfferModelsDTO> findAllOffers() throws IOException {
-        return offerService.findAllOffers();
-    }
-
-    /*@GetMapping(path = "/findAllOffersModelQuantities")
-    public List<OfferModelQuantitiesDTO> findAllOffersModelQuantities() throws IOException {
-        return offerService.findAllOffersModelQuantities();
-    }
-
-    @GetMapping(path = "/findOffersModelQuantitiesById/{idOffer}")
-    public OfferModelQuantitiesDTO findOffersModelQuantitiesById(@PathVariable Long idOffer) throws IOException {
-        return offerService.findOffersModelQuantitiesById(idOffer);
-    }*/

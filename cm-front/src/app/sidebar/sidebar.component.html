@@ -1,55 +1,24 @@
-<nav *ngIf="isLoggedIn" id="sidebar" [class.active]="activeClass"
-  style="height: 100%; display: flex; flex-direction: column;">
-  <div class="custom-menu">
-    <button type="button" id="sidebarCollapse" (click)="changeClass()" class="btn btn-primary">
-      <i class="pi pi-bars"></i>
-      <span class="sr-only">Toggle Menu</span>
-    </button>
+<div class="sidebar" [ngClass]="{'collapsed': !isExpanded}" *ngIf="isLoggedIn">
+  <div class="sidebar-toggle" (click)="toggleSidebar()">
+    <i class="pi" [ngClass]="isExpanded ? 'pi-angle-left' : 'pi-angle-right'"></i>
   </div>
-  <div class="p-4" style="display: flex; flex-direction: column; flex-grow: 0;height: 100vh">
-    <h1>
-      <a href="" class="logo">
-        <ng-container *ngIf="!isSuperAdmin">{{globalConf.applicationName}}</ng-container>
-        <span style="font-size: 13px">{{ clothingManagementLabel }}</span>
-      </a>
-    </h1>
-    <ul class="list-unstyled components mb-5" *ngIf="!isSuperAdmin">
-      <li [routerLinkActive]="['active']">
-        <a routerLink="/packets"><span class="pi pi-shopping-cart mr-2"></span> Commandes</a>
-      </li>
-      <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/models"><span class="pi pi-shopping-bag mr-2"></span> Modèles</a>
-      </li>
-      <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/offers"><span class="pi pi-gift mr-2"></span> Offres</a>
-      </li>
-      <li [routerLinkActive]="['active']">
-        <a routerLink="/stock"><span class="pi pi-inbox mr-2"></span> Stock</a>
-      </li>
-      <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/config"><span class="pi pi-cog mr-2"></span> Configuration</a>
-      </li>
-      <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/statistique"><span class="pi pi-chart-bar mr-2"></span> Statistique</a>
-      </li>
-      <li [routerLinkActive]="['active']" *ngIf="isAdmin">
-        <a routerLink="/payed-return"><span class="pi pi-file-edit mr-2"></span> Suivie packet</a>
-      </li>
-      <!--<li [routerLinkActive]="['active']">
-        <a routerLink="/dashboard"><span class="pi pi-server mr-2"></span> Dashboard</a>
-      </li>-->
-      <li [routerLinkActive]="['active']">
-        <a routerLink="/verification"><span class="pi pi-truck mr-2"></span> Validation</a>
+  <div class="sidebar-content">
+    <div class="sidebar-header">
+      <h2>{{ globalConf.applicationName }}</h2>
+      <!-- <p *ngIf="isExpanded">{{ clothingManagementLabel }}</p> -->
+    </div>
+    <ul class="sidebar-menu">
+      <li *ngFor="let item of menuItems"  [routerLinkActive]="['active']">
+        <a [routerLink]="item.routerLink">
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
       </li>
     </ul>
-    <span style="color: lightgray;font-size: small;" class="mt-auto">Bienvenue, {{userName}}</span>
-    <button type="button" class="btn btn-secondary mt-3" (click)="sync()" *ngIf="!isSuperAdmin">
-      <i class="pi pi-sync small pr-2"></i>
-      <span>Sync</span>
-    </button>
-    <button type="button" class="btn btn-danger mt-2" (click)="logout()">
-      <i class="pi pi-sign-out small pr-2"></i>
-      <span>Logout</span>
-    </button>
+    <div class="sidebar-footer">
+      <p>Bienvenue {{userName}}</p>
+      <button pButton label="Sync" icon="pi pi-sync" class="p-button-info" (click)="sync()" *ngIf="!isSuperAdmin"></button>
+      <button pButton label="Logout" icon="pi pi-sign-out" class="p-button-danger" (click)="logout()"></button>
+    </div>
   </div>
-</nav>
+</div>

@@ -8,11 +8,6 @@ td {
     vertical-align: middle;
 }
 
-.buttonSize {
-  width: 34px;
-  height: 34px !important;
- }
-
 .buttonSizeMini{
   width: 28px;
   height: 28px !important;
@@ -20,7 +15,7 @@ td {
 
 :host ::ng-deep .small-select-button .p-button {
   padding: 0.19rem 0.5rem !important;
-  font-size: 0.7rem !important;
+  font-size: small !important;
 }
 
 .scroll-wrapper {
@@ -50,7 +45,9 @@ td {
   display: inline-block;
   flex: 0 0 auto;
 }
-
+.tdHover:hover{
+  background-color: transparent !important;
+}
 /*
 .scrollable-dashboard-container {
   display: flex;
@@ -141,12 +138,15 @@ td {
   }
    */
  ::ng-deep .p-ripple.p-element.p-button.p-component.ng-star-inserted{
-    font-size: 13px;
+    font-size: 1rem;
     font-family: Arial, Helvetica, sans-serif
    }
 
    ::ng-deep  p-calendar.p-calendar-clearable .p-inputtext {
     padding-right: inherit;
+}
+.smallPadding {
+  padding: 0.25rem !important;
 }
 
 :host ::ng-deep .p-multiselect {
@@ -193,8 +193,7 @@ td {
 .breakWord{ word-wrap: break-word; max-width: 25ch;}
 
 ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-    font-size:13px
-
+    font-size:small
   }
 
   .notification-container {
@@ -229,7 +228,7 @@ td {
 }
 
 ::ng-deep .p-badge {
-  font-size: 0.75rem;
+  font-size: small;
   font-weight: 600;
   min-width: 1.2rem;
   height: 1.2rem;
@@ -246,4 +245,55 @@ td {
   left: 0;
   width: 100%;
   max-width: none;
+}
+
+.default-text {
+  color: inherit; /* or specify the default color */
+}
+
+.no-address {
+  color: red;
+}
+
+.no-city {
+  color: blue;
+}
+
+.customer-info {
+  display: flex;
+  align-items: center;
+  padding: 0.2rem;
+}
+
+.vertical-line {
+  border-left: 2px solid #ccc; /* Adjust the color and width as needed */
+  height: 2rem; /* Adjust the height as needed */
+  margin-right: 0.1rem; /* Space between the line and phone number */
+}
+
+.phone-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  min-width: 5.5rem;
+  white-space: nowrap;
+  margin: 0.1rem !important;
+}
+.name-container {
+  flex-grow: 1;
+  padding-right: 1rem;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Adjust space between the inputs */
+}
+
+.p-float-label {
+  flex: 1; /* Allows the labels and inputs to share space evenly */
+}
+
+.p-inputtext-sm {
+  width: 100%; /* Ensures the input fields take full width of the container */
 }
