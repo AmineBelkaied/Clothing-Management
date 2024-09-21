@@ -7,9 +7,9 @@
           <div class="row">
             <div class="col-md-4">
               <label for="name" class="form-label pr-1">Nom</label>
-              <span class="small" style="color: red;">(*)</span>
+              <span class="small text-danger">(*)</span>
               <input pInputText id="name" placeholder="Nom du modèle" name="name" [(ngModel)]="model.name" (ngModelChange)="checkFormValidation()" />
-              <span *ngIf="modelNameExists" class="small" style="color: red;">Le modèle existe déja</span>
+              <span *ngIf="modelNameExists" class="small text-danger">Le modèle existe déja</span>
             </div>
             <div class="col-md-4">
               <label for="description" class="form-label pr-1">Description</label>
@@ -24,7 +24,7 @@
           <div class="row mt-3">
             <div class="col-md-4">
               <label for="purchasePrice" class="form-label pr-1">Prix d'achat</label>
-              <span class="small" style="color: red;">(*)</span>
+              <span class="small text-danger">(*)</span>
               <input pInputText type="number" id="purchasePrice" placeholder="Prix d'achat" name="purchasePrice"
                 [(ngModel)]="model.purchasePrice" (ngModelChange)="calculateGainCoefficient(model)" />
             </div>
@@ -32,7 +32,7 @@
               <label for="salePrice" class="form-label">
                 <span class="small"> {{ model.earningCoefficient | number:'1.2-2'}} x</span>
                 Vente
-                <span class="small" style="color: red;">(*)</span>
+                <span class="small text-danger">(*)</span>
               </label>
               <input pInputText type="number" id="salePrice" placeholder="Prix de vente" name="salePrice"
                 [(ngModel)]="salePrice" (ngModelChange)="calculateGainCoefficient(model)" />
@@ -42,20 +42,19 @@
           <div class="row mt-4">
             <div class="col-md-12">
               <label for="colors" class="form-label pr-1">Couleurs</label>
-              <span class="small" style="color: red;">(*)</span>
-              <p-multiSelect [options]="colors" [(ngModel)]="model.colors" name="colors"
-                display="chip" [style]="{ width: '100%' }" [panelStyle]="{ width: '50%' }"
-                [placeholder]="'-- Choisir les couleurs --'"
-                optionLabel="name" optionValue="id" appendTo="body" (onChange)="checkFormValidation()" [maxSelectedLabels]="undefined"></p-multiSelect>
+              <span class="small text-danger">(*)</span>
+              <p-multiSelect [options]="colors" [(ngModel)]="model.colors" name="colors" display="chip"
+                [style]="{ width: '100%' }" [panelStyle]="{ width: '50%' }" [placeholder]="'-- Choisir les couleurs --'"
+                optionLabel="name" appendTo="body" (onChange)="checkFormValidation()" [maxSelectedLabels]="undefined"></p-multiSelect>
             </div>
           </div>
           <div class="row mt-4">
             <div class="col-md-12">
               <label for="size" class="form-label pr-1">Tailles</label>
-              <span class="small" style="color: red;">(*)</span>
+              <span class="small text-danger">(*)</span>
               <p-multiSelect [options]="sizes" [(ngModel)]="model.sizes" name="sizes" display="chip"
                 [style]="{ width: '100%' }" [panelStyle]="{ width: '50%' }" [placeholder]="'-- Choisir les tailles --'"
-                optionLabel="reference" optionValue="id" appendTo="body" (onChange)="checkFormValidation()" [maxSelectedLabels]="undefined"></p-multiSelect>
+                optionLabel="reference" appendTo="body" (onChange)="checkFormValidation()" [maxSelectedLabels]="undefined"></p-multiSelect>
             </div>
           </div>
         </div>

@@ -11,41 +11,55 @@
                   <div class="container-fluid">
                     <div class="row">
                       <div class="col-md-5">
-                        <label for="name" class="form-label">Nom</label>
+                        <label for="name" class="form-label pr-1">Nom</label>
+                        <span class="small text-danger">(*)</span>
                         <input
                           pInputText
                           id="name"
                           placeholder="Nom de l'offre"
                           name="name"
                           formControlName="name"
+                          (ngModelChange)="checkOfferExistence()"
                         />
+                        <ng-container>
+                          <span class="small text-danger" *ngIf="offerForm.get('name')?.dirty && offerForm.get('name')?.errors?.['required']">
+                            Le nom de l'offre est obligatoire
+                          </span>
+                          <span *ngIf="offerNameExists" class="small text-danger">L'offre existe déja</span>
+                        </ng-container> 
                       </div>
                       <div class="col-md-5">
-                        <label for="price" class="form-label">Prix</label>
-                        <input
-                          pInputText
-                          type="number"
-                          id="price"
-                          min="1"
-                          placeholder="Prix de l'offre"
-                          name="price"
-                          formControlName="price"
-                        />
+                        <label for="price" class="form-label pr-1">Prix</label>
+                        <span class="small text-danger">(*)</span>
+                        <p-inputNumber
+                        id="quantity"
+                        placeholder="Prix de l'offre"
+                        name="quantity"
+                        formControlName="price"
+                        [min]="0"
+                        [suffix]="'TND'"
+                      />
+                        <ng-container>
+                          <span class="small text-danger" *ngIf="offerForm.get('price')?.dirty && offerForm.get('price')?.errors?.['required']">
+                            Le prix de l'offre est obligatoire
+                          </span>
+                        </ng-container>
                       </div>
-                      <div class="col-md-2">
-                        <div class="row ml-3">
+                      <div class="col-md-2 mt-5">
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
                           <label for="enabled" class="form-label">Activé</label>
                           <p-inputSwitch formControlName="enabled"></p-inputSwitch>
                         </div>
                       </div>
-                      <div class="col-md-3 mt-3" style="margin-left: 80%" *ngIf="editMode">
+                      <div class="col-md-3 mt-3" style="margin-left: 78%" *ngIf="editMode">
                         <button
                           pButton
                           pRipple
-                          [label]="editMode ? 'Modifier offre' : 'Ajouter list offre'"
-                          [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"
+                          [label]="'Modifier offre'"
+                          [icon]="'pi pi-pencil'"
                           class="p-button-text"
                           (click)="saveOffer('Offer')"
+                          [disabled]="offerForm.invalid"
                       ></button>
                       </div>
                     </div>
@@ -64,13 +78,13 @@
                   <div class="container-fluid">
                     <div class="row mt-4">
                       <table
-                      class="table table-bordered"
+                      class="table table-bordered text-center"
                       style="background-color: #fcfcfc"
                       formArrayName="offerModels"
                     >
                       <thead>
-                        <th>Modèle</th>
-                        <th>Quantité</th>
+                        <th>Modèle <span class="small text-danger">(*)</span></th>
+                        <th>Quantité <span class="small text-danger">(*)</span></th>
                         <th><button
                           pButton
                           pRipple
@@ -79,6 +93,7 @@
                           (click)="addModelQuantity()"
                         ></button></th>
                       </thead>
+                      <tbody>
                       <tr
                         *ngFor="
                           let modelQuantity of modelQuantities().controls;
@@ -86,30 +101,53 @@
                         "
                         [formGroupName]="i"
                         class="mt-4"
-                      >
+                      > 
                         <td>
                           <p-dropdown
                             [options]="modelList"
                             optionLabel="name"
                             dataKey="id"
                             formControlName="model"
-                            [style]="{ width: '70%' }"
+                            [style]="{ width: '100%' }"
                             [panelStyle]="{ width: '100%' }"
                             [showClear]="true"
                             placeholder="Choisir le modèle"
                             appendTo="body"
                           >
                           </p-dropdown>
+                          <ng-container>
+                            <span class="small text-danger mt-2" *ngIf="modelQuantities().controls[i].get('model')?.dirty && modelQuantities().controls[i].get('model')?.errors?.['required']">
+                              Veuillez choisir un modèle.
+                            </span>
+                          </ng-container>
                         </td>
                         <td>
                           <p-inputNumber
-                            class="form-control"
-                            
+                            class="form-control mb-2 small-spinner-button"
                             id="quantity"
-                            placeholder="Quantité"
+                            placeholder="Spécifier la quantité"
                             name="quantity"
                             formControlName="quantity"
+                            [min]="0" 
+                            [showButtons]="true" 
+                            buttonLayout="horizontal" 
+                            inputId="horizontal" 
+                            spinnerMode="horizontal" 
+                            decrementButtonClass="update-qte-icon"
+                            incrementButtonClass="update-qte-icon"
+                            incrementButtonIcon="pi pi-plus" 
+                            decrementButtonIcon="pi pi-minus" 
                           />
+                          <ng-container>
+                            <span class="small text-danger" *ngIf="modelQuantities().controls[i].get('quantity')?.dirty && modelQuantities().controls[i].get('quantity')?.errors?.['min']">
+                              La quantité doit etre supérieur à 0
+                            </span>
+                          </ng-container>
+                          <ng-container>
+                            <span class="small text-danger" *ngIf="modelQuantities().controls[i].get('quantity')?.dirty && modelQuantities().controls[i].get('quantity')?.errors?.['required']">
+                              La quantité est obligatoire
+                            </span>
+                          </ng-container>
                         </td>
                         <td>
                           <button
@@ -121,23 +159,32 @@
                           ></button>
                         </td>
                       </tr>
+                    </tbody>
+                    <tfoot *ngIf="modelQuantities().controls.length === 0">
+                      <tr style="text-align: center;">
+                        <td colspan="3">
+                          <p style="text-align: center">
+                            Ajouter un modèle pour cette offre
+                          </p>
+                        </td>
+                      </tr>
+                    </tfoot>
                     </table>
-                    <ng-container
-                      *ngIf="modelQuantities().controls.length === 0"
-                    >
-                      <p style="text-align: center">
-                        Ajouter un modèle pour cette offre
-                      </p>
-                    </ng-container>
+<!--                     <ng-container>
+                      <div *ngIf="offerForm.get('offerModels')?.errors['minArrayLength']">
+                        Offer models must contain at least one item.
+                      </div>
+                    </ng-container> -->
                     </div>
-                    <div class="col-md-3 mt-3" style="margin-left: 80%" *ngIf="editMode">
+                    <div class="col-md-4 mt-3" style="margin-left: 73%" *ngIf="editMode">
                       <button
                         pButton
                         pRipple
-                        [label]="editMode ? 'Modifier list models' : 'Ajouter les models'"
-                        [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"
+                        [label]="'Modifier les modèles'"
+                        [icon]="'pi pi-pencil'"
                         class="p-button-text"
                         (click)="saveOffer('Models')"
+                        [disabled]="offerForm.get('offerModels')?.invalid"
                       ></button>
                     </div>
                   </div>
@@ -155,7 +202,8 @@
                   <div class="container-fluid">
                     <div class="row mt-4">
                       <div class="col-md-12">
-                        <label for="fbPages" class="form-label">Pages Fb</label>
+                        <label for="fbPages" class="form-label pr-1">Pages Facebook</label>
+                        <span class="small text-danger">(*)</span>
                         <p-multiSelect
                           [options]="fbPages"
                           formControlName="fbPages"
@@ -165,17 +213,25 @@
                           [placeholder]="'-- Choisir les pages fb --'"
                           optionLabel="name"
                           appendTo="body"
+                          display="chip"
+                          [maxSelectedLabels]="undefined"
                         ></p-multiSelect>
+                        <ng-container>
+                          <span class="small text-danger mt-2" *ngIf="offerForm.get('fbPages')?.dirty && offerForm.get('fbPages')?.errors?.['required']">
+                            Veuillez choisir une page facebook.
+                          </span>
+                        </ng-container>
                       </div>
                     </div>
-                    <div class="col-md-3 mt-3" style="margin-left: 80%">
+                    <div class="col-md-4 mt-3" style="margin-left: 73%">
                       <button
                         pButton
                         pRipple
-                        [label]="editMode ? 'Modifier' : 'Ajouter'"
+                        [label]="editMode ? 'Modifier les pages' : 'Ajouter'"
                         [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"
                         class="p-button-text"
                         (click)="saveOffer('FbPages')"
+                        [disabled]="editMode ? offerForm.get('fbPages')?.invalid : offerForm.invalid"
                       ></button>
                     </div>
                   </div>

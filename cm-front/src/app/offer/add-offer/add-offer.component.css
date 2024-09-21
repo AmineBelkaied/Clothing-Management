@@ -2,3 +2,15 @@
     width: 38px;
     height: 38px !important;
    }
+
+
+::ng-deep .update-qte-icon {
+    color: #a5a8ac !important;
+    background: white !important;
+    border: 1px solid #d1d5db !important;
+    width: 37px;
+}
+
+::ng-deep .update-qte-icon :hover {
+    color: #106c01 !important;
+}

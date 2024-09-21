@@ -1,11 +1,11 @@
 package com.clothing.management.servicesImpl;
-
 import com.clothing.management.dto.OfferDTO;
 import com.clothing.management.dto.OfferModelsDTO;
 import com.clothing.management.dto.OfferRequest;
 import com.clothing.management.entities.*;
 import com.clothing.management.exceptions.custom.notfound.OfferNotFoundException;
 import com.clothing.management.mappers.OfferMapper;
+import com.clothing.management.repository.IModelRepository;
 import com.clothing.management.repository.IOfferModelRepository;
 import com.clothing.management.repository.IOfferRepository;
 import com.clothing.management.services.OfferService;
@@ -27,13 +27,12 @@ public class OfferServiceImpl implements OfferService {
     private final OfferMapper offerMapper;
     private final EntityBuilderHelper entityBuilderHelper;
     private static final Logger LOGGER = LoggerFactory.getLogger(OfferServiceImpl.class);
+    private final IModelRepository modelRepository;
 
-    private final IOfferRepository offerRepository;
-    private final IOfferModelRepository offerModelRepository;
-
-    public OfferServiceImpl(IOfferRepository offerRepository, IOfferModelRepository offerModelRepository, OfferMapper offerMapper, EntityBuilderHelper entityBuilderHelper) {
+    public OfferServiceImpl(IOfferRepository offerRepository, IOfferModelRepository offerModelRepository, IModelRepository modelRepository, OfferMapper offerMapper, EntityBuilderHelper entityBuilderHelper) {
         this.offerRepository = offerRepository;
         this.offerModelRepository = offerModelRepository;
+        this.modelRepository = modelRepository;
         this.offerMapper = offerMapper;
         this.entityBuilderHelper = entityBuilderHelper;
     }
@@ -105,7 +104,8 @@ public class OfferServiceImpl implements OfferService {
         LOGGER.info("Offer added with id: {}", savedOffer.getId());
         return offerMapper.toDto(offer);
     }
-    
+
+
     @Transactional("tenantTransactionManager")
     @Override
     public OfferDTO updateOfferFbPages(long offerId, Set<FbPage> fbPages) throws Exception {

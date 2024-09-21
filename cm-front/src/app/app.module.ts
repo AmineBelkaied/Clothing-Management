@@ -38,12 +38,9 @@ import { ChipModule } from 'primeng/chip';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AvatarModule } from 'primeng/avatar';
-import { FloatLabelModule } from 'primeng/floatlabel';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { RippleModule } from 'primeng/ripple';
-import { MenuModule } from 'primeng/menu';
-import { TieredMenuModule } from 'primeng/tieredmenu';
 
 
 
@@ -90,8 +87,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
-import { StatusContainerComponent } from "./packet/list-packets/packets-menue-container/status-container/status-container.component";
-import { PacketsMenueContainerComponent } from "./packet/list-packets/packets-menue-container/packets-menue-container.component";
+import { GlobalConfService } from 'src/shared/services/global-conf.service';
+import { OfferService } from 'src/shared/services/offer.service';
+import { DisplayListPipe } from 'src/shared/pipes/display-list.pipe';
+import { DisplayOfferModelsPipe } from 'src/shared/pipes/display-offer-models.pipe';
 
 @NgModule({
   declarations: [
@@ -125,8 +124,8 @@ import { PacketsMenueContainerComponent } from "./packet/list-packets/packets-me
     PayedReturnComponent,
     UserComponent,
     GlobalConfComponent,
-    StatusContainerComponent,
-    PacketsMenueContainerComponent
+    DisplayListPipe,
+    DisplayOfferModelsPipe
   ],
   imports: [
     BrowserModule,
@@ -175,16 +174,15 @@ import { PacketsMenueContainerComponent } from "./packet/list-packets/packets-me
     BreadcrumbModule,
     ReactiveFormsModule,
     RippleModule,
-    OverlayPanelModule,
-    FloatLabelModule,
-    MenuModule,
-    TieredMenuModule
-],
+    OverlayPanelModule
+  ],
   providers: [
     MessageService,
     ConfirmationService,
     DatePipe,
     AuthGuard,
+    GlobalConfService,
+    OfferService,
     DecimalPipe,
     {
       provide: HTTP_INTERCEPTORS,

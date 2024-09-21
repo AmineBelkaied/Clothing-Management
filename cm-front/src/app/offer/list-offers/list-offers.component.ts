@@ -1,13 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Model } from 'src/shared/models/Model';
-import { OfferModelsDTO } from 'src/shared/models/OfferModelsDTO';
 import { Offer } from 'src/shared/models/Offer';
 import { ModelService } from '../../../shared/services/model.service';
 import { OfferService } from '../../../shared/services/offer.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { Subject, takeUntil } from 'rxjs';
-import { FbPageService } from 'src/shared/services/fb-page.service';
 
 @Component({
   selector: 'app-list-offers',
@@ -39,12 +37,14 @@ export class ListOffersComponent implements OnInit {
     return item.id;
   };
 
+  clonedOffer: Offer;
+  offerNameExists: boolean;
+
   constructor(
     private offerService: OfferService,
     private modelService: ModelService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private fbPageService: FbPageService) {
+    private confirmationService: ConfirmationService) {
   }
 
   ngOnInit() {
@@ -64,10 +64,6 @@ export class ListOffersComponent implements OnInit {
     this.modelService.loadModels().pipe(takeUntil(this.$unsubscribe)).subscribe((modelList: any) => {
       this.models = modelList;
     });
-  }
-
-  private getFbPages(pagesIds: number[]): FbPage[] {
-    return this.fbPageService.getFbPagesByIds(pagesIds);
   }
 
   openNew() {
@@ -96,8 +92,9 @@ export class ListOffersComponent implements OnInit {
 
   editOffer(offer: any) {
     this.offerService.setOffer(offer);
-      this.offerDialog = true;
-      this.editMode = true;
+    this.offerDialog = true;
+    this.editMode = true;
+    this.clonedOffer = { ...offer };
   }
 
   deleteOffer(offer: Offer) {
@@ -130,26 +127,10 @@ export class ListOffersComponent implements OnInit {
     return index;
   }
 
-  displayOfferModels(modelQuantities: OfferModelsDTO[]) {
-    let offerModels = "";
-    modelQuantities.forEach((modelQuantity) => {
-      if ( modelQuantities.length > 0 )
-        offerModels += " , ";
-      offerModels += modelQuantity.quantity + " " + modelQuantity.model.name;
-    });
-    return offerModels;
-  }
-
-  displayPages(fbPagesIds: number[]) {
-    let fbPages = this.getFbPages(fbPagesIds);
-    if(fbPages.length<1)return "";
-    let fbPgaesList = "";
-    fbPages.forEach((fbPage) => {
-      if ( fbPgaesList.length > 0 )
-        fbPgaesList += " , ";
-      fbPgaesList += fbPage.name + " ";
-    });
-    return fbPgaesList;
+  checkOfferExistence(offerName: string): void {
+    this.offerNameExists = this.editMode ?
+      this.offers.filter((offer: Offer) => offer.name !== this.clonedOffer.name).some((offer: Offer) => offer.name.toLowerCase() === offerName.toLowerCase()) :
+      this.offers.some((offer: Offer) => offer.name.toLowerCase() === offerName.toLowerCase());
   }
 
   hideDialog() {

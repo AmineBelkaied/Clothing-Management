@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Model } from 'src/shared/models/Model';
 import { OfferService } from 'src/shared/services/offer.service';
 import { FbPage } from 'src/shared/models/FbPage';
@@ -15,9 +15,18 @@ import { Subject, takeUntil } from 'rxjs';
 export class AddOfferComponent implements OnInit {
 
   offer: Offer;
-  @Input() modelList: Model[] = [];
-  @Input() editMode!: boolean;
-  @Output() submitEvent: EventEmitter<any> = new EventEmitter();
+  @Input()
+  modelList: Model[] = [];
+  @Input()
+  editMode!: boolean;
+  @Input()
+  offerNameExists: boolean;
+
+  @Output()
+  submitEvent: EventEmitter<any> = new EventEmitter();
+  @Output()
+  formValidationEmitter = new EventEmitter();
+
   selectedModels: any[] = [];
   $unsubscribe: Subject<void> = new Subject();
   fbPages :FbPage[];
@@ -29,41 +38,39 @@ export class AddOfferComponent implements OnInit {
     public fbPageService: FbPageService) {
     this.offerForm = this.fb.group({
       id: "",
-      name: '',
-      price: 0,
-      enabled: false,
-      fbPages: [],
-      offerModels: this.fb.array([]),
+      name: ['', Validators.required],
+      price: [0, Validators.required],
+      enabled: true,
+      fbPages: [[], Validators.required],
+      offerModels: this.fb.array([], Validators.required),
     })
    }
-
-
 
   ngOnInit(): void {
     this.offerService.offerSubscriber.pipe(takeUntil(this.$unsubscribe))
       .subscribe((offer:Offer) => this.offer = offer)
-    console.log("this.offer",this.offer);
 
     this.fbPageService.getFbPagesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
       (fbPages: FbPage[]) => {
         this.fbPages = fbPages;
       }
     );
-    console.log(this.offer)
-    let selectedFbPages = this.fbPageService.getFbPagesByIds(this.offer.fbPages)
+
 
     if(this.editMode) {
       this.offerForm.get('offerId')?.setValue(this.offer.id);
       this.offerForm.get('name')?.setValue(this.offer.name);
       this.offerForm.get('price')?.setValue(this.offer.price);
       this.offerForm.get('enabled')?.setValue(this.offer.enabled);
-      this.offerForm.get('fbPages')?.setValue(selectedFbPages);
+      this.offerForm.get('fbPages')?.setValue(this.offer.fbPages);
       if(this.offer.offerModels.length > 0 )
         for(let i=0 ; i < this.offer.offerModels.length ; i++) {
             this.addModelQuantity();
             this.modelQuantities().at(i).get('model')?.setValue(this.offer.offerModels[i].model);
             this.modelQuantities().at(i).get('quantity')?.setValue(this.offer.offerModels[i].quantity);
         }
+    } else {
+      this.addModelQuantity();
     }
   }
 
@@ -74,8 +81,8 @@ export class AddOfferComponent implements OnInit {
 
   newModelQuantity(): FormGroup {
     return this.fb.group({
-      model: null,
-      quantity: 0,
+      model: [null, Validators.required],
+      quantity: [1, [Validators.required, Validators.min(1)]],
     })
   }
 
@@ -89,20 +96,17 @@ export class AddOfferComponent implements OnInit {
 
   saveOffer(block:String) {
     let offer: Offer = this.offerForm.value;
-    console.log("offer",offer);
     if(this.editMode) {
-
-      if(block == "Models"){
-        this.offerService.updateOfferModels(this.offer.id,offer.offerModels).pipe(takeUntil(this.$unsubscribe))
-        .subscribe(offerResponse => {
-          console.log(offerResponse);
-          offerResponse.offerModels= offer.offerModels;
-          this.offerService.setOffer(offerResponse);
-          this.offerService.spliceOffer();
-          this.submitEvent.emit(offerResponse);
-        });
+      if(block === 'Models'){
+            this.offerService.updateOfferModels(this.offer.id,offer.offerModels).pipe(takeUntil(this.$unsubscribe))
+            .subscribe(offerResponse => {
+              offerResponse.offerModels= offer.offerModels;
+              this.offerService.setOffer(offerResponse);
+              this.offerService.spliceOffer();
+              this.submitEvent.emit(offerResponse);
+            });
       }
-      if(block == "FbPages"){
+      if(block == 'FbPages'){
         this.offerService.updateOfferFbPages(this.offer.id,offer.fbPages).pipe(takeUntil(this.$unsubscribe))
         .subscribe(offerResponse => {
           this.offerService.setOffer(offerResponse);
@@ -110,25 +114,17 @@ export class AddOfferComponent implements OnInit {
           this.submitEvent.emit(offerResponse);
         });
       }
-      if(block == "Offer"){
-        console.log("offer",offer);
-        offer.id=this.offer.id;
+      if(block === 'Offer'){
+        offer.id = this.offer.id;
         this.offerService.updatOfferFields(offer).pipe(takeUntil(this.$unsubscribe))
         .subscribe(offerResponse => {
-          console.log(offerResponse);
           this.submitEvent.emit(offerResponse);
         });
       }
-
-
     } else {
-      console.log("addmode",offer);
-
       this.offerService.addOffer(offer).pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: offerResponse => {
-          console.log(offerResponse);
-          //this.offerService.pushOffer(offerResponse)
           this.submitEvent.emit(offerResponse);
         },
         error: error => {
@@ -137,6 +133,11 @@ export class AddOfferComponent implements OnInit {
       });
     }
   }
+
+  checkOfferExistence(): void {
+    this.formValidationEmitter.next(this.offerForm.get('name')?.value);
+  }
+
 
   ngOnDestroy(): void {
     this.offerService.cleanOffre();

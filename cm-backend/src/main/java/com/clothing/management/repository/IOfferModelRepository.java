@@ -14,10 +14,11 @@ import java.util.List;
 import java.util.Set;
 
 public interface IOfferModelRepository extends JpaRepository<OfferModel , Long> {
+
     @Transactional
     @Modifying
     @Query(value = "INSERT into offer_model (offer_id, model_id, quantity) values (:offerId, :modelId, :quantity)" , nativeQuery = true)
-     void addOfferModel(@Param("offerId") Long offerId, @Param("modelId") Long modelId, @Param("quantity") float quantity);
+    void addOfferModel(@Param("offerId") Long offerId, @Param("modelId") Long modelId, @Param("quantity") float quantity);
 
     @Query("SELECT offerModel FROM OfferModel offerModel where offerModel.offer.id= :offerId")
     Set<OfferModel> findByOfferId(@Param("offerId") Long offerId);
@@ -29,4 +30,7 @@ public interface IOfferModelRepository extends JpaRepository<OfferModel , Long> 
     @Modifying
     @Query("DELETE FROM OfferModel om WHERE om.offer.id = :offerId")
     void deleteByOfferId(@Param("offerId") Long offerId);
+
+    @Query("SELECT om FROM OfferModel om WHERE om.model.id = :modelId AND om.offer.id = :offerId")
+    OfferModel findOfferModelByModelIdAndOfferId(Long modelId, Long offerId);
 }

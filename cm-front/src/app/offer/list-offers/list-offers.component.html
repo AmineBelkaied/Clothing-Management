@@ -3,12 +3,11 @@
 <div class="container-fluid">
     <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
         <div class="card-body">
-            <div class="d-flex megabar-header menu">
-                <div class="toggle-b-space"></div>
-                <div class="menu-middle">
+            <div class="row">
+                <div class="col-md-9">
                     <h5>Liste des offres</h5>
                 </div>
-                <div class="d-flex justify-content-end">
+                <div class="col-md-3 d-flex justify-content-end">
                     <button pButton pRipple icon="pi pi-plus" class="p-button-success mr-2 buttonSize pull-right"
                         (click)="openNew()"></button>
                     <button pButton pRipple icon="pi pi-trash" class="p-button-danger mr-3 buttonSize pull-right"
@@ -52,15 +51,15 @@
                     <p-tableCheckbox [value]="offer">{{offer.id}}</p-tableCheckbox>
                 </td>
                 <td>{{offer.name}}</td>
-                <td>{{displayOfferModels(offer.offerModels)}}</td>
-                <td>{{displayPages(offer.fbPages)}}</td>
+                <td>{{offer.offerModels | displayOfferModels}}</td>
+                <td>{{offer.fbPages | displayList : 'name' : ','}}</td>
                 <td>{{offer.price}} DT</td>
                 <td>
                     <ng-container *ngIf="offer.enabled;else disabled">
-                        <i class="pi pi-unlock" style="color: green;font-size: 1.2rem;"></i>
+                        <i class="pi pi-unlock" style="color: green;font-size: 17px;"></i>
                     </ng-container>
                     <ng-template #disabled>
-                        <i class="pi pi-lock" style="color: red;font-size: 1.2rem;"></i>
+                        <i class="pi pi-lock" style="color: red;font-size: 17px;"></i>
                     </ng-template>
                 </td>
                 <td>
@@ -84,8 +83,8 @@
 <p-dialog [(visible)]="offerDialog" [style]="{width: '60%'}" header="Détails de l'offre" [modal]="true"
     styleClass="p-fluid">
     <ng-template pTemplate="content">
-        <app-add-offer [modelList]="models" [editMode]="editMode"
-            (submitEvent)="OnSubmit($event)"></app-add-offer>
+        <app-add-offer [modelList]="models" [editMode]="editMode" [offerNameExists]="offerNameExists"
+            (submitEvent)="OnSubmit($event)" (formValidationEmitter)="checkOfferExistence($event)"></app-add-offer>
     </ng-template>
 </p-dialog>
 
