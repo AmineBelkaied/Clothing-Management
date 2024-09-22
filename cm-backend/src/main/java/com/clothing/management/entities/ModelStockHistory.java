@@ -1,4 +1,4 @@
-package com.clothing.management.dto;
+package com.clothing.management.entities;
 
 import jakarta.persistence.*;
 import java.util.*;

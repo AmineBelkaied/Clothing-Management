@@ -6,7 +6,7 @@ import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
 import com.clothing.management.auth.util.SessionUtils;
 import com.clothing.management.entities.GlobalConf;
-import com.clothing.management.dto.ModelStockHistory;
+import com.clothing.management.entities.ModelStockHistory;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.User;
 import com.clothing.management.services.GlobalConfService;

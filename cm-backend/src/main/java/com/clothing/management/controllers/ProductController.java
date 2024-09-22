@@ -3,7 +3,7 @@ package com.clothing.management.controllers;
 import com.clothing.management.dto.ProductDTO;
 import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
-import com.clothing.management.dto.StockUpdateDto;
+import com.clothing.management.dto.StockUpdateDTO;
 import com.clothing.management.entities.Product;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.services.ProductService;
@@ -72,7 +72,7 @@ public class ProductController {
     }
 
     @PostMapping("/stock")
-    public ResponseEntity<ResponsePage> addStock(@RequestBody StockUpdateDto stockUpdateDto) {
+    public ResponseEntity<ResponsePage> addStock(@RequestBody StockUpdateDTO stockUpdateDto) {
         try {
             Page<ProductHistoryDTO> pageProductHistory = productService.addStock(stockUpdateDto);
             ResponsePage responsePage = new ResponsePage.Builder()

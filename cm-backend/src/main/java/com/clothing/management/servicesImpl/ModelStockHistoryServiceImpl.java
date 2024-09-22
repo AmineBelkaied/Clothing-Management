@@ -1,5 +1,5 @@
 package com.clothing.management.servicesImpl;
-import com.clothing.management.dto.ModelStockHistory;
+import com.clothing.management.entities.ModelStockHistory;
 import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.services.ModelStockHistoryService;
 import org.springframework.stereotype.Service;

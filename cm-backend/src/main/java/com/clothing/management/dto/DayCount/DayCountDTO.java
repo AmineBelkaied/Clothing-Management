@@ -1,10 +1,16 @@
 package com.clothing.management.dto.DayCount;
 
-import com.clothing.management.dto.OfferDTO;
-import com.clothing.management.entities.Offer;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class DayCountDTO {
     private Date date;
     private long countProgress;
@@ -29,37 +35,5 @@ public class DayCountDTO {
     ) {
         this.countPayed = countPayed;
         this.countProgress = countProgress;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-    public void setDate(Date ate) {
-        this.date = date;
-    }
-
-    public long getCountProgress() {
-        return countProgress;
-    }
-    public void setCountProgress(long countProgress) {
-        this.countProgress = countProgress;
-    }
-
-    public long getCountPayed() {
-        return countPayed;
-    }
-
-    public void setCountPayed(long countPayed) {
-        this.countPayed = countPayed;
-    }
-
-
-    @Override
-    public String toString() {
-        return "OffersDayCountDTO{" +
-                "packetDate=" + date +
-                ", countProgress=" + countProgress +
-                ", countPayed=" + countPayed +
-                '}';
     }
 }

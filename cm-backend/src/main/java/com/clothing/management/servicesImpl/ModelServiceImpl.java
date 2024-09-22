@@ -11,6 +11,7 @@ import com.clothing.management.repository.IModelRepository;
 import com.clothing.management.repository.IProductRepository;
 import com.clothing.management.repository.ISizeRepository;
 import com.clothing.management.services.ModelService;
+import com.clothing.management.utils.EntityBuilderHelper;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +26,15 @@ public class ModelServiceImpl implements ModelService {
     private final IColorRepository colorRepository;
     private final ISizeRepository sizeRepository;
     private final IProductRepository productRepository;
+    private final EntityBuilderHelper entityBuilderHelper;
     
     public ModelServiceImpl(IModelRepository modelRepository, IColorRepository colorRepository,
-                            ISizeRepository sizeRepository, IProductRepository productRepository) {
+                            ISizeRepository sizeRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper) {
         this.modelRepository = modelRepository;
         this.colorRepository = colorRepository;
         this.sizeRepository = sizeRepository;
         this.productRepository = productRepository;
+        this.entityBuilderHelper = entityBuilderHelper;
     }
 
     @Override
@@ -70,7 +73,7 @@ public class ModelServiceImpl implements ModelService {
                         for(Size size : model.getSizes()) {
                             Product product1 = productRepository.findByModelAndColorAndSize(model.getId(), color.getId(), size.getId());
                             if( product1 == null) {
-                                Product product = new Product( size, color, 0, new Date(), model);
+                                Product product = entityBuilderHelper.createProductBuilder(size, color, 0, new Date(), model).build();
                                 productRepository.save(product);
                             }
                         }

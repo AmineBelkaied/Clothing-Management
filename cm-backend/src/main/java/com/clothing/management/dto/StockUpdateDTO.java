@@ -11,9 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductsPacketDTO {
+public class StockUpdateDTO {
 
-    long id;
-    long packetOfferId;
-    List<ProductDTO> products;
+    List<Long> productsId;
+    Long qte;
+    Long modelId;
+    String comment;
 }

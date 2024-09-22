@@ -163,7 +163,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Transactional("tenantTransactionManager")
-    public Page<ProductHistoryDTO> addStock(StockUpdateDto updateIdStockList) {
+    public Page<ProductHistoryDTO> addStock(StockUpdateDTO updateIdStockList) {
             // Iterate through the list of product IDs to update each product's stock
             User currentUser = sessionUtils.getCurrentUser();
             updateIdStockList.getProductsId().forEach(productId -> {
