@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,11 +54,13 @@ public class Packet {
     private Integer oldClient = 0;
 
     @OneToMany(mappedBy = "packet", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    private List<ProductsPacket> productsPackets;
+    @Builder.Default
+    private List<ProductsPacket> productsPackets = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "packet", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<PacketStatus> packetStatus;
+    @Builder.Default
+    private List<PacketStatus> packetStatus = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "fbpage_id")

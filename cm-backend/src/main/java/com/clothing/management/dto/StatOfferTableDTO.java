@@ -1,14 +1,13 @@
 package com.clothing.management.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
+@EqualsAndHashCode(callSuper = false)
 public class StatOfferTableDTO extends StatTableDTO {
 
     private OfferDTO offer;

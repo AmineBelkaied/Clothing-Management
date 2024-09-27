@@ -19,5 +19,6 @@ public class UserDTO {
     private String fullName;
     private String userName;
     private boolean enabled;
+    @Builder.Default
     private Set<Role> roles  = new HashSet<>();
 }

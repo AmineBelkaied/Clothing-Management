@@ -6,6 +6,7 @@ import com.clothing.management.entities.Model;
 import com.clothing.management.entities.Product;
 import com.clothing.management.entities.Size;
 import com.clothing.management.exceptions.custom.alreadyexists.ModelAlreadyExistsException;
+import com.clothing.management.mappers.ModelMapper;
 import com.clothing.management.repository.IColorRepository;
 import com.clothing.management.repository.IModelRepository;
 import com.clothing.management.repository.IProductRepository;
@@ -27,14 +28,16 @@ public class ModelServiceImpl implements ModelService {
     private final ISizeRepository sizeRepository;
     private final IProductRepository productRepository;
     private final EntityBuilderHelper entityBuilderHelper;
+    private final ModelMapper modelMapper;
     
     public ModelServiceImpl(IModelRepository modelRepository, IColorRepository colorRepository,
-                            ISizeRepository sizeRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper) {
+                            ISizeRepository sizeRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper, ModelMapper modelMapper) {
         this.modelRepository = modelRepository;
         this.colorRepository = colorRepository;
         this.sizeRepository = sizeRepository;
         this.productRepository = productRepository;
         this.entityBuilderHelper = entityBuilderHelper;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -120,7 +123,7 @@ public class ModelServiceImpl implements ModelService {
     public List<ModelDTO> getModels(){
         return modelRepository.findAll()
                 .stream()
-                .map(ModelDTO::new)
+                .map(modelMapper::toDto)
                 .collect(Collectors.toList());
     }
 }

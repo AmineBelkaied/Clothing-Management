@@ -4,6 +4,8 @@ import com.clothing.management.dto.*;
 import com.clothing.management.dto.DayCount.*;
 import com.clothing.management.entities.*;
 import com.clothing.management.enums.SystemStatus;
+import com.clothing.management.mappers.OfferMapper;
+import com.clothing.management.mappers.StatOfferTableMapper;
 import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.repository.IPacketRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
@@ -17,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-
 @Service
 @Transactional("tenantTransactionManager")
 public class StatServiceImpl implements StatService {
@@ -27,13 +27,17 @@ public class StatServiceImpl implements StatService {
     private final IProductsPacketRepository productsPacketRepository;
     private final IModelStockHistoryRepository modelStockHistoryRepository;
     private final IPacketRepository packetRepository;
+    private final OfferMapper offerMapper;
+    private final StatOfferTableMapper statOfferTableMapper;
 
     public StatServiceImpl(IProductsPacketRepository productsPacketRepository,
                            IModelStockHistoryRepository modelStockHistoryRepository,
-                           IPacketRepository packetRepository) {
+                           IPacketRepository packetRepository, OfferMapper offerMapper, StatOfferTableMapper statOfferTableMapper) {
         this.productsPacketRepository = productsPacketRepository;
         this.modelStockHistoryRepository = modelStockHistoryRepository;
         this.packetRepository = packetRepository;
+        this.offerMapper = offerMapper;
+        this.statOfferTableMapper = statOfferTableMapper;
     }
 
     @Override
@@ -210,7 +214,7 @@ public class StatServiceImpl implements StatService {
         StatOfferTableDTO offerRecap =null;
         for (OfferDTO uniqueoffer : uniqueOffers) {
             countOffersList = new ArrayList<>();
-            offerRecap= new StatOfferTableDTO(uniqueoffer);
+            offerRecap = statOfferTableMapper.offerToStatOfferTableDTO(uniqueoffer);
 
             for (Date uniqueDate : uniqueDates) {
                 long countPayed = 0;
@@ -265,7 +269,10 @@ public class StatServiceImpl implements StatService {
         return data;
     }
     public StatOfferTableDTO createOfferTableTotalRecap(List<StatOfferTableDTO> recapCount){
-        StatOfferTableDTO totalRecap= new StatOfferTableDTO(new OfferDTO("Total"));
+        StatOfferTableDTO totalRecap = statOfferTableMapper.offerToStatOfferTableDTO(
+                OfferDTO.builder()
+                        .name("Total")
+                        .build());
         totalRecap.setMin(0L);
         for (StatOfferTableDTO uniqueRecapCount : recapCount) {
             totalRecap.setAvg(totalRecap.getAvg()+uniqueRecapCount.getAvg());
@@ -323,8 +330,8 @@ public class StatServiceImpl implements StatService {
                 uniqueColorCountList.add(count);
             }
             countColorsLists.add(uniqueColorCountList);
-            colorRecap.setMin(Collections.min(uniqueColorCountList));
-            colorRecap.setMax(Collections.max(uniqueColorCountList));
+            colorRecap.setMin(Long.valueOf(Collections.min(uniqueColorCountList)));
+            colorRecap.setMax(Long.valueOf(Collections.max(uniqueColorCountList)));
             colorRecap.setAvg(colorRecap.getPayed()/uniqueDates.size());
             colorsRecapCount.add(colorRecap);
         }
@@ -523,7 +530,7 @@ public class StatServiceImpl implements StatService {
             }
             if (!uniqueOffersIds.contains(offer.getId())) {
                 uniqueOffersIds.add(offer.getId());
-                uniqueOffers.add(new OfferDTO(offer));
+                uniqueOffers.add(offerMapper.toDto(offer));
             }
         }
         uniqueAttributes.put("uniqueOffers", uniqueOffers);

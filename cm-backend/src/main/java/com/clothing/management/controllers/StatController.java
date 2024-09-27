@@ -77,6 +77,7 @@ public class StatController {
             Map<String, List<?>> stats = statService.statAllPacketsChart(beginDate, endDate, deliveryCompanyName);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -89,6 +90,7 @@ public class StatController {
             Map<String, List<?>> stats = statService.statAllOffersChart(beginDate, endDate);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

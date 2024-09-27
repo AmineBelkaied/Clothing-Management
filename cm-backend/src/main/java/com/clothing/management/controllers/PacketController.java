@@ -6,6 +6,7 @@ import com.clothing.management.dto.*;
 import com.clothing.management.dto.DeliveryCompanyDTOs.BarCodeStatusDTO;
 import com.clothing.management.entities.Note;
 import com.clothing.management.entities.Packet;
+import com.clothing.management.mappers.PacketMapper;
 import com.clothing.management.models.DashboardCard;
 import com.clothing.management.models.ResponsePage;
 import com.clothing.management.scheduler.UpdateStatusScheduler;
@@ -29,11 +30,13 @@ public class PacketController {
     private final PacketService packetService;
     private final UpdateStatusScheduler updateStatusScheduler;
     private final MasterTenantService masterTenantService;
+    private final PacketMapper packetMapper;
 
-    public PacketController(PacketService packetService,UpdateStatusScheduler updateStatusScheduler, MasterTenantService masterTenantService){
+    public PacketController(PacketService packetService, UpdateStatusScheduler updateStatusScheduler, MasterTenantService masterTenantService, PacketMapper packetMapper) {
         this.packetService = packetService;
         this.updateStatusScheduler = updateStatusScheduler;
-        this.masterTenantService =masterTenantService;
+        this.masterTenantService = masterTenantService;
+        this.packetMapper = packetMapper;
     }
 
     @GetMapping
@@ -96,15 +99,15 @@ public class PacketController {
 
     @PostMapping
     public PacketDTO addPacket() throws Exception {
-        return new PacketDTO(packetService.addPacket());
+        return packetMapper.toDto(packetService.addPacket());
     }
 
     @PutMapping
-    public PacketDTO updatePacket(@RequestBody Packet packet) {return new PacketDTO(packetService.updatePacket(packet));}
+    public PacketDTO updatePacket(@RequestBody Packet packet) {return packetMapper.toDto(packetService.updatePacket(packet));}
 
     @PutMapping("/{id}")
     public PacketDTO patchPacket(@PathVariable Long id, @RequestBody Map<String, Object> fields) throws Exception {
-        return new PacketDTO(packetService.patchPacket(id, fields));
+        return packetMapper.toDto(packetService.patchPacket(id, fields));
     }
 
     @PostMapping("/validate/{barcode}")
@@ -135,7 +138,7 @@ public class PacketController {
 
     @PostMapping("/{id}/attempt")
     public ResponseEntity<PacketDTO> addAttempt(@RequestBody Note note, @PathVariable Long id) {
-        return new ResponseEntity<>(new PacketDTO(packetService.addAttempt(note, id)), HttpStatus.OK);
+        return new ResponseEntity<>(packetMapper.toDto(packetService.addAttempt(note, id)), HttpStatus.OK);
     }
 
     @PostMapping("/add-products")

@@ -21,7 +21,9 @@ public class ModelDTO {
     private float purchasePrice;
     private double earningCoefficient;
     private boolean deleted;
+    @Builder.Default
     private List<Color> colors = new ArrayList<>();
+    @Builder.Default
     private List<Size> sizes = new ArrayList<>();
     private boolean enabled;
 }

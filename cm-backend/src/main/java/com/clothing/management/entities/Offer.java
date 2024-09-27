@@ -48,8 +48,10 @@ public class Offer {
     private Double price;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean enabled = false;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean deleted = false;
 }

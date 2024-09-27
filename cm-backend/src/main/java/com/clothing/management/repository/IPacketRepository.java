@@ -1,7 +1,6 @@
 package com.clothing.management.repository;
 import com.clothing.management.dto.DayCount.PagesStatCountDTO;
 import com.clothing.management.dto.DayCount.StatesStatCountDTO;
-import com.clothing.management.dto.PacketDTO;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.models.DashboardCard;
 import org.springframework.data.domain.Page;
@@ -18,6 +17,7 @@ import java.util.Optional;
 
 @Repository
 public interface IPacketRepository extends JpaRepository<Packet, Long> {
+
     @Query(value=" SELECT * FROM packet p WHERE DATEDIFF(NOW() , p.date) < 2", nativeQuery = true)
     List<Packet> findAllByDate(@Param("date") Date d);
 
@@ -43,16 +43,16 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             "FROM Packet p WHERE (p.status <> 'Problème') GROUP BY p.status")
     List<DashboardCard> createNotification(@Param("beginDate") String beginDate, @Param("endDate") String endDate);//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
 
-    @Query(value ="SELECT new com.clothing.management.dto.PacketDTO(p) FROM Packet p " +
+    @Query(value ="SELECT p FROM Packet p " +
             "WHERE CAST(p.id as String) LIKE %:searchField% " +
             "OR  p.customerName LIKE %:searchField% " +
             "OR p.customerPhoneNb LIKE %:searchField% " +
             "OR p.barcode LIKE %:searchField% " +
             "OR p.packetDescription LIKE %:searchField%")
-    Page<PacketDTO> findAllPacketsByField(@Param("searchField") String searchField, Pageable pageable);
+    Page<Packet> findAllPacketsByField(@Param("searchField") String searchField, Pageable pageable);
 
     @Transactional
-    @Query(value ="SELECT new com.clothing.management.dto.PacketDTO(p) FROM Packet p " +
+    @Query(value ="SELECT p FROM Packet p " +
             "WHERE CAST(p.id as String) LIKE %:searchField% " +
             "OR  p.customerName LIKE %:searchField% " +
             "OR p.customerPhoneNb LIKE %:searchField% " +
@@ -60,24 +60,24 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             "OR p.packetDescription LIKE %:searchField% " +
             "AND DATE(p.date) >= DATE(:beginDate) " +
             "AND DATE(p.date) <= DATE(:endDate)")
-    Page<PacketDTO> findAllPacketsByFieldAndDate(@Param("searchField") String searchField, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate, Pageable pageable);
+    Page<Packet> findAllPacketsByFieldAndDate(@Param("searchField") String searchField, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate, Pageable pageable);
 
-    @Query(value ="SELECT new com.clothing.management.dto.PacketDTO(p) FROM Packet p WHERE p.status IN (:selectedList) AND (p.status IN (:ignoredDateStatusList) OR (DATE(p.date) >= DATE(:beginDate) AND DATE(p.date) <= DATE(:endDate)))")
-    Page<PacketDTO> findAllPacketsByStatus(@Param("ignoredDateStatusList") List<String> ignoredDateStatusList, @Param("selectedList") List<String> selectedList, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate, Pageable pageable);
+    @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList) AND (p.status IN (:ignoredDateStatusList) OR (DATE(p.date) >= DATE(:beginDate) AND DATE(p.date) <= DATE(:endDate)))")
+    Page<Packet> findAllPacketsByStatus(@Param("ignoredDateStatusList") List<String> ignoredDateStatusList, @Param("selectedList") List<String> selectedList, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate, Pageable pageable);
 
     @Query(value ="SELECT p FROM Packet p WHERE p.status = 'Confirmée'")
     List<Packet> findValidationPackets();
 
     @Transactional
-    @Query(value ="SELECT new com.clothing.management.dto.PacketDTO(p) FROM Packet p WHERE p.status IN (:selectedList)")
-    Page<PacketDTO> findAllPacketsByStatus(@Param("selectedList") List<String> selectedList, Pageable pageable);
+    @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList)")
+    Page<Packet> findAllPacketsByStatus(@Param("selectedList") List<String> selectedList, Pageable pageable);
 
 
-    @Query(value ="SELECT new com.clothing.management.dto.PacketDTO(p) FROM Packet p WHERE DATE(p.date) >= DATE(:beginDate) AND DATE(p.date) <= DATE(:endDate)")
-    Page<PacketDTO> findAllPacketsByDate(@Param("beginDate") Date beginDate, @Param("endDate") Date endDate, Pageable pageable);
+    @Query(value ="SELECT p FROM Packet p WHERE DATE(p.date) >= DATE(:beginDate) AND DATE(p.date) <= DATE(:endDate)")
+    Page<Packet> findAllPacketsByDate(@Param("beginDate") Date beginDate, @Param("endDate") Date endDate, Pageable pageable);
 
-    @Query(value ="SELECT new com.clothing.management.dto.PacketDTO(p) FROM Packet p WHERE DATE(p.date) >= DATE(:beginDate) AND DATE(p.date) <= DATE(:endDate) AND p.status IN (:statusList)")
-    Page<PacketDTO> findAllPacketsByDateAndStatus(@Param("beginDate") Date beginDate, @Param("endDate") Date endDate, @Param("statusList") List<String> statusList, Pageable pageable);
+    @Query(value ="SELECT p FROM Packet p WHERE DATE(p.date) >= DATE(:beginDate) AND DATE(p.date) <= DATE(:endDate) AND p.status IN (:statusList)")
+    Page<Packet> findAllPacketsByDateAndStatus(@Param("beginDate") Date beginDate, @Param("endDate") Date endDate, @Param("statusList") List<String> statusList, Pageable pageable);
 
     @Query(value ="SELECT p FROM Packet p WHERE DATE(p.date) >= DATE(:beginDate) AND DATE(p.date) <= DATE(:endDate)")
     List<Packet> findAllPacketsByDate(@Param("beginDate") Date beginDate, @Param("endDate") Date endDate);

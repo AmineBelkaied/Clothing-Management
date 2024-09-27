@@ -1,4 +1,5 @@
 package com.clothing.management.models;
+
 public class DashboardCard {
     private String status;
     private Long statusCount;

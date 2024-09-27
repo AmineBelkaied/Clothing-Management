@@ -1,15 +1,14 @@
 package com.clothing.management.dto.DeliveryCompanyDTOs;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import net.minidev.json.annotate.JsonIgnore;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
+@EqualsAndHashCode(callSuper = false)
 public class DeliveryResponseNavex extends DeliveryResponse {
 
     int status;

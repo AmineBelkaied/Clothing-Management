@@ -102,6 +102,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Add your logic to determine whether to skip the filter for this request
         // For example, check the request URI
         String requestUri = request.getRequestURI();
-        return requestUri.equalsIgnoreCase("/api/auth/login");
+        return requestUri.equalsIgnoreCase("/api/auth/login") || requestUri.equalsIgnoreCase("/swagger-ui/index.html");
     }
 }

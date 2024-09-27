@@ -26,6 +26,7 @@ public class DeliveryCompany {
     @Column(name = "barre_code_url")
     private String barreCodeUrl;
 
+    @Builder.Default
     private boolean deleted = false;
 
     @Column(name = "additional_name")

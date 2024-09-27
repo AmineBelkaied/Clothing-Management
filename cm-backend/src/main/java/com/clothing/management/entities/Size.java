@@ -30,6 +30,7 @@ public class Size implements Comparable<Size> {
     private String description;
     @ManyToMany(mappedBy = "colors")
     @JsonBackReference
+    @Builder.Default
     private Set<Model> models = new HashSet<>();;
 
     @Override

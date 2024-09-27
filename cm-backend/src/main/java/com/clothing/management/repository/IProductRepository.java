@@ -18,7 +18,7 @@ public interface IProductRepository extends JpaRepository<Product, Long> {
     int deleteProductsByModelAndSize(@Param("modelId") Long modelId,@Param("sizeId") Long sizeId);
 
     @Query(value = "SELECT " +
-            "NEW com.clothing.management.dto.ModelStockHistory(p.model.id, p.model.name , SUM(p.quantity)) " +
+            "NEW com.clothing.management.entities.ModelStockHistory(p.model.id, p.model.name , SUM(p.quantity)) " +
             "FROM Product p GROUP BY p.model.id")
     List<ModelStockHistory> countStock();
 

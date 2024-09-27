@@ -8,18 +8,18 @@ import java.util.Set;
 
 @Entity
 @Table(name = "roles")
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "users")
 public class Role {
+
     @Id
     @Column(name = "role_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     private String name;
-
     private String description;
 
     @ManyToMany(mappedBy = "roles")
