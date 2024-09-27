@@ -27,7 +27,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User addUser(User user) {
-        LOGGER.info("Adding user in database context: {}", DBContextHolder.getCurrentDb());
         if (user.getPassword() != null) {
             LOGGER.debug("Encoding password for user: {}", user.getUserName());
             BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
@@ -43,7 +42,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> findAllUsers() {
-        LOGGER.info("Fetching all users from database context: {}", DBContextHolder.getCurrentDb());
         List<User> users = userRepository.findAll();
         LOGGER.info("Fetched {} users", users.size());
         return users;
@@ -51,7 +49,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUserName(String userName) {
-        LOGGER.info("Finding user by username: {}", userName);
         User user = userRepository.findByUserName(userName);
         if (user != null) {
             LOGGER.info("Found user with username: {}", userName);
@@ -63,7 +60,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(User user) {
-        LOGGER.info("Updating user in database context: {}", DBContextHolder.getCurrentDb());
         LOGGER.debug("Updating user details: {}", user);
         if (user.getPassword() != null) {
             LOGGER.debug("Encoding new password for user: {}", user.getUserName());
@@ -79,7 +75,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteAllUsersById(List<Integer> usersId) {
-        LOGGER.info("Deleting users in database context: {}", DBContextHolder.getCurrentDb());
         usersId.forEach(userId -> {
             LOGGER.info("Deleting user with ID: {}", userId);
             try {

@@ -26,21 +26,15 @@ public class ModelServiceImpl implements ModelService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelServiceImpl.class);
 
     private final IModelRepository modelRepository;
-    private final IColorRepository colorRepository;
-    private final ISizeRepository sizeRepository;
     private final IProductRepository productRepository;
 
-    public ModelServiceImpl(IModelRepository modelRepository, IColorRepository colorRepository,
-                            ISizeRepository sizeRepository, IProductRepository productRepository) {
+    public ModelServiceImpl(IModelRepository modelRepository, IProductRepository productRepository) {
         this.modelRepository = modelRepository;
-        this.colorRepository = colorRepository;
-        this.sizeRepository = sizeRepository;
         this.productRepository = productRepository;
     }
 
     @Override
     public List<Model> findAllModels() {
-        LOGGER.info("Retrieving all models.");
         List<Model> models = modelRepository.findAll();
         LOGGER.info("Found {} models.", models.size());
         return models;
@@ -48,7 +42,6 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public Optional<Model> findModelById(Long idModel) {
-        LOGGER.info("Finding model by ID: {}", idModel);
         Optional<Model> model = modelRepository.findById(idModel);
         if (model.isPresent()) {
             LOGGER.info("Model found: {}", model.get());
@@ -60,7 +53,6 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public Model saveModel(Model model) {
-        LOGGER.info("Saving model: {}", model);
         if (model.getId() == null) {
             modelRepository.findByNameIsIgnoreCase(model.getName())
                     .ifPresent(existingModel -> {
@@ -117,14 +109,12 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public void deleteModelById(Long idModel) {
-        LOGGER.info("Deleting model by ID: {}", idModel);
         modelRepository.deleteById(idModel);
         LOGGER.info("Model with ID: {} deleted.", idModel);
     }
 
     @Override
     public void deleteSelectedModels(List<Long> modelsId) {
-        LOGGER.info("Deleting models with IDs: {}", modelsId);
         modelRepository.deleteAllById(modelsId);
         LOGGER.info("Models with IDs: {} deleted.", modelsId);
     }
@@ -132,7 +122,6 @@ public class ModelServiceImpl implements ModelService {
     @Override
     @Transactional("tenantTransactionManager")
     public List<ModelDTO> getModels() {
-        LOGGER.info("Retrieving all models as DTOs.");
         List<ModelDTO> modelDTOs = modelRepository.findAll()
                 .stream()
                 .map(ModelDTO::new)

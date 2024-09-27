@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
+import { SideBarService } from 'src/shared/services/sidebar.service';
 import { StorageService } from 'src/shared/services/strorage.service';
 
 @Component({
@@ -9,14 +10,11 @@ import { StorageService } from 'src/shared/services/strorage.service';
 })
 export class AppComponent {
   title = 'clothing-management-frontend';
-  isLoggedIn: Observable<boolean>;
+  isLoggedIn: boolean;
   isSidebarExpanded = false;
-
-  constructor(public storageService: StorageService) {
-    this.isLoggedIn = this.storageService.isLoggedIn;
-  }
-
-  onSidebarExpansionChanged(expanded: boolean) {
-    this.isSidebarExpanded = expanded;
+  constructor(public sideBarService : SideBarService) {
+    this.sideBarService.idExpandedSubscriber().subscribe(isSidebarExpanded => {
+      this.isSidebarExpanded = isSidebarExpanded;
+    });
   }
 }

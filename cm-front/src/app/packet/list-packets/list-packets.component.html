@@ -3,148 +3,10 @@
   #contextMenu
   [model]="optionButtons"
 ></p-contextMenu>
-<div class="container-fluid">
-  <div
-    class="card ml-4 mt-2 mb-3"
-    style="background-color: #fbfbfb; position: relative"
-  >
-    <div class="notification-container">
-      <p-avatar
-        [label]="
-          realTotalItems == undefined
-            ? 0 + ''
-            : realTotalItems > pageSize
-            ? realTotalItems + ''
-            : totalItems + ''
-        "
-        styleClass="mr-2"
-        size="normal"
-        [style]="{ 'background-color': '#32CD32', color: '#ffffff' }"
-        shape="circle"
-      ></p-avatar>
-    </div>
-    <div class="justify-content-center row">
-      <div
-        class="col d-flex flex-wrap align-items-center w-40 ml-2"
-      >
-        <button
-          pButton
-          pRipple
-          icon="pi pi-plus"
-          class="p-button-success mb-2 mt-2 buttonSize"
-          (click)="addNewRow()"
-        ></button>
-        <button
-          pButton
-          pRipple
-          icon="pi pi-trash"
-          class="p-button-danger mb-2 ml-2 mt-2 buttonSize"
-          (click)="deleteSelectedPackets()"
-          [disabled]="!selectedPackets || selectedPackets.length == 0"
-        ></button>
-        <button
-          pButton
-          pRipple
-          icon="pi pi-refresh"
-          class="p-button-infos mb-2 ml-2 mt-2 buttonSize"
-          (click)="resetTable()"
-        ></button>
-        <span class="p-input-icon-left ml-2">
-          <i class="pi pi-search"></i>
-          <input
-            pInputText
-            type="text"
-            [(ngModel)]="filter"
-            (onChange)="(filter)"
-            (keyup.enter)="filterPackets()"
-            (input)="handleInputChange()"
-            placeholder="Client, Tel, Ville, Adresse, Page, Id"
-            [style]="{ width: '250px' }"
-          />
-          <!--(input)="dt.filterGlobal($any($event.target).value, 'contains')"-->
-        </span>
-      </div>
-      <div
-        class="col d-flex flex-wrap align-items-center w-30"
-        style="min-width: 15rem; max-width: 18rem"
-      >
-        <p-calendar
-          [(ngModel)]="rangeDates"
-          (ngModelChange)="filterPackets('date')"
-          selectionMode="range"
-          [readonlyInput]="true"
-          inputId="range"
-          placeholder="Filtrer par date/période"
-          [showClear]="false"
-          (onClearClick)="resetTable()"
-          [showIcon]="true"
-          class="ml-0"
-          [style]="{ width: '12rem' }"
-          dateFormat="dd/mm"
-          [touchUI]="true"
-        >
-          <ng-template pTemplate="footer">
-            <div style="display: flex; align-items: center">
-              <p-selectButton
-                [options]="dateOptions"
-                [(ngModel)]="mandatoryDateCheckBox"
-                optionLabel="label"
-                optionValue="value"
-                (click)="mandatoryDateChange()"
-              ></p-selectButton>
-              <p-button
-                label="Ancien Date"
-                styleClass="p-button-text"
-                (click)="oldDateFilter()"
-              ></p-button>
-              <p-button
-                label="Today"
-                styleClass="p-button-text"
-                (click)="todayDate()"
-              ></p-button>
-              <p-button
-                label="Clear"
-                styleClass="p-button-text"
-                (click)="clearDate()"
-              ></p-button>
-            </div>
-          </ng-template>
-        </p-calendar>
-        <button
-          type="button"
-          pButton
-          pRipple
-          icon="pi pi-file"
-          class="ml-1 mt-1 buttonSize"
-          pTooltip="CSV"
-          tooltipPosition="bottom"
-        ></button
-        ><!--(click)="exportCSV()"-->
-      </div>
-      <div
-        class="col d-flex flex-wrap align-items-center w-30"
-        style="min-width: 10rem; max-width: 12rem"
-      >
-        <p-button
-          [label]="statusItemsLabel"
-          (click)="showStatusButton()"
-          severity="success"
-        ></p-button>
-      </div>
-    </div>
-
-    <div class="container-fluid" *ngIf="showStatus">
-      <app-status-container
-      [params]="params"
-      [activeIndex]="activeIndex"
-      (statusChange)="onStatusChange($event)"></app-status-container>
-    </div>
-  </div>
-</div>
-
-<div class="table-container" style="height: max-content">
+<app-packets-menue-container class = "megabar" [filter] = "filter" (filterPacketsEmitter)="onFilterPacketsChange($event)" (buttonPacketsEmitter)="onButtonMenuClick($event)"></app-packets-menue-container>
+<div class="table-container" style="height: max-content;">
   <p-table #dt [columns]="cols" [showCurrentPageReport]="true" [value]="packets"
-    styleClass="p-datatable-gridlines p-datatable-sm mb-1" class="table table-hover" [(selection)]="selectedPackets"
+    styleClass="p-datatable-gridlines p-datatable-sm mb-1" class="table table-hover .scroll-wrapper" [(selection)]="selectedPackets"
     selectionMode="multiple" responsiveLayout="scroll" [exportHeader]="'customExportHeader'" dataKey="id"
     (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" [loading]="loading" [lazy]="true" [contextMenu]="contextMenu" (contextmenu)="openContextMenu($event, selectedPacket, contextMenu)">
     <ng-template pTemplate="header" let-columns>
@@ -448,7 +310,7 @@
     <ng-template pTemplate="emptymessage" let-columns>
       <tr>
         <td [attr.colspan]="cols.length + 1">
-          <ng-container *ngIf="this.rangeDates[1] != null; else emptyList">
+          <ng-container *ngIf="packets.length > 0; else emptyList">
             <label>Il n'y a pas de commandes qui correspondent aux filtres
               choisies</label>
           </ng-container>

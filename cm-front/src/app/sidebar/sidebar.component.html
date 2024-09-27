@@ -1,11 +1,15 @@
-<div class="sidebar" [ngClass]="{'collapsed': !isExpanded}" *ngIf="isLoggedIn">
-  <div class="sidebar-toggle" (click)="toggleSidebar()">
-    <i class="pi" [ngClass]="isExpanded ? 'pi-angle-left' : 'pi-angle-right'"></i>
+<div class="sidebar" [ngClass]="{'collapsed': !expanded}" *ngIf="isLoggedIn">
+  <div class="sidebar-toggle">
+    <div class="user-circle" (click)="toggleUserMenu()">
+      {{ userName.charAt(0).toUpperCase() }}
+    </div>
+    <div class="toggle-arrow" (click)="toggleSidebar()">
+      <i class="pi" [ngClass]="isExpanded ? 'pi-angle-left' : 'pi-angle-right'"></i>
+    </div>
   </div>
   <div class="sidebar-content">
     <div class="sidebar-header">
-      <h2>{{ globalConf.applicationName }}</h2>
-      <!-- <p *ngIf="isExpanded">{{ clothingManagementLabel }}</p> -->
+      <h3>{{ globalConf.applicationName }}</h3>
     </div>
     <ul class="sidebar-menu">
       <li *ngFor="let item of menuItems"  [routerLinkActive]="['active']">
@@ -15,10 +19,12 @@
         </a>
       </li>
     </ul>
-    <div class="sidebar-footer">
-      <p>Bienvenue {{userName}}</p>
-      <button pButton label="Sync" icon="pi pi-sync" class="p-button-info" (click)="sync()" *ngIf="!isSuperAdmin"></button>
-      <button pButton label="Logout" icon="pi pi-sign-out" class="p-button-danger" (click)="logout()"></button>
-    </div>
   </div>
 </div>
+
+  <div class="user-menu" *ngIf="showUserMenu">
+    <p>Bienvenue {{userName}}</p>
+    <button pButton label="Sync" icon="pi pi-sync" class="p-button-info" (click)="sync()" *ngIf="!isSuperAdmin"></button>
+    <button pButton label="Logout" icon="pi pi-sign-out" class="p-button-danger" (click)="logout()"></button>
+  </div>
+

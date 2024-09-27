@@ -22,14 +22,12 @@ public class GlobalConfServiceImpl implements GlobalConfService {
 
     @Override
     public GlobalConf getGlobalConf() {
-        LOGGER.info("Retrieving global configuration.");
         GlobalConf globalConf = globalConfRepository.findAll().stream().findFirst().orElse(null);
         return globalConf;
     }
 
     @Override
     public void updateGlobalConf(GlobalConf globalConf) {
-        LOGGER.info("Updating global configuration with ID: {}", globalConf.getId());
         globalConfRepository.save(globalConf);
         LOGGER.info("Global configuration updated successfully.");
     }

@@ -34,8 +34,6 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
 
     @Override
     public Page<ProductHistoryDTO> findAllProductsHistory(Long modelId, int page, int size, String colorSize, String beginDate, String endDate) throws ParseException {
-        LOGGER.info("Fetching product history for modelId: {}, page: {}, size: {}, colorSize: {}, beginDate: {}, endDate: {}",
-                modelId, page, size, colorSize, beginDate, endDate);
 
         Pageable paging = PageRequest.of(page, size, Sort.by("lastModificationDate").descending());
 
@@ -59,7 +57,6 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
 
     @Override
     public Optional<ProductHistory> findProductHistoryById(Long idProductHistory) {
-        LOGGER.info("Fetching product history with id: {}", idProductHistory);
         Optional<ProductHistory> productHistory = productHistoryRepository.findById(idProductHistory);
         if (productHistory.isPresent()) {
             LOGGER.info("Product history found with id: {}", idProductHistory);
@@ -71,7 +68,6 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
 
     @Override
     public ProductHistory addProductHistory(ProductHistory productHistory) {
-        LOGGER.info("Adding new product history: {}", productHistory);
         ProductHistory savedProductHistory = productHistoryRepository.save(productHistory);
         LOGGER.info("Product history added with id: {}", savedProductHistory.getId());
         return savedProductHistory;
@@ -79,7 +75,6 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
 
     @Override
     public List<ProductHistory> addManyProductHistory(List<ProductHistory> productsHistory) {
-        LOGGER.info("Adding multiple product histories. Number of entries: {}", productsHistory.size());
         List<ProductHistory> savedProductHistories = productHistoryRepository.saveAll(productsHistory);
         LOGGER.info("Multiple product histories added. Number of entries: {}", savedProductHistories.size());
         return savedProductHistories;
@@ -87,7 +82,6 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
 
     @Override
     public ProductHistory updateProductHistory(ProductHistory productHistory) {
-        LOGGER.info("Updating product history: {}", productHistory);
         ProductHistory updatedProductHistory = productHistoryRepository.save(productHistory);
         LOGGER.info("Product history updated with id: {}", updatedProductHistory.getId());
         return updatedProductHistory;
@@ -95,14 +89,12 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
 
     @Override
     public void deleteProductHistory(ProductHistory productHistory) {
-        LOGGER.info("Deleting product history: {}", productHistory);
         productHistoryRepository.delete(productHistory);
         LOGGER.info("Product history deleted with id: {}", productHistory.getId());
     }
 
     @Override
     public Page<ProductHistoryDTO> deleteProductsHistory(List<ProductHistory> productsHistory, Long modelId, int page) {
-        LOGGER.info("Deleting product histories. Number of entries: {}", productsHistory.size());
         productsHistory.forEach(productHistory -> {
             Optional<Product> optionalProduct = productRepository.findById(productHistory.getProduct().getId());
             optionalProduct.ifPresent(product -> {

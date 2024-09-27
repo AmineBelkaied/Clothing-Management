@@ -23,7 +23,6 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public List<Note> findAllNotes() {
-        LOGGER.info("Fetching all notes.");
         List<Note> notes = noteRepository.findAll();
         LOGGER.info("Retrieved {} notes.", notes.size());
         return notes;
@@ -31,7 +30,6 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public List<Note> findAllNotesByPacketId(Long packetId) {
-        LOGGER.info("Fetching notes for packetId: {}", packetId);
         List<Note> notes = noteRepository.findNotesByPacketId(packetId);
         LOGGER.info("Retrieved {} notes for packetId: {}", notes.size(), packetId);
         return notes;
@@ -39,7 +37,6 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public Optional<Note> findNoteById(Long idNote) {
-        LOGGER.info("Fetching note with id: {}", idNote);
         Optional<Note> note = noteRepository.findById(idNote);
         if (note.isPresent()) {
             LOGGER.info("Note with id: {} found.", idNote);
@@ -51,7 +48,6 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public Note addNote(Note note) {
-        LOGGER.info("Adding new note: {}", note);
         Note savedNote = noteRepository.save(note);
         LOGGER.info("Note added with id: {}", savedNote.getId());
         return savedNote;
@@ -59,7 +55,6 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public Note updateNote(Note note) {
-        LOGGER.info("Updating note: {}", note);
         Note updatedNote = noteRepository.save(note);
         LOGGER.info("Note updated with id: {}", updatedNote.getId());
         return updatedNote;
@@ -67,7 +62,6 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public void deleteNoteById(Long noteId) {
-        LOGGER.info("Deleting note with id: {}", noteId);
         try {
             noteRepository.deleteById(noteId);
             LOGGER.info("Note with id: {} deleted successfully.", noteId);

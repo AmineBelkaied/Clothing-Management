@@ -24,7 +24,6 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public List<Size> findAllSizes() {
-        LOGGER.info("Fetching all sizes");
         List<Size> sizes = sizeRepository.findAll();
         LOGGER.debug("Found {} sizes", sizes.size());
         return sizes;
@@ -32,7 +31,6 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public Optional<Size> findSizeById(Long idSize) {
-        LOGGER.info("Searching size by ID: {}", idSize);
         Optional<Size> size = sizeRepository.findById(idSize);
         if (size.isPresent()) {
             LOGGER.debug("Found size: {}", size.get().getReference());
@@ -44,7 +42,6 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public Optional<Size> findSizeByReference(String reference) {
-        LOGGER.info("Searching size by reference: {}", reference);
         Optional<Size> size = sizeRepository.findByReferenceIsIgnoreCase(reference);
         if (size.isPresent()) {
             LOGGER.debug("Found size with reference: {}", reference);
@@ -56,7 +53,6 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public Size addSize(Size size) {
-        LOGGER.info("Adding new size with reference: {}", size.getReference());
         checkSizeExistence(size.getReference());
         Size savedSize = sizeRepository.save(size);
         LOGGER.info("Size added successfully with ID: {}", savedSize.getId());
@@ -65,7 +61,6 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public Size updateSize(Size size) {
-        LOGGER.info("Updating size with reference: {}", size.getReference());
         checkSizeExistence(size.getReference());
         Size updatedSize = sizeRepository.save(size);
         LOGGER.info("Size updated successfully with ID: {}", updatedSize.getId());
@@ -74,13 +69,11 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public void deleteSizeById(Long idSize) {
-        LOGGER.info("Deleting size with ID: {}", idSize);
         sizeRepository.deleteById(idSize);
         LOGGER.info("Size with ID {} deleted successfully", idSize);
     }
 
     private void checkSizeExistence(String reference) {
-        LOGGER.debug("Checking if size with reference {} exists", reference);
         findSizeByReference(reference)
                 .ifPresent(existingSize -> {
                     LOGGER.error("Size with reference {} already exists", reference);

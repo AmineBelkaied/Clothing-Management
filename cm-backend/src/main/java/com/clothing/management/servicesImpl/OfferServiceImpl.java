@@ -34,14 +34,12 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public void setDeletedByIds(List<Long> ids) {
-        LOGGER.info("Setting deleted status for offers with ids: {}", ids);
         offerRepository.setDeletedByIds(ids);
         LOGGER.info("Deleted status set for offers with ids: {}", ids);
     }
 
     @Override
     public List<OfferDTO> getOffers() {
-        LOGGER.info("Fetching all offers.");
         List<OfferDTO> offers = offerRepository.findAll()
                 .stream()
                 .map(OfferDTO::new)
@@ -53,7 +51,6 @@ public class OfferServiceImpl implements OfferService {
     @Transactional("tenantTransactionManager")
     @Override
     public List<OfferModel> findOfferByFbPageId(Long fbPageId) {
-        LOGGER.info("Fetching offers for fbPageId: {}", fbPageId);
         List<OfferModel> offerModels = offerModelRepository.findOffersByFbPageId(fbPageId);
         LOGGER.info("Retrieved {} offer models for fbPageId: {}", offerModels.size(), fbPageId);
         return offerModels;
@@ -61,7 +58,6 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public Optional<Offer> findOfferById(Long idOffer) {
-        LOGGER.info("Fetching offer with id: {}", idOffer);
         Optional<Offer> offer = offerRepository.findById(idOffer);
         if (offer.isPresent()) {
             LOGGER.info("Offer with id: {} found.", idOffer);
@@ -73,7 +69,6 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public Offer findOfferByName(String name) {
-        LOGGER.info("Fetching offer with name: {}", name);
         Offer offer = offerRepository.findByName(name);
         if (offer != null) {
             LOGGER.info("Offer with name: {} found.", name);
@@ -85,7 +80,6 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferDTO addOffer(OfferRequest offerRequest) {
-        LOGGER.info("Adding new offer: {}", offerRequest);
         Offer offer = new Offer(offerRequest.getName(), offerRequest.getFbPages(), offerRequest.getPrice(), offerRequest.isEnabled(), false);
         Offer savedOffer = offerRepository.save(offer);
         offerRequest.getOfferModels().forEach(offerModel ->
@@ -107,7 +101,6 @@ public class OfferServiceImpl implements OfferService {
     @Transactional("tenantTransactionManager")
     @Override
     public OfferDTO updateOfferFbPages(long offerId, Set<FbPage> fbPages) throws Exception {
-        LOGGER.info("Updating fbPages for offerId: {}", offerId);
         Offer offer = offerRepository.findById(offerId)
                 .orElseThrow(() -> {
                     LOGGER.error("Offer with id: {} not found for update.", offerId);
@@ -122,7 +115,6 @@ public class OfferServiceImpl implements OfferService {
     @Transactional("tenantTransactionManager")
     @Override
     public OfferDTO updateOffer(Offer offer) {
-        LOGGER.info("Updating offer: {}", offer);
         Offer updatedOffer = offerRepository.save(offer);
         LOGGER.info("Offer updated with id: {}", updatedOffer.getId());
         return new OfferDTO(updatedOffer);
@@ -131,7 +123,6 @@ public class OfferServiceImpl implements OfferService {
     @Transactional("tenantTransactionManager")
     @Override
     public OfferDTO updateOfferData(long id, String name, double price, boolean enabled) throws Exception {
-        LOGGER.info("Updating offer data for id: {}. New values - name: {}, price: {}, enabled: {}", id, name, price, enabled);
         Offer offer = offerRepository.findById(id)
                 .orElseThrow(() -> {
                     LOGGER.error("Offer with id: {} not found for update.", id);
@@ -149,7 +140,6 @@ public class OfferServiceImpl implements OfferService {
     @Override
     @Transactional("tenantTransactionManager")
     public OfferDTO updateOfferModels(long offerId, Set<OfferModelsDTO> modelQuantityList) {
-        LOGGER.info("Updating models for offerId: {}", offerId);
         Set<OfferModel> oldOfferModels = offerModelRepository.findByOfferId(offerId);
         if (!oldOfferModels.isEmpty()) {
             offerModelRepository.deleteByOfferId(offerId);
@@ -169,14 +159,12 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public void deleteOffer(Offer offer) {
-        LOGGER.info("Deleting offer: {}", offer);
         offerRepository.delete(offer);
         LOGGER.info("Deleted offer with id: {}", offer.getId());
     }
 
     @Override
     public void deleteSelectedOffers(List<Long> offersId) {
-        LOGGER.info("Deleting selected offers with ids: {}", offersId);
         offerRepository.deleteAllById(offersId);
         LOGGER.info("Deleted selected offers with ids: {}", offersId);
     }

@@ -1,5 +1,5 @@
 <div [class.sidebar-expanded]="isSidebarExpanded">
-  <app-sidebar (expansionChanged)="onSidebarExpansionChanged($event)"></app-sidebar>
+  <app-sidebar [expanded]="isSidebarExpanded"></app-sidebar>
   <!-- Page Content  -->
   <div id="main-content" [ngClass]="{'content-shifted': isSidebarExpanded}">
     <router-outlet></router-outlet>

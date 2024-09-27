@@ -6,24 +6,26 @@
 #table tr >  td , #table tr > th{
     text-align: center;
     max-height: 2px !important;
-
+}
+:host ::ng-deep .p-datatable-table {
+  border-spacing: 0px;
+  width: fit-content;
 }
 
-.full-height {
-  height: 100%;
+.td-width{
+  min-width:6rem;
+  max-width:10rem;
 }
 
-.full-height .card {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+.model-item.selected {
+  border-color: #007bff;
+  background-color: #e9f5ff;
 }
 
-.full-height .card-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.list-container {
+  padding-right: 0.5rem;
 }
+
 
 
 :host ::ng-deep .no-products {

@@ -22,7 +22,6 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<Role> findAllRoles() {
-        LOGGER.info("Fetching all roles");
         List<Role> roles = roleRepository.findAll();
         LOGGER.info("Fetched {} roles", roles.size());
         return roles;
@@ -30,7 +29,6 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role addRole(Role role) {
-        LOGGER.info("Adding role: {}", role);
         Role savedRole = roleRepository.save(role);
         LOGGER.info("Role added with ID: {}", savedRole.getId());
         return savedRole;
@@ -38,7 +36,6 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role updateRole(Role role) {
-        LOGGER.info("Updating role: {}", role);
         Role updatedRole = roleRepository.save(role);
         LOGGER.info("Role updated with ID: {}", updatedRole.getId());
         return updatedRole;

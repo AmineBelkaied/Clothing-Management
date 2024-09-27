@@ -6,3 +6,73 @@
 .table-container {
   overflow-x: auto;
 }
+
+::ng-deep .p-dropdown-panel .p-dropdown-items {
+  padding-left: 0rem !important;  /* Set padding to 0 */
+}
+
+table.table-bordered td {
+  vertical-align: middle;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+p-dropdown {
+  width: 100%;
+}
+
+table.table-bordered td {
+  padding: 0.25rem 0.25rem; /* Adds more space inside cells */
+}
+
+table.table-bordered {
+  margin-bottom: 1rem; /* Adds spacing between table and other content */
+}
+
+tr {
+  margin-bottom: 1rem; /* Adds spacing between rows */
+}
+
+th {
+  font-size: 1.1rem;
+  font-weight: 600;
+  background-color: #f8f9fa; /* Subtle background for headers */
+}
+
+td h5, td h6 {
+  font-size: 1rem;
+  font-weight: 500; /* Slightly increase the size and weight of key data */
+}
+
+@media (max-width: 768px) {
+  table.table-bordered {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  p-dropdown {
+    width: 100%; /* Make dropdowns stack on smaller screens */
+  }
+}
+
+table.table-bordered tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+table.table-bordered tr:hover {
+  background-color: #e9ecef;
+}
+
+.buttonSize {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1rem;
+}
+.offreTd{
+  text-align: left !important;
+}
+
+td button {
+  margin: 0.2rem; /* Adds spacing between buttons */
+}

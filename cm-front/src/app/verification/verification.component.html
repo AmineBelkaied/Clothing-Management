@@ -2,74 +2,118 @@
 <div class="container-fluid">
   <div class="container-fluid">
     <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-      <div class="card-body px-0 py-0 mt-3 ml-2 mr-3 mb-3 d-inline-flex flex-wrap flex-md-no-wrap justify-content-between">
-        <div class="d-flex align-items-center flex-wrap">
-          <div class="d-flex align-items-center flex-wrap w-100">
-              <H2>Barre Code validé</H2>
+      <div class="card-body">
+        <div class="d-flex megabar-header menu">
+          <div class="toggle-b-space"></div>
+          <H2>Barre Code validé</H2>
+          <div class="menu-middle">
+            <p-radioButton
+              name="radioGroup"
+              value="validation"
+              [(ngModel)]="type"
+              (onClick)="findAllConfirmedPackets()"
+            ></p-radioButton>
+            <label class="ml-2">Confirmée</label>
+            <p-radioButton
+              class="ml-2"
+              name="radioGroup"
+              value="Retour"
+              [(ngModel)]="type"
+              (onClick)="findAllConfirmedPackets()"
+            ></p-radioButton>
+            <label class="ml-2">Retour</label>
           </div>
-        </div>
-        <div class="d-flex align-items-center flex-wrap ml-2">
-              <p-radioButton name="radioGroup" value="validation" [(ngModel)]="type" (onClick)="findAllConfirmedPackets()"></p-radioButton>
-              <label class="ml-2">Confirmée</label>
-              <p-radioButton class ="ml-2" name="radioGroup" value="Retour" [(ngModel)]="type" (onClick)="findAllConfirmedPackets()"></p-radioButton>
-              <label class="ml-2">Retour</label>
-        </div>
-
-        <div class="d-flex align-items-center flex-wrap">
-              <div *ngIf="type == 'validation'">
-                validé {{targetPackets.length}}, reste {{ sourcePackets.length }}
-              </div>
-              <div *ngIf="type == 'Retour'">
-                Retour Echange {{ targetPackets.length }}, Retour {{sourcePackets.length}}
-              </div>
-        </div>
-        <div class="d-flex align-items-center flex-wrap">
-              <input
-                pInputText
-                type="text"
-                [(ngModel)]="barCode"
-                class="p-inputtext-sm"
-                (keyup.enter)="Validate()"
-              />
+          <div class="d-flex justify-content-end">
+            <div *ngIf="type == 'validation'">
+              validé {{ targetPackets.length }}, reste
+              {{ sourcePackets.length }}
+            </div>
+            <div *ngIf="type == 'Retour'">
+              Retour Echange {{ targetPackets.length }}, Retour
+              {{ sourcePackets.length }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <div *ngIf="type == 'validation'" class="msg" style="color: red;">
-      Merci de vérifier ou de corriger toute la liste qui n'a pas été validée chaque jour.
+  </div>
+  <div class="container-fluid">
+    <div *ngIf="type == 'validation'" class="msg" style="color: red">
+      Merci de vérifier ou de corriger toute la liste qui n'a pas été validée
+      chaque jour.
     </div>
 
     <div class="card-container">
       <p-card [header]="sourceString" [style]="{ width: '35rem' }">
-        <ul [style]="{ 'max-height': '50rem', 'overflow-y': 'auto', 'list-style': 'none', 'padding': '0', 'margin': '0' }">
-          <li *ngFor="let packet of sourcePackets"
-              style="cursor: pointer; padding: 1rem; border: 1px solid #ddd; margin-bottom: 0.5rem;">
+        <ul
+          [style]="{
+            'max-height': '50rem',
+            'overflow-y': 'auto',
+            'list-style': 'none',
+            padding: '0',
+            margin: '0'
+          }"
+        >
+          <li
+            *ngFor="let packet of sourcePackets"
+            style="
+              cursor: pointer;
+              padding: 1rem;
+              border: 1px solid #ddd;
+              margin-bottom: 0.5rem;
+            "
+          >
             <div class="flex flex-wrap p-2 align-items-center gap-3">
               <div class="flex-1 flex flex-column gap-2">
-                <span class="font-bold">{{ packet.date | date : "dd/MM" }} --- {{ packet.barcode }}</span>
+                <span class="font-bold"
+                  >{{ packet.date | date : "dd/MM" }} ---
+                  {{ packet.barcode }}</span
+                >
                 <div class="flex align-items-center gap-2">
                   <i class="pi pi-tag text-sm"></i>
-                  <span>{{ packet.id }} --- {{ packet.packetDescription }}</span>
+                  <span
+                    >{{ packet.id }} --- {{ packet.packetDescription }}</span
+                  >
                 </div>
               </div>
-              <span class="font-bold text-900">{{ '$' + packet.price }}</span>
+              <span class="font-bold text-900">{{ "$" + packet.price }}</span>
             </div>
           </li>
         </ul>
       </p-card>
       <p-card [header]="targetString" [style]="{ width: '35rem' }">
-        <ul [style]="{ 'max-height': '50rem', 'overflow-y': 'auto', 'list-style': 'none', 'padding': '0', 'margin': '0' }">
-          <li *ngFor="let packet of targetPackets"
-              style="cursor: pointer; padding: 1rem; border: 1px solid #ddd; margin-bottom: 0.5rem;">
+        <ul
+          [style]="{
+            'max-height': '50rem',
+            'overflow-y': 'auto',
+            'list-style': 'none',
+            padding: '0',
+            margin: '0'
+          }"
+        >
+          <li
+            *ngFor="let packet of targetPackets"
+            style="
+              cursor: pointer;
+              padding: 1rem;
+              border: 1px solid #ddd;
+              margin-bottom: 0.5rem;
+            "
+          >
             <div class="flex flex-wrap p-2 align-items-center gap-3">
               <div class="flex-1 flex flex-column gap-2">
-                <span class="font-bold">{{ packet.date | date : "dd/MM" }} --- {{ packet.barcode }}</span>
+                <span class="font-bold"
+                  >{{ packet.date | date : "dd/MM" }} ---
+                  {{ packet.barcode }}</span
+                >
                 <div class="flex align-items-center gap-2">
                   <i class="pi pi-tag text-sm"></i>
-                  <span>{{ packet.id }} --- {{ packet.packetDescription }}</span>
+                  <span
+                    >{{ packet.id }} --- {{ packet.packetDescription }}</span
+                  >
                 </div>
               </div>
-              <span class="font-bold text-900">{{ '$' + packet.price }}</span>
+              <span class="font-bold text-900">{{ "$" + packet.price }}</span>
             </div>
           </li>
         </ul>
@@ -77,5 +121,3 @@
     </div>
   </div>
 </div>
-
-

@@ -31,7 +31,6 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public List<City> findAllCities() {
-        LOGGER.info("Fetching all cities");
         List<City> cities = cityRepository.findAll();
         LOGGER.debug("Found {} cities", cities.size());
         return cities;
@@ -39,7 +38,6 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public Optional<City> findCityById(Long idCity) {
-        LOGGER.info("Searching for city by ID: {}", idCity);
         Optional<City> city = cityRepository.findById(idCity);
         if (city.isPresent()) {
             LOGGER.debug("Found city with ID: {}", idCity);
@@ -51,7 +49,6 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public City addCity(City city) {
-        LOGGER.info("Adding a new city with name: {}", city.getName());
         governorateRepository.findById(city.getGovernorate().getId())
                 .ifPresentOrElse(
                         city::setGovernorate,
@@ -66,7 +63,6 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public City updateCity(City city) {
-        LOGGER.info("Updating city with ID: {}", city.getId());
         City updatedCity = cityRepository.save(city);
         LOGGER.info("City updated successfully with ID: {}", updatedCity.getId());
         return updatedCity;
@@ -74,28 +70,24 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public void deleteCity(City city) {
-        LOGGER.info("Deleting city with ID: {}", city.getId());
         cityRepository.delete(city);
         LOGGER.info("City with ID {} deleted successfully", city.getId());
     }
 
     @Override
     public void deleteSelectedCities(List<Long> citiesId) {
-        LOGGER.info("Deleting selected cities with IDs: {}", citiesId);
         cityRepository.deleteAllById(citiesId);
         LOGGER.info("Selected cities deleted successfully");
     }
 
     @Override
     public void deleteCityById(Long id) {
-        LOGGER.info("Deleting city by ID: {}", id);
         cityRepository.deleteById(id);
         LOGGER.info("City with ID {} deleted successfully", id);
     }
 
     @Override
     public List<GroupedCitiesDTO> findGroupedCities() {
-        LOGGER.info("Fetching grouped cities by governorate");
         List<GroupedCitiesDTO> groupedCities = cityRepository.findAll()
                 .stream()
                 .collect(Collectors.groupingBy(City::getGovernorate))
