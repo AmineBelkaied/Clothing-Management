@@ -1,0 +1,52 @@
+.megabar {
+
+  padding: 0.5rem;
+  width: 100%;
+  border-radius: 4px;
+}
+.statusbar {
+  position: fixed;
+  top: 3.4rem;
+  left: 0;
+  width: 80%;
+  margin-left: 7rem;
+  color: #000000;
+  z-index: 1000;
+}
+
+.megabar-header {
+  background-color: #ffffff;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.left-section, .middle-section, .right-section {
+  display: flex;
+  align-items: center;
+}
+
+.left-section .btn,
+.middle-section .btn,
+.right-section .btn {
+  margin-right: 0.5rem;
+}
+
+.menu-input-fields{
+  padding: 0.5rem 0.5rem;
+  font-size: 0.9rem;
+}
+.input-group {
+  margin-left: 0.5rem;
+}
+
+.input-group-text {
+  background-color: #1976D2;
+  color: white;
+}
+
+.form-control {
+  width: 250px;
+}

@@ -1,0 +1,34 @@
+:host ::ng-deep .p-listbox .p-listbox-list{
+  padding: 0px;
+  font-size: 0.8rem;
+  line-height: 1rem;
+}
+
+:host ::ng-deep .p-listbox .p-listbox-list .p-listbox-item {
+  padding: 0.1rem 0.1rem;
+}
+
+.flex-container {
+  display: flex;
+  align-items: center; /* Align items vertically centered */
+  gap: 10px; /* Add space between the icon-label-count and the p-listbox */
+  position: relative; /* Make the container relative for absolute positioning if needed */
+}
+
+/* Optional styling for the listbox */
+.listbox-container {
+  display: block; /* Make sure the listbox appears when visible */
+}
+
+.listbox-style {
+  min-width: 200px; /* Set the desired width for the listbox */
+  background: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add some shadow */
+  z-index: 1000; /* Ensure it's on top of other content */
+}
+.shadow-6 {
+  border-radius: 5px;
+  min-width: 6rem;
+  background-color: white;
+  box-shadow: 0 3px 5px #0000000f, 0 7px 9px #0000001f, 0 20px 25px -8px #0000002e !important;
+}

@@ -1,0 +1,59 @@
+<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="megabar">
+      <div class="d-flex megabar-header menu">
+        <div class="left-section d-flex align-items-center">
+          <!--<p-avatar
+            [label]="realTotalItems > pageSize ? realTotalItems + '' : totalItems + ''"
+            styleClass="p-mr-2"
+            size="normal"
+            [style]="{ 'background-color': '#32CD32', color: '#ffffff' }"
+            shape="circle"
+          ></p-avatar>-->
+          <div class="toggle-b-space"></div>
+          <button pButton icon="pi pi-plus" class="p-button-success mr-2" (click)="addNewRow()"></button>
+          <button pButton icon="pi pi-trash" class="p-button-danger mr-2" (click)="deleteSelectedPackets()"></button><!--[disabled]="!selectedPackets || selectedPackets.length == 0"//Correction-->
+          <button pButton icon="pi pi-refresh" class="p-button-info mr-2" (click)="resetTable()"></button>
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets()" (input)="handleInputChange()" placeholder="Client, Tel, Ville, Adresse, Page, Id" [style]="{ width: '250px' }" class="mr-2" />
+          </span>
+        </div>
+
+        <!-- Middle section -->
+        <div class="middle-section flex align-items-center">
+          <p-calendar
+            [(ngModel)]="rangeDates"
+            (ngModelChange)="filterPackets('date')"
+            selectionMode="range"
+            [readonlyInput]="true"
+            inputId="range"
+            placeholder="Filtrer par date/période"
+            [showClear]="false"
+            (onClearClick)="resetTable()"
+            [showIcon]="true"
+            [style]="{ width: '12rem' }"
+            dateFormat="dd/mm"
+            [touchUI]="true"
+          >
+            <!-- Calendar footer template remains the same -->
+          </p-calendar>
+          <button pButton icon="pi pi-file" class="ml-2" pTooltip="CSV" tooltipPosition="bottom"></button>
+        </div>
+
+        <!-- Right section -->
+        <div class="right-section">
+          <p-button [label]="statusItemsLabel" (onClick)="toggleStatus()" severity="success" [style]="{'min-width': '180px'}"></p-button>
+        </div>
+      </div>
+
+      <div *ngIf="showStatus">
+        <app-status-container
+          [params]="params"
+          (statusChange)="onStatusChange($event)"
+
+        ></app-status-container><!--class="statusbar"-->
+      </div>
+    </div>
+  </div>
+</div>
