@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface IModelStockHistoryRepository extends JpaRepository<ModelStockHistory, Long >  {
-    @Query(value = "SELECT NEW com.clothing.management.dto.ModelStockHistory("+
+    @Query(value = "SELECT NEW com.clothing.management.entities.ModelStockHistory("+
             "m.id,DATE(m.date),m.modelId,m.modelName,m.quantity) " +
             "FROM ModelStockHistory m " +
             "WHERE DATE(m.date) >= DATE(:beginDate) " +

@@ -14,7 +14,7 @@ public class ProductDTO {
     private Long id;
     private ModelDTO model;
 
-    Long qte;
+    private Long qte;
     private boolean deleted;
     private long modelId;
     private Size size;

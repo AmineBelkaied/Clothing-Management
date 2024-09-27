@@ -5,8 +5,11 @@ import com.clothing.management.dto.*;
 import com.clothing.management.dto.DayCount.SoldProductsDayCountDTO;
 import com.clothing.management.entities.*;
 import com.clothing.management.exceptions.custom.notfound.ProductNotFoundException;
+import com.clothing.management.mappers.ProductMapper;
+import com.clothing.management.mappers.SoldProductsDayCountMapper;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.ProductService;
+import com.clothing.management.utils.EntityBuilderHelper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,23 +25,30 @@ import static java.util.stream.Collectors.groupingBy;
 @Service
 @Transactional("tenantTransactionManager")
 public class ProductServiceImpl implements ProductService {
+
     private final IProductRepository productRepository;
     private final IModelRepository modelRepository;
     private final IProductHistoryRepository productHistoryRepository;
     private final IProductsPacketRepository productsPacketRepository;
     private final SessionUtils sessionUtils;
+    private final EntityBuilderHelper entityBuilderHelper;
+    private final ProductMapper productMapper;
+    private final SoldProductsDayCountMapper soldProductsDayCountMapper;
 
-    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository,SessionUtils sessionUtils) {
+    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository, SessionUtils sessionUtils, EntityBuilderHelper entityBuilderHelper, ProductMapper productMapper, SoldProductsDayCountMapper soldProductsDayCountMapper) {
         this.productRepository = productRepository;
         this.modelRepository = modelRepository;
         this.productHistoryRepository = productHistoryRepository;
         this.productsPacketRepository = productsPacketRepository;
         this.sessionUtils = sessionUtils;
+        this.entityBuilderHelper = entityBuilderHelper;
+        this.productMapper = productMapper;
+        this.soldProductsDayCountMapper = soldProductsDayCountMapper;
     }
 
     @Override
     public List<ProductDTO> findAllProducts() {
-        return productRepository.findAll().stream().map(product -> new ProductDTO(product,true)).collect(Collectors.toList());
+        return productRepository.findAll().stream().map(productMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -140,7 +150,7 @@ public class ProductServiceImpl implements ProductService {
                         .orElse(null);
                 if(productBySize != null)
                 {
-                    SoldProductsDayCountDTO defaultProduct = new SoldProductsDayCountDTO(productBySize);
+                    SoldProductsDayCountDTO defaultProduct = soldProductsDayCountMapper.produtToSoldProductsDayCountDTO(productBySize);
                     sortedProducts.add(defaultProduct);
                 }
             }
@@ -174,15 +184,15 @@ public class ProductServiceImpl implements ProductService {
             product.setQuantity(product.getQuantity() + updateIdStockList.getQte());
             updateProduct(product);
 
-            ProductHistory productHistory =
-                    new ProductHistory(
-                            product,
-                            updateIdStockList.getQte(),
-                            new Date(),
-                            product.getModel(),
-                            currentUser,
-                            updateIdStockList.getComment()
-                    );
+                ProductHistory productHistory =
+                        entityBuilderHelper.createProductHistoryBuilder(
+                                        product,
+                                        updateIdStockList.getQte(),
+                                        new Date(),
+                                        product.getModel(),
+                                        currentUser,
+                                        updateIdStockList.getComment()
+                                ).build();
             productHistoryRepository.save(productHistory);
         });
 

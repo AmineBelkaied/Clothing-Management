@@ -137,7 +137,7 @@ public class JaxApiService extends DeliveryCompanyService {
         deliveryResponse.setResponseCode(responseCode);
         deliveryResponse.setResponseMessage(responseMessage);
         deliveryResponse.setBarCode(deliveryResponse.getBarCode());
-        deliveryResponse.setError(false);
+        deliveryResponse.setIsError(false);
         deliveryResponse.setState(deliveryResponse.getState());
         deliveryResponse.setStatus(responseCode);
         return deliveryResponse;

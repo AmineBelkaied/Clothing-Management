@@ -3,10 +3,11 @@ import com.clothing.management.dto.OfferDTO;
 import com.clothing.management.dto.OfferModelsDTO;
 import com.clothing.management.entities.*;
 import com.clothing.management.exceptions.custom.notfound.OfferNotFoundException;
+import com.clothing.management.mappers.OfferMapper;
 import com.clothing.management.repository.IOfferModelRepository;
 import com.clothing.management.repository.IOfferRepository;
 import com.clothing.management.services.OfferService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.clothing.management.utils.EntityBuilderHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
@@ -16,13 +17,16 @@ import java.util.stream.Collectors;
 @Transactional("tenantTransactionManager")
 public class OfferServiceImpl implements OfferService {
 
-    IOfferRepository offerRepository;
-    IOfferModelRepository offerModelRepository;
+    private final IOfferRepository offerRepository;
+    private final IOfferModelRepository offerModelRepository;
+    private final OfferMapper offerMapper;
+    private final EntityBuilderHelper entityBuilderHelper;
 
-    @Autowired
-    public OfferServiceImpl(IOfferRepository offerRepository,IOfferModelRepository offerModelRepository) {
+    public OfferServiceImpl(IOfferRepository offerRepository, IOfferModelRepository offerModelRepository, OfferMapper offerMapper, EntityBuilderHelper entityBuilderHelper) {
         this.offerRepository = offerRepository;
         this.offerModelRepository = offerModelRepository;
+        this.offerMapper = offerMapper;
+        this.entityBuilderHelper = entityBuilderHelper;
     }
 
     @Override
@@ -34,7 +38,7 @@ public class OfferServiceImpl implements OfferService {
     public List<OfferDTO> getOffers(){
         return offerRepository.findAll()
                 .stream()
-                .map(OfferDTO::new)
+                .map(offerMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -43,8 +47,6 @@ public class OfferServiceImpl implements OfferService {
     public List<OfferModel> findOfferByFbPageId(Long fbPageId) {
         return offerModelRepository.findOffersByFbPageId(fbPageId);
     }
-
-
 
     @Override
     public Optional<Offer> findOfferById(Long idOffer) {
@@ -58,7 +60,9 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferDTO addOffer(OfferDTO offerDTO) {
-        Offer offer = new Offer(offerDTO.getName() ,offerDTO.getFbPages(), offerDTO.getPrice(), offerDTO.isEnabled(), false);
+        Offer offer = entityBuilderHelper
+                .createOfferBuilder(offerDTO.getName(), offerDTO.getFbPages(), offerDTO.getPrice(), offerDTO.isEnabled(), false)
+                .build();
         Offer offerResult = offerRepository.save(offer);
 
         offerDTO.getOfferModels()
@@ -69,7 +73,7 @@ public class OfferServiceImpl implements OfferService {
                                 offerModel.getQuantity()
                         )
                 );
-        return new OfferDTO(offerResult);
+        return offerMapper.toDto(offer);
     }
 
     @Transactional("tenantTransactionManager")
@@ -79,20 +83,19 @@ public class OfferServiceImpl implements OfferService {
                 .orElseThrow( () -> new OfferNotFoundException(offerId));
         offer.setFbPages(fbPages);
         offerRepository.save(offer);
-        return new OfferDTO(offer);
+        return offerMapper.toDto(offer);
     }
 
     @Transactional("tenantTransactionManager")
     @Override
     public OfferDTO updateOffer(Offer offer) {
         offerRepository.save(offer);
-        return new OfferDTO(offer);
+        return offerMapper.toDto(offer);
     }
 
     @Transactional("tenantTransactionManager")
     @Override
     public OfferDTO updateOfferData(long id, String name, double price,boolean enabled) throws Exception {
-        // Update the offer
         Offer offer = offerRepository.findById(id)
                 .orElseThrow( () -> new OfferNotFoundException(id, name));
 
@@ -100,7 +103,7 @@ public class OfferServiceImpl implements OfferService {
         offer.setPrice(price);
         offer.setEnabled(enabled);
         offerRepository.save(offer);
-        return new OfferDTO(offer);
+        return offerMapper.toDto(offer);
     }
     @Override
     @Transactional("tenantTransactionManager")
@@ -111,7 +114,7 @@ public class OfferServiceImpl implements OfferService {
         for(OfferModelsDTO offerModelsDTO: modelQuantityList){
             offerModelRepository.addOfferModel(offerId , offerModelsDTO.getModel().getId() , offerModelsDTO.getQuantity());}
 
-        return new OfferDTO(offerRepository.findById(offerId)
+        return offerMapper.toDto(offerRepository.findById(offerId)
                 .orElseThrow(() -> new OfferNotFoundException(offerId)));
     }
 

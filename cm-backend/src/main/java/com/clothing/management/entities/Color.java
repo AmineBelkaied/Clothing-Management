@@ -29,6 +29,7 @@ public class Color {
 
     @ManyToMany(mappedBy = "colors")
     @JsonBackReference
+    @Builder.Default
     private Set<Model> models = new HashSet<>();
 
     @Builder.Default

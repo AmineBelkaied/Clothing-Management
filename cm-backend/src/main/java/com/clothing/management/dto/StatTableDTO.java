@@ -4,18 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class StatTableDTO {
 
     private String name;
 
-    private Integer Min;
+    private Long Min;
 
-    private Integer Max;
+    private Long Max;
 
     private Long Avg;
 
@@ -31,12 +32,13 @@ public class StatTableDTO {
 
     public StatTableDTO(String name) {
         this.name = name;
-        this.Min = 1000;
-        this.Max = 0;
+        this.Min = 1000L;
+        this.Max = 0L;
         this.Avg = 0L;
         this.Per = 0L;
         this.Retour = 0L;
         this.Progress = 0L;
         this.profits = 0.0;
+        this.Payed = 0L;
     }
 }

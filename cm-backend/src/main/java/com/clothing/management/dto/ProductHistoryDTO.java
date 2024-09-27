@@ -22,4 +22,5 @@ public class ProductHistoryDTO {
     private Date date;
     @Nullable
     private User user;
+    private String comment;
 }

@@ -11,6 +11,4 @@ public interface OfferMapper {
     OfferMapper INSTANCE = Mappers.getMapper(OfferMapper.class);
 
     OfferDTO toDto(Offer offer);
-
-    Offer toEntity(OfferDTO offerDTO);
 }

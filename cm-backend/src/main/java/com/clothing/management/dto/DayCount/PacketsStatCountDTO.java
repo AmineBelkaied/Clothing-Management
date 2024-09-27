@@ -1,14 +1,12 @@
 package com.clothing.management.dto.DayCount;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class PacketsStatCountDTO extends DayCountDTO {
 
     private Long countOut;
@@ -17,4 +15,13 @@ public class PacketsStatCountDTO extends DayCountDTO {
     private Long countAll;
     private long countReturn;
     private double profits;
+
+    public PacketsStatCountDTO(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countOos, Long countProgress, Long countAll) {
+        super(date, countPayed, countProgress);
+        this.countOut = countOut;
+        this.countExchange = countExchange;
+        this.countOos = countOos;
+        this.countAll = countAll;
+        this.countReturn =countReturn;
+    }
 }

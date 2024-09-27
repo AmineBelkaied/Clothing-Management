@@ -8,6 +8,9 @@ import com.clothing.management.enums.DeliveryCompanyStatus;
 import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.exceptions.custom.notfound.PacketNotFoundException;
 import com.clothing.management.exceptions.generic.EntityNotFoundException;
+import com.clothing.management.mappers.PacketMapper;
+import com.clothing.management.mappers.PacketStatusMapper;
+import com.clothing.management.mappers.ProductMapper;
 import com.clothing.management.models.DashboardCard;
 import com.clothing.management.servicesImpl.api.DeliveryCompanyService;
 import com.clothing.management.servicesImpl.api.DeliveryCompanyServiceFactory;
@@ -35,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static com.clothing.management.enums.SystemStatus.*;
 import static com.clothing.management.enums.SystemStatus.LIVREE;
+
 @Transactional("tenantTransactionManager")
 @Service
 public class PacketServiceImpl implements PacketService {
@@ -49,6 +53,31 @@ public class PacketServiceImpl implements PacketService {
     private final static List<String> ignoredDateStatusList = List.of(new String[]{RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus()});
     private final PacketBuilderHelper packetBuilderHelper;
     private final EntityBuilderHelper entityBuilderHelper;
+    private final PacketMapper packetMapper;
+    private final ProductMapper productMapper;
+    private final PacketStatusMapper packetStatusMapper;
+
+    @Autowired
+    public PacketServiceImpl(
+            IPacketRepository packetRepository,
+            IProductRepository productRepository,
+            IProductsPacketRepository productsPacketRepository,
+            DeliveryCompanyServiceFactory deliveryCompanyServiceFactory,
+            SessionUtils sessionUtils,
+            IGlobalConfRepository globalConfRepository, PacketBuilderHelper packetBuilderHelper,
+            EntityBuilderHelper entityBuilderHelper, PacketMapper packetMapper, ProductMapper productMapper, PacketStatusMapper packetStatusMapper) {
+        this.packetRepository = packetRepository;
+        this.productRepository = productRepository;
+        this.productsPacketRepository = productsPacketRepository;
+        this.deliveryCompanyServiceFactory = deliveryCompanyServiceFactory;
+        this.globalConfRepository = globalConfRepository;
+        this.sessionUtils = sessionUtils;
+        this.packetBuilderHelper = packetBuilderHelper;
+        this.entityBuilderHelper = entityBuilderHelper;
+        this.packetMapper = packetMapper;
+        this.productMapper = productMapper;
+        this.packetStatusMapper = packetStatusMapper;
+    }
 
     @Override
     public Packet getPacketById(Long packetId) throws PacketNotFoundException {
@@ -60,25 +89,6 @@ public class PacketServiceImpl implements PacketService {
     public Packet getPacketByBarcode(String barCode) throws EntityNotFoundException {
         return packetRepository.findByBarCode(barCode)
                 .orElseThrow(() -> new EntityNotFoundException("BarCode",0L,barCode));
-    }
-
-    @Autowired
-    public PacketServiceImpl(
-            IPacketRepository packetRepository,
-            IProductRepository productRepository,
-            IProductsPacketRepository productsPacketRepository,
-            DeliveryCompanyServiceFactory deliveryCompanyServiceFactory,
-            SessionUtils sessionUtils,
-            IGlobalConfRepository globalConfRepository, PacketBuilderHelper packetBuilderHelper,
-            EntityBuilderHelper entityBuilderHelper) {
-        this.packetRepository = packetRepository;
-        this.productRepository = productRepository;
-        this.productsPacketRepository = productsPacketRepository;
-        this.deliveryCompanyServiceFactory = deliveryCompanyServiceFactory;
-        this.globalConfRepository = globalConfRepository;
-        this.sessionUtils = sessionUtils;
-        this.packetBuilderHelper = packetBuilderHelper;
-        this.entityBuilderHelper = entityBuilderHelper;
     }
 
     @Override
@@ -96,28 +106,36 @@ public class PacketServiceImpl implements PacketService {
 
         if (mandatoryDate) {
             if (searchText != null)
-                return packetRepository.findAllPacketsByFieldAndDate(searchText, dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable);
+                return packetRepository.findAllPacketsByFieldAndDate(searchText, dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
+                        .map(packetMapper::toDto);
 
             if (status != null) {
                 if (status.equals("Tous"))
-                    return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable);
-                return packetRepository.findAllPacketsByDateAndStatus(dateFormat.parse(beginDate), dateFormat.parse(endDate), convertStatusToList(status), pageable);
+                    return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
+                            .map(packetMapper::toDto);
+                return packetRepository.findAllPacketsByDateAndStatus(dateFormat.parse(beginDate), dateFormat.parse(endDate), convertStatusToList(status), pageable)
+                        .map(packetMapper::toDto);
             }
 
         } else {
             if (searchText != null)
-                return packetRepository.findAllPacketsByField(searchText, pageable);
+                return packetRepository.findAllPacketsByField(searchText, pageable)
+                        .map(packetMapper::toDto);
             if (beginDate != null && status != null) {
                 if (status.equals("Tous"))
-                    return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable);
-                return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status), dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable);
+                    return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
+                            .map(packetMapper::toDto);
+                return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status), dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
+                        .map(packetMapper::toDto);
             }
             if (status != null) {
-                return packetRepository.findAllPacketsByStatus(convertStatusToList(status), pageable);
+                return packetRepository.findAllPacketsByStatus(convertStatusToList(status), pageable)
+                        .map(packetMapper::toDto);
             }
         }
 
-        return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable);
+        return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
+                .map(packetMapper::toDto);
     }
 
 
@@ -125,7 +143,7 @@ public class PacketServiceImpl implements PacketService {
     @Transactional(readOnly = true, transactionManager = "tenantTransactionManager")
     public List<PacketValidationDTO> findValidationPackets() {
         return packetRepository.findValidationPackets().stream()
-                .map(PacketValidationDTO::new)
+                .map(packetMapper::toValidationDto)
                 .collect(Collectors.toList());
     }
 
@@ -139,7 +157,7 @@ public class PacketServiceImpl implements PacketService {
         //System.out.println("beginDate:"+beginDate+"/endDate"+endDate);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate))
-                .stream().map(PacketDTO::new).collect(Collectors.toList());
+                .stream().map(packetMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -200,7 +218,7 @@ public class PacketServiceImpl implements PacketService {
             return null;
         }
 
-        return new PacketValidationDTO(packet);
+        return packetMapper.toValidationDto(packet);
     }
 
     @Override
@@ -266,7 +284,7 @@ public class PacketServiceImpl implements PacketService {
             Long offerId = groupedPackets.get(0).getOffer().getId();
 
             List<ProductDTO> products = groupedPackets.stream()
-                    .map(pp -> new ProductDTO(pp.getProduct(),true))
+                    .map(productPacket -> productMapper.toDto(productPacket.getProduct()))
                     .collect(Collectors.toList());
 
             ProductsPacketDTO dto = new ProductsPacketDTO(
@@ -295,7 +313,7 @@ public class PacketServiceImpl implements PacketService {
         return packetRepository.findById(idPacket)
                 .orElseThrow(() -> new PacketNotFoundException(idPacket,"Packet not found!"))
                 .getPacketStatus().stream()
-                .map(PacketStatusDTO::new)
+                .map(packetStatusMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -354,7 +372,7 @@ public class PacketServiceImpl implements PacketService {
                                 || dcStatus == DeliveryCompanyStatus.RETOUR_DEPOT
                                 || (dcStatus == DeliveryCompanyStatus.AU_MAGASIN
                                 && packetStatus.equals(IN_PROGRESS_1.getStatus()))) {
-                            return new PacketDTO(packet);
+                            return packetMapper.toDto(packet);
                         }
 
                         systemNewStatus =
@@ -364,7 +382,7 @@ public class PacketServiceImpl implements PacketService {
                                         && !packetStatus.equals(PROBLEM.getStatus())//not in First System
                                         ? upgradeInProgressStatus(packet) : systemNewStatus;
                     }
-                    return new PacketDTO(updatePacketStatus(packet, systemNewStatus));
+                    return packetMapper.toDto(updatePacketStatus(packet, systemNewStatus));
                 }
             }
         } catch (Exception e) {
@@ -443,7 +461,12 @@ public class PacketServiceImpl implements PacketService {
         packetRepository.save(newPacket);
 
         newPacket.setProductsPackets(packet.getProductsPackets().stream()
-                .map(productPacket -> new ProductsPacket(productPacket, newPacket))
+                .map(productPacket -> ProductsPacket.builder()
+                        .packet(newPacket)
+                        .product(productPacket.getProduct())
+                        .packetOfferId(productPacket.getPacketOfferId())
+                        .offer(productPacket.getOffer())
+                        .build())
                 .collect(Collectors.toList()));
         User currentUser = sessionUtils.getCurrentUser();
         newPacket.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(CREATION.getStatus(), newPacket, currentUser).build());
@@ -451,7 +474,7 @@ public class PacketServiceImpl implements PacketService {
         packetRepository.save(newPacket);
         packet.setHaveExchange(true);
         packetRepository.save(packet);
-        return new PacketDTO(newPacket);
+        return packetMapper.toDto(newPacket);
     }
 
     public List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO) {
@@ -584,7 +607,7 @@ public class PacketServiceImpl implements PacketService {
         packet.setDeliveryPrice(selectedProductsDTO.getDeliveryPrice());
         packet.setDiscount(selectedProductsDTO.getDiscount());
         packet.setProductCount(selectedProductsDTO.getProductCount());
-        return new PacketDTO(packetRepository.save(packet));
+        return packetMapper.toDto(packetRepository.save(packet));
     }
 
     private ProductsPacket addProductPacket(Packet packet, ProductOfferDTO productsPacket) {
@@ -636,7 +659,7 @@ public class PacketServiceImpl implements PacketService {
             }
 
             // Save all packets that were processed
-            return packetRepository.saveAll(packets).stream().map(PacketDTO::new).collect(Collectors.toList());
+            return packetRepository.saveAll(packets).stream().map(packetMapper::toDto).collect(Collectors.toList());
 
         } catch (Exception e) {
             // Handle any error that might have occurred during the process
@@ -644,6 +667,13 @@ public class PacketServiceImpl implements PacketService {
             // Optionally rethrow the exception if you want it to propagate
             throw e;
         }
+    }
+
+    private long getStock(List<ProductsPacket> productsPackets, String barcode) {
+        return (barcode == null || barcode.equals("")) ? productsPackets.stream()
+                .mapToLong(productsPacket -> productsPacket.getProduct().getQuantity()) // Assuming getQte() returns the quantity
+                .min()
+                .orElse(-1) : 100;
     }
 }
 

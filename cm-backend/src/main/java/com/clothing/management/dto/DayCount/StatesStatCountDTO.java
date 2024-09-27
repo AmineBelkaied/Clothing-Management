@@ -1,17 +1,14 @@
 package com.clothing.management.dto.DayCount;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class StatesStatCountDTO extends DayCountDTO {
+
     private String governerateName;
     private Long countReturn;
 

@@ -11,6 +11,4 @@ public interface ModelMapper {
     ModelMapper INSTANCE = Mappers.getMapper(ModelMapper.class);
 
     ModelDTO toDto(Model model);
-
-    Model toEntity(ModelDTO modelDTO);
 }
