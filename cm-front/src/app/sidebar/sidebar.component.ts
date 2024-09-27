@@ -1,10 +1,11 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { PacketService } from 'src/shared/services/packet.service';
+import { SideBarService } from 'src/shared/services/sidebar.service';
 import { StorageService } from 'src/shared/services/strorage.service';
 
 @Component({
@@ -14,24 +15,33 @@ import { StorageService } from 'src/shared/services/strorage.service';
 })
 export class SidebarComponent implements OnInit {
   @Output() expansionChanged = new EventEmitter<boolean>();
+  @Input() expanded: boolean = false;
   isExpanded: boolean = false;
   menuItems: any[];
 
   $unsubscribe: Subject<void> = new Subject();
   activeClass: boolean;
-  activeRoute = false;
+  activeRoute = true;
   readonly appName: string= 'ABYSOFT';
   userName: string;
-  isLoggedIn: boolean;
+  isLoggedIn: boolean = false;
   isAdmin: boolean;
   isSuperAdmin: boolean;
   globalConf: GlobalConf = {
     applicationName: "AbySoft"
   };
+  showUserMenu: boolean = false;
+
+
+
   readonly clothingManagementLabel: string = 'Clothing Management';
 
-  constructor(private packetService: PacketService, private globalConfService: GlobalConfService,private messageService: MessageService,
-              private router: Router,  public storageService: StorageService) {
+  constructor( private packetService: PacketService,
+               private storageService: StorageService,
+               private globalConfService: GlobalConfService,
+               private messageService: MessageService,
+               private sideBarService: SideBarService,
+               private router: Router) {
                 this.menuItems = [
                   { label: 'Commandes', icon: 'pi pi-shopping-cart', routerLink: "/packets" },
                   { label: 'Modèles', icon: 'pi pi-th-large', routerLink: "/models" },
@@ -42,16 +52,27 @@ export class SidebarComponent implements OnInit {
                   { label: 'Suivie packet', icon: 'pi pi-map-marker', routerLink: "/payed-return" },
                   { label: 'Validation', icon: 'pi pi-check-square', routerLink: "/verification" },
                 ];
-                    this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
-                      (globalConf: GlobalConf) => {
-                        this.globalConf = globalConf;
-                        console.log(this.globalConf);
-                      })
+
+                this.storageService.isLoggedIn.subscribe(isLoggedIn => {
+                  this.isLoggedIn = isLoggedIn;
+                  this.userName = this.storageService.getUserName();
+                  this.isAdmin = this.storageService.hasRoleAdmin();
+                  this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
+                  this.activeClass = true;
+
+                  this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+                    (globalConf: GlobalConf) => {
+                      this.globalConf = globalConf;
+                    })
+
+                });
+
+
    }
 
   ngOnInit(): void {
 
-    this.emitExpansionState();
+    /* this.emitExpansionState(); */
   }
 
   changeClass() {
@@ -85,12 +106,25 @@ export class SidebarComponent implements OnInit {
     }
 
 
-  toggleSidebar() {
-    this.isExpanded = !this.isExpanded;
-    this.emitExpansionState();
-  }
+    toggleSidebar() {
+      this.isExpanded = !this.isExpanded;
+      if(this.isExpanded)
+        this.showUserMenu = false;
+      this.emitExpansionState();
+    }
 
-  private emitExpansionState() {
-    this.expansionChanged.emit(this.isExpanded);
-  }
+    toggleUserMenu() {
+
+      if(this.isExpanded)
+        {
+          this.isExpanded = false
+          this.emitExpansionState();
+        }
+        this.showUserMenu = !this.showUserMenu;
+    }
+
+    private emitExpansionState() {
+      this.sideBarService.isExpanded.next(this.isExpanded);
+      //this.expansionChanged.emit(this.isExpanded);
+    }
 }

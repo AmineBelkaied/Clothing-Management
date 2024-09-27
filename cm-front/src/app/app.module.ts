@@ -42,6 +42,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { RippleModule } from 'primeng/ripple';
+import { MenuModule } from 'primeng/menu';
+import { TieredMenuModule } from 'primeng/tieredmenu';
 
 
 
@@ -88,9 +90,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
-import { GlobalConfService } from 'src/shared/services/global-conf.service';
-import { OfferService } from 'src/shared/services/offer.service';
-import { StatusContainerComponent } from "./status-container/status-container.component";
+import { StatusContainerComponent } from "./packet/list-packets/packets-menue-container/status-container/status-container.component";
+import { PacketsMenueContainerComponent } from "./packet/list-packets/packets-menue-container/packets-menue-container.component";
 
 @NgModule({
   declarations: [
@@ -124,7 +125,8 @@ import { StatusContainerComponent } from "./status-container/status-container.co
     PayedReturnComponent,
     UserComponent,
     GlobalConfComponent,
-    StatusContainerComponent
+    StatusContainerComponent,
+    PacketsMenueContainerComponent
   ],
   imports: [
     BrowserModule,
@@ -174,15 +176,15 @@ import { StatusContainerComponent } from "./status-container/status-container.co
     ReactiveFormsModule,
     RippleModule,
     OverlayPanelModule,
-    FloatLabelModule
+    FloatLabelModule,
+    MenuModule,
+    TieredMenuModule
 ],
   providers: [
     MessageService,
     ConfirmationService,
     DatePipe,
     AuthGuard,
-    GlobalConfService,
-    OfferService,
     DecimalPipe,
     {
       provide: HTTP_INTERCEPTORS,

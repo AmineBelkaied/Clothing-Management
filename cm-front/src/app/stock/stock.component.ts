@@ -294,6 +294,8 @@ export class StockComponent implements OnInit, OnDestroy {
       .getStock(modelId, this.beginDateString, this.endDateString)
       .subscribe((result: any) => {
         this.productsCount = result.productsByColor;
+        console.log("xx",this.productsCount);
+
         this.modelName = result.model.name!;
         this.colors = result.model.colors!;
         this.sizes = result.sizes;

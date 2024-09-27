@@ -1,3 +1,13 @@
+/* .megabar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(100% - 9rem);
+  margin-left: 7rem;
+  color: white;
+  z-index: 1000;
+}
+ */
 td {
     text-align: center !important;
     vertical-align: middle;
@@ -12,11 +22,6 @@ td {
   width: 28px;
   height: 28px !important;
  }
-
-:host ::ng-deep .small-select-button .p-button {
-  padding: 0.19rem 0.5rem !important;
-  font-size: small !important;
-}
 
 .scroll-wrapper {
   overflow: hidden;
@@ -48,22 +53,6 @@ td {
 .tdHover:hover{
   background-color: transparent !important;
 }
-/*
-.scrollable-dashboard-container {
-  display: flex;
-  overflow-x: auto;
-  gap: 0.3rem;
-  padding-bottom: 0.1rem;
-}
-
-.status-item {
-  display: inline-block;
-  flex: 0 0 auto;
-}
-
-.scrollable-container > div {
-  flex: 0 0 auto;
-}*/
 
 .grid {
   display: flex;
@@ -96,10 +85,6 @@ td {
   font-weight: 700;
   color: #66bb6a;
 }
-
-
-
-
 
  .outofstock {
   font-weight: 700;
@@ -296,4 +281,11 @@ td {
 
 .p-inputtext-sm {
   width: 100%; /* Ensures the input fields take full width of the container */
+}
+::ng-deep .p-contextmenu ul {
+  padding-left: 0px !important;
+}
+
+::ng-deep a {
+  text-decoration: none;
 }

@@ -34,8 +34,9 @@ import { ClientReason, ClientReasonDetails } from 'src/shared/enums/client-reaso
 import { Note } from 'src/shared/models/Note';
 import { StringUtils } from 'src/shared/utils/string-utils';
 import { FormControl } from '@angular/forms';
-import { StatusContainerComponent } from 'src/app/status-container/status-container.component';
+
 import { Status } from 'src/shared/models/status';
+import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
 
 @Component({
   selector: 'app-list-packets',
@@ -44,13 +45,14 @@ import { Status } from 'src/shared/models/status';
   providers: [DatePipe]
 })
 export class ListPacketsComponent implements OnInit, OnDestroy {
+
   oldStatusLabel: string;
 
-  activeIndex: number = 2;
-  oldActiveIndex: number;
+
   //@Output() confirmEvent: EventEmitter<string> = new EventEmitter<string>();
-  @ViewChild(StatusContainerComponent) statusContainerComponent!: StatusContainerComponent;
+
   @ViewChild('contextMenu', { static: false }) contextMenu: ContextMenu;
+  @ViewChild('dt') dt: Table;
   display: boolean = false;
   displayStatus: boolean = false;
   suiviHeader: string = 'Suivi';
@@ -61,11 +63,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   packet: Packet;
   cols: object[] = [];
   selectedPackets: Packet[] = [];
-  rangeDates: Date[] = [];
-  beginDate: Date = new Date();
-  endDate: Date | null = new Date();
-  today: Date = new Date();
-  today_2: Date = new Date(Date.now() - 172800000);
+
   editMode = false;
   isLoading = false;
   selectedPacket: Packet;
@@ -73,46 +71,35 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   modelDialog!: boolean;
 
-  first = 0;
-  rows = 100;
-  currentPage = 0;
+
   oldFieldValue: string = "";
   offersIdsListByFbPage: any[] = [];
   allOffersList: any[] = [];
   groupedCities: SelectItemGroup[] = [];
   fbPages: FbPage[] = [];
   selectedCityId: number | undefined;
+  today: Date = new Date();
+  today_2: Date = new Date(Date.now() - 172800000);
   //selectedCity: string | undefined;
-  filter: string;
+
 
   enCoursStatus: string[] = [];
-  statusList: string[] = [];
+
+
   optionButtons: MenuItem[];
   packetStatusList: string[] = [];
-  statesList: string[] = [];
 
   selectedStates: string[] = [];
   $unsubscribe: Subject<void> = new Subject();
-  pageSize: number = 100;
-  params: any = {
-    page: 0,
-    size: this.pageSize,
-    beginDate: this.dateUtils.formatDateToString(this.today),
-    endDate: this.dateUtils.formatDateToString(this.today),
-    mandatoryDate: false
-  };
-  loading: boolean = false;
-  mandatoryDateCheckBox: boolean = false;
-  oldDateFilterCheckBox: boolean = false;
-  dateOptions: any[] = [{ label: 'Off', value: false }, { label: 'On', value: true }];
-  value: boolean = this.mandatoryDateCheckBox;
+
+
   nbrConfirmed: number = 0;
   countUNREACHABLE: string = "0";
+  loading: boolean = false;
 
-  showStatus: boolean = false;
 
 
-  @ViewChild('dt') dt: Table;
+
   //private readonly reg: RegExp = /,/gi;
   regBS = /\n/gi;
   private readonly FIRST: string = 'FIRST';
@@ -135,12 +122,16 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   note: Note = {
     date: new Date()
   };
+  //note
   selectedPacketNotes: Note[] = [];
   @ViewChild("expRef") explanationElement: ElementRef;
   explanationTitle: string;
   noteActionStatus: string;
-  selectedStatus: string[] = [NOT_CONFIRMED];
-  statusItemsLabel: string;
+
+  filter: string;
+  params: PacketFilterParams;
+  pageSize: number = 100;//correction
+
 
   constructor(
     private packetService: PacketService,
@@ -152,8 +143,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     public messageService:MessageService,
     private cdRef: ChangeDetectorRef
     ) {
-    this.statusList = statusList;
-    this.statesList = statesList;
+
   }
 
   ngAfterViewChecked(){
@@ -168,13 +158,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
       this.activeClass = true;
     });
-    this.statusItemsLabel = this.selectedStatus[0];
-    this.rangeDates = [this.today,this.today];
     this.offerService.getOffersSubscriber();
     this.createColumns();
     this.findAllGroupedCities();
     this.findAllFbPages();
-    this.filterPackets('global');
   }
 
   findAllFbPages(): void {
@@ -183,10 +170,28 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     });
   }
 
-  findAllPackets(): void {
+  onFilterPacketsChange(params: PacketFilterParams) {
+    this.params = params;
+    this.loadAllPackets(params);
+  }
+  onButtonMenuClick(buttonType: String) {
+    switch (buttonType) {
+      case 'add':
+        this.addNewPacket();
+        break;
+      case 'delete':
+        this.deleteSelectedPackets();
+        break;
+      case 'delete':
+        this.selectedPackets = [];
+        break;
+    }
+  }
+
+  loadAllPackets(params: PacketFilterParams): void {
 
     this.loading = true;
-    this.packetService.findAllPackets(this.params)
+    this.packetService.findAllPackets(params)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: ResponsePage) => {
@@ -198,13 +203,31 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           //this.statusItems[3].badge = countConfirmed > 0 ? countConfirmed:0;
           this.loading = false;
           //this.showStatus = false;
-          console.log("findAllPackets", this.showStatus);
+
         },
         error: (error: Error) => {
           console.log('Error:', error);
           this.loading = false;
         }
       });
+  }
+
+  addNewPacket(){
+    this.loading = true;
+    this.packetService
+      .addPacket()
+      .subscribe((response: Packet) => {
+        console.log("new pack", response);
+
+        this.loading = false;
+        //this.packets = [...this.packets.map(packet => packet.id === updatedPacket.id ? updatedPacket : packet)];
+        this.packets.unshift(response);
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
+      });
+  }
+  checkPacketNotNull(packet: Packet): boolean {
+    return (this.isValid(packet.address) || this.isValid(packet.customerName) ||
+      this.isValid(packet.customerPhoneNb) || packet.cityId! >0 || this.isValid(packet.packetDescription));
   }
 
   createColumns(): void {
@@ -219,6 +242,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       { field: 'barcode', header: 'Barcode' },
     ];
   }
+
   formatPhoneNumber(phoneNumber: string): string {
     if (!phoneNumber) {
       return '';
@@ -231,11 +255,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.groupedCities = this.cityService.adaptListToDropDown(groupedCities);
     });
   }
-  onActiveIndexChange(index: number) {
-    if (this.statusContainerComponent) {
-      this.statusContainerComponent.onActiveIndexChange(index);
-    }
-  }
+
+
 
   onEditComplete($event: any): void {
     const packet = $event.data;
@@ -338,10 +359,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       return true;
   }
 
-  checkPacketNotNull(packet: Packet): boolean {
-    return (this.isValid(packet.address) || this.isValid(packet.customerName) ||
-      this.isValid(packet.customerPhoneNb) || packet.cityId! >0 || this.isValid(packet.packetDescription));
-  }
+
 
   checkPacketDescription(packet: Packet): boolean {
     return packet.packetDescription!= undefined && packet.packetDescription.includes('(');
@@ -505,29 +523,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     }
   }
 
-  addNewRow(): void {
-    console.log("activeIndex", this.activeIndex);
-
-    if (this.activeIndex != 2){
-      console.log("activeIndex != 2", this.activeIndex);
-      this.onActiveIndexChange(2);
-    }
-    else if (!this.loading) {
-      console.log("new pack");
-
-      this.loading = true;
-      this.packetService
-        .addPacket()
-        .subscribe((response: Packet) => {
-          console.log("new pack", response);
-
-          this.loading = false;
-          //this.packets = [...this.packets.map(packet => packet.id === updatedPacket.id ? updatedPacket : packet)];
-          this.packets.unshift(response);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
-        });
-    }
-  }
 
   duplicatePacket(packet: Packet): void {
     this.packetService
@@ -536,10 +531,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est dupliqué avec succés', life: 1000});
         this.packets.unshift(response);
       });
-  }
-
-  deleteSelectedPackets(): void {
-    this.addAttempt('DELETED');
   }
 
   loadOfferListAndOpenOffersDialog(packet: Packet,editMode:boolean): void {
@@ -570,81 +561,15 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  handleInputChange() {
-    const inputValue = this.filter;
-    const numbersCount = (inputValue.match(/\d/g) || []).length;
-    if (numbersCount === 5 || numbersCount === 8 || numbersCount === 12  ) {
-      this.oldActiveIndex = this.activeIndex;
-      this.filterPackets('global');
-      this.activeIndex = 0;
-    }
-    if (this.filter === '') {
-      this.filterPackets('global');
-      this.activeIndex = this.oldActiveIndex;
-    }
-  }
 
-  filterPackets($event?: string): void {
-    this.createRangeDate();
-    this.showStatus = false;
-    if(this.endDate){
-      let page = 0;
-      if ($event == 'clear') {
-        this.selectedStates = [];
-        this.selectedStatus=[];
-      } else if ($event == 'page')
-        page = this.currentPage;
-      if (this.selectedStatus == null) this.selectedStatus =[];
-
-      if (this.filter !== '' && this.filter)
-        {
-          this.oldActiveIndex = this.activeIndex;
-          this.activeIndex = 0;
-        }
-
-      this.params = {
-        page: page,
-        size: this.pageSize,
-        searchText: this.filter != null && this.filter != '' ? this.filter : null,
-        beginDate: this.dateUtils.formatDateToString(this.beginDate),
-        endDate: this.dateUtils.formatDateToString(this.endDate),
-        status: this.selectedStatus.length == 0 ? null : this.selectedStatus,
-        mandatoryDate: this.mandatoryDateCheckBox
-      };
-      this.findAllPackets();
-      if ($event == 'noClose') {
-        this.showStatus = true
-      } else this.showStatus = false
-    }
-  }
-
-  createRangeDate(): void {
-    if (this.rangeDates !== null) {
-      this.beginDate = this.rangeDates[0];
-      if (this.rangeDates[1]) {
-        this.endDate = this.rangeDates[1];
-      } else {
-        this.endDate = null;
-      }
-    } else {
-      this.beginDate = this.today;
-      this.endDate = this.today;
-    }
-  }
 
   onPageChange($event: any): void {
-    this.currentPage = $event.page;
-    this.pageSize = $event.rows;
-    this.filterPackets('page');
+    this.params.page = $event.page;
+    this.params.size = $event.rows;
+    this.loadAllPackets(this.params);
   }
 
-  resetTable(): void {
-    this.selectedStates = [];
-    this.selectedPackets = [];
-    this.selectedStatus=[];
-    this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now())];
-    this.filterPackets('global');
-  }
+
 
   changeColor(this: any): void {
     this.style.color = 'red';
@@ -672,15 +597,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  clearStatus(): void {
-    this.selectedStates = [];
-    this.packetStatusList = this.statusList;
-    this.selectedStatus=[];
-    if (this.filter != '' && this.filter != null) {
-      this.dt!.reset();
-      this.dt!.filterGlobal(this.filter, 'contains');
-    }
-  }
+
 
   checkCodeABarreExist(packet:Packet){
     return packet.barcode != "" && packet.barcode!= null
@@ -690,40 +607,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     return packet.customerPhoneNb !="" && packet.customerPhoneNb!= null
   }
 
-  mandatoryDateChange(){
-    if(this.selectedStatus != null && this.selectedStatus.length > 0)
-    this.filterPackets('global')
-  }
-  onStatusChange(status: Status) {
-    console.log('Selected statuses in parent:', status);
-    this.activeIndex = status.id;
-    this.statusItemsLabel = status.label;
-    this.selectedStatus = status.statusList;
-    if(status.noClose)
-      this.filterPackets('noClose')
-    else
-      this.filterPackets('global')
-  }
-
-  oldDateFilter(){
-      this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now() - 86400000)];
-      this.filterPackets('global');
-  }
-  todayDate(){
-    if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
-      {
-        this.rangeDates[0]=this.beginDate;
-        this.endDate = this.today;
-        this.rangeDates= [this.beginDate,this.today];
-      }
-    else this.rangeDates = [this.today];
-    this.filterPackets('global');
-  }
-
-  clearDate(){
-    this.rangeDates = [];
-    this.filterPackets('global');
-  }
 
   selectCity( packet: Packet) {
     this.selectedCityId = packet.cityId;
@@ -732,9 +615,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.selectedPhoneNumber = packet.customerPhoneNb;
   }
 
-  showStatusButton() {
-    this.showStatus= !this.showStatus;
-  }
+
 
   getReasonOptionsByStatus(status: string) {
     return (Object.keys(ClientReason) as (keyof typeof ClientReason)[])
@@ -950,7 +831,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           disabled:!this.checkPhoneNbExist(packet),
           command: () => {
             this.filter= packet.customerPhoneNb;
-            this.filterPackets('phone');
+            //this.filterPackets('phone');
           }
         });
       if(packet.deliveryCompany.name != "JAX")
@@ -963,5 +844,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           }
         });
     }
+  }
+
+  deleteSelectedPackets(): void {
+    this.addAttempt('DELETED');
   }
 }

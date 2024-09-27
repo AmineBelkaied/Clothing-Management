@@ -58,8 +58,6 @@ export class StorageService {
 
   public isUserLoggedIn(): boolean {
     const user = window.localStorage.getItem(USER_KEY);
-    console.log("user",user);
-
     return !!user;
   }
 

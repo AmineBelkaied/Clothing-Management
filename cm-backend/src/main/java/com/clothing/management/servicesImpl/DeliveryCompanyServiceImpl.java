@@ -25,7 +25,6 @@ public class DeliveryCompanyServiceImpl implements DeliveryCompanyService {
 
     @Override
     public List<DeliveryCompany> findAllDeliveryCompanies() {
-        LOGGER.info("Retrieving all delivery companies.");
         List<DeliveryCompany> deliveryCompanies = deliveryCompanyRepository.findAll();
         LOGGER.info("Found {} delivery companies.", deliveryCompanies.size());
         return deliveryCompanies;
@@ -33,7 +32,6 @@ public class DeliveryCompanyServiceImpl implements DeliveryCompanyService {
 
     @Override
     public Optional<DeliveryCompany> findDeliveryCompanyById(Long id) {
-        LOGGER.info("Retrieving delivery company by ID: {}", id);
         Optional<DeliveryCompany> deliveryCompany = deliveryCompanyRepository.findById(id);
         deliveryCompany.ifPresentOrElse(
                 company -> LOGGER.info("Found delivery company: {}", company.getName()),
@@ -44,7 +42,6 @@ public class DeliveryCompanyServiceImpl implements DeliveryCompanyService {
 
     @Override
     public DeliveryCompany addDeliveryCompany(DeliveryCompany deliveryCompany) {
-        LOGGER.info("Adding new delivery company: {}", deliveryCompany.getName());
         DeliveryCompany savedCompany = deliveryCompanyRepository.save(deliveryCompany);
         LOGGER.info("Delivery company added successfully with ID: {}", savedCompany.getId());
         return savedCompany;
@@ -52,7 +49,6 @@ public class DeliveryCompanyServiceImpl implements DeliveryCompanyService {
 
     @Override
     public DeliveryCompany updateDeliveryCompany(DeliveryCompany deliveryCompany) {
-        LOGGER.info("Updating delivery company: {}", deliveryCompany.getName());
         DeliveryCompany updatedCompany = deliveryCompanyRepository.save(deliveryCompany);
         LOGGER.info("Delivery company updated successfully with ID: {}", updatedCompany.getId());
         return updatedCompany;
@@ -60,14 +56,12 @@ public class DeliveryCompanyServiceImpl implements DeliveryCompanyService {
 
     @Override
     public void deleteDeliveryCompany(DeliveryCompany deliveryCompany) {
-        LOGGER.info("Deleting delivery company: {}", deliveryCompany.getName());
         deliveryCompanyRepository.delete(deliveryCompany);
         LOGGER.info("Delivery company deleted: {}", deliveryCompany.getName());
     }
 
     @Override
     public void deleteDeliveryCompanyById(Long id) {
-        LOGGER.info("Deleting delivery company by ID: {}", id);
         deliveryCompanyRepository.deleteById(id);
         LOGGER.info("Delivery company with ID: {} deleted successfully.", id);
     }

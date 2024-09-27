@@ -53,7 +53,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> findAllProducts() {
-        LOGGER.info("Fetching all products");
         List<ProductResponse> products = productRepository.findAll().stream()
                 .map(ProductResponse::new)
                 .collect(Collectors.toList());
@@ -63,7 +62,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> fingProductsByModelIds(ModelIdsRequest request) {
-        LOGGER.info("Fetching products by model IDs: {}", request.getModelIds());
         List<ProductResponse> products = productRepository.getProductsByModelIds(request.getModelIds()).stream()
                 .map(ProductResponse::new)
                 .collect(Collectors.toList());
@@ -73,7 +71,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public int fingNullProductsByModelId(Long modelId) {
-        LOGGER.info("Fetching null products by model ID: {}", modelId);
         int count = productRepository.findNullProductsByModelId(modelId);
         LOGGER.info("Found {} null products for model ID: {}", count, modelId);
         return count;
@@ -81,7 +78,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Optional<Product> findProductById(Long idProduct) {
-        LOGGER.info("Fetching product with ID: {}", idProduct);
         Optional<Product> product = productRepository.findById(idProduct);
         if (product.isPresent()) {
             LOGGER.info("Product found with ID: {}", idProduct);
@@ -93,7 +89,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product addProduct(Product product) {
-        LOGGER.info("Adding product: {}", product);
         Product savedProduct = productRepository.save(product);
         LOGGER.info("Product added with ID: {}", savedProduct.getId());
         return savedProduct;
@@ -101,7 +96,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product updateProduct(Product product) {
-        LOGGER.info("Updating product: {}", product);
         Product updatedProduct = productRepository.save(product);
         LOGGER.info("Product updated with ID: {}", updatedProduct.getId());
         return updatedProduct;
@@ -109,21 +103,18 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Product product) {
-        LOGGER.info("Deleting product: {}", product);
         productRepository.delete(product);
         LOGGER.info("Product deleted with ID: {}", product.getId());
     }
 
     @Override
     public void deleteSelectedProducts(List<Long> productsId) {
-        LOGGER.info("Deleting products with IDs: {}", productsId);
         productRepository.deleteAllById(productsId);
         LOGGER.info("Deleted products with IDs: {}", productsId);
     }
 
     @Transactional("tenantTransactionManager")
     public StockDTO getStock(Long modelId, String beginDate, String endDate) {
-        LOGGER.info("Fetching stock for model ID: {}, between dates: {} and {}", modelId, beginDate, endDate);
         StockDTO stockDTO = new StockDTO();
         List<List<SoldProductsDayCountDTO>> productsByColors = new ArrayList<>();
 
@@ -169,10 +160,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private List<Size> sortSizes(Set<Size> sizes) {
-        LOGGER.debug("Sorting sizes: {}", sizes);
         Comparator<Size> sizeComparator = (size1, size2) -> {
             // Define the order of sizes
-            String[] order = {"14", "16", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"};
+            String[] order = {"1","2","3","4","5","6","7","8","9","10",
+                    "11","12","13","14","15","16","17","18",
+                    "XXS","XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL","6XL",
+                    "26","27","28","30","32","33","34","35","36","37","38","39","40","41",
+                    "42","43","44","45","46","47","48","49","50","51","52","53","54","55","56"
+            };
             int index1 = getIndex(size1.getReference(), order);
             int index2 = getIndex(size2.getReference(), order);
             return Integer.compare(index1, index2);
@@ -183,7 +178,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private List<SoldProductsDayCountDTO> sortSoldProductsDayCountDTOBySize(List<SoldProductsDayCountDTO> productsSold, List<Product> products, List<Size> orderedSizes) {
-        LOGGER.debug("Sorting sold products by size: {}", productsSold);
         // Create a map to quickly find products by size reference
         Map<String, SoldProductsDayCountDTO> soldProductMap = new HashMap<>();
         for (SoldProductsDayCountDTO product : productsSold) {
@@ -222,11 +216,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional("tenantTransactionManager")
     public Page<ProductHistoryDTO> addStock(StockUpdateDTO updateIdStockList) {
-        LOGGER.info("Adding stock. Model ID: {}, Products IDs: {}, Quantity: {}, Comment: {}",
-                updateIdStockList.getModelId(),
-                updateIdStockList.getProductsId(),
-                updateIdStockList.getQte(),
-                updateIdStockList.getComment());
 
         User currentUser = sessionUtils.getCurrentUser();
         updateIdStockList.getProductsId().forEach(productId -> {
@@ -250,7 +239,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ModelStockHistory> countStock() {
-        LOGGER.info("Counting stock for all products");
         List<ModelStockHistory> stockHistory = productRepository.countStock();
         LOGGER.info("Counted stock history entries: {}", stockHistory.size());
         return stockHistory;

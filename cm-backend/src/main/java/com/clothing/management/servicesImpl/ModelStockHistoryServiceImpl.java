@@ -22,8 +22,6 @@ public class ModelStockHistoryServiceImpl implements ModelStockHistoryService {
 
     @Override
     public void saveDayHistory(List<ModelStockHistory> countStock) {
-        LOGGER.info("Saving stock history data. Number of records: {}", countStock.size());
-
         try {
             modelStockHistoryRepository.saveAll(countStock);
             LOGGER.info("Successfully saved {} stock history records.", countStock.size());

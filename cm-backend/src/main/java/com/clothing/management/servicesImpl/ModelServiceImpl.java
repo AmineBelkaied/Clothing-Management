@@ -28,16 +28,12 @@ public class ModelServiceImpl implements ModelService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelServiceImpl.class);
 
     private final IModelRepository modelRepository;
-    private final IColorRepository colorRepository;
-    private final ISizeRepository sizeRepository;
     private final IProductRepository productRepository;
-private final EntityBuilderHelper entityBuilderHelper;
+    private final EntityBuilderHelper entityBuilderHelper;
     private final ModelMapper modelMapper;
-    public ModelServiceImpl(IModelRepository modelRepository, IColorRepository colorRepository,
-                            ISizeRepository sizeRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper, ModelMapper modelMapper) {
+
+    public ModelServiceImpl(IModelRepository modelRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper, ModelMapper modelMapper) {
         this.modelRepository = modelRepository;
-        this.colorRepository = colorRepository;
-        this.sizeRepository = sizeRepository;
         this.productRepository = productRepository;
         this.entityBuilderHelper = entityBuilderHelper;
         this.modelMapper = modelMapper;
@@ -45,7 +41,6 @@ private final EntityBuilderHelper entityBuilderHelper;
 
     @Override
     public List<Model> findAllModels() {
-        LOGGER.info("Retrieving all models.");
         List<Model> models = modelRepository.findAll();
         LOGGER.info("Found {} models.", models.size());
         return models;
@@ -53,7 +48,6 @@ private final EntityBuilderHelper entityBuilderHelper;
 
     @Override
     public Optional<Model> findModelById(Long idModel) {
-        LOGGER.info("Finding model by ID: {}", idModel);
         Optional<Model> model = modelRepository.findById(idModel);
         if (model.isPresent()) {
             LOGGER.info("Model found: {}", model.get());
@@ -65,7 +59,6 @@ private final EntityBuilderHelper entityBuilderHelper;
 
     @Override
     public Model saveModel(Model model) {
-        LOGGER.info("Saving model: {}", model);
         if (model.getId() == null) {
             modelRepository.findByNameIsIgnoreCase(model.getName())
                     .ifPresent(existingModel -> {
@@ -122,14 +115,12 @@ private final EntityBuilderHelper entityBuilderHelper;
 
     @Override
     public void deleteModelById(Long idModel) {
-        LOGGER.info("Deleting model by ID: {}", idModel);
         modelRepository.deleteById(idModel);
         LOGGER.info("Model with ID: {} deleted.", idModel);
     }
 
     @Override
     public void deleteSelectedModels(List<Long> modelsId) {
-        LOGGER.info("Deleting models with IDs: {}", modelsId);
         modelRepository.deleteAllById(modelsId);
         LOGGER.info("Models with IDs: {} deleted.", modelsId);
     }
@@ -137,7 +128,6 @@ private final EntityBuilderHelper entityBuilderHelper;
     @Override
     @Transactional("tenantTransactionManager")
     public List<ModelDTO> getModels() {
-        LOGGER.info("Retrieving all models as DTOs.");
         List<ModelDTO> modelDTOs = modelRepository.findAll()
                 .stream()
                 .map(modelMapper::toDto)

@@ -1,52 +1,59 @@
-<div class="p-d-flex p-flex-column">
-  <!-- Calendar section -->
-  <div class="p-mb-3 p-mt-2">
-    <p-card styleClass="p-p-3" [style]="{'background-color': '#fbfbfb', 'width': '100%'}">
-      <div class="p-grid p-mt-3 p-mb-3">
-        <div class="p-col-12 p-md-5">
-          <p-calendar
-            [(ngModel)]="rangeDates"
-            (ngModelChange)="findAllPackets()"
-            selectionMode="range"
-            dateFormat="dd/mm"
-            [readonlyInput]="true"
-            inputId="range"
-            placeholder="Filtrer par date/période"
-            [showClear]="true"
-            (onClearClick)="resetTable()"
-            [showButtonBar]="false"
-            [showIcon]="true"
-            [style]="{ width: '100%' }"
-            [touchUI]="true"
-          >
-            <ng-template pTemplate="footer">
-              <div class="p-d-flex p-ai-center p-jc-between">
-                <p-button label="All" styleClass="p-button-text" (click)="allDateFilter()"></p-button>
-                <p-button label="Semaine" styleClass="p-button-text" (click)="weekDate()"></p-button>
-                <p-button label="15 jours" styleClass="p-button-text" (click)="twoWeekDate()"></p-button>
-                <p-button label="Mois" styleClass="p-button-text" (click)="monthDate()"></p-button>
-                <p-button label="-4" styleClass="p-button-text" (click)="minus4daysDate()"></p-button>
-                <p-button styleClass="p-button-text" (click)="previousDate()">
-                  <i class="pi pi-arrow-left"></i>
-                </p-button>
-                <p-button styleClass="p-button-text" (click)="nextDate()">
-                  <i class="pi pi-arrow-right"></i>
-                </p-button>
-                <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
-              </div>
-            </ng-template>
-          </p-calendar>
-        </div>
-      </div>
-    </p-card>
-  </div>
 
-  <!-- Packets Chart section -->
-  <div class="p-mb-3">
-    <p-card styleClass="p-p-3" [style]="{'background-color': '#fbfbfb', 'width': '100%'}">
-      <div class="p-d-flex p-jc-between p-ai-center">
-        <h3>Packets Chart</h3>
-        <div class="p-d-flex p-ai-center">
+  <!-- Calendar section -->
+  <div class="container-fluid">
+    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+        <div class="card-body">
+            <div class="d-flex megabar-header menu">
+              <div class="toggle-b-space"></div>
+              <div class="menu-middle">
+                <H2>Statistique</H2>
+              </div>
+              <div class="d-flex justify-content-end">
+                <p-calendar
+                [(ngModel)]="rangeDates"
+                (ngModelChange)="findAllPackets()"
+                selectionMode="range"
+                dateFormat="dd/mm"
+                [readonlyInput]="true"
+                inputId="range"
+                placeholder="Filtrer par date/période"
+                [showClear]="true"
+                (onClearClick)="resetTable()"
+                [showButtonBar]="false"
+                [showIcon]="true"
+                [style]="{ width: '100%' }"
+                [touchUI]="true"
+              >
+                <ng-template pTemplate="footer">
+                  <div class="p-d-flex p-ai-center p-jc-between">
+                    <p-button label="All" styleClass="p-button-text" (click)="allDateFilter()"></p-button>
+                    <p-button label="Semaine" styleClass="p-button-text" (click)="weekDate()"></p-button>
+                    <p-button label="15 jours" styleClass="p-button-text" (click)="twoWeekDate()"></p-button>
+                    <p-button label="Mois" styleClass="p-button-text" (click)="monthDate()"></p-button>
+                    <p-button label="-4" styleClass="p-button-text" (click)="minus4daysDate()"></p-button>
+                    <p-button styleClass="p-button-text" (click)="previousDate()">
+                      <i class="pi pi-arrow-left"></i>
+                    </p-button>
+                    <p-button styleClass="p-button-text" (click)="nextDate()">
+                      <i class="pi pi-arrow-right"></i>
+                    </p-button>
+                    <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
+                  </div>
+                </ng-template>
+              </p-calendar>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <p-card [style]="{ width: '100%'}">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h3>Packets Chart</h3>
+        </div>
+        <div>
           <p-selectButton
             [options]="deliveryCompanyList"
             [(ngModel)]="deliveryCompanyName"
@@ -54,12 +61,14 @@
             optionValue="name"
             (onOptionClick)="getStatAllPacketsChart()"/>
         </div>
-        <p-selectButton
+        <div>
+          <p-selectButton
           [options]="enablerOptions"
           [(ngModel)]="packetsChartEnabler"
           optionLabel="label"
           optionValue="value"
           (click)="packetsChartEnablerChange()"></p-selectButton>
+        </div>
       </div>
       <p-tabView *ngIf="packetsChartEnabler">
         <p-tabPanel header="Chart">

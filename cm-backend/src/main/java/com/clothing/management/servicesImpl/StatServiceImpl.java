@@ -42,7 +42,6 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public Map<String, List<?>> statAllModelsChart(String beginDate, String endDate, Boolean countProgressEnabler) {
-        LOGGER.info("Generating model chart for date range: {} - {} with count progress enabled: {}", beginDate, endDate, countProgressEnabler);
 
         // Initialize lists
         List<Long> countModelsList;
@@ -132,7 +131,6 @@ public class StatServiceImpl implements StatService {
     }
 
     private ArrayList<Long> countTotal(List<Date> uniqueDates, List<List<Long>> listModelsCount) {
-        LOGGER.info("Counting totals for {} dates and {} model counts.", uniqueDates.size(), listModelsCount.size());
 
         ArrayList<Long> countTotalList = new ArrayList<>();
         long index = 0;
@@ -156,7 +154,6 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public Map<String, List<?>> statAllStockChart(String beginDate, String endDate) {
-        LOGGER.info("Generating stock chart for date range: {} - {}", beginDate, endDate);
 
         // Fetch stock history
         List<ModelStockHistory> statStock = modelStockHistoryRepository.statStockByDate(beginDate, endDate);
@@ -241,7 +238,6 @@ public class StatServiceImpl implements StatService {
     @Override
     @Transactional("tenantTransactionManager")
     public Map<String, List<?>> statAllOffersChart(String beginDate, String endDate) {
-        LOGGER.info("Generating offers chart for date range: {} - {}", beginDate, endDate);
 
         // Initialize lists
         List<Long> countOffersList;
@@ -332,7 +328,6 @@ public class StatServiceImpl implements StatService {
     }
 
     public StatTableDTO createTableRecap(List<StatTableDTO> recapCount) {
-        LOGGER.info("Creating table recap from {} StatTableDTO objects.", recapCount.size());
         StatTableDTO totalRecap = new StatTableDTO("Total");
         return createTotalRecap(recapCount, totalRecap);
     }
@@ -378,7 +373,6 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public Map<String, List<?>> statAllColorsChart(String beginDate, String endDate) {
-        LOGGER.info("Generating color chart for date range: {} - {}", beginDate, endDate);
 
         // Fetch products data by color
         List<ColorsDayCountDTO> existingProductsPacketColor = productsPacketRepository.statAllModelsByColor(beginDate, endDate);
@@ -455,7 +449,6 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public Map<String, List<?>> statAllPacketsChart(String beginDate, String endDate, String deliveryCompanyName) {
-        LOGGER.info("Generating packet stats chart for date range: {} - {}, Delivery Company: {}", beginDate, endDate, deliveryCompanyName);
 
         // Fetch existing packets
         List<PacketsStatCountDTO> existingPackets = existingPackets(beginDate, endDate, deliveryCompanyName);
@@ -488,7 +481,6 @@ public class StatServiceImpl implements StatService {
     }
 
     private List<List<Long>> createStatusCountLists(List<PacketsStatCountDTO> existingPackets) {
-        LOGGER.debug("Creating status count lists from packet data.");
 
         List<Long> countAll = new ArrayList<>();
         List<Long> countExchange = new ArrayList<>();
@@ -514,7 +506,6 @@ public class StatServiceImpl implements StatService {
     }
 
     private List<StatTableDTO> createStatusRecapCount(List<PacketsStatCountDTO> existingPackets, int datesSize) {
-        LOGGER.debug("Creating status recap count from packet data.");
 
         StatTableDTO exchangeRecap = new StatTableDTO(SystemStatus.EXCHANGE.getStatus());
         StatTableDTO returnRecap = new StatTableDTO(SystemStatus.RETURN.getStatus());
@@ -550,7 +541,6 @@ public class StatServiceImpl implements StatService {
 
     // For packets chart
     private void updateRecapStats(StatTableDTO recap, long count) {
-        LOGGER.debug("Updating recap stats. Current min: {}, Current max: {}, Current payed: {}", recap.getMin(), recap.getMax(), recap.getPayed());
         recap.setMin(Math.min(count, recap.getMin()));
         recap.setMax(Math.max(count, recap.getMax()));
         recap.setPayed(count + recap.getPayed());
@@ -570,7 +560,6 @@ public class StatServiceImpl implements StatService {
     }
 
     public static Map<String, List<?>> getUnique(List<ProductsDayCountDTO> productsList) {
-        LOGGER.info("Extracting unique attributes from products list. Size: {}", productsList.size());
 
         Map<String, List<?>> uniqueAttributes = new HashMap<>();
         List<Date> uniqueDates = new ArrayList<>();
@@ -635,7 +624,6 @@ public class StatServiceImpl implements StatService {
     }
 
     public Map<String, List<?>> getUniqueColors(List<ColorsDayCountDTO> productsList) {
-        LOGGER.info("Extracting unique colors and dates from products list. Size: {}", productsList.size());
 
         Map<String, List<?>> uniqueAttributes = new HashMap<>();
         List<Date> uniqueDates = new ArrayList<>();
@@ -663,7 +651,6 @@ public class StatServiceImpl implements StatService {
 
     @Transactional("tenantTransactionManager")
     public Map<String, List<?>> getUniqueOffers(List<OffersDayCountDTO> productsList) {
-        LOGGER.info("Extracting unique offers and dates from products list. Size: {}", productsList.size());
 
         Map<String, List<?>> uniqueAttributes = new HashMap<>();
         List<Date> uniqueDates = new ArrayList<>();
@@ -691,7 +678,6 @@ public class StatServiceImpl implements StatService {
     }
 
     private Map<String, List<?>> getUniqueValues(List<ModelDayCountDTO> existingProductsPacket) {
-        LOGGER.info("Extracting unique values from model day count list. Size: {}", existingProductsPacket.size());
 
         Map<String, List<?>> uniqueValues = new HashMap<>();
         List<Date> uniqueDates = new ArrayList<>();
@@ -725,7 +711,6 @@ public class StatServiceImpl implements StatService {
 
     @Override // Used in stock (stock par model)
     public Map<String, List<?>> statModelSoldChart(Long modelId, String beginDate, String endDate) {
-        LOGGER.info("Generating sold model chart for Model ID: {}, Date range: {} - {}", modelId, beginDate, endDate);
 
         // Fetch existing product packets
         List<ModelDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSoldProgress(modelId, beginDate, endDate);
@@ -771,7 +756,6 @@ public class StatServiceImpl implements StatService {
     }
 
     private List<List<Integer>> getProductCounts(List<ModelDayCountDTO> existingProductsPacket, List<String> uniqueProductRefs, List<Date> uniqueDates) {
-        LOGGER.info("Fetching product counts for {} product references across {} unique dates", uniqueProductRefs.size(), uniqueDates.size());
 
         List<List<Integer>> listProductsCount = new ArrayList<>();
         for (String uniqueProductRef : uniqueProductRefs) {
@@ -797,7 +781,6 @@ public class StatServiceImpl implements StatService {
     }
 
     private List<List<Integer>> getColorCounts(List<ModelDayCountDTO> existingProductsPacket, List<Color> uniqueColors, List<Date> uniqueDates) {
-        LOGGER.info("Fetching color counts for {} unique colors across {} unique dates", uniqueColors.size(), uniqueDates.size());
 
         List<List<Integer>> listColorsCount = new ArrayList<>();
         for (Color uniqueColor : uniqueColors) {
@@ -821,7 +804,6 @@ public class StatServiceImpl implements StatService {
     }
 
     private List<List<Integer>> getSizeCounts(List<ModelDayCountDTO> existingProductsPacket, List<Size> uniqueSizes, List<Date> uniqueDates) {
-        LOGGER.info("Fetching size counts for {} unique sizes across {} unique dates", uniqueSizes.size(), uniqueDates.size());
 
         List<List<Integer>> listSizesCount = new ArrayList<>();
         for (Size uniqueSize : uniqueSizes) {
@@ -848,8 +830,6 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<ProductsDayCountDTO> productsCountByDate(Long modelId, String beginDate, String endDate) {
-        LOGGER.info("Fetching products count by date for Model ID: {}, Date range: {} - {}", modelId, beginDate, endDate);
-
         List<ProductsDayCountDTO> productCounts = productsPacketRepository.productsCountByDate(modelId, beginDate, endDate);
 
         LOGGER.debug("Fetched {} product count entries for Model ID: {}", productCounts.size(), modelId);
@@ -858,8 +838,6 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<PagesStatCountDTO> findAllPacketsPages(String beginDate, String endDate) {
-        LOGGER.info("Fetching packet pages statistics for Date range: {} - {}", beginDate, endDate);
-
         List<PagesStatCountDTO> pagesStatCounts = packetRepository.findAllPacketsPages(beginDate, endDate);
 
         LOGGER.debug("Fetched {} packet page statistics entries.", pagesStatCounts.size());
@@ -868,8 +846,6 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<StatesStatCountDTO> findAllPacketsStates(String beginDate, String endDate) {
-        LOGGER.info("Fetching packet states statistics for Date range: {} - {}", beginDate, endDate);
-
         List<StatesStatCountDTO> statesStatCounts = packetRepository.findAllPacketsStates(beginDate, endDate);
 
         LOGGER.debug("Fetched {} packet state statistics entries.", statesStatCounts.size());

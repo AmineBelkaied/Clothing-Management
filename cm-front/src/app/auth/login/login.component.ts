@@ -40,6 +40,7 @@ export class LoginComponent {
         this.route.paramMap.subscribe(params => this.form.tenantName = params.get('tenantName'));
         if (this.storageService.isUserLoggedIn()) {
           this.isLoggedIn = true;
+          this.storageService.isLoggedIn.next(true);
           this.roles = this.storageService.getUser().roles;
           this.router.navigate(["/"]);
         }

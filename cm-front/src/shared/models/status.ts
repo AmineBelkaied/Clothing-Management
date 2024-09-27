@@ -1,6 +1,11 @@
 export interface Status {
-    id : number;
-    label : string;
-    statusList: string[];
-    noClose:boolean;
+  label: string,
+  value: string,
+  icon: string,
+  color: string,
+  count: number,
+  dayCount: number,
+  onlyAdmin: boolean,
+  options: any[],
+  selectedOptions: []
 }
