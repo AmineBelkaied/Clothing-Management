@@ -52,7 +52,7 @@
                 </td>
                 <td>{{offer.name}}</td>
                 <td>{{offer.offerModels | displayOfferModels}}</td>
-                <td>{{offer.fbPages | displayList : 'name' : ','}}</td>
+                <td>{{ offer.fbPages | displayList : 'name' : ',' : "FbPages"}}</td>
                 <td>{{offer.price}} DT</td>
                 <td>
                     <ng-container *ngIf="offer.enabled;else disabled">

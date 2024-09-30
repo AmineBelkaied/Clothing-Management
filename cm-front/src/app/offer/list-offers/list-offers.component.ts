@@ -90,6 +90,10 @@ export class ListOffersComponent implements OnInit {
     });
   }
 
+/*   displayPages(fbPagesIds: number[]) : FbPage[]{
+    return this.getFbPages(fbPagesIds);
+  } */
+
   editOffer(offer: any) {
     this.offerService.setOffer(offer);
     this.offerDialog = true;
@@ -144,6 +148,8 @@ export class ListOffersComponent implements OnInit {
       this.offers[this.findIndexById(offerResponse.offerId)] = offerResponse;
       this.messageService.add({ severity: 'success', summary: 'Successful', detail: "L'offre a été modifié avec succés", life: 1000 });
     } else {
+      console.log("offerResponse",offerResponse);
+
       this.offers.push(offerResponse);
       this.messageService.add({ severity: 'success', summary: 'Successful', detail: "L'offre a été crée avec succés", life: 1000 });
     }
@@ -152,7 +158,6 @@ export class ListOffersComponent implements OnInit {
 
   ngOnDestroy(): void {
     console.log("destroy list-offers");
-
     this.$unsubscribe.next();
   }
 }

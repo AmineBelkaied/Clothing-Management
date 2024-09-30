@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, take, takeUntil } from 'rxjs';
 import { Color } from 'src/shared/models/Color';
 import { Model } from 'src/shared/models/Model';
 import { Size } from 'src/shared/models/Size';
@@ -30,34 +30,17 @@ export class AddModelComponent implements OnInit, OnDestroy {
   message: string;
   allOffersList: any[] = [];
   $unsubscribe: Subject<void> = new Subject();
-
   constructor(
     private modelService: ModelService,
     private colorService: ColorService,
     private sizeService: SizeService
   ) {
-    this.colorService.getColorsSubscriber().pipe(takeUntil(this.$unsubscribe))
-    .subscribe((colorList: Color[]) => {
-      console.log(colorList);
-      this.colors = colorList;
-    });
-
-    this.sizeService.getSizesSubscriber().pipe(takeUntil(this.$unsubscribe))
-      .subscribe((sizeList: Size[]) => {
-        this.sizes = sizeList;
-      })
+    this.colors = this.colorService.colors;
+    this.sizes = this.sizeService.sizes;
   }
 
   ngOnInit(): void {
     this.salePrice = this.calculateSalePrice(this.model);
-  }
-
-  getColors(colorIds: number[]): Color[] {
-    return this.colorService.getColorByIds(colorIds);
-  }
-
-  getSizes(sizeIds: number[]): Size[] {
-      return this.sizeService.getSizesByIds(sizeIds);
   }
 
   checkFormValidation(): void {
@@ -81,7 +64,7 @@ export class AddModelComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.model = {...this.modelService.defaultModel};
+    //this.model = {...this.modelService.defaultModel};
     this.$unsubscribe.next();
     this.$unsubscribe.complete();
   }

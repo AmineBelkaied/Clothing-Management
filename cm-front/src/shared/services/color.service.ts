@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, take, tap, throwError } from 'rxjs';
 import { Color } from '../models/Color';
 import { environment } from '../../environments/environment';
 import { COLOR_ENDPOINTS } from '../constants/api-endpoints';
@@ -17,7 +17,7 @@ export class ColorService {
   public editMode = false;
 
   constructor(private http: HttpClient) {
-    this.getColorsSubscriber();
+    this.getColorsSubscriber().pipe(take(1));
   }
 
   loadColors(): Observable<Color[]>{
@@ -47,7 +47,14 @@ export class ColorService {
   }
 
   getColorByIds(ids: number[]) : Color[]{
+    console.log("looking for colors by id : ",ids);
     return this.colors.filter(color => ids.includes(color.id!));
+  }
+
+  getColorById(id: number): Color | undefined {
+    // Using the find method to locate the first matching color by its id.
+    let color : Color | undefined =this.colors.find(color => color.id === id);
+    return color
   }
 
 

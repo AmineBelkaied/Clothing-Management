@@ -36,6 +36,7 @@ export class AddOfferComponent implements OnInit {
     private fb: FormBuilder,
     private offerService: OfferService,
     public fbPageService: FbPageService) {
+
     this.offerForm = this.fb.group({
       id: "",
       name: ['', Validators.required],
@@ -49,12 +50,12 @@ export class AddOfferComponent implements OnInit {
   ngOnInit(): void {
     this.offerService.offerSubscriber.pipe(takeUntil(this.$unsubscribe))
       .subscribe((offer:Offer) => this.offer = offer)
-
-    this.fbPageService.getFbPagesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+        this.fbPages = this.fbPageService.fbPages;
+    /* this.fbPageService.getFbPagesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
       (fbPages: FbPage[]) => {
         this.fbPages = fbPages;
       }
-    );
+    ); */
 
 
     if(this.editMode) {

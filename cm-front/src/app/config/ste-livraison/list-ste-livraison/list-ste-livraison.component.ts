@@ -21,11 +21,12 @@ export class ListSteLivraisonComponent implements OnInit,OnDestroy {
               }
 
   ngOnInit(): void {
-    this.deliveryCompanyService.getDeliveryCompaniesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+    this.deliveryCompanyList = this.deliveryCompanyService.deliveryCompanyList;
+/*     this.deliveryCompanyService.getDeliveryCompaniesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
       (deliveryCompany: DeliveryCompany[]) => {
         this.deliveryCompanyList = deliveryCompany;
       }
-    );
+    ); */
   }
 
   editDeliveryCompany(deliveryCompany: any){

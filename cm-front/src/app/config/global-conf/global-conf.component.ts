@@ -25,6 +25,7 @@ export class GlobalConfComponent implements OnInit, OnDestroy {
     }
 
   ngOnInit(): void {
+    //this.deliveryCompanies = this.deliveryCompanyService.deliveryCompanyList;
     this.deliveryCompanyService.getDeliveryCompaniesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
       (deliveryCompany: DeliveryCompany[]) => {
         this.deliveryCompanies = deliveryCompany;

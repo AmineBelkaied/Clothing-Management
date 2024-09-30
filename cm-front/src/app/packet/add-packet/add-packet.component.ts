@@ -178,7 +178,9 @@ export class AddPacketComponent implements OnInit {
   }
 
   setOfferModelsValues(offerIndex: number, offer: Offer): void {
+
     this.setOfferControlValues(this.offers().at(offerIndex), offer);
+
     for (let i = 0; i < offer.offerModels.length; i++) {
       let selectedModel: Model = offer.offerModels[i].model;
       for (let j = 0; j < offer.offerModels[i].quantity; j++) {
@@ -522,16 +524,18 @@ export class AddPacketComponent implements OnInit {
   }
   newModel(model: Model, selectedProductId: number): FormGroup {
     const selectedProduct = this.findProduct(selectedProductId);
-
+    let colors = this.getColors(model.colors);
+    let sizes = this.getSizes(model.sizes);
     // Handling case where selectedProduct may be undefined or null
+
     if (!selectedProduct) {
         throw new Error(`Product with ID ${selectedProductId} not found.`);
     }
 
     const formControls = {
         name: [model.name],
-        colors: this.getColors(model.colors),
-        sizes: this.getSizes(model.sizes),
+        colors: colors,
+        sizes: sizes,
         purchasePrice: [model.purchasePrice],
         earningCoefficient: [model.earningCoefficient],
         selectedColor: [selectedProduct.colorId],
@@ -545,13 +549,17 @@ export class AddPacketComponent implements OnInit {
 
   // Abstracted method to get colors
   private getColors(colorIds: number[]): FormArray {
-      return this.fb.array(this.colorService.getColorByIds(colorIds));
+    let colors : Color[] = this.colorService.getColorByIds(colorIds)
+    console.log("colors", colors);
+
+      return this.fb.array(colors);
   }
 
   // Abstracted method to get sizes
   private getSizes(sizeIds: number[]): FormArray {
     return this.fb.array(this.sizeService.getSizesByIds(sizeIds));
   }
+
   private getFbPages(fbPageIds: number[]): FbPage[] {
     return this.fbPageService.getFbPagesByIds(fbPageIds);
   }

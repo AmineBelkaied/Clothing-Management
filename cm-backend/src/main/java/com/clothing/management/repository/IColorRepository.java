@@ -14,4 +14,5 @@ public interface IColorRepository extends JpaRepository<Color, Long> {
 
     //Optional<Color> findByReferenceIsIgnoreCase(String colorRef);
     Optional<Color> findByNameIsIgnoreCase(String name);
+
 }

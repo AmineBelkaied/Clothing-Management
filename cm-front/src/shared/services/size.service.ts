@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, take, tap } from 'rxjs/operators';
 import { Size } from 'src/shared/models/Size';
 import { environment } from '../../environments/environment';
 import { SIZE_ENDPOINTS } from '../constants/api-endpoints';
@@ -18,7 +18,9 @@ export class SizeService {
   public editMode = false;
 
   constructor(private http: HttpClient) {
-    this.getSizesSubscriber();
+    console.log("sizeConstructor");
+
+    this.getSizesSubscriber().pipe(take(1));
   }
 
   loadSizes(): Observable<Size[]> {
@@ -37,7 +39,11 @@ export class SizeService {
 
 
   getSizesByIds(ids: number[]) : Size[]{
-    return this.sizes.filter(size => ids.includes(size.id!));
+    let sizes : Size[] = this.sizes.filter(size => ids.includes(size.id!));
+    return sizes;
+  }
+  getSizesById(id: number) : Size | undefined{
+    return this.sizes.find(size => id == size.id!);
   }
 
   getSizeNameById(id: number) : String{

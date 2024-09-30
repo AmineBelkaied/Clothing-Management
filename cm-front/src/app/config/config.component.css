@@ -11,3 +11,12 @@
   width: 100%; /* Make sure tab view takes the full width */
   box-sizing: border-box; /* Include padding and borders in width calculations */
 }
+
+::ng-deep a {
+  text-decoration: none;
+}
+
+::ng-deep .p-tabview-nav {
+  margin-left: 3rem;
+}
+

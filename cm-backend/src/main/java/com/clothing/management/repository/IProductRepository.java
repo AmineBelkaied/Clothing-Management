@@ -26,13 +26,13 @@ public interface IProductRepository extends JpaRepository<Product, Long> {
     @Query(value = "SELECT p FROM Product p WHERE p.model.id IN :modelIds")
     List<Product> getProductsByModelIds(@Param("modelIds") List<Long> modelIds);
 
-    @Query(value = "SELECT p.id FROM product p WHERE p.model = :modelId AND p.color = NULL AND p.size = NULL",nativeQuery = true)
+    @Query(value = "SELECT id FROM product WHERE model_id = :modelId AND color_id = NULL AND size_id = NULL",nativeQuery = true)
     int findNullProductsByModelId(@Param("modelId") Long modelId);
 
-    @Query(value = "SELECT * FROM product WHERE model_id = :modelId AND color_id = :colorId AND size_id = :sizeId LIMIT 1",nativeQuery = true)
+    @Query(value = "SELECT * FROM `product` WHERE `model_id` = :modelId AND `color_id` = :colorId AND size_id = :sizeId LIMIT 1",nativeQuery = true)
     Product findByModelAndColorAndSize(@Param("modelId") Long modelId, @Param("colorId") Long colorId, @Param("sizeId") Long sizeId);
 
-    @Query(value = "SELECT * FROM product WHERE model_id = :modelId",nativeQuery = true)
+    @Query(value = "SELECT * FROM `product` WHERE `model_id` = :modelId",nativeQuery = true)
     List<Product> findByModel(@Param("modelId") Long modelId);
 
 }

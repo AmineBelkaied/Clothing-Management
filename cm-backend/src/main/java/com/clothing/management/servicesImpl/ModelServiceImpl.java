@@ -31,12 +31,18 @@ public class ModelServiceImpl implements ModelService {
     private final IProductRepository productRepository;
     private final EntityBuilderHelper entityBuilderHelper;
     private final ModelMapper modelMapper;
+    private final IColorRepository colorRepository;
+    private final ISizeRepository sizeRepository;
 
-    public ModelServiceImpl(IModelRepository modelRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper, ModelMapper modelMapper) {
+    public ModelServiceImpl(IModelRepository modelRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper, ModelMapper modelMapper,
+                            IColorRepository colorRepository, ISizeRepository sizeRepository) {
         this.modelRepository = modelRepository;
         this.productRepository = productRepository;
         this.entityBuilderHelper = entityBuilderHelper;
         this.modelMapper = modelMapper;
+        this.colorRepository = colorRepository;
+        this.sizeRepository = sizeRepository;
+
     }
 
     @Override
@@ -58,7 +64,7 @@ public class ModelServiceImpl implements ModelService {
     }
 
     @Override
-    public Model saveModel(Model model) {
+    public ModelDTO saveModel(Model model) {
         if (model.getId() == null) {
             modelRepository.findByNameIsIgnoreCase(model.getName())
                     .ifPresent(existingModel -> {
@@ -66,51 +72,81 @@ public class ModelServiceImpl implements ModelService {
                         throw new ModelAlreadyExistsException(existingModel.getId(), existingModel.getName());
                     });
         }
+        List<Color> colors = new ArrayList<>();
+        model.getColors().forEach(color -> {
+            Color modelColor = colorRepository.findById(color.getId()).orElse(null);
+            colors.add(modelColor);
+        });
+        model.setColors(colors);
+        List<Size> sizes = new ArrayList<>();
+        model.getSizes().forEach(size -> {
+            Size modelSize = sizeRepository.findById(size.getId()).orElse(null);
+            sizes.add(modelSize);
+        });
+        model.setSizes(sizes);
         model = modelRepository.save(model);
         LOGGER.info("Model saved with ID: {}", model.getId());
 
         // Generate products
         LOGGER.info("Generating products for model ID: {}", model.getId());
-        generateModelProducts(model);
+        model = generateModelProducts(model);
 
-        return model;
+        return modelMapper.toDto(model);
     }
 
-    @Override
     public Model generateModelProducts(Model model) {
+
         List<Color> colors = model.getColors();
         List<Size> sizes = model.getSizes();
-        colors.add(null);
-        sizes.add(null);
-
         try {
-            // Generate products
-            if (!model.getColors().isEmpty()) {
+            // Generate products if there are colors or sizes
+            if (!colors.isEmpty() || !sizes.isEmpty()) {
+                // Loop through all combinations of color and size
                 for (Color color : colors) {
-                    if (!model.getSizes().isEmpty()) {
-                        for (Size size : sizes) {
-                            Product existingProduct = productRepository.findByModelAndColorAndSize(
-                                    model.getId(),
-                                    color != null ? color.getId() : null,
-                                    size != null ? size.getId() : null
-                            );
-
-                            if (existingProduct == null) {
-                                Product product = entityBuilderHelper.createProductBuilder(size, color, 0, model).build();
-                                productRepository.save(product);
-                                LOGGER.info("Product created: {}", product);
-                            }
-                        }
+                    for (Size size : sizes) {
+                        createProductIfNotExists(model, color, size);
                     }
                 }
+
+                // Handle case where color is null but size is present
+                for (Size size : sizes) {
+                    createProductIfNotExists(model, null, size);
+                }
+
+                // Handle case where size is null but color is present
+                for (Color color : colors) {
+                    createProductIfNotExists(model, color, null);
+                }
+
+                // Handle case where both color and size are null
+                createProductIfNotExists(model, null, null);
             }
         } catch (EntityNotFoundException e) {
             LOGGER.error("Error generating products: {}", e.getMessage());
         }
 
-        // Optionally delete unused products
-        // deleteUnusedProducts(model);
         return model;
+    }
+
+    private void createProductIfNotExists(Model model, Color color, Size size) {
+        // Check if the product already exists
+        Product existingProduct = productRepository.findByModelAndColorAndSize(
+                model.getId(),
+                color != null ? color.getId() : null,
+                size != null ? size.getId() : null
+        );
+
+        // If product does not exist, create it
+        if (existingProduct == null) {
+            Product product = entityBuilderHelper.createProductBuilder(
+                    size,
+                    color,
+                    0, model).build();
+
+            productRepository.save(product);
+            LOGGER.info("Product created: {}", product.getColor()+" "+product.getSize()+" " +product);
+        }
+        else LOGGER.info("Product exist: {}",existingProduct);
     }
 
     @Override

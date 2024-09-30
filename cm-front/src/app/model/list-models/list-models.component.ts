@@ -51,6 +51,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+
     this.modelService
       .getModelsSubscriber()
       .pipe(takeUntil(this.$unsubscribe))
@@ -68,6 +69,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
       return this.modelService.addModel(this.model).pipe(
         tap((response: Model) => {
           this.modelService.updateModelsSubscriber(response);
+
           if (this.editMode) {
             this.messageService.add({
               severity: 'success',
@@ -76,6 +78,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
               life: 3000,
             });
           } else {
+
             this.messageService.add({
               severity: 'success',
               summary: 'Succés',
@@ -100,7 +103,6 @@ export class ListModelsComponent implements OnInit, OnDestroy {
 
   checkFormValidation(salePrice: number): void {
     this.modelNameExists = this.modelAlreadyExists(this.model.name);
-
     this.isValidModel = StringUtils.isStringValid(this.model.name) && NumberUtils.isNumberValid(this.model.purchasePrice) &&
       NumberUtils.isNumberValid(salePrice) && this.model.sizes.length > 0 && this.model.colors.length > 0 && !this.modelNameExists;
   }
@@ -196,6 +198,14 @@ export class ListModelsComponent implements OnInit, OnDestroy {
       }
     }
     return index;
+  }
+
+  modelColorsDisplay(colorsIds: number[]) {
+    return this.colorService.getColorByIds(colorsIds);
+  }
+
+  modelSizesDisplay(sizesIds: number[]) :Size[]{
+    return this.sizeService.getSizesByIds(sizesIds);
   }
 
   ngOnDestroy(): void {

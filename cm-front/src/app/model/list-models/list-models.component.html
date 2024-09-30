@@ -54,8 +54,9 @@
                 <!--td><img  *ngIf="model.bytes != null" [src]="model.image" [alt]="model.name" width="100" height="100" class="shadow-4" /></td-->
                 <td>{{model.purchasePrice}}</td>
                 <td>{{model.purchasePrice * model.earningCoefficient | number:'1.0-0'}}</td>
-                <td>{{model.colors | displayList: 'name' : ','}}</td>
-                <td>{{model.sizes | displayList: 'reference' : '-'}}</td>
+                <td>{{ model.colors | displayList: 'name' : ',' : 'Color' }}</td>
+                <td>{{ model.sizes | displayList: 'reference' : ' - ' : 'Size' }}</td>
+
                 <td>
                     <div class="align-items-center gap-3" *ngIf="model.description != ''">
                         <span class="align-items-center gap-2">
@@ -87,7 +88,11 @@
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'" [icon]="editMode ? 'pi pi-pencil small' : 'pi pi-plus small'" class="p-button-text" [disabled]="!isValidModel" (click)="saveModel()"></button>
+        <button pButton pRipple
+          [label]="editMode ? 'Modifier' : 'Ajouter'"
+          [icon]="editMode ? 'pi pi-pencil small' : 'pi pi-plus small'"
+          class="p-button-text" [disabled]="!isValidModel" (click)="saveModel()">
+        </button>
     </ng-template>
 </p-dialog>
 

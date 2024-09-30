@@ -88,16 +88,17 @@ export class PacketsMenueContainerComponent {
   handleInputChange() {
     const inputValue = this.filter;
     const numbersCount = (inputValue.match(/\d/g) || []).length;
+    console.log(inputValue,numbersCount);
 
-    if (numbersCount === 0 || numbersCount === 5 || numbersCount === 8 || numbersCount === 12  ) {
+    if ( numbersCount === 5 || numbersCount === 8 || numbersCount === 12  ) {
       //this.oldActiveIndex = this.activeIndex;
       this.filterPackets('global');
       //this.activeIndex = 0;
     }
-   /*  if (this.filter === '') {
+    if (this.filter === '') {
       this.filterPackets('global');
-      this.activeIndex = this.oldActiveIndex;
-    } */
+      //this.activeIndex = this.oldActiveIndex;//Correction
+    }
   }
 
   resetTable(): void {

@@ -48,17 +48,20 @@ public class ModelController {
     }
 
     @PostMapping
-    public ResponseEntity<Model> createModel(@RequestBody Model model) {
+    public ResponseEntity<ModelDTO> createModel(@RequestBody Model model) {
         LOGGER.info("Creating new model: {}", model);
-        Model createdModel = modelService.saveModel(model);
+        ModelDTO createdModel = modelService.saveModel(model);
         LOGGER.info("Model created successfully: {}", createdModel);
+        if(model.getId() != null) {
+            return new ResponseEntity<>(createdModel, HttpStatus.OK);
+        }
         return new ResponseEntity<>(createdModel, HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<Model> updateModel(@RequestBody Model model) {
+    public ResponseEntity<ModelDTO> updateModel(@RequestBody Model model) {
         LOGGER.info("Updating model: {}", model);
-        Model updatedModel = modelService.saveModel(model);
+        ModelDTO updatedModel = modelService.saveModel(model);
         LOGGER.info("Model updated successfully: {}", updatedModel);
         return new ResponseEntity<>(updatedModel, HttpStatus.OK);
     }

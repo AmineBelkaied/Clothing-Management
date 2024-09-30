@@ -286,6 +286,10 @@ td {
   padding-left: 0px !important;
 }
 
+::ng-deep .p-dropdown-panel ul {
+  padding-left: 0px !important;
+}
+
 ::ng-deep a {
   text-decoration: none;
 }

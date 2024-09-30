@@ -89,18 +89,18 @@ public class OfferServiceImpl implements OfferService {
                 .createOfferBuilder(offerRequest.getName(), offerRequest.getFbPages(), offerRequest.getPrice(), offerRequest.isEnabled(), false)
                 .build();
         Offer savedOffer = offerRepository.save(offer);
-        offerRequest.getOfferModels().forEach(offerModel ->
-                offerModelRepository.addOfferModel(
-                        savedOffer.getId(),
-                        offerModel.getModel().getId(),
-                        offerModel.getQuantity()
-                )
+        Set<OfferModel> offerModels = new HashSet<>();
+        offerRequest.getOfferModels().forEach(offerModel -> {
+                    offerModelRepository.addOfferModel(
+                            savedOffer.getId(),
+                            offerModel.getModel().getId(),
+                            offerModel.getQuantity()
+                    );
+                    OfferModel addedOfferModel = offerModelRepository.findOfferModelByModelIdAndOfferId(offerModel.getModel().getId(), savedOffer.getId());
+                    offerModels.add(addedOfferModel);
+                }
         );
-        offer = offerRepository.findById(savedOffer.getId())
-                .orElseThrow(() -> {
-                    LOGGER.error("Offer with id: {} not found for update.", savedOffer.getId());
-                    return new OfferNotFoundException(savedOffer.getId());
-                });
+        savedOffer.setOfferModels(offerModels);
         LOGGER.info("Offer added with id: {}", savedOffer.getId());
         return offerMapper.toDto(offer);
     }

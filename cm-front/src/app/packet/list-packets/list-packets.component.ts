@@ -165,9 +165,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   findAllFbPages(): void {
-    this.fbPageService.getFbPagesSubscriber().subscribe((result: any) => {
+    this.fbPages = this.fbPageService.fbPages;
+/*     this.fbPageService.getFbPagesSubscriber().subscribe((result: any) => {
       this.fbPages = result.filter((fbPage: any) => fbPage.enabled);
-    });
+    }); */
   }
 
   onFilterPacketsChange(params: PacketFilterParams) {

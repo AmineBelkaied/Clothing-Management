@@ -54,15 +54,15 @@
         <!-- <td >{{ packet.date | date : "dd/MM" }}</td> -->
         <td [pEditableColumn]="packet" pEditableColumnField="fbPageId" style="
             cursor: pointer;
-            max-width: 5rem;
+            max-width: 7rem;
             padding: 0.1rem 0.1rem !important;
           ">
           <p-cellEditor>
             <ng-template pTemplate="input">
               <p-dropdown [options]="fbPages" [(ngModel)]="packet.fbPageId"
                 optionValue="id" optionLabel="name"
-                placeholder="-- Page --"
-                [style]="{ width: '90%' }" class="p-inputtext-sm" [panelStyle]="{ width: '10rem' }" appendTo="body">
+                placeholder="Page"
+                [style]="{ width: '100%' }" class="p-inputtext-sm mt-2" [panelStyle]="{ width: '10rem' }" appendTo="body">
               </p-dropdown>
             </ng-template>
             <ng-template pTemplate="output">
@@ -77,16 +77,14 @@
               <td [pEditableColumn]="packet" pEditableColumnField="customerName" style="width: 50%; border: none;padding-right: 1rem;">
                 <p-cellEditor>
                   <ng-template pTemplate="input">
-                    <p-floatLabel>
                       <input
                         id="customerName"
                         pInputText
+                        placeholder="Nom Client"
                         type="text"
                         [(ngModel)]="packet.customerName"
                         class="p-inputtext-sm"
                       />
-                      <label for="customerName">Nom:</label>
-                    </p-floatLabel>
                   </ng-template>
 
                   <ng-template pTemplate="output">
@@ -103,7 +101,6 @@
               <td [pEditableColumn]="packet" pEditableColumnField="customerPhoneNb" style="width: 50%; border: none;padding-left: 1rem;">
                 <p-cellEditor>
                   <ng-template pTemplate="input">
-                    <p-floatLabel>
                       <input
                         id="customerPhoneNb"
                         pInputText
@@ -115,8 +112,6 @@
                         placeholder="(+216)"
                         (input)="selectPhoneNumber(packet)"
                       />
-                      <label for="customerPhoneNb">Téléphone:</label>
-                    </p-floatLabel>
                   </ng-template>
 
                   <ng-template pTemplate="output">
@@ -151,7 +146,6 @@
                   <!-- Input Template for City Editing -->
                   <ng-template pTemplate="input">
                     <div>
-                    <p-floatLabel> <!-- Added margin-top to the p-floatLabel -->
                       <p-dropdown
                         [options]="groupedCities"
                         [(ngModel)]="packet.cityId"
@@ -171,8 +165,6 @@
                           </div>
                         </ng-template>
                       </p-dropdown>
-                      <label for="City">Ville</label>
-                    </p-floatLabel>
                   </div>
                   </ng-template>
 
@@ -193,8 +185,8 @@
                   <!-- Input Template for Address Editing -->
                   <ng-template pTemplate="input">
                     <div>
-                    <p-floatLabel> <!-- Added margin-top to the p-floatLabel -->
                       <textarea
+                        placeholder="Adresse et description"
                         [rows]="3"
                         [cols]="22"
                         class="p-inputtext-sm"
@@ -203,8 +195,6 @@
                         [autoResize]="true"
                         [style]="{ width: '100%' }">
                       </textarea>
-                      <label for="float-input">Adresse et description</label>
-                    </p-floatLabel>
                   </div>
                   </ng-template>
 

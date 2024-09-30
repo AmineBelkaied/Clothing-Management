@@ -42,6 +42,9 @@ export class FbPageService {
   getFbPagesByIds(ids: number[]) : FbPage[]{
     return this.fbPages.filter(fbPage => ids.includes(fbPage.id!));
   }
+  getFbPageById(id: number) : FbPage | undefined{
+    return this.fbPages.find(fbPage => id == fbPage.id!);
+  }
 
   getFbPageNameById(id: number) : String{
     let fbPageIndex = this.fbPages.findIndex(fbPage => fbPage.id == id);

@@ -28,7 +28,9 @@ export class ModelService {
   public modelsSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   models: Model[] = [];
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+
+  }
 
   loadModels(): Observable<Model[]> {
     return this.findAllModelsDTO().pipe(
