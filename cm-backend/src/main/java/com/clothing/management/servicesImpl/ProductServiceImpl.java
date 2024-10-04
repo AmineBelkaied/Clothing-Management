@@ -9,12 +9,9 @@ import com.clothing.management.mappers.ProductMapper;
 import com.clothing.management.mappers.SoldProductsDayCountMapper;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.ProductService;
-<<<<<<< HEAD
 import com.clothing.management.utils.EntityBuilderHelper;
-=======
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
->>>>>>> b4e08dc (ufdate front , eliminate style.css , update packets table)
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,11 +28,9 @@ import static java.util.stream.Collectors.groupingBy;
 @Transactional("tenantTransactionManager")
 public class ProductServiceImpl implements ProductService {
 
-<<<<<<< HEAD
-=======
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductServiceImpl.class);
 
->>>>>>> b4e08dc (ufdate front , eliminate style.css , update packets table)
     private final IProductRepository productRepository;
     private final IModelRepository modelRepository;
     private final IProductHistoryRepository productHistoryRepository;
@@ -45,11 +40,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
     private final SoldProductsDayCountMapper soldProductsDayCountMapper;
 
-<<<<<<< HEAD
     public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository, SessionUtils sessionUtils, EntityBuilderHelper entityBuilderHelper, ProductMapper productMapper, SoldProductsDayCountMapper soldProductsDayCountMapper) {
-=======
-    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository, SessionUtils sessionUtils) {
->>>>>>> b4e08dc (ufdate front , eliminate style.css , update packets table)
         this.productRepository = productRepository;
         this.modelRepository = modelRepository;
         this.productHistoryRepository = productHistoryRepository;
@@ -61,10 +52,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> findAllProducts() {
-        return productRepository.findAll().stream().map(productMapper::toDto).collect(Collectors.toList());
-    }
-    
     public List<ProductResponse> findAllProducts() {
         LOGGER.info("Fetching all products");
         List<ProductResponse> products = productRepository.findAll().stream()
@@ -214,14 +201,8 @@ public class ProductServiceImpl implements ProductService {
                         .filter(product -> size.equals(product.getSize()))
                         .findFirst()
                         .orElse(null);
-<<<<<<< HEAD
-                if(productBySize != null)
-                {
-                    SoldProductsDayCountDTO defaultProduct = soldProductsDayCountMapper.produtToSoldProductsDayCountDTO(productBySize);
-=======
                 if (productBySize != null) {
-                    SoldProductsDayCountDTO defaultProduct = new SoldProductsDayCountDTO(productBySize);
->>>>>>> b4e08dc (ufdate front , eliminate style.css , update packets table)
+                    SoldProductsDayCountDTO defaultProduct = soldProductsDayCountMapper.produtToSoldProductsDayCountDTO(productBySize);
                     sortedProducts.add(defaultProduct);
                 }
             }
@@ -240,22 +221,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional("tenantTransactionManager")
-<<<<<<< HEAD
     public Page<ProductHistoryDTO> addStock(StockUpdateDTO updateIdStockList) {
-            // Iterate through the list of product IDs to update each product's stock
-            User currentUser = sessionUtils.getCurrentUser();
-            updateIdStockList.getProductsId().forEach(productId -> {
-                // Find the product by its ID
-                Product product = findProductById(productId)
-                        .orElseThrow(() -> new ProductNotFoundException(productId));
-=======
-    public Page<ProductHistoryDTO> addStock(StockUpdateDto updateIdStockList) {
         LOGGER.info("Adding stock. Model ID: {}, Products IDs: {}, Quantity: {}, Comment: {}",
                 updateIdStockList.getModelId(),
                 updateIdStockList.getProductsId(),
                 updateIdStockList.getQte(),
                 updateIdStockList.getComment());
->>>>>>> b4e08dc (ufdate front , eliminate style.css , update packets table)
 
         User currentUser = sessionUtils.getCurrentUser();
         updateIdStockList.getProductsId().forEach(productId -> {
@@ -265,19 +236,7 @@ public class ProductServiceImpl implements ProductService {
             product.setQuantity(product.getQuantity() + updateIdStockList.getQte());
             updateProduct(product);
 
-<<<<<<< HEAD
-                ProductHistory productHistory =
-                        entityBuilderHelper.createProductHistoryBuilder(
-                                        product,
-                                        updateIdStockList.getQte(),
-                                        new Date(),
-                                        product.getModel(),
-                                        currentUser,
-                                        updateIdStockList.getComment()
-                                ).build();
-=======
-            ProductHistory productHistory = new ProductHistory(product, updateIdStockList.getQte(), new Date(), product.getModel(), currentUser, updateIdStockList.getComment());
->>>>>>> b4e08dc (ufdate front , eliminate style.css , update packets table)
+            ProductHistory productHistory = entityBuilderHelper.createProductHistoryBuilder(product, updateIdStockList.getQte(), new Date(), product.getModel(), currentUser, updateIdStockList.getComment()).build();
             productHistoryRepository.save(productHistory);
 
             LOGGER.info("Stock updated and history recorded for product ID: {}", productId);
