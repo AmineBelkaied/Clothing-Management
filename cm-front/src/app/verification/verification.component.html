@@ -22,8 +22,6 @@
               (onClick)="findAllConfirmedPackets()"
             ></p-radioButton>
             <label class="ml-2">Retour</label>
-          </div>
-          <div class="d-flex justify-content-end">
             <div *ngIf="type == 'validation'">
               validé {{ targetPackets.length }}, reste
               {{ sourcePackets.length }}
@@ -31,12 +29,25 @@
             <div *ngIf="type == 'Retour'">
               Retour Echange {{ targetPackets.length }}, Retour
               {{ sourcePackets.length }}
-            </div>
+          </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+              <input
+                pInputText
+                type="text"
+                [(ngModel)]="barCode"
+                class="p-inputtext-sm"
+                (keyup.enter)="Validate()"
+              />
+          </div>
+
+
           </div>
         </div>
       </div>
     </div>
-  </div>
+
   <div class="container-fluid">
     <div *ngIf="type == 'validation'" class="msg" style="color: red">
       Merci de vérifier ou de corriger toute la liste qui n'a pas été validée

@@ -12,7 +12,7 @@
           ></p-avatar>-->
           <div class="toggle-b-space"></div>
           <button pButton icon="pi pi-plus" class="p-button-success mr-2" (click)="addNewRow()"></button>
-          <button pButton icon="pi pi-trash" class="p-button-danger mr-2" (click)="deleteSelectedPackets()"></button><!--[disabled]="!selectedPackets || selectedPackets.length == 0"//Correction-->
+          <button pButton icon="pi pi-trash" class="p-button-danger mr-2" (click)="deleteSelectedPackets()" [disabled] = "nbrSelectedPackets==0"></button><!--[disabled]="!selectedPackets || selectedPackets.length == 0"//Correction-->
           <button pButton icon="pi pi-refresh" class="p-button-info mr-2" (click)="resetTable()"></button>
           <span class="p-input-icon-left">
             <i class="pi pi-search"></i>
@@ -36,7 +36,32 @@
             dateFormat="dd/mm"
             [touchUI]="true"
           >
-            <!-- Calendar footer template remains the same -->
+          <ng-template pTemplate="footer">
+            <div style="display: flex; align-items: center">
+              <p-selectButton
+                [options]="dateOptions"
+                [(ngModel)]="mandatoryDateCheckBox"
+                optionLabel="label"
+                optionValue="value"
+                (click)="mandatoryDateChange()"
+              ></p-selectButton>
+              <p-button
+                label="Ancien Date"
+                styleClass="p-button-text"
+                (click)="oldDateFilter()"
+              ></p-button>
+              <p-button
+                label="Today"
+                styleClass="p-button-text"
+                (click)="todayDate()"
+              ></p-button>
+              <p-button
+                label="Clear"
+                styleClass="p-button-text"
+                (click)="clearDate()"
+              ></p-button>
+            </div>
+          </ng-template>
           </p-calendar>
           <button pButton icon="pi pi-file" class="ml-2" pTooltip="CSV" tooltipPosition="bottom"></button>
         </div>

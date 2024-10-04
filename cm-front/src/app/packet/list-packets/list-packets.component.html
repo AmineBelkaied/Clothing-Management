@@ -3,11 +3,18 @@
   #contextMenu
   [model]="optionButtons"
 ></p-contextMenu>
-<app-packets-menue-container class = "megabar" [filter] = "filter" (filterPacketsEmitter)="onFilterPacketsChange($event)" (buttonPacketsEmitter)="onButtonMenuClick($event)"></app-packets-menue-container>
+<app-packets-menue-container class = "megabar" [filter] = "filter" [nbrSelectedPackets] = "selectedPackets.length" (filterPacketsEmitter)="onFilterPacketsChange($event)" (buttonPacketsEmitter)="onButtonMenuClick($event)"></app-packets-menue-container>
 <div class="table-container" style="height: max-content;">
-  <p-table #dt [columns]="cols" [showCurrentPageReport]="true" [value]="packets"
-    styleClass="p-datatable-gridlines p-datatable-sm mb-1" class="table table-hover .scroll-wrapper" [(selection)]="selectedPackets"
-    selectionMode="multiple" responsiveLayout="scroll" [exportHeader]="'customExportHeader'" dataKey="id"
+  <p-table #dt
+    [columns]="cols" [showCurrentPageReport]="true"
+    [value]="packets"
+    styleClass="p-datatable-gridlines p-datatable-sm mb-1"
+    class="table table-hover .scroll-wrapper"
+    [(selection)]="selectedPackets"
+    selectionMode="multiple"
+    responsiveLayout="scroll"
+    [exportHeader]="'customExportHeader'"
+    dataKey="id"
     (onEditInit)="onEditInit($event)" (onEditComplete)="onEditComplete($event)" [loading]="loading" [lazy]="true" [contextMenu]="contextMenu" (contextmenu)="openContextMenu($event, selectedPacket, contextMenu)">
     <ng-template pTemplate="header" let-columns>
       <tr>
@@ -21,7 +28,8 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-packet let-rowIndex>
-      <tr [pContextMenuRow]="packet" (contextmenu)="openContextMenu($event, packet, contextMenu)" #tr [ngClass]="{
+      <tr
+      [pContextMenuRow]="packet" (contextmenu)="openContextMenu($event, packet, contextMenu)" #tr [ngClass]="{
           'row-accessories-2days': checkValidity(
             packet.date,
             today_2,

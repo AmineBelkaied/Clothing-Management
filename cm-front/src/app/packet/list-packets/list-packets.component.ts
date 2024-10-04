@@ -33,9 +33,6 @@ import { ContextMenu } from 'primeng/contextmenu';
 import { ClientReason, ClientReasonDetails } from 'src/shared/enums/client-reason';
 import { Note } from 'src/shared/models/Note';
 import { StringUtils } from 'src/shared/utils/string-utils';
-import { FormControl } from '@angular/forms';
-
-import { Status } from 'src/shared/models/status';
 import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
 
 @Component({
@@ -45,7 +42,7 @@ import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
   providers: [DatePipe]
 })
 export class ListPacketsComponent implements OnInit, OnDestroy {
-
+  nbrSelectedPackets: number;
   oldStatusLabel: string;
 
 
@@ -196,14 +193,13 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: ResponsePage) => {
-
+          this.selectedPackets = [];
           this.packets = response.result.filter((packet: any) => this.checkPacketNotNull(packet));
           this.realTotalItems = response.totalItems;
           this.totalItems = this.packets.length;
           //let countConfirmed =response.result.filter(packet => packet.status === CONFIRMED).length;
           //this.statusItems[3].badge = countConfirmed > 0 ? countConfirmed:0;
           this.loading = false;
-          //this.showStatus = false;
 
         },
         error: (error: Error) => {
@@ -248,7 +244,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     if (!phoneNumber) {
       return '';
     }
-    return phoneNumber.replace('/', '<br />');
+    return phoneNumber.replace('/', ' ');
   }
 
   findAllGroupedCities(): void {
@@ -615,7 +611,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   selectPhoneNumber( packet: any) {
     this.selectedPhoneNumber = packet.customerPhoneNb;
   }
+  selectedPacketChange($event: Event) {
+    this.nbrSelectedPackets = this.selectedPackets.length;
+    console.log(this.nbrSelectedPackets);
 
+  }
 
 
   getReasonOptionsByStatus(status: string) {

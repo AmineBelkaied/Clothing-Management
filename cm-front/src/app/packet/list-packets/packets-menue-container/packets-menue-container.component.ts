@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { StatusContainerComponent } from 'src/app/packet/list-packets/packets-menue-container/status-container/status-container.component';
-import { NOT_CONFIRMED, statesList, statusList } from 'src/shared/utils/status-list';
+import { NOT_CONFIRMED, statesList, statusList, UNREACHABLE } from 'src/shared/utils/status-list';
 import { Packet } from 'src/shared/models/Packet';
 import { StorageService } from 'src/shared/services/strorage.service';
 import { Status } from 'src/shared/models/status';
@@ -25,6 +25,7 @@ export class PacketsMenueContainerComponent {
   //activeIndex: number = 2;
   //oldActiveIndex: number;
   @Input() filter: string;
+  @Input() nbrSelectedPackets: number;
   statesList: string[] = [];
   selectedStates: string[] = [];
   statusList: string[] = [];
@@ -46,9 +47,10 @@ export class PacketsMenueContainerComponent {
   mandatoryDateCheckBox: boolean = false;
   oldDateFilterCheckBox: boolean = false;
   value: boolean = this.mandatoryDateCheckBox;
-  selectedStatus: string[] = [NOT_CONFIRMED];
+  selectedStatus: string[] = [NOT_CONFIRMED,UNREACHABLE];
   loading: boolean = false;
-  statusItemsLabel: string;
+  statusItemsLabel: string =NOT_CONFIRMED;
+  oldStatusItemsLabel: string =NOT_CONFIRMED;
   @Output()
   filterPacketsEmitter: EventEmitter<PacketFilterParams> = new EventEmitter()
 
@@ -80,7 +82,6 @@ export class PacketsMenueContainerComponent {
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
       this.activeClass = true;
     });
-    this.statusItemsLabel = this.selectedStatus[0];
     this.rangeDates = [this.today,this.today];
     this.filterPackets('global');
   }
@@ -93,10 +94,13 @@ export class PacketsMenueContainerComponent {
     if ( numbersCount === 5 || numbersCount === 8 || numbersCount === 12  ) {
       //this.oldActiveIndex = this.activeIndex;
       this.filterPackets('global');
+
       //this.activeIndex = 0;
     }
     if (this.filter === '') {
       this.filterPackets('global');
+      this.statusItemsLabel = this.oldStatusItemsLabel;
+
       //this.activeIndex = this.oldActiveIndex;//Correction
     }
   }
@@ -154,12 +158,10 @@ export class PacketsMenueContainerComponent {
         page = this.currentPage;
       if (this.selectedStatus == null) this.selectedStatus =[];
 
-/*       if (this.filter !== '' && this.filter)
-        {
-          this.oldActiveIndex = this.activeIndex;
-          this.activeIndex = 0;
-        } */
-
+      if(this.filter != null && this.filter != ''){
+        this.oldStatusItemsLabel = this.statusItemsLabel;
+        this.statusItemsLabel ="Tous"
+      }
       this.params = {
         page: page,
         size: this.pageSize,
