@@ -75,6 +75,9 @@ import { PayedReturnComponent } from './payed-return/payed-return.component';
 import { VerificationComponent } from './verification/verification.component';
 import { PickListModule } from 'primeng/picklist';
 import { GlobalConfComponent } from './config/global-conf/global-conf.component';
+import { PacketsMenueContainerComponent } from './packet/list-packets/packets-menue-container/packets-menue-container.component';
+import { StatusContainerComponent } from './packet/list-packets/packets-menue-container/status-container/status-container.component';
+
 import { StepsModule } from 'primeng/steps';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
@@ -122,6 +125,8 @@ import { DisplayOfferModelsPipe } from 'src/shared/pipes/display-offer-models.pi
     PayedReturnComponent,
     VerificationComponent,
     PayedReturnComponent,
+    PacketsMenueContainerComponent,
+    StatusContainerComponent,
     UserComponent,
     GlobalConfComponent,
     DisplayListPipe,

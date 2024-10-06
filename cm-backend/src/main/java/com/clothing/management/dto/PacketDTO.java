@@ -19,6 +19,7 @@ public class PacketDTO {
     private String customerName;
     private String customerPhoneNb;
     private Long cityId;
+
     private String cityName;
     private String address;
     private String packetDescription;
@@ -42,7 +43,7 @@ public class PacketDTO {
     private List<Note> notes;
 
     public PacketDTO(Packet packet) {
-            FbPage fbPage =packet.getFbPage();
+            FbPage fbPage = packet.getFbPage();
             City city = packet.getCity();
             DeliveryCompany deliveryCompany = packet.getDeliveryCompany();
             this.id = packet.getId();
