@@ -1,6 +1,5 @@
 package com.clothing.management.dto;
 
-import com.clothing.management.entities.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

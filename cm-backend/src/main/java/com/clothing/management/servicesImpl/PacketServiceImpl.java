@@ -81,18 +81,6 @@ public class PacketServiceImpl implements PacketService {
 
     @Override
     public Packet getPacketById(Long packetId) throws PacketNotFoundException {
-        return packetRepository.findById(packetId)
-                .orElseThrow(() -> new PacketNotFoundException(packetId,"Packet not found!"));
-    }
-
-    @Override
-    public Packet getPacketByBarcode(String barCode) throws EntityNotFoundException {
-        return packetRepository.findByBarCode(barCode)
-                .orElseThrow(() -> new EntityNotFoundException("BarCode",0L,barCode));
-    }
-
-    @Override
-    public Packet getPacketById(Long packetId) throws PacketNotFoundException {
         LOGGER.info("Attempting to retrieve packet with ID: {}", packetId);
 
         return packetRepository.findById(packetId)
@@ -288,14 +276,12 @@ public class PacketServiceImpl implements PacketService {
             }
 
             LOGGER.info("Updated packet validation for barcode: {}. New status: {}", barCode, packet.getPacketStatus());
-            return new PacketValidationDTO(packet);
+            return packetMapper.toValidationDto(packet);
 
         } catch (Exception e) {
             LOGGER.error("Error updating packet validation for barcode: {}. Error: {}", barCode, e.getMessage(), e);
             return null;
         }
-
-        return packetMapper.toValidationDto(packet);
     }
 
     @Override
@@ -406,8 +392,12 @@ public class PacketServiceImpl implements PacketService {
 
             Long offerId = groupedPackets.get(0).getOffer().getId();
 
-            List<ProductDTO> products = groupedPackets.stream()
-                    .map(productPacket -> productMapper.toDto(productPacket.getProduct()))
+            List<Long> productIds = groupedPackets.stream()
+                    .map(pp -> pp.getProduct().getId())
+                    .collect(Collectors.toList());
+
+            List<Long> modelIds = groupedPackets.stream()
+                    .map(pp -> pp.getProduct().getModel().getId())
                     .collect(Collectors.toList());
 
             LOGGER.debug("Retrieving products for model IDs: {}", modelIds);

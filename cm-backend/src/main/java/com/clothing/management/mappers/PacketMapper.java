@@ -11,13 +11,13 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {FbPageMapper.class})
+@Mapper(componentModel = "spring", uses = {DeliveryCompanyMapper.class})
 public interface PacketMapper {
     PacketMapper INSTANCE = Mappers.getMapper(PacketMapper.class);
 
     @Mappings({
-            @Mapping(target = "fbPage", source = "fbPage", qualifiedByName = "toFbPageDTO"),
-            @Mapping(target = "deliveryCompanyName", source = "deliveryCompany.name"),
+            @Mapping(target = "deliveryCompany", source = "deliveryCompany", qualifiedByName = "toDeliveryCompanyDTO"),
+            @Mapping(target = "fbPageId", source = "fbPage.id"),
             @Mapping(target = "cityId", source = "city.id"),
             @Mapping(target = "cityName", expression = "java(packet.getCity() != null ? packet.getCity().getGovernorate().getName() + '-' + packet.getCity().getName() : \"\")"),
             @Mapping(target = "totalPrice", expression = "java(packet.getPrice() + packet.getDeliveryPrice() - packet.getDiscount())"),

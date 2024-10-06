@@ -136,12 +136,13 @@ public class ModelServiceImpl implements ModelService {
                 size != null ? size.getId() : null
         );
 
-        // If product does not exist, create it
         if (existingProduct == null) {
             Product product = entityBuilderHelper.createProductBuilder(
                     size,
                     color,
-                    0, model).build();
+                    0,
+                    new Date(),
+                    model).build();
 
             productRepository.save(product);
             LOGGER.info("Product created: {}", product.getColor()+" "+product.getSize()+" " +product);

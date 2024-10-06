@@ -28,7 +28,7 @@ public class EntityBuilderHelper {
                 .deleted(deleted);
     }
 
-    public Offer.OfferBuilder createOfferBuilder(String name, Set<FbPage> fbPages, Double price, boolean enabled,boolean deleted) {
+    public Offer.OfferBuilder createOfferBuilder(String name, Set<FbPage> fbPages, Double price, boolean enabled, boolean deleted) {
         return Offer.builder()
                 .name(name)
                 .fbPages(fbPages)

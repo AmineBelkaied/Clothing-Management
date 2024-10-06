@@ -665,7 +665,7 @@ public class StatServiceImpl implements StatService {
             }
             if (offer != null && !uniqueOffersIds.contains(offer.getId())) {
                 uniqueOffersIds.add(offer.getId());
-                uniqueOffers.add(new OfferDTO(offer));
+                uniqueOffers.add(offerMapper.toDto(offer));
             }
         }
 

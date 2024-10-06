@@ -200,14 +200,6 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  modelColorsDisplay(colorsIds: number[]) {
-    return this.colorService.getColorByIds(colorsIds);
-  }
-
-  modelSizesDisplay(sizesIds: number[]) :Size[]{
-    return this.sizeService.getSizesByIds(sizesIds);
-  }
-
   ngOnDestroy(): void {
     this.$unsubscribe.next();
     this.$unsubscribe.complete();

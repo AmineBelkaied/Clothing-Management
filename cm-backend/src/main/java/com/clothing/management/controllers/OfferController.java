@@ -137,12 +137,8 @@ public class OfferController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOffer(@PathVariable Long id) {
-        Offer offer = Offer.builder().id(id).build();
-        offerService.deleteOffer(offer);
-        return ResponseEntity.noContent().build();
-        LOGGER.info("Deleting offer with id: {}", id);
         try {
-            offerService.deleteOffer(new Offer(id));
+            offerService.deleteOffer(Offer.builder().id(id).build());
             LOGGER.info("Offer with id: {} deleted successfully.", id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
