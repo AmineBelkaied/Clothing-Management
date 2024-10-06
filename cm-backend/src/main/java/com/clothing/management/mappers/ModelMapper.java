@@ -2,12 +2,10 @@ package com.clothing.management.mappers;
 
 import com.clothing.management.dto.ModelDTO;
 import com.clothing.management.dto.OfferModelsDTO;
-import com.clothing.management.entities.Color;
-import com.clothing.management.entities.Model;
-import com.clothing.management.entities.OfferModel;
-import com.clothing.management.entities.Size;
+import com.clothing.management.entities.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
@@ -19,9 +17,11 @@ public interface ModelMapper {
 
     ModelMapper INSTANCE = Mappers.getMapper(ModelMapper.class);
 
-
-    @Mapping(target = "colors", source = "colors", qualifiedByName = "mapColorsToIds")
-    @Mapping(target = "sizes", source = "sizes", qualifiedByName = "mapSizesToIds")
+    @Mappings({
+            @Mapping(target = "colors", source = "colors", qualifiedByName = "mapColorsToIds"),
+            @Mapping(target = "sizes", source = "sizes", qualifiedByName = "mapSizesToIds"),
+            @Mapping(target = "defaultId", source = "model.products", qualifiedByName = "mapToDefaultId")
+    })
     ModelDTO toDto(Model model);
 
     @Named("mapColorsToIds")
@@ -36,5 +36,15 @@ public interface ModelMapper {
         return sizes.stream()
                 .map(Size::getId)
                 .collect(Collectors.toList());
+    }
+
+    @Named("mapToDefaultId")
+    default Long mapToDefaultId(List<Product> products) {
+        return products
+                .stream()
+                .filter(product -> product.getColor() == null && product.getSize() == null)
+                .findFirst()
+                .map(Product::getId) // Assuming you want the ID of the product
+                .orElse(null);
     }
 }
