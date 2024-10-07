@@ -9,19 +9,20 @@
 }
  */
 td {
-    text-align: center !important;
-    vertical-align: middle;
-    white-space:pre-line !important;}
-
-.align-center {
-    text-align: center !important;
-    vertical-align: middle;
+  text-align: center !important;
+  vertical-align: middle;
+  white-space: pre-line !important;
 }
 
-.buttonSizeMini{
+.align-center {
+  text-align: center !important;
+  vertical-align: middle;
+}
+
+.buttonSizeMini {
   width: 28px;
   height: 28px !important;
- }
+}
 
 .scroll-wrapper {
   overflow: hidden;
@@ -31,46 +32,57 @@ td {
   display: flex;
   overflow-x: auto;
   white-space: nowrap;
-  padding: 1rem; /* Add padding as needed */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  padding: 1rem;
+  /* Add padding as needed */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
 }
 
 .scrollable-dashboard-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 .scroll-wrapper:hover .scrollable-container {
   overflow-x: auto;
-  scrollbar-width: auto; /* Firefox */
-  -ms-overflow-style: auto; /* IE/Edge */
+  scrollbar-width: auto;
+  /* Firefox */
+  -ms-overflow-style: auto;
+  /* IE/Edge */
 }
 
 .status-item {
   display: inline-block;
   flex: 0 0 auto;
 }
-.tdHover:hover{
+
+.tdHover:hover {
   background-color: transparent !important;
 }
 
 .grid {
   display: flex;
-  justify-content: center; /* Align cards horizontally centered */
+  justify-content: center;
+  /* Align cards horizontally centered */
   flex-wrap: wrap;
 }
 
-.statusCard{
-  flex: 1; /* Make cards fill available horizontal space */
-  max-width: 100%; /* Ensure cards don't exceed parent width */
+.statusCard {
+  flex: 1;
+  /* Make cards fill available horizontal space */
+  max-width: 100%;
+  /* Ensure cards don't exceed parent width */
   height: 100%;
   padding: 0.75rem !important;
 }
 
- .outofstockStatus {
+.outofstockStatus {
   font-weight: 700;
   color: #ff5252;
 }
+
 .noModelSelectedStatus {
   font-weight: 700;
   text-decoration: line-through;
@@ -86,11 +98,12 @@ td {
   color: #66bb6a;
 }
 
- .outofstock {
+.outofstock {
   font-weight: 700;
   color: #FF5252;
   text-decoration: line-through;
 }
+
 .exchange {
   font-weight: 700;
   color: #f652ff;
@@ -98,102 +111,117 @@ td {
 }
 
 .lowstock {
-    font-weight: 700;
-    color: #FFA726;
+  font-weight: 700;
+  color: #FFA726;
 }
 
 .instock {
-    font-weight: 700;
-    color: #66BB6A;
+  font-weight: 700;
+  color: #66BB6A;
 }
 
 :host ::ng-deep .row-accessories {
-    background-color: #f2fffe !important;
+  background-color: #f2fffe !important;
 }
 
 :host ::ng-deep .row-accessories-2days {
-  background-color: #f6e4d3 !important;
+  /*background-color: #f6e4d3 !important;*/
+  background-color: #fff3e8 !important;
 }
 
 :host ::ng-deep .row-accessories-exchange {
-  background-color: #f8f6e5fa !important;
+  background-color: #fefdf0fa !important;
 }
+
 /* ::ng-deep .ui-calendar .ui-inputtext {
     width: 350px !important;
   }
    */
- ::ng-deep .p-ripple.p-element.p-button.p-component.ng-star-inserted{
-    font-size: 1rem;
-    font-family: Arial, Helvetica, sans-serif
-   }
-
-   ::ng-deep  p-calendar.p-calendar-clearable .p-inputtext {
-    padding-right: inherit;
+::ng-deep .p-ripple.p-element.p-button.p-component.ng-star-inserted {
+  font-size: 1rem;
+  font-family: Arial, Helvetica, sans-serif
 }
+
+::ng-deep p-calendar.p-calendar-clearable .p-inputtext {
+  padding-right: inherit;
+}
+
 .smallPadding {
   padding: 0.25rem !important;
 }
 
 :host ::ng-deep .p-multiselect {
-    max-width: 20rem;
-    width: 20rem;
+  max-width: 20rem;
+  width: 20rem;
 }
 
 :host ::ng-deep .custom-spinner .p-progress-spinner-circle {
-    animation: custom-progress-spinner-dash 1.5s ease-in-out infinite, custom-progress-spinner-color 6s ease-in-out infinite;
+  animation: custom-progress-spinner-dash 1.5s ease-in-out infinite, custom-progress-spinner-color 6s ease-in-out infinite;
 }
 
 @keyframes custom-progress-spinner-color {
-    100%,
-    0% {
-        stroke: #16697A;
-    }
-    40% {
-        stroke: #489FB5;
-    }
-    66% {
-        stroke: #82C0CC;
-    }
-    80%,
-    90% {
-        stroke: #FFA62B;
-    }
+
+  100%,
+  0% {
+    stroke: #16697A;
+  }
+
+  40% {
+    stroke: #489FB5;
+  }
+
+  66% {
+    stroke: #82C0CC;
+  }
+
+  80%,
+  90% {
+    stroke: #FFA62B;
+  }
 }
 
 @keyframes custom-progress-spinner-dash {
-    0% {
-        stroke-dasharray: 1, 200;
-        stroke-dashoffset: 0;
-    }
-    50% {
-        stroke-dasharray: 89, 200;
-        stroke-dashoffset: -35px;
-    }
-    100% {
-        stroke-dasharray: 89, 200;
-        stroke-dashoffset: -124px;
-    }
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -35px;
+  }
+
+  100% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -124px;
+  }
 }
 
-.breakWord{ word-wrap: break-word; max-width: 25ch;}
+.breakWord {
+  word-wrap: break-word;
+  max-width: 25ch;
+}
 
-::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-    font-size:small
-  }
+::-webkit-input-placeholder {
+  /* Chrome/Opera/Safari */
+  font-size: small
+}
 
-  .notification-container {
-    background-color: none;
-    position: absolute;
-    bottom: -30px;
-    right: 5px;
-    padding: 10px; /* Espace autour des notifications */
-    z-index: 999; /* Pour s'assurer que les notifications sont au-dessus de tout le reste */
-  }
+.notification-container {
+  background-color: none;
+  position: absolute;
+  bottom: -30px;
+  right: 5px;
+  padding: 10px;
+  /* Espace autour des notifications */
+  z-index: 999;
+  /* Pour s'assurer que les notifications sont au-dessus de tout le reste */
+}
 
-  .text-wrap {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+.text-wrap {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 ::ng-deep .p-overlaypanel .p-overlaypanel-close {
@@ -201,14 +229,14 @@ td {
   height: 1.4rem !important;
 }
 
-::ng-deep .p-icon {
-  width: 0.6rem !important;
-}
 
 .word-break {
-  word-break: break-word; /* Ensures long words will break */
-  overflow-wrap: break-word; /* Ensures long words will break */
-  white-space: pre-wrap; /* Preserves whitespace and allows breaking */
+  word-break: break-word;
+  /* Ensures long words will break */
+  overflow-wrap: break-word;
+  /* Ensures long words will break */
+  white-space: pre-wrap;
+  /* Preserves whitespace and allows breaking */
   max-width: 350px;
 }
 
@@ -220,8 +248,9 @@ td {
   line-height: 1.2rem;
 }
 
-::ng-deep .p-datatable.p-datatable-sm .p-datatable-thead > tr > th {
+::ng-deep .p-datatable.p-datatable-sm .p-datatable-thead>tr>th {
   padding: 0.2rem 0.2rem;
+  height: 35px;
 }
 
 .bottom-overlay {
@@ -233,15 +262,16 @@ td {
 }
 
 .default-text {
-  color: inherit; /* or specify the default color */
+  color: inherit;
+  /* or specify the default color */
 }
 
 .no-address {
-  color: red;
+  color: #626262;
 }
 
 .no-city {
-  color: blue;
+  color: #626262;
 }
 
 .customer-info {
@@ -251,9 +281,12 @@ td {
 }
 
 .vertical-line {
-  border-left: 2px solid #ccc; /* Adjust the color and width as needed */
-  height: 2rem; /* Adjust the height as needed */
-  margin-right: 0.1rem; /* Space between the line and phone number */
+  border-left: 2px solid #ccc;
+  /* Adjust the color and width as needed */
+  height: 2rem;
+  /* Adjust the height as needed */
+  margin-right: 0.1rem;
+  /* Space between the line and phone number */
 }
 
 .phone-container {
@@ -264,6 +297,7 @@ td {
   white-space: nowrap;
   margin: 0.1rem !important;
 }
+
 .name-container {
   flex-grow: 1;
   padding-right: 1rem;
@@ -272,16 +306,20 @@ td {
 .input-container {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Adjust space between the inputs */
+  gap: 1rem;
+  /* Adjust space between the inputs */
 }
 
 .p-float-label {
-  flex: 1; /* Allows the labels and inputs to share space evenly */
+  flex: 1;
+  /* Allows the labels and inputs to share space evenly */
 }
 
 .p-inputtext-sm {
-  width: 100%; /* Ensures the input fields take full width of the container */
+  width: 100%;
+  /* Ensures the input fields take full width of the container */
 }
+
 ::ng-deep .p-contextmenu ul {
   padding-left: 0px !important;
 }
@@ -292,4 +330,27 @@ td {
 
 ::ng-deep a {
   text-decoration: none;
+}
+
+.note-explanation {
+  font-size: 0.92rem;
+  color: #384b69
+}
+
+.note-user {
+  font-size: 0.82rem;
+  color: #8b8b8b
+}
+
+.no-value {
+  border: none;
+  height: 1px;
+  background-color: black;
+  width: 25%;
+}
+
+::ng-deep .p-checkbox .p-checkbox-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
 }

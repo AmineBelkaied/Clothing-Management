@@ -50,3 +50,15 @@
 .form-control {
   width: 250px;
 }
+
+input::placeholder {
+  font-size: 0.9rem !important;
+}
+
+button {
+  width: 37px;
+}
+
+::ng-deep .p-calendar button {
+  width: 37px !important;
+}
