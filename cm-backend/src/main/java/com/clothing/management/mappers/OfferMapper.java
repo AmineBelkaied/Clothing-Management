@@ -20,12 +20,24 @@ public interface OfferMapper {
 
 
     @Mapping(target = "fbPages", source = "fbPages", qualifiedByName = "mapFbPagesToIds")
-    @Mapping(target = "offerModels", source = "offerModels")
+    @Mapping(target = "offerModels", source = "offerModels", qualifiedByName = "mapToOfferDto")
     OfferDTO toDto(Offer offer);
 
+    @Named("mapToOfferDto")
     @Mapping(target = "model.colors", source = "model.colors", qualifiedByName = "mapColorsToIds")
     @Mapping(target = "model.sizes", source = "model.sizes", qualifiedByName = "mapSizesToIds")
+    @Mapping(target = "model.defaultId", source = "model.products", qualifiedByName = "mapToDefaultId")
     OfferModelsDTO toOfferModelsDto(OfferModel offerModel);
+
+    @Named("mapToDefaultId")
+    default Long mapToDefaultId(List<Product> products) {
+        return products
+                .stream()
+                .filter(product -> product.getColor() == null && product.getSize() == null)
+                .findFirst()
+                .map(Product::getId)
+                .orElse(null);
+    }
 
     @Named("mapFbPagesToIds")
     default Set<Long> mapFbPagesToIds(Set<FbPage> fbPages) {

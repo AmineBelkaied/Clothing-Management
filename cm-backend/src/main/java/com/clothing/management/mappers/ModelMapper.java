@@ -1,7 +1,6 @@
 package com.clothing.management.mappers;
 
 import com.clothing.management.dto.ModelDTO;
-import com.clothing.management.dto.OfferModelsDTO;
 import com.clothing.management.entities.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,7 +19,7 @@ public interface ModelMapper {
     @Mappings({
             @Mapping(target = "colors", source = "colors", qualifiedByName = "mapColorsToIds"),
             @Mapping(target = "sizes", source = "sizes", qualifiedByName = "mapSizesToIds"),
-            @Mapping(target = "defaultId", source = "model.products", qualifiedByName = "mapToDefaultId")
+            @Mapping(target = "defaultId", source = "products", qualifiedByName = "mapToDefaultId")
     })
     ModelDTO toDto(Model model);
 
@@ -44,7 +43,7 @@ public interface ModelMapper {
                 .stream()
                 .filter(product -> product.getColor() == null && product.getSize() == null)
                 .findFirst()
-                .map(Product::getId) // Assuming you want the ID of the product
+                .map(Product::getId)
                 .orElse(null);
     }
 }

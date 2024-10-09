@@ -33,7 +33,7 @@ public interface PacketMapper {
     PacketValidationDTO toValidationDto(Packet packet);
 
     static long getStock(List<ProductsPacket> productsPackets, String barcode) {
-        return (barcode == null || barcode.equals("")) ? productsPackets.stream()
+        return (barcode == null || barcode.isEmpty()) ? productsPackets.stream()
                 .mapToLong(productsPacket -> productsPacket.getProduct().getQuantity()) // Assuming getQte() returns the quantity
                 .min()
                 .orElse(-1) : 100;
