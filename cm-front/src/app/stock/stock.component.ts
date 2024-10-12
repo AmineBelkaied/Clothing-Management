@@ -371,11 +371,13 @@ export class StockComponent implements OnInit, OnDestroy {
 
   totalRow(j: number) {
     let totRow = 0;
+    let totProgressRow = 0;
     for (let i = 0; i < this.productsCount[j].length; i++) {
       if (this.stock) totRow += this.productsCount[j][i].qte;
       else totRow += this.productsCount[j][i].countPayed;
+      totProgressRow += this.productsCount[j][i].countProgress;
     }
-    return totRow;
+    return { 'total':totRow ,'progress':totProgressRow } ;
   }
 
   getDaysStock(productSize: any): number {
@@ -386,27 +388,34 @@ export class StockComponent implements OnInit, OnDestroy {
     return Number(dayStock.toFixed(1));
   }
 
-  totalColumn(i: number) {
+  totalColumn(i: number):{ all: number; progress: number; } {
     //console.log("products:",this.products);
     let totColumn = 0;
-    if (this.productsCount.length < 1) return 0;
-    for (let j = 0; j < this.productsCount.length; j++)
-      if (this.productsCount[j][i])
-        if (this.stock) {
-          totColumn += this.productsCount[j][i].qte;
-        } else totColumn += this.productsCount[j][i].countPayed;
-    return totColumn;
+    let progress = 0;
+    if (this.productsCount.length < 1) return {'all':0,'progress':0};
+    else for (let j = 0; j < this.productsCount.length; j++)
+      {
+        if (this.productsCount[j][i])
+          if (this.stock) {
+            totColumn += this.productsCount[j][i].qte;
+          } else totColumn += this.productsCount[j][i].countPayed;
+        progress += this.productsCount[j][i].countProgress;
+      }
+    return {'all':totColumn,'progress':progress};
   }
 
-  totalTable() {
+  totalTable():{ all: number; progress: number; } {
     let tot = 0;
-    if (this.productsCount.length < 1) return 0;
-    for (let j = 0; j < this.productsCount.length; j++)
+    let progress = 0;
+    if (this.productsCount.length < 1) tot = 0;
+    else for (let j = 0; j < this.productsCount.length; j++)
       for (let i = 0; i < this.productsCount[j].length; i++)
-        if (this.stock) tot += this.productsCount[j][i].qte;
-        else tot += this.productsCount[j][i].countPayed;
-
-    return tot;
+        {
+          if (this.stock) tot += this.productsCount[j][i].qte;
+          else tot += this.productsCount[j][i].countPayed;
+          progress += this.productsCount[j][i].countProgress;
+        }
+    return {'all':tot,'progress':progress};
   }
 
   add() {
@@ -541,7 +550,7 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   hideRow(j: number) {
-    if (this.totalRow(j) == 0) this.productsCount.splice(j, 1);
+    if (this.totalRow(j).total == 0) this.productsCount.splice(j, 1);
   }
 
   onDeleteProductsHistory($event: any): void {

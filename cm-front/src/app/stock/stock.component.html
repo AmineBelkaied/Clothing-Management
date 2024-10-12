@@ -215,10 +215,12 @@
                     class="text-center td-width"
                     (click)="handleColorClick(j)"
                     style="cursor: pointer; background-color: #e9ecef"
+                    *ngIf="totalRow(j) as count"
                   >
                     <h6 class="mb-0">
-                      {{ productSizes[0].color.name }}: {{ totalRow(j) }}
+                      {{ productSizes[0].color.name }}: {{ count.total }}
                     </h6>
+                    <p-badge *ngIf="count.progress> 0" [value]="count.progress" severity="info" />
                   </td>
                   <ng-container
                     *ngFor="
@@ -241,15 +243,16 @@
                         }"
                       >
                         <ng-container>
-                          <div *ngIf="productSize.countOos > 0">
-                            <p-badge [value]="productSize.countOos" severity="danger" />
+                          <div>
+                            <p-badge *ngIf="productSize.countOos > 0" [value]="productSize.countOos" severity="danger" />
+                            <p-badge *ngIf="productSize.countProgress> 0" [value]="productSize.countProgress" severity="info" />
                           </div>
                           <h6>
                             {{ productSize.color.name }}
                             {{ productSize.size.reference }}
                           </h6>
                           <div *ngIf="!stock">
-                            <p-badge *ngIf="productSize.countProgress> 0" [value]="productSize.countProgress" severity="info" />
+
                             <h4>{{ productSize.countPayed }}</h4>
                             <small *ngIf="productSize.countExchange !== 0"
                               >Exchange: {{ productSize.countExchange }}</small
@@ -283,13 +286,17 @@
               </ng-template>
               <ng-template pTemplate="footer">
                 <tr>
-                  <td class="td-width">
-                    <strong>Total Size {{ totalTable() }}</strong>
+                  <td class="td-width" *ngIf="totalTable() as total">
+                    <strong>Total Size {{ total.all }}</strong>
+                    <p-badge *ngIf="total.progress> 0" [value]="total.progress" severity="info" />
                   </td>
                   <ng-container *ngFor="let size of sizes; let index = index">
-                    <ng-container *ngIf="!(hide0 && totalColumn(index) < 1)">
-                      <td (click)="handleSizeClick(index)" class="td-width">
-                        {{ totalColumn(index) }}
+                    <ng-container *ngIf="totalColumn(index) as totalCol" >
+                      <td (click)="handleSizeClick(index)"
+                          class="td-width"
+                          *ngIf="!(hide0 && totalCol.all > 1)">
+                            {{ totalCol.all }}
+                        <p-badge *ngIf="totalCol.progress> 0" [value]="totalCol.progress" severity="info" />
                       </td>
                     </ng-container>
                   </ng-container>

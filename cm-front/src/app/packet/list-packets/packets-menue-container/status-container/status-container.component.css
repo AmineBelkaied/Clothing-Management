@@ -18,17 +18,21 @@
 /* Optional styling for the listbox */
 .listbox-container {
   display: block; /* Make sure the listbox appears when visible */
+  margin: 5px;
 }
 
 .listbox-style {
   min-width: 200px; /* Set the desired width for the listbox */
-  background: white;
+  background-color: #4e99ef;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add some shadow */
   z-index: 1000; /* Ensure it's on top of other content */
+  margin: 2px 0px 2px 0px;
+  border-radius: 0px !important;
 }
+
 .shadow-6 {
   border-radius: 5px;
-  min-width: 6rem;
-  background-color: white;
-  box-shadow: 0 3px 5px #0000000f, 0 7px 9px #0000001f, 0 20px 25px -8px #0000002e !important;
+  min-width: 5.5rem;
+  background-color: #0166b8;
+  box-shadow: 0 3px 3px #f7f7f70f, 0 3px 3px #0000001f, 0 20px 25px -8px #0000002e !important;
 }

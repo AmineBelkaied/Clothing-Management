@@ -199,6 +199,7 @@ export class PacketsMenueContainerComponent {
     if(this.selectedStatus != null && this.selectedStatus.length > 0)
     this.filterPackets('global')
   }
+
   onStatusChange(item: Status) {
     console.log('Selected statuses in parent:', item);
     if(this.oldStatus != item){
@@ -213,6 +214,7 @@ export class PacketsMenueContainerComponent {
       this.oldStatus=item;
     }
   }
+  
   getArrayFromStatusItems(statusItems:any) : string[]{
     return statusItems.map((item :any) => item.value);
   }

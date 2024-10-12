@@ -52,17 +52,17 @@ export class StatusContainerComponent {
   ngOnInit(): void {
 
     this.statusItems = [
-      { label: 'Tous', value: "Tous", icon: 'pi pi-bars', color: '#22C55E', count: 0,dayCount: 0, onlyAdmin: true },
-      { label: 'En rupture', value: OOS, icon: 'pi pi-times', color: '#EF4444', count: 0,dayCount: 0, onlyAdmin: false} ,
-      { label: 'Non confirmée', value: NOT_CONFIRMED, icon: 'pi pi-phone', color: '#EAB308', count: 0,dayCount: 0, onlyAdmin: false,
+      { label: 'Tous', value: "Tous", icon: 'pi pi-bars', color: '#22C55E', count: 0,dayCount: 0, isUserOption: false },
+      { label: 'En rupture', value: OOS, icon: 'pi pi-times', color: '#EF4444', count: 0,dayCount: 0, isUserOption: true} ,
+      { label: 'Non confirmée', value: NOT_CONFIRMED, icon: 'pi pi-phone', color: '#EAB308', count: 0,dayCount: 0, isUserOption: true,
         options: this.getNonConfirmedOptions(), selectedOptions: [] },
-      { label: 'Confirmée', value: CONFIRMED, icon: 'pi pi-check', color: '#22C55E', count: 0,dayCount: 0, onlyAdmin: false },
-      { label: 'À vérifier', value: IN_PROGRESS, icon: 'pi pi-play', color: '#A855F7', count: 0,dayCount: 0, onlyAdmin: false,
+      { label: 'Confirmée', value: CONFIRMED, icon: 'pi pi-check', color: '#22C55E', count: 0,dayCount: 0, isUserOption: true },
+      { label: 'À vérifier', value: IN_PROGRESS, icon: 'pi pi-play', color: '#A855F7', count: 0,dayCount: 0, isUserOption: true,
         options: this.getInProgressOptions(), selectedOptions: [] },
-      { label: 'Retour', value: RETURN, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0,dayCount: 0, onlyAdmin: false },
-      { label: 'Annuler', value: CANCELED, icon: 'pi pi-ban', color: '#EF4444', count: 0,dayCount: 0, onlyAdmin: false,
+      { label: 'Retour', value: RETURN, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0,dayCount: 0, isUserOption: true },
+      { label: 'Annuler', value: CANCELED, icon: 'pi pi-ban', color: '#EF4444', count: 0,dayCount: 0, isUserOption: true,
         options: this.getCanceledOptions(), selectedOptions: [] },
-      { label: 'Livrée', value: 'Terminé', icon: 'pi pi-flag', color: '#3B82F6', count: 0,dayCount: 0, onlyAdmin: true,
+      { label: 'Livrée', value: 'Terminé', icon: 'pi pi-flag', color: '#3B82F6', count: 0,dayCount: 0, isUserOption: false,
         options: this.getEndedOptions(), selectedOptions: [] }
     ];
 

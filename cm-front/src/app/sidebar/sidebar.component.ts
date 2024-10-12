@@ -43,14 +43,14 @@ export class SidebarComponent implements OnInit {
                private sideBarService: SideBarService,
                private router: Router) {
                 this.menuItems = [
-                  { label: 'Commandes', icon: 'pi pi-shopping-cart', routerLink: "/packets" },
-                  { label: 'Modèles', icon: 'pi pi-th-large', routerLink: "/models" },
-                  { label: 'Offres', icon: 'pi pi-gift', routerLink: "/offers" },
-                  { label: 'Stock', icon: 'pi pi-box', routerLink: "/stock" },
-                  { label: 'Configuration', icon: 'pi pi-cog', routerLink: "/config" },
-                  { label: 'Statistique', icon: 'pi pi-chart-bar', routerLink: "/statistique" },
-                  { label: 'Suivie packet', icon: 'pi pi-map-marker', routerLink: "/payed-return" },
-                  { label: 'Validation', icon: 'pi pi-check-square', routerLink: "/verification" },
+                  { label: 'Commandes', icon: 'pi pi-shopping-cart', routerLink: "/packets", isUserOption : true },
+                  { label: 'Modèles', icon: 'pi pi-th-large', routerLink: "/models", isUserOption : false },
+                  { label: 'Offres', icon: 'pi pi-gift', routerLink: "/offers", isUserOption : false },
+                  { label: 'Stock', icon: 'pi pi-box', routerLink: "/stock", isUserOption : true },
+                  { label: 'Configuration', icon: 'pi pi-cog', routerLink: "/config", isUserOption : false },
+                  { label: 'Statistique', icon: 'pi pi-chart-bar', routerLink: "/statistique", isUserOption : false },
+                  { label: 'Suivie packet', icon: 'pi pi-map-marker', routerLink: "/payed-return", isUserOption : false },
+                  { label: 'Validation', icon: 'pi pi-check-square', routerLink: "/verification", isUserOption : true },
                 ];
 
                 this.storageService.isLoggedIn.subscribe(isLoggedIn => {

@@ -1,6 +1,6 @@
-<div class="flex justify-content-center mt-2" style="background-color: #fafafa">
+<div class="flex justify-content-center mt-2 mb-2" style="background-color: #f9f9f9">
   <ng-container *ngFor="let item of statusItems; let i = index">
-    <div class="flex-container shadow-6 d-flex justify-content-center mr-2">
+    <div class="flex-container shadow-6 d-flex justify-content-center mr-2" style="cursor: pointer;" *ngIf="item.isUserOption==true || isAdmin">
       <!-- Icon, Label, and Count -->
       <div class="flex flex-column align-items-center p-1 relative"
            [ngClass]="{'cursor-pointer': item.options}"
@@ -18,7 +18,7 @@
           [(ngModel)]="item.selectedOptions"
           [multiple]="true"
           (onChange)="onOptionSelect(item)"
-          class="listbox-style">
+          class="listbox-style  ">
         </p-listbox><!--(click)="$event.stopPropagation()"-->
       </div>
     </div>

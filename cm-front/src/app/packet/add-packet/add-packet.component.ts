@@ -107,6 +107,8 @@ export class AddPacketComponent implements OnInit {
                   .includes(this.packet.fbPageId!)
             );
             this.getOffersSwitch();
+            console.log("editmode",this.editMode);
+
             this.editMode ? this.getSelectedProducts() : this.addOffer();
           }
         })
@@ -497,6 +499,8 @@ export class AddPacketComponent implements OnInit {
   }
 
   newOffer(): FormGroup {
+    console.log("aaa");
+
     return this.fb.group({
       id: 0,
       name: '',
@@ -510,6 +514,8 @@ export class AddPacketComponent implements OnInit {
   }
 
   addOffer(): void {
+    console.log("bbb");
+
     this.offers().push(this.newOffer());
   }
 

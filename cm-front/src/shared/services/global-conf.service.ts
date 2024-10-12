@@ -5,6 +5,9 @@ import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { GlobalConf } from '../models/GlobalConf';
 import { MessageService } from 'primeng/api';
 import { GLOBAL_CONFIG_ENDPOINTS } from '../constants/api-endpoints';
+import { ColorService } from './color.service';
+import { FbPageService } from './fb-page.service';
+import { SizeService } from './size.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +19,12 @@ export class GlobalConfService {
   public globalConfSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
   public globalConf: GlobalConf;
 
-  constructor(private http: HttpClient, private messageService: MessageService) {}
+  constructor(
+    private http: HttpClient,
+    private messageService: MessageService,
+    public colorService :ColorService,
+    public sizeService : SizeService,
+    public FbageService : FbPageService) {}
 
 
   loadGlobalConf() : void {
