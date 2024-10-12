@@ -4,7 +4,6 @@ import { Color } from 'src/shared/models/Color';
 import { Model } from 'src/shared/models/Model';
 import { Size } from 'src/shared/models/Size';
 import { ColorService } from 'src/shared/services/color.service';
-import { ModelService } from 'src/shared/services/model.service';
 import { SizeService } from 'src/shared/services/size.service';
 
 @Component({
@@ -31,7 +30,6 @@ export class AddModelComponent implements OnInit, OnDestroy {
   allOffersList: any[] = [];
   $unsubscribe: Subject<void> = new Subject();
   constructor(
-    private modelService: ModelService,
     private colorService: ColorService,
     private sizeService: SizeService
   ) {

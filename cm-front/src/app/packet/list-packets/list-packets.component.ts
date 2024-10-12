@@ -140,7 +140,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     public messageService:MessageService,
     private cdRef: ChangeDetectorRef
     ) {
-
   }
 
   ngAfterViewChecked(){
@@ -155,17 +154,20 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
       this.activeClass = true;
     });
+    this.findAllFbPages();
     this.offerService.getOffersSubscriber();
     this.createColumns();
     this.findAllGroupedCities();
-    this.findAllFbPages();
+
   }
 
   findAllFbPages(): void {
-    this.fbPages = this.fbPageService.fbPages;
-/*     this.fbPageService.getFbPagesSubscriber().subscribe((result: any) => {
+    //this.fbPages = this.fbPageService.fbPages;
+    //console.log(this.fbPages);
+
+    this.fbPageService.getFbPagesSubscriber().subscribe((result: any) => {
       this.fbPages = result.filter((fbPage: any) => fbPage.enabled);
-    }); */
+    });
   }
 
   onFilterPacketsChange(params: PacketFilterParams) {

@@ -12,8 +12,8 @@
       <h3>{{ globalConf.applicationName }}</h3>
     </div>
     <ul class="sidebar-menu">
-      <li *ngFor="let item of menuItems"  [routerLinkActive]="['active']">
-        <a [routerLink]="item.routerLink">
+      <li *ngFor="let item of menuItems"  [routerLinkActive]="['active']" >
+        <a [routerLink]="item.routerLink" *ngIf="isAdmin || item.isUserOption">
           <i [class]="item.icon"></i>
           <span>{{ item.label }}</span>
         </a>

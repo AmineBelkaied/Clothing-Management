@@ -220,12 +220,12 @@
           </table>
         </td>
         <td style="max-width: 250px; padding: 0.1rem 0.1rem !important">
-          <ng-container *ngIf="packet.packetDescription != ''; else addMode">
+          <ng-container *ngIf="packet.packetDescription; else addMode">
             <p changeColor (click)="loadOfferListAndOpenOffersDialog(packet,true)" style="cursor: pointer">
               <p-badge *ngIf="
                   packet.stock < 10 &&
                   packet.stock > -1 &&
-                  packet.stock != null &&
+                  packet.description &&
                   packet.valid == false
                 " severity="info" [value]="packet.stock"></p-badge>
               <p-badge *ngIf="packet.stock == -1" severity="warning" value="ND"></p-badge>
@@ -234,8 +234,8 @@
             </p>
           </ng-container>
           <ng-template #addMode>
-            <button pButton pRipple (click)="loadOfferListAndOpenOffersDialog(packet,false)" icon="pi pi-plus" style="font-size: small; width: 5px"
-              class="p-button-primary p-button-sm"></button>
+            <button pButton pRipple (click)="loadOfferListAndOpenOffersDialog(packet,false)" icon="pi pi-plus" style ="width: 2.3rem;"
+              class="p-button-primary p-1"></button>
           </ng-template>
         </td>
         <td style="padding: 0.1rem 0.1rem !important">

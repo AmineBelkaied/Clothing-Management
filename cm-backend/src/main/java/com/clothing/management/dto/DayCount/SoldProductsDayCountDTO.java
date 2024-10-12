@@ -5,6 +5,8 @@ import com.clothing.management.entities.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.sql.Date;
+
 @Data
 @NoArgsConstructor
 public class SoldProductsDayCountDTO extends DayCountDTO {

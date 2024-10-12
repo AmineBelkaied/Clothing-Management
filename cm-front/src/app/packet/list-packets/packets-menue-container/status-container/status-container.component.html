@@ -1,6 +1,6 @@
 <div class="flex justify-content-center mt-2" style="background-color: #fafafa">
   <ng-container *ngFor="let item of statusItems; let i = index">
-    <div class="flex-container shadow-6 d-flex justify-content-center mr-2">
+    <div class="flex-container shadow-6 d-flex justify-content-center mr-2" *ngIf="item.isUserOption==true || isAdmin">
       <!-- Icon, Label, and Count -->
       <div class="flex flex-column align-items-center p-1 relative"
            [ngClass]="{'cursor-pointer': item.options}"

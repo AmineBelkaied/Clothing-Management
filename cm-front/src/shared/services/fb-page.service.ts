@@ -26,7 +26,9 @@ export class FbPageService {
     .subscribe({
       next: (fbPagesList: FbPage[]) => {
         this.fbPages = fbPagesList;
-        this.fbPagesSubscriber.next(fbPagesList);},
+        this.fbPagesSubscriber.next(fbPagesList);
+      //console.log("this.fbPages",this.fbPages);
+      },
       error: (error) => {
         console.error('Error fetching fb pages', error);
       }
