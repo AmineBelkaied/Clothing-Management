@@ -21,3 +21,7 @@
   width: calc(100% - 6rem);
 }
 
+::ng-deep .p-dialog-footer button {
+  margin: 0 0.5rem 0 0 !important;
+}
+
