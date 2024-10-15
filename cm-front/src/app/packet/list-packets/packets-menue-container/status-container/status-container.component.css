@@ -36,17 +36,9 @@
   /*background-color: #8998ad;
   background-color: #8a96a7;
   background-color: #a8b3c1;*/
-  background-color: #a8b3c1e6;
+  background-color: #ffffffe6;
   box-shadow: 0 3px 3px #f7f7f70f, 0 3px 3px #0000001f, 0 20px 25px -8px #0000002e !important;
   border-style: solid;
   border-width: 0.8px;
-  border-color: #d7d7d7;
-}
-
-.icon-shadow {
-  text-shadow: 1px 1px 4px rgba(95, 104, 124, 0.493);
-}
-
-.text-shadow {
-  text-shadow: 1px 1px 4px rgb(20, 20, 20);
+  border-color: #8998ad;
 }
