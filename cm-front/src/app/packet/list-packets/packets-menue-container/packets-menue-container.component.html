@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+  <div class="card ml-4 mt-2 mb-2" style="background-color: #fafafa; margin-left: 6rem !important">
     <div class="megabar">
       <div class="d-flex megabar-header menu">
         <div class="left-section d-flex align-items-center">
@@ -10,74 +10,46 @@
             [style]="{ 'background-color': '#32CD32', color: '#ffffff' }"
             shape="circle"
           ></p-avatar>-->
-          <div class="toggle-b-space"></div>
+<!--           <div class="toggle-b-space"></div> -->
           <button pButton icon="pi pi-plus" class="p-button-success mr-2 p-2" (click)="addNewRow()"></button>
-          <button pButton icon="pi pi-trash" class="p-button-danger mr-2 p-2" (click)="deleteSelectedPackets()" [disabled] = "nbrSelectedPackets==0"></button><!--[disabled]="!selectedPackets || selectedPackets.length == 0"//Correction-->
+          <button pButton icon="pi pi-trash" class="p-button-danger mr-2 p-2" (click)="deleteSelectedPackets()"
+            [disabled]="nbrSelectedPackets==0"></button><!--[disabled]="!selectedPackets || selectedPackets.length == 0"//Correction-->
           <button pButton icon="pi pi-refresh" class="p-button-info mr-2 p-2" (click)="resetTable()"></button>
           <span class="p-input-icon-left">
             <i class="pi pi-search"></i>
-            <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets()" (input)="handleInputChange()" placeholder="Client, Tel, Ville, Adresse, Page, Id" [style]="{ width: '250px' }" class="mr-2" />
+            <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets()"
+              (input)="handleInputChange()" placeholder="Client, Tel, Ville, Adresse, Page, Id"
+              [style]="{ width: '250px' }" class="mr-2" />
           </span>
         </div>
 
         <!-- Middle section -->
         <div class="middle-section flex align-items-center">
-          <p-calendar
-            [(ngModel)]="rangeDates"
-            (ngModelChange)="filterPackets('date')"
-            selectionMode="range"
-            [readonlyInput]="true"
-            inputId="range"
-            placeholder="Filtrer par date/période"
-            [showClear]="false"
-            (onClearClick)="resetTable()"
-            [showIcon]="true"
-            [style]="{ width: '12rem' }"
-            dateFormat="dd/mm"
-            [touchUI]="true"
-          >
-          <ng-template pTemplate="footer">
-            <div style="display: flex; align-items: center">
-              <p-selectButton
-                [options]="dateOptions"
-                [(ngModel)]="mandatoryDateCheckBox"
-                optionLabel="label"
-                optionValue="value"
-                (click)="mandatoryDateChange()"
-              ></p-selectButton>
-              <p-button
-                label="Ancien Date"
-                styleClass="p-button-text"
-                (click)="oldDateFilter()"
-              ></p-button>
-              <p-button
-                label="Today"
-                styleClass="p-button-text"
-                (click)="todayDate()"
-              ></p-button>
-              <p-button
-                label="Clear"
-                styleClass="p-button-text"
-                (click)="clearDate()"
-              ></p-button>
-            </div>
-          </ng-template>
-          </p-calendar>
-          <button pButton icon="pi pi-file" class="ml-2" pTooltip="CSV" tooltipPosition="bottom"></button>
+          <app-status-container [params]="params" (statusChange)="onStatusChange($event)"></app-status-container>
+          <!--           <button pButton icon="pi pi-file" class="ml-2" pTooltip="CSV" tooltipPosition="bottom"></button> -->
         </div>
 
         <!-- Right section -->
-        <div class="right-section">
-          <p-button [label]="statusItemsLabel" (onClick)="toggleStatus()" severity="success" [style]="{'min-width': '180px'}"></p-button>
+        <div class="right-section justify-content-end">
+          <!--           <p-button [label]="statusItemsLabel" (onClick)="toggleStatus()" severity="success" [style]="{'min-width': '180px'}"></p-button> -->
+          <p-calendar [(ngModel)]="rangeDates" (ngModelChange)="filterPackets('date')" selectionMode="range"
+            [readonlyInput]="true" inputId="range" placeholder="Filtrer par date/période" [showClear]="false"
+            (onClearClick)="resetTable()"  [style]="{ width: '11rem' }" dateFormat="dd/mm"  [showIcon]="true"
+            [touchUI]="true">
+            <ng-template pTemplate="footer">
+              <div style="display: flex; align-items: center">
+                <p-selectButton [options]="dateOptions" [(ngModel)]="mandatoryDateCheckBox" optionLabel="label"
+                  optionValue="value" (click)="mandatoryDateChange()"></p-selectButton>
+                <p-button label="Ancien Date" styleClass="p-button-text" (click)="oldDateFilter()"></p-button>
+                <p-button label="Today" styleClass="p-button-text" (click)="todayDate()"></p-button>
+                <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
+              </div>
+            </ng-template>
+          </p-calendar>
         </div>
       </div>
 
       <div *ngIf="showStatus">
-        <app-status-container
-          [params]="params"
-          (statusChange)="onStatusChange($event)"
-
-        ></app-status-container><!--class="statusbar"-->
       </div>
     </div>
   </div>

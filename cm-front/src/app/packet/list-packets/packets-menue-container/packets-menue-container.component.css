@@ -1,6 +1,6 @@
 .megabar {
 
-  padding: 0.5rem;
+  padding: 0.4rem;
   width: 100%;
   border-radius: 4px;
 }
@@ -15,10 +15,10 @@
 }
 
 .megabar-header {
-  background-color: #ffffff;
+  background-color: #fdfdfd;
   color: white;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   width: 100%;
 }
