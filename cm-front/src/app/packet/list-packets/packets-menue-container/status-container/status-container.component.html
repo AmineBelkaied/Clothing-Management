@@ -1,11 +1,10 @@
 <div class="flex justify-content-center mt-2 mb-2" style="background-color: #ffffff">
   <ng-container *ngFor="let item of statusItems; let i = index">
-    <div class="flex-container shadow-6 d-flex justify-content-center mr-2" style="cursor: pointer;" *ngIf="item.isUserOption==true || isAdmin">
+    <div class="flex-container shadow-6 d-flex justify-content-center mr-2" style="cursor: pointer;" *ngIf="item.isUserOption==true || isAdmin"  #menuItem>
       <!-- Icon, Label, and Count -->
       <div class="flex flex-column align-items-center p-2   relative"
            [ngClass]="{'cursor-pointer': item.options}"
-           (click)="toggleListbox(i, item, $event)"
-           #menuItem>
+           (click)="toggleListbox(i, item)">
         <i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>
         <span class="text-400  mt-1" style="color: black">{{ item.label }}</span>
         <span class="mt-1">

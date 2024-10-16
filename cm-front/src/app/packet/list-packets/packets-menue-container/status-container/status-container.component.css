@@ -37,8 +37,22 @@
   background-color: #8a96a7;
   background-color: #a8b3c1;*/
   background-color: #ffffffe6;
-  box-shadow: 0 3px 3px #f7f7f70f, 0 3px 3px #0000001f, 0 20px 25px -8px #0000002e !important;
+  box-shadow: 0 3px 3px #c8c8c8, 0 3px 3px #0000001f, 0 20px 25px -8px #0000002e !important;
   border-style: solid;
   border-width: 0.8px;
-  border-color: #8998ad;
+  /*border-color: #8998ad;*/
+  border-color: #e8e8e8;
+}
+
+.shadow-6:hover {
+ background-color: #f5f8ff;
+}
+
+.selected-item {
+  border-color: #005fad !important; /*#32a16e !important ;*/
+  box-shadow: 0 3px 3px rgb(0 95 173 / 44%), 0 3px 3px rgb(0 95 173 / 46%), 0 20px 25px -8px rgb(0 0 0 / 15%) !important;
+}
+
+.default-item {
+  border-color: #e8e8e8 !important;
 }

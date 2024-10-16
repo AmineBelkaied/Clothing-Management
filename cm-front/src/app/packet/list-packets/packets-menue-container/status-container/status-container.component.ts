@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MenuItem, MessageService } from 'primeng/api';
 import { TieredMenu } from 'primeng/tieredmenu';
@@ -8,7 +8,8 @@ import { Status } from 'src/shared/models/status';
 import { PacketService } from 'src/shared/services/packet.service';
 import { StorageService } from 'src/shared/services/strorage.service';
 
-import { CANCELED, OOS, NOT_SERIOUS, PROBLEME,
+import {
+  CANCELED, OOS, NOT_SERIOUS, PROBLEME,
   DELETED, statesList, statusList,
   IN_PROGRESS_1,
   IN_PROGRESS_2,
@@ -21,7 +22,8 @@ import { CANCELED, OOS, NOT_SERIOUS, PROBLEME,
   NOT_CONFIRMED,
   DELIVERED,
   UNREACHABLE,
-  IN_PROGRESS} from 'src/shared/utils/status-list';
+  IN_PROGRESS
+} from 'src/shared/utils/status-list';
 @Component({
   selector: 'app-status-container',
   templateUrl: './status-container.component.html',
@@ -43,27 +45,36 @@ export class StatusContainerComponent {
   changed = false;
 
   constructor(
-    private packetService:PacketService,
+    private packetService: PacketService,
     public storageService: StorageService,
-    public messageService:MessageService,
-    ) {
+    public messageService: MessageService,
+    private elementRef: ElementRef
+  ) {
   }
 
   ngOnInit(): void {
 
     this.statusItems = [
-      { label: 'Tous', value: "Tous", icon: 'pi pi-bars', color: '#22C55E', count: 0,dayCount: 0, isUserOption: false },
-      { label: 'En rupture', value: OOS, icon: 'pi pi-times', color: '#EF4444', count: 0,dayCount: 0, isUserOption: true} ,
-      { label: 'Non confirmée', value: NOT_CONFIRMED, icon: 'pi pi-phone', color: '#EAB308', count: 0,dayCount: 0, isUserOption: true,
-        options: this.getNonConfirmedOptions(), selectedOptions: [] },
-      { label: 'Confirmée', value: CONFIRMED, icon: 'pi pi-check', color: '#22C55E', count: 0,dayCount: 0, isUserOption: true },
-      { label: 'À vérifier', value: IN_PROGRESS, icon: 'pi pi-play', color: '#A855F7', count: 0,dayCount: 0, isUserOption: true,
-        options: this.getInProgressOptions(), selectedOptions: [] },
-      { label: 'Retour', value: RETURN, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0,dayCount: 0, isUserOption: true },
-      { label: 'Annuler', value: CANCELED, icon: 'pi pi-ban', color: '#EF4444', count: 0,dayCount: 0, isUserOption: true,
-        options: this.getCanceledOptions(), selectedOptions: [] },
-      { label: 'Livrée', value: 'Terminé', icon: 'pi pi-flag', color: '#3B82F6', count: 0,dayCount: 0, isUserOption: false,
-        options: this.getEndedOptions(), selectedOptions: [] }
+      { label: 'Tous', value: "Tous", icon: 'pi pi-bars', color: '#22C55E', count: 0, dayCount: 0, isUserOption: false },
+      { label: 'En rupture', value: OOS, icon: 'pi pi-times', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
+      {
+        label: 'Non confirmée', value: NOT_CONFIRMED, icon: 'pi pi-phone', color: '#EAB308', count: 0, dayCount: 0, isUserOption: true,
+        options: this.getNonConfirmedOptions(), selectedOptions: []
+      },
+      { label: 'Confirmée', value: CONFIRMED, icon: 'pi pi-check', color: '#22C55E', count: 0, dayCount: 0, isUserOption: true },
+      {
+        label: 'À vérifier', value: IN_PROGRESS, icon: 'pi pi-play', color: '#A855F7', count: 0, dayCount: 0, isUserOption: true,
+        options: this.getInProgressOptions(), selectedOptions: []
+      },
+      { label: 'Retour', value: RETURN, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
+      {
+        label: 'Annuler', value: CANCELED, icon: 'pi pi-ban', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true,
+        options: this.getCanceledOptions(), selectedOptions: []
+      },
+      {
+        label: 'Livrée', value: 'Terminé', icon: 'pi pi-flag', color: '#3B82F6', count: 0, dayCount: 0, isUserOption: false,
+        options: this.getEndedOptions(), selectedOptions: []
+      }
     ];
 
     this.storageService.isLoggedIn.subscribe(isLoggedIn => {//Correction
@@ -72,32 +83,55 @@ export class StatusContainerComponent {
     this.createNotification();
   }
 
-  toggleListbox(index: any, item: any,event: MouseEvent) {
+  toggleListbox(index: any, item: any) {
     if (this.statusItems[index].options) {
       this.selectedIndex = this.selectedIndex === index ? null : index;
-      if(this.selectedIndex == null){
-        console.log("this.selectedIndex",item);
+      if (this.selectedIndex == null) {
+        console.log("this.selectedIndex", item);
         this.emitSelectedStatus(item);
 
       }
-    }else {
-      console.log("no options",item);
+    } else {
+      console.log("no options", item);
       this.emitSelectedStatus(item);
     }
-
   }
 
-  emitSelectedStatus(item:any) {
+
+  emitSelectedStatus(item: any) {
     this.changed = false;
-    this.item=item;
+    this.item = item;
     this.statusChange.emit(item);
   }
 
+  changeBgColor(element: HTMLDivElement) {
+    element.style.backgroundColor = '#a8b3c1';
+  }
+
+  resetBgColor(element: HTMLDivElement) {
+    element.style.backgroundColor = 'black';
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    for(let item of this.menuItems) {
+      const clickedInside = item.nativeElement.contains(event.target);
+      if (clickedInside) {
+        item.nativeElement.classList.add('selected-item');
+        item.nativeElement.classList.remove('default-item');
+      } else {
+        item.nativeElement.classList.add('default-item');
+        item.nativeElement.classList.remove('selected-item');
+      }
+    }
+  }
+
+
   onOptionSelect(item: any) {
-    console.log("item changed",item);
+    console.log("item changed", item);
     this.changed = true
     //console.log(`Selected options for ${item.label}:`, item.selectedOptions);
-    this.item=item;
+    this.item = item;
     // Implement your logic here
   }
 
@@ -135,9 +169,9 @@ export class StatusContainerComponent {
 
   createNotification(): void {
     console.log("createNotification");
-      let all = 0;
+    let all = 0;
 
-    this.packetService.syncNotification(this.params.beginDate,this.params.endDate)
+    this.packetService.syncNotification(this.params.beginDate, this.params.endDate)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: DashboardCard[]) => {
@@ -195,11 +229,10 @@ export class StatusContainerComponent {
   }
 
   ngOnDestroy(): void {
-    if(this.changed)
-      if(this.item.options)
-      {
+    if (this.changed)
+      if (this.item.options) {
         this.emitSelectedStatus(this.item);
-        console.log("destroy",this.item);
+        console.log("destroy", this.item);
       }
     this.$unsubscribe.next();
     this.$unsubscribe.complete();
@@ -232,13 +265,13 @@ export class StatusContainerComponent {
     }
   } */
 
-/*
-  clearAllSelectedStatus(){
-    this.nonConfirmedOptionsValue=[];
-    this.endedOptionsValue=[];
-    this.canceledOptionsValue = [];
-    this.inProgressOptionsValue = [];
-  }*/
+  /*
+    clearAllSelectedStatus(){
+      this.nonConfirmedOptionsValue=[];
+      this.endedOptionsValue=[];
+      this.canceledOptionsValue = [];
+      this.inProgressOptionsValue = [];
+    }*/
 
   /*
   handleEndedStatus() {
