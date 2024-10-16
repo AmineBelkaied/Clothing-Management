@@ -5,7 +5,7 @@ import com.clothing.management.dto.*;
 import com.clothing.management.dto.DayCount.SoldProductsDayCountDTO;
 import com.clothing.management.entities.*;
 import com.clothing.management.exceptions.custom.notfound.ProductNotFoundException;
-import com.clothing.management.mappers.ProductMapper;
+import com.clothing.management.mappers.ModelMapper;
 import com.clothing.management.mappers.SoldProductsDayCountMapper;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.ProductService;
@@ -37,18 +37,18 @@ public class ProductServiceImpl implements ProductService {
     private final IProductsPacketRepository productsPacketRepository;
     private final SessionUtils sessionUtils;
     private final EntityBuilderHelper entityBuilderHelper;
-    private final ProductMapper productMapper;
     private final SoldProductsDayCountMapper soldProductsDayCountMapper;
+    private final ModelMapper modelMapper;
 
-    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository, SessionUtils sessionUtils, EntityBuilderHelper entityBuilderHelper, ProductMapper productMapper, SoldProductsDayCountMapper soldProductsDayCountMapper) {
+    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository, SessionUtils sessionUtils, EntityBuilderHelper entityBuilderHelper, SoldProductsDayCountMapper soldProductsDayCountMapper, ModelMapper modelMapper) {
         this.productRepository = productRepository;
         this.modelRepository = modelRepository;
         this.productHistoryRepository = productHistoryRepository;
         this.productsPacketRepository = productsPacketRepository;
         this.sessionUtils = sessionUtils;
         this.entityBuilderHelper = entityBuilderHelper;
-        this.productMapper = productMapper;
         this.soldProductsDayCountMapper = soldProductsDayCountMapper;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -116,17 +116,19 @@ public class ProductServiceImpl implements ProductService {
     @Transactional("tenantTransactionManager")
     public StockDTO getStock(Long modelId, String beginDate, String endDate) {
         StockDTO stockDTO = new StockDTO();
-        List<List<SoldProductsDayCountDTO>> productsByColors = new ArrayList<>();
+        // HashMap to store products grouped by Color, then Size, and their respective SoldProductsDayCountDTO
+        HashMap<Long, HashMap<Long, SoldProductsDayCountDTO>> productsByColor = new HashMap<>();
 
         modelRepository.findById(modelId).ifPresent((Model model) -> {
             // 1. Sort Sizes for the Model
             List<Product> listProducts = model.getProducts();
-            List<Size> orderedSizes = sortSizes(
+            List<Long> orderedSizes = sortSizes(
                     model.getSizes().stream()
                             .filter(Objects::nonNull)
                             .collect(Collectors.toSet())
             );
 
+            // Group products by color
             Map<Color, List<Product>> groupedProductsByColor = listProducts.stream()
                     .filter(product -> Objects.nonNull(product.getColor()) && Objects.nonNull(product.getSize()))
                     .collect(groupingBy(Product::getColor));
@@ -136,13 +138,16 @@ public class ProductServiceImpl implements ProductService {
 
             // 3. Process Each Group of Products by Color
             groupedProductsByColor.forEach((color, products) -> {
-                LOGGER.info("Processing products for color: {}", color);
+                //LOGGER.info("Processing products for color: {}", color.getId());
                 List<SoldProductsDayCountDTO> productsDayCountDTOByColor = productsDayCountDTO.stream()
-                        .filter(productDayCountDTO -> productDayCountDTO.getColor().equals(color))
+                        .filter(productDayCountDTO -> productDayCountDTO.getColor().equals(color.getId()))
                         .collect(Collectors.toList());
-
-                List<SoldProductsDayCountDTO> productDTOList = sortSoldProductsDayCountDTOBySize(productsDayCountDTOByColor, products, orderedSizes);
-                productsByColors.add(productDTOList);
+                List<SoldProductsDayCountDTO> sortedProducts = sortSoldProductsDayCountDTOBySize(productsDayCountDTOByColor, products, orderedSizes);
+                HashMap<Long, SoldProductsDayCountDTO> productsBySize = new HashMap<>();
+                for (SoldProductsDayCountDTO soldProduct : sortedProducts) {
+                    productsBySize.put(soldProduct.getSize(), soldProduct);
+                }
+                productsByColor.put(color.getId(), productsBySize);
             });
 
             model.setColors(model.getColors().stream()
@@ -150,49 +155,54 @@ public class ProductServiceImpl implements ProductService {
                     .collect(Collectors.toList()));
 
             // 4. Set the Data in stockDTO
-            stockDTO.setModel(model);
-            stockDTO.setProductsByColor(productsByColors);
-            stockDTO.setSizes(orderedSizes);
+            stockDTO.setModel(modelMapper.toDto(model));
+            stockDTO.setProductsByColor(productsByColor); // Set the new HashMap structure
+            //stockDTO.setSizes(orderedSizes);
 
             LOGGER.info("Stock fetched successfully for model ID: {}", modelId);
         });
+
         return stockDTO;
     }
 
-    private List<Size> sortSizes(Set<Size> sizes) {
+    private List<Long> sortSizes(Set<Size> sizes) {
         Comparator<Size> sizeComparator = (size1, size2) -> {
             // Define the order of sizes
-            String[] order = {"1","2","3","4","5","6","7","8","9","10",
-                    "11","12","13","14","15","16","17","18",
-                    "XXS","XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL","6XL",
-                    "26","27","28","30","32","33","34","35","36","37","38","39","40","41",
-                    "42","43","44","45","46","47","48","49","50","51","52","53","54","55","56"
+            String[] order = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                    "11", "12", "13", "14", "15", "16", "17", "18",
+                    "XXS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL",
+                    "26", "27", "28", "30", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41",
+                    "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56"
             };
             int index1 = getIndex(size1.getReference(), order);
             int index2 = getIndex(size2.getReference(), order);
             return Integer.compare(index1, index2);
         };
+
+        // Sort the sizes by their reference and map them to their IDs
         return sizes.stream()
                 .sorted(sizeComparator)
+                .map(Size::getId)  // Map each sorted Size object to its ID
                 .collect(Collectors.toList());
     }
 
-    private List<SoldProductsDayCountDTO> sortSoldProductsDayCountDTOBySize(List<SoldProductsDayCountDTO> productsSold, List<Product> products, List<Size> orderedSizes) {
+    //Correction stock
+  private List<SoldProductsDayCountDTO> sortSoldProductsDayCountDTOBySize(List<SoldProductsDayCountDTO> productsSold, List<Product> products, List<Long> orderedSizes) {
         // Create a map to quickly find products by size reference
-        Map<String, SoldProductsDayCountDTO> soldProductMap = new HashMap<>();
+        Map<Long, SoldProductsDayCountDTO> soldProductMap = new HashMap<>();
         for (SoldProductsDayCountDTO product : productsSold) {
-            soldProductMap.put(product.getSize().getReference(), product);
+            soldProductMap.put(product.getSize(), product);
         }
         // Create the sorted list based on orderedSizes
         List<SoldProductsDayCountDTO> sortedProducts = new ArrayList<>();
-        for (Size size : orderedSizes) {
-            String sizeRef = size.getReference();
-            SoldProductsDayCountDTO productsDayCountDTO = soldProductMap.get(sizeRef);
+        for (long size : orderedSizes) {
+
+            SoldProductsDayCountDTO productsDayCountDTO = soldProductMap.get(size);
             if (productsDayCountDTO != null) {
                 sortedProducts.add(productsDayCountDTO);
             } else {
                 Product productBySize = products.stream()
-                        .filter(product -> size.equals(product.getSize()))
+                        .filter(product -> size == product.getSize().getId())
                         .findFirst()
                         .orElse(null);
                 if (productBySize != null) {

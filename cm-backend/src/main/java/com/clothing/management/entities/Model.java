@@ -14,6 +14,7 @@ import java.util.*;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Model.class)
 @Data
 @Builder
+@ToString(exclude = {"modelOffers","products","colors","sizes","productHistories"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Model {

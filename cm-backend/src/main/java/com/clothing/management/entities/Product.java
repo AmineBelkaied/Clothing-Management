@@ -3,10 +3,7 @@ package com.clothing.management.entities;
 import com.fasterxml.jackson.annotation.*;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
@@ -19,6 +16,7 @@ import java.util.Objects;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id",scope = Product.class)
 @Data
 @Builder
+@ToString(exclude = {"productsPacket","productHistory"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {

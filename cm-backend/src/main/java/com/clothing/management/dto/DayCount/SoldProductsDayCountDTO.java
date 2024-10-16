@@ -1,11 +1,5 @@
 package com.clothing.management.dto.DayCount;
-
-import com.clothing.management.entities.Color;
-import com.clothing.management.entities.Size;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-
-import java.sql.Date;
 
 @Data
 @NoArgsConstructor
@@ -14,13 +8,13 @@ public class SoldProductsDayCountDTO extends DayCountDTO {
     private Long id;
     private long countExchange = 0;
     private long countOos = 0;
-    private Color color;
-    private Size size;
+    private Long color;
+    private Long size;
     private long qte = 0;
 
     public SoldProductsDayCountDTO(
             Long id,
-            Color color, Size size, long qte,
+            Long color, Long size, long qte,
             long countPayed, long countProgress, long countOos, long countExchange
     ) {
         super(countPayed, countProgress);

@@ -69,7 +69,8 @@ import { ListSizesComponent } from './config/size/list-sizes/list-sizes.componen
 import { ChartModule } from 'primeng/chart';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { StatistiqueComponent } from './statistique/statistique.component';
-import { StockHistoryComponent } from './stock-history/stock-history.component';
+import { StockHistoryComponent } from './stock/stock-history/stock-history.component';
+import { StockTableComponent } from './stock/stock-table/stock-table.component';
 import { PaginatorModule } from 'primeng/paginator';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
 import { VerificationComponent } from './verification/verification.component';
@@ -94,6 +95,10 @@ import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { OfferService } from 'src/shared/services/offer.service';
 import { DisplayListPipe } from 'src/shared/pipes/display-list.pipe';
 import { DisplayOfferModelsPipe } from 'src/shared/pipes/display-offer-models.pipe';
+import { DisplayColorPipe } from 'src/shared/pipes/display-color.pipe';
+import { DisplaySizePipe } from 'src/shared/pipes/display-size.pipe';
+import { DisplayFbPagePipe } from 'src/shared/pipes/display-fbPage.pipe';
+import { DisplayJoinPipe } from 'src/shared/pipes/display-join.pipe';
 
 @NgModule({
   declarations: [
@@ -122,6 +127,7 @@ import { DisplayOfferModelsPipe } from 'src/shared/pipes/display-offer-models.pi
     StockComponent,
     StatistiqueComponent,
     StockHistoryComponent,
+    StockTableComponent,
     PayedReturnComponent,
     VerificationComponent,
     PayedReturnComponent,
@@ -129,7 +135,10 @@ import { DisplayOfferModelsPipe } from 'src/shared/pipes/display-offer-models.pi
     StatusContainerComponent,
     UserComponent,
     GlobalConfComponent,
-    DisplayListPipe,
+    DisplayJoinPipe,
+    DisplayColorPipe,
+    DisplaySizePipe,
+    DisplayFbPagePipe,
     DisplayOfferModelsPipe
   ],
   imports: [

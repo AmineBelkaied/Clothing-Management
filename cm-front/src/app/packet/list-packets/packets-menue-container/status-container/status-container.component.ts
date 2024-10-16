@@ -93,7 +93,6 @@ export class StatusContainerComponent {
     this.statusChange.emit(item);
   }
 
-
   onOptionSelect(item: any) {
     console.log("item changed",item);
     this.changed = true

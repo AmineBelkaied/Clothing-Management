@@ -534,7 +534,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   loadOfferListAndOpenOffersDialog(packet: Packet,editMode:boolean): void {
     if (packet.fbPageId) {
-      //this.productService.loadProducts().subscribe(() => {});
         this.packet = Object.assign({}, packet);
         this.modelDialog = true;
         this.editMode = editMode;

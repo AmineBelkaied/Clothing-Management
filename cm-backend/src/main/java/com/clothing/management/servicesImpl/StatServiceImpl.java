@@ -9,7 +9,6 @@ import com.clothing.management.mappers.StatOfferTableMapper;
 import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.repository.IPacketRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
-import com.clothing.management.services.PacketService;
 import com.clothing.management.services.StatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,7 @@ public class StatServiceImpl implements StatService {
 
         // Initialize lists
         List<Long> countModelsList;
-        ArrayList<Integer> countTotalList = new ArrayList<>();
+        //ArrayList<Integer> countTotalList = new ArrayList<>();
 
         // Fetch product data
         List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statAllModels(beginDate, endDate);
@@ -62,7 +61,7 @@ public class StatServiceImpl implements StatService {
         List<List<Long>> listModelsCount = new ArrayList<>();
         List<StatTableDTO> modelsRecapCount = new ArrayList<>();
 
-        StatTableDTO modelRecap = null;
+        StatTableDTO modelRecap;
 
         // Process each unique model
         for (String uniqueModel : uniqueModels) {
