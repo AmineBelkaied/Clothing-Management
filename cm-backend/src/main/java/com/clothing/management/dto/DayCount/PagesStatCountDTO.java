@@ -8,11 +8,13 @@ import java.util.Date;
 @NoArgsConstructor
 public class PagesStatCountDTO extends DayCountDTO {
 
+    private Date date;
     private String pageName;
     private Long countReturn;
 
     public PagesStatCountDTO(Date date, String pageName, Long countPayed, Long countProgress, Long countReturn) {
-        super(date, countPayed, countProgress);
+        super( countPayed, countProgress);
+        this.date = date;
         this.pageName = pageName;
         this.countReturn =countReturn;
     }

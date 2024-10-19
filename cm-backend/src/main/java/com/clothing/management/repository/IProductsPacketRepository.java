@@ -18,7 +18,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     //long id,Color color, Size size, long qte,long countPayed, long countProgress, long countExchange, long countOos
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.SoldProductsDayCountDTO( " +
             "pp.product.id, " +
-            "pp.product.color , pp.product.size , " +
+            "pp.product.color.id , pp.product.size.id , " +
             "pp.product.quantity, " +
             "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN pp.packet.status IN ('Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +

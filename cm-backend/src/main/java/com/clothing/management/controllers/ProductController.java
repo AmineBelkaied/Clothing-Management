@@ -1,6 +1,4 @@
 package com.clothing.management.controllers;
-
-import com.clothing.management.dto.ProductDTO;
 import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDTO;

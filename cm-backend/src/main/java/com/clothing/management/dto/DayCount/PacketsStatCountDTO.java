@@ -9,6 +9,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class PacketsStatCountDTO extends DayCountDTO {
 
+    private Date date;
     private Long countOut;
     private Long countExchange;
     private Long countOos;
@@ -17,7 +18,8 @@ public class PacketsStatCountDTO extends DayCountDTO {
     private double profits;
 
     public PacketsStatCountDTO(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countOos, Long countProgress, Long countAll) {
-        super(date, countPayed, countProgress);
+        super(countPayed, countProgress);
+        this.date = date;
         this.countOut = countOut;
         this.countExchange = countExchange;
         this.countOos = countOos;

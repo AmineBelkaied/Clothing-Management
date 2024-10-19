@@ -9,11 +9,13 @@ import java.util.Date;
 @NoArgsConstructor
 public class StatesStatCountDTO extends DayCountDTO {
 
+    private Date date;
     private String governerateName;
     private Long countReturn;
 
     public StatesStatCountDTO(Date date, String governerateName, Long countPayed, Long countProgress, Long countReturn) {
-        super(date, countPayed, countProgress);
+        super(countPayed, countProgress);
+        this.date = date;
         this.governerateName = governerateName;
         this.countReturn =countReturn;
     }

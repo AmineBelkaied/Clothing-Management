@@ -7,7 +7,6 @@ import { Model } from 'src/shared/models/Model';
 import { ProductHistoryService } from 'src/shared/services/product-history.service';
 import { Subject, takeUntil, tap } from 'rxjs';
 import { StatsService } from 'src/shared/services/stats.service';
-import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { Color } from 'src/shared/models/Color';
 
@@ -17,17 +16,14 @@ import { Color } from 'src/shared/models/Color';
   styleUrls: ['./stock.component.scss'],
 })
 export class StockComponent implements OnInit, OnDestroy {
+
+
   //products: any[][] = [];
   models: Model[] = [];
 
   chartOptions: string[] = ['Color', 'Size', 'Id'];
   selectedChart: string = 'Color';
 
-  enablerHistoryOptions: any[] = [
-    { label: 'Off', value: false },
-    { label: 'On', value: true },
-  ];
-  historyEnabler: boolean = false;
 
   chartEnablerOptions: any[] = [
     { label: 'Off', value: false },
@@ -50,20 +46,15 @@ export class StockComponent implements OnInit, OnDestroy {
     enabled: false
   };
 
-  productsHistory: any;
-  selectedProducts: number[] = [];
-  editedProducts: number[] = [];
+
   isMultiple = false;
-  qte: number = 0;
-  comment: string;
-  @ViewChild('dt') dt!: Table;
-  sizes: any[] = [];
-  colors: any[] = [];
-  selectAll: boolean = false;
+
+
+  sizes: number[] = [];
+  colors: number[] = [];
   modelId: number;
-  hide0: boolean = false;
-  delaiEnabled: boolean = false;
-  stock: boolean = true;
+
+
   today: Date = new Date();
 
   rangeDates: Date[] = [];
@@ -71,9 +62,9 @@ export class StockComponent implements OnInit, OnDestroy {
   beginDateString: string;
   endDateString: string;
 
-  searchField: string = '';
+
   $unsubscribe: Subject<void> = new Subject();
-  productsCount: ProductCountDTO[][] = [];
+
 
   modelName: string;
 
@@ -91,10 +82,11 @@ export class StockComponent implements OnInit, OnDestroy {
   daysChart: any[];
   daysModelChart: any[];
   lastModelId: number;
-  addEnabled: boolean = true;
+
   datesList: any = [];
-  stockFabricationDelait: number = 30;
   datesCount: number = 1;
+
+
 
   constructor(
     private productService: ProductService,
@@ -106,6 +98,7 @@ export class StockComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+
     this.getAllModel();
     // Create the line chart
     this.dataSetArray = [
@@ -162,7 +155,10 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   selectModel(model: Model): void {
+    console.log("selectModel",model);
     this.selectedModel = model;
+    this.modelId = model.id!;
+    this.modelName = this.selectedModel.name!;
     this.getStats();
   }
 
@@ -182,13 +178,11 @@ export class StockComponent implements OnInit, OnDestroy {
           if (models && models.length > 0) {
             this.models = models.filter((model: Model) => model.enabled);
             let modelsLength = this.models.length - 1;
-            this.modelId = this.models[modelsLength].id!;
-            this.selectedModel = this.models[modelsLength];
             this.filteredModels = this.models;
-            this.getStats();
-          } else {
+            this.selectModel(this.models[0]);
+          } /* else {
             console.warn('No models available.');
-          }
+          } */
         })
       )
       .subscribe({
@@ -197,12 +191,8 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   getStats() {
-    this.selectedProducts = [];
-    this.modelId = this.selectedModel.id!;
     this.setCalendar();
-    this.getStockByModelId(this.modelId);
     this.chartEnablerChange();
-    this.historyEnablerChange();
   }
 
   getStatModelSoldChart(option: string) {
@@ -265,7 +255,6 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   getRandomColor(x: string) {
-    //console.log('x',x);
     if (x == 'Noir') return 'black';
     else if (x == 'Vert') return 'green';
     else if (x == 'Beige') return '#D1AF76';
@@ -289,228 +278,11 @@ export class StockComponent implements OnInit, OnDestroy {
     return Number(average.toFixed(1));
   }
 
-  getStockByModelId(modelId: number) {
-    this.productService
-      .getStock(modelId, this.beginDateString, this.endDateString)
-      .subscribe((result: any) => {
-        this.productsCount = result.productsByColor;
-        console.log("xx",this.productsCount);
-
-        this.modelName = result.model.name!;
-        this.colors = result.model.colors!;
-        this.sizes = result.sizes;
-      });
-  }
-
-  onCellClick(product: any): void {
-    if (this.hide0) this.hide0 = false;
-    else {
-      if (this.selectedProducts.includes(product.id))
-        this.unSelectProduct(product.id);
-      else this.selectProduct(product.id);
-    }
-  }
-
-  handleColorClick(j: number) {
-    if (this.hide0) this.hide0 = false;
-    else {
-      let haveSelectedItems = false;
-      if (this.haveSelectedItems(j, true)) haveSelectedItems = true;
-      for (let i = 0; i < this.productsCount[j].length; i++) {
-        if (haveSelectedItems)
-          this.unSelectProduct(this.productsCount[j][i].id);
-        else this.selectProduct(this.productsCount[j][i].id);
-      }
-    }
-  }
-
-  handleSizeClick(i: number): void {
-    if (this.hide0) this.hide0 = false;
-    else {
-      let haveSelectedItems = false;
-      if (this.haveSelectedItems(i, false)) haveSelectedItems = true;
-      for (let j = 0; j < this.productsCount.length; j++) {
-        if (haveSelectedItems)
-          this.unSelectProduct(this.productsCount[j][i].id);
-        else this.selectProduct(this.productsCount[j][i].id);
-      }
-    }
-  }
-
-  selectProduct(productId: any) {
-    if (!this.selectedProducts.includes(productId)) {
-      this.selectedProducts.push(productId);
-    }
-  }
-
-  unSelectProduct(productId: any) {
-    const index = this.selectedProducts.indexOf(productId);
-    if (index > -1) {
-      this.selectedProducts.splice(index, 1);
-    }
-    const indexEdit = this.editedProducts.indexOf(productId);
-    if (index > -1) {
-      this.editedProducts.splice(indexEdit, 1);
-    }
-  }
-
-  isProductSelected(productId: any): boolean {
-    return this.selectedProducts.includes(productId);
-  }
-
-  isProductEdited(productId: any): boolean {
-    return this.editedProducts.includes(productId);
-  }
-
-  selectAllProducts() {
-    for (let j = 0; j < this.productsCount.length; j++)
-      for (let i = 0; i < this.productsCount[j].length; i++)
-        if (this.selectAll) this.selectProduct(this.productsCount[j][i].id);
-        else this.unSelectProduct(this.productsCount[j][i].id);
-  }
-
-  totalRow(j: number) {
-    let totRow = 0;
-    let totProgressRow = 0;
-    for (let i = 0; i < this.productsCount[j].length; i++) {
-      if (this.stock) totRow += this.productsCount[j][i].qte;
-      else totRow += this.productsCount[j][i].countPayed;
-      totProgressRow += this.productsCount[j][i].countProgress;
-    }
-    return { 'total':totRow ,'progress':totProgressRow } ;
-  }
-
-  getDaysStock(productSize: any): number {
-    let countPayed = productSize.countPayed;
-    let qte = productSize.qte;
-    if (countPayed === 0) countPayed = 1;
-    let dayStock = qte / (countPayed / this.datesCount);
-    return Number(dayStock.toFixed(1));
-  }
-
-  totalColumn(i: number):{ all: number; progress: number; } {
-    //console.log("products:",this.products);
-    let totColumn = 0;
-    let progress = 0;
-    if (this.productsCount.length < 1) return {'all':0,'progress':0};
-    else for (let j = 0; j < this.productsCount.length; j++)
-      {
-        if (this.productsCount[j][i])
-          if (this.stock) {
-            totColumn += this.productsCount[j][i].qte;
-          } else totColumn += this.productsCount[j][i].countPayed;
-        progress += this.productsCount[j][i].countProgress;
-      }
-    return {'all':totColumn,'progress':progress};
-  }
-
-  totalTable():{ all: number; progress: number; } {
-    let tot = 0;
-    let progress = 0;
-    if (this.productsCount.length < 1) tot = 0;
-    else for (let j = 0; j < this.productsCount.length; j++)
-      for (let i = 0; i < this.productsCount[j].length; i++)
-        {
-          if (this.stock) tot += this.productsCount[j][i].qte;
-          else tot += this.productsCount[j][i].countPayed;
-          progress += this.productsCount[j][i].countProgress;
-        }
-    return {'all':tot,'progress':progress};
-  }
-
-  add() {
-    let rows = this.dt.el.nativeElement.querySelectorAll('tbody tr');
-    if (this.addEnabled) {
-      this.addEnabled = false;
-      if (this.qte == 0) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Warning Message',
-          detail: 'Quantité 0',
-        });
-        this.addEnabled = true;
-        return;
-      } else if (this.comment == '' || this.comment == null) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Warning Message',
-          detail: 'Commentaire vide',
-        });
-        this.addEnabled = true;
-        return;
-      } else if (this.selectedProducts.length < 1) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Warning Message',
-          detail: 'Aucun élément sélectionné',
-        });
-        this.addEnabled = true;
-        return;
-      } else
-        this.productService
-          .addStock(
-            this.selectedProducts,
-            this.qte,
-            +this.modelId,
-            this.comment
-          )
-          .subscribe({
-            next: (result: any) => {
-              // Successful response handling
-              for (let j = 0; j < this.productsCount.length; j++) {
-                for (let i = 0; i < this.productsCount[j].length; i++) {
-                  if (
-                    this.selectedProducts.includes(this.productsCount[j][i].id)
-                  ) {
-                    this.productsCount[j][i].qte += this.qte;
-                  }
-                }
-              }
-              this.productsHistory = result;
-              this.editedProducts = this.selectedProducts;
-              this.selectedProducts = [];
-              this.selectAll = false;
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Le stock a été ajusté avec succès',
-              });
-            },
-            error: (error) => {
-              // Error handling
-              this.addEnabled = true;
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: "Une erreur est survenue lors de l'ajustement du stock",
-              });
-              console.error('Error adjusting stock:', error);
-            },
-            complete: () => {
-              this.addEnabled = true;
-            },
-          });
-    }
-  }
-
   dateFilterChange() {
     this.setCalendar();
     if (this.endDateString) {
       this.getStats();
     }
-  }
-
-  getProductHistory() {
-    this.productHistoryService
-      .findAll(
-        this.modelId,
-        this.searchField,
-        this.beginDateString,
-        this.endDateString
-      )
-      .subscribe((result: any) => {
-        this.productsHistory = result;
-      });
   }
 
   setCalendar() {
@@ -520,12 +292,10 @@ export class StockComponent implements OnInit, OnDestroy {
     if (!this.rangeDates || this.rangeDates.length === 0) {
       this.rangeDates = [oneMonthAgo, today];
     }
-    // Calculate the number of days between the dates in this.rangeDates
     const startDate = this.rangeDates[0];
-    const endDate = this.rangeDates[1] || startDate; // If endDate is null, use startDate
-    const timeDiff = Math.abs(endDate.getTime() - startDate.getTime()); // Difference in milliseconds
-    this.datesCount = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1; // Convert to days
-
+    const endDate = this.rangeDates[1] || startDate;
+    const timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
+    this.datesCount = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
     this.beginDateString = this.dateUtils.formatDateToString(
       this.rangeDates[0]
     );
@@ -535,70 +305,11 @@ export class StockComponent implements OnInit, OnDestroy {
         : this.beginDateString;
   }
 
-  haveSelectedItems(index: number, row: boolean): boolean {
-    if (row) {
-      for (let i = 0; i < this.productsCount[index].length; i++)
-        if (this.selectedProducts.includes(this.productsCount[index][i].id)) {
-          return true;
-        }
-    } else
-      for (let j = 0; j < this.productsCount.length; j++)
-        if (this.selectedProducts.includes(this.productsCount[j][index].id)) {
-          return true;
-        }
-    return false;
-  }
-
-  hideRow(j: number) {
-    if (this.totalRow(j).total == 0) this.productsCount.splice(j, 1);
-  }
-
-  onDeleteProductsHistory($event: any): void {
-    $event.products.forEach((product: any) => {
-      for (let j = 0; j < this.productsCount.length; j++)
-        for (let i = 0; i < this.productsCount[j].length; i++)
-          if (product.productId == this.productsCount[j][i].id)
-            this.productsCount[j][i].qte =
-              this.productsCount[j][i].qte - product.qte;
-    });
-  }
-
-  existingColor(color: Color, noHide: boolean): Color | undefined {
-    if (noHide) return this.colors.find((c) => c.id === color.id);
-  }
-
-  getSeverity(qte: number, delait: any) {
-    switch (true) {
-      case qte < 1:
-        return 'danger';
-
-      case delait < this.stockFabricationDelait:
-        return 'warning';
-
-      case delait > 60:
-        return 'info';
-
-      default:
-        return 'success';
-    }
-  }
-  getSeverityMsg(qte: number, delait: any) {
-    switch (true) {
-      case qte < 1:
-        return 'RUPTURE';
-      case delait < this.stockFabricationDelait:
-        return 'LOW STOCK';
-      case delait > 60:
-        return 'OVER STOCK';
-      default:
-        return 'EN STOCK';
-    }
-  }
-
   allDateFilter() {
     this.rangeDates = [new Date(2023, 0, 1), new Date()];
     this.getStats();
   }
+
   todayDate() {
     this.range = 1;
     if (this.rangeDates[0] != undefined && this.rangeDates[1] == undefined) {
@@ -608,6 +319,7 @@ export class StockComponent implements OnInit, OnDestroy {
     } else this.rangeDates = [this.today];
     this.getStats();
   }
+
   yesterdayDate() {
     this.range = 1;
     const yesterday = new Date();
@@ -685,11 +397,9 @@ export class StockComponent implements OnInit, OnDestroy {
     this.getStats();
   }
 
-  historyEnablerChange() {
-    if (this.historyEnabler) this.getProductHistory();
-  }
+
   chartEnablerChange() {
-    if (this.chartEnabler) this.getStatModelSoldChart(this.selectedChart);
+    if(this.chartEnabler) this.getStatModelSoldChart(this.selectedChart);
   }
   clearDate() {
     this.rangeDates = [];

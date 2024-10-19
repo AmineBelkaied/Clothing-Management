@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class ColorsDayCountDTO extends DayCountDTO {
-
+    private Date date;
     private Color color;
 
     public ColorsDayCountDTO(
@@ -15,7 +15,8 @@ public class ColorsDayCountDTO extends DayCountDTO {
             Color color,
             long countPayed, long countProgress
     ) {
-        super(packetDate, countPayed, countProgress);
+        super(countPayed, countProgress);
+        this.date = packetDate;
         this.color = color;
     }
 }
