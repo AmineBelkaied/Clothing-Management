@@ -22,6 +22,8 @@ export class OfferService {
   loadOffers() : Observable<Offer[]> {
     return this.findAllOffersDTO().pipe(
       tap((offers: Offer[]) => {
+        console.log("findAllOffersDTO");
+
         this.setOffers(offers);
       }),
       catchError((error) => {

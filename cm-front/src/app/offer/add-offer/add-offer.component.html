@@ -26,7 +26,7 @@
                             Le nom de l'offre est obligatoire
                           </span>
                           <span *ngIf="offerNameExists" class="small text-danger">L'offre existe déja</span>
-                        </ng-container> 
+                        </ng-container>
                       </div>
                       <div class="col-md-5">
                         <label for="price" class="form-label pr-1">Prix</label>
@@ -101,7 +101,7 @@
                         "
                         [formGroupName]="i"
                         class="mt-4"
-                      > 
+                      >
                         <td>
                           <p-dropdown
                             [options]="modelList"
@@ -128,15 +128,15 @@
                             placeholder="Spécifier la quantité"
                             name="quantity"
                             formControlName="quantity"
-                            [min]="0" 
-                            [showButtons]="true" 
-                            buttonLayout="horizontal" 
-                            inputId="horizontal" 
-                            spinnerMode="horizontal" 
+                            [min]="0"
+                            [showButtons]="true"
+                            buttonLayout="horizontal"
+                            inputId="horizontal"
+                            spinnerMode="horizontal"
                             decrementButtonClass="update-qte-icon"
                             incrementButtonClass="update-qte-icon"
-                            incrementButtonIcon="pi pi-plus" 
-                            decrementButtonIcon="pi pi-minus" 
+                            incrementButtonIcon="pi pi-plus"
+                            decrementButtonIcon="pi pi-minus"
                           />
                           <ng-container>
                             <span class="small text-danger" *ngIf="modelQuantities().controls[i].get('quantity')?.dirty && modelQuantities().controls[i].get('quantity')?.errors?.['min']">
@@ -170,11 +170,6 @@
                       </tr>
                     </tfoot>
                     </table>
-<!--                     <ng-container>
-                      <div *ngIf="offerForm.get('offerModels')?.errors['minArrayLength']">
-                        Offer models must contain at least one item.
-                      </div>
-                    </ng-container> -->
                     </div>
                     <div class="col-md-4 mt-3" style="margin-left: 73%" *ngIf="editMode">
                       <button
@@ -200,8 +195,8 @@
               <div class="card-body">
                 <div class="card-text">
                   <div class="container-fluid">
-                    <div class="row mt-4">
-                      <div class="col-md-12">
+                    <div class="row mt-4" >
+                      <div class="col-md-12" >
                         <label for="fbPages" class="form-label pr-1">Pages Facebook</label>
                         <span class="small text-danger">(*)</span>
                         <p-multiSelect
@@ -231,7 +226,7 @@
                         [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"
                         class="p-button-text"
                         (click)="saveOffer('FbPages')"
-                        [disabled]="editMode ? offerForm.get('fbPages')?.invalid : offerForm.invalid"
+                        [disabled]="editMode ? offerForm.get('fbPages')?.invalid || globalConf.oneSourceApp : offerForm.invalid || globalConf.oneSourceApp"
                       ></button>
                     </div>
                   </div>
