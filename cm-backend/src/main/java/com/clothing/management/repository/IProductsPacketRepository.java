@@ -159,4 +159,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "GROUP BY pp.product.id, DATE(pp.packet.date) ORDER BY DATE(pp.packet.date) ASC")
     List<ModelDayCountDTO> statModelSoldProgress(@Param("modelId") Long modelId, @Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
+    List<ProductsPacket> findByProductId(Long productId);
+
+    List<ProductsPacket> findByOfferId(Long offerId);
 }

@@ -1,16 +1,11 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.dto.ModelDTO;
-import com.clothing.management.entities.Color;
-import com.clothing.management.entities.Model;
-import com.clothing.management.entities.Product;
-import com.clothing.management.entities.Size;
+import com.clothing.management.entities.*;
 import com.clothing.management.exceptions.custom.alreadyexists.ModelAlreadyExistsException;
+import com.clothing.management.exceptions.custom.notfound.ModelNotFoundException;
 import com.clothing.management.mappers.ModelMapper;
-import com.clothing.management.repository.IColorRepository;
-import com.clothing.management.repository.IModelRepository;
-import com.clothing.management.repository.IProductRepository;
-import com.clothing.management.repository.ISizeRepository;
+import com.clothing.management.repository.*;
 import com.clothing.management.services.ModelService;
 import com.clothing.management.utils.EntityBuilderHelper;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Transactional("tenantTransactionManager")
 @Service
 public class ModelServiceImpl implements ModelService {
 
@@ -33,16 +29,18 @@ public class ModelServiceImpl implements ModelService {
     private final ModelMapper modelMapper;
     private final IColorRepository colorRepository;
     private final ISizeRepository sizeRepository;
+    private final IProductsPacketRepository productsPacketRepository;
+    private static List<String> confirmedPacketStatus = List.of(new String[]{"Livrée", "Payée","En cours (1)", "En cours (2)", "En cours (3)", "A verifier"});
 
     public ModelServiceImpl(IModelRepository modelRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper, ModelMapper modelMapper,
-                            IColorRepository colorRepository, ISizeRepository sizeRepository) {
+                            IColorRepository colorRepository, ISizeRepository sizeRepository, IProductsPacketRepository productsPacketRepository) {
         this.modelRepository = modelRepository;
         this.productRepository = productRepository;
         this.entityBuilderHelper = entityBuilderHelper;
         this.modelMapper = modelMapper;
         this.colorRepository = colorRepository;
         this.sizeRepository = sizeRepository;
-
+        this.productsPacketRepository = productsPacketRepository;
     }
 
     @Override
@@ -152,7 +150,32 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public void deleteModelById(Long idModel) {
-        modelRepository.deleteById(idModel);
+        Model model = modelRepository.findById(idModel)
+                .orElseThrow(() -> new ModelNotFoundException(idModel));
+
+        List<Product> products = model.getProducts();
+        long usedProductsCount = products.stream()
+                .flatMap(product -> productsPacketRepository.findByProductId(product.getId()).stream())
+                .map(productsPacket -> Optional.ofNullable(productsPacket.getPacket()))
+                .filter(optPacket -> optPacket.isPresent() && confirmedPacketStatus.contains(optPacket.get().getStatus()))
+                .count();
+
+        LOGGER.info("usedProductsNumber : {} ", usedProductsCount);
+
+        Set<OfferModel> offerModels = model.getModelOffers();
+        long usedOffersCount = offerModels.stream()
+                .flatMap(offerModel -> productsPacketRepository.findByOfferId(offerModel.getOffer().getId()).stream())
+                .map(productsPacket -> Optional.ofNullable(productsPacket.getPacket()))
+                .filter(optPacket -> optPacket.isPresent() && confirmedPacketStatus.contains(optPacket.get().getStatus()))
+                .count();
+
+        LOGGER.info("usedOffersCount : {} ", usedOffersCount);
+
+       /* LOGGER.info("Offers with NAMES ARE");
+        usedOffersNames.stream().distinct().forEach(System.out::println);
+*/
+
+        //modelRepository.deleteById(idModel);
         LOGGER.info("Model with ID: {} deleted.", idModel);
     }
 
