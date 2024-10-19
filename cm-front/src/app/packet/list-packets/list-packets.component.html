@@ -23,7 +23,7 @@
         </th>
         <th *ngFor="let col of columns" [pSortableColumn]="col.field" class="align-center"
           style="padding: 0.1rem 0.1rem !important">
-          {{ col.header }}<p-sortIcon [field]="col.field"></p-sortIcon>
+            {{ col.header }}<p-sortIcon [field]="col.field"></p-sortIcon>
         </th>
       </tr>
     </ng-template>
@@ -64,7 +64,7 @@
             cursor: pointer;
             max-width: 7rem;
             padding: 0.1rem 0.1rem !important;
-          ">
+          " *ngIf="!globalConf.oneSourceApp">
           <p-cellEditor>
             <ng-template pTemplate="input">
               <p-dropdown [options]="fbPages" [(ngModel)]="packet.fbPageId"
@@ -125,7 +125,9 @@
                   <ng-template pTemplate="output">
                     <div class="d-flex justify-content-center">
                       <span *ngIf="packet.customerPhoneNb;else noValue" class="default-text">
-                        {{ formatPhoneNumber(packet.customerPhoneNb) }}
+                        <i *ngIf="packet.oldClient > 0" severity="warning" pBadge [value]="packet.oldClient">
+                          <h6>{{ formatPhoneNumber(packet.customerPhoneNb) }}</h6>
+                        </i>
                       </span>
                     </div>
                   </ng-template>
@@ -325,11 +327,12 @@
   currentPageReportTemplate="Affiché {first} à {last} des {totalRecords} commandes"
   [rowsPerPageOptions]="[25, 50, 100, 200, 500, 1000,5000]">
 </p-paginator>
+
 <p-dialog [(visible)]="modelDialog" [style]="{ width: '90%' }" header="{{
     editMode ? 'Mettre à jour les articles' : 'Ajouter des articles'
   }}" [modal]="true" appendTo="body" (onHide)="hideDialog()">
   <ng-template pTemplate="content">
-    <app-add-packet [packet]="packet" (submitEvent)="OnSubmit($event)"
+    <app-add-packet [packet]="packet" [oneSourceApp]= "globalConf.oneSourceApp" (submitEvent)="OnSubmit($event)"
       [editMode]="editMode"></app-add-packet>
   </ng-template>
 </p-dialog>

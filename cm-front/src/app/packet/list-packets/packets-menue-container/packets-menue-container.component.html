@@ -3,14 +3,6 @@
     <div class="megabar">
       <div class="d-flex megabar-header menu">
         <div class="left-section d-flex align-items-center">
-          <!--<p-avatar
-            [label]="realTotalItems > pageSize ? realTotalItems + '' : totalItems + ''"
-            styleClass="p-mr-2"
-            size="normal"
-            [style]="{ 'background-color': '#32CD32', color: '#ffffff' }"
-            shape="circle"
-          ></p-avatar>-->
-<!--           <div class="toggle-b-space"></div> -->
           <button pButton icon="pi pi-plus" class="p-button-success mr-2 p-2" (click)="addNewRow()"></button>
           <button pButton icon="pi pi-trash" class="p-button-danger mr-2 p-2" (click)="deleteSelectedPackets()"
             [disabled]="nbrSelectedPackets==0"></button><!--[disabled]="!selectedPackets || selectedPackets.length == 0"//Correction-->
@@ -19,19 +11,8 @@
             <i class="pi pi-search"></i>
             <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets()"
               (input)="handleInputChange()" placeholder="Client, Tel, Ville, Adresse, Page, Id"
-              [style]="{ width: '250px' }" class="mr-2" />
+              [style]="{ width: '230px' }" class="mr-2" />
           </span>
-        </div>
-
-        <!-- Middle section -->
-        <div class="middle-section flex align-items-center">
-          <app-status-container [params]="params" (statusChange)="onStatusChange($event)"></app-status-container>
-          <!--           <button pButton icon="pi pi-file" class="ml-2" pTooltip="CSV" tooltipPosition="bottom"></button> -->
-        </div>
-
-        <!-- Right section -->
-        <div class="right-section justify-content-end">
-          <!--           <p-button [label]="statusItemsLabel" (onClick)="toggleStatus()" severity="success" [style]="{'min-width': '180px'}"></p-button> -->
           <p-calendar [(ngModel)]="rangeDates" (ngModelChange)="filterPackets('date')" selectionMode="range"
             [readonlyInput]="true" inputId="range" placeholder="Filtrer par date/période" [showClear]="false"
             (onClearClick)="resetTable()"  [style]="{ width: '11rem' }" dateFormat="dd/mm"  [showIcon]="true"
@@ -46,6 +27,20 @@
               </div>
             </ng-template>
           </p-calendar>
+        </div>
+
+
+        <!-- Middle section -->
+        <div class="middle-section flex align-items-center">
+
+          <!--           <button pButton icon="pi pi-file" class="ml-2" pTooltip="CSV" tooltipPosition="bottom"></button> -->
+        </div>
+
+        <!-- Right section -->
+        <div class="right-section justify-content-end">
+          <app-status-container [params]="params" (statusChange)="onStatusChange($event)"></app-status-container>
+          <!--           <p-button [label]="statusItemsLabel" (onClick)="toggleStatus()" severity="success" [style]="{'min-width': '180px'}"></p-button> -->
+
         </div>
       </div>
 

@@ -63,14 +63,14 @@ export class GlobalConfService {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: "Erreur lors de le modification' " + err.error.message,
+            detail: "Erreur lors de le modification' " + err.error.message
           });
         })
       )
       .subscribe(() => {
         this.globalConf = globalConf;
         this.globalConfSubscriber.next(globalConf)
-        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été modifiée avec succés", life: 1000 });
+        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La configuration a été modifiée avec succés", life: 2000 });
       });
   }
 

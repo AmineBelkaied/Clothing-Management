@@ -3,6 +3,7 @@ package com.clothing.management.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 @Entity
 @Table(name = "global_conf")
@@ -23,6 +24,14 @@ public class GlobalConf {
     @OneToOne
     @JoinColumn(name = "delivery_company_id")
     private DeliveryCompany deliveryCompany;
+
+    @OneToOne
+    @JoinColumn(name = "fb_Page_id")
+    private FbPage fbPage;
+
+    @Builder.Default
+    @Column(name = "one_source_app")
+    private Boolean oneSourceApp = false;
 
     private String comment;
 

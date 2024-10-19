@@ -16,11 +16,10 @@ public interface ModelMapper {
 
     ModelMapper INSTANCE = Mappers.getMapper(ModelMapper.class);
 
-    @Mappings({
-            @Mapping(target = "colors", source = "colors", qualifiedByName = "mapColorsToIds"),
-            @Mapping(target = "sizes", source = "sizes", qualifiedByName = "mapSizesToIds"),
+
+            @Mapping(target = "colors", source = "colors", qualifiedByName = "mapColorsToIds")
+            @Mapping(target = "sizes", source = "sizes", qualifiedByName = "mapSizesToIds")
             @Mapping(target = "defaultId", source = "products", qualifiedByName = "mapToDefaultId")
-    })
     ModelDTO toDto(Model model);
 
     @Named("mapColorsToIds")

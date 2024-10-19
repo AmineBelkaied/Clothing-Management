@@ -4,6 +4,8 @@ import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
+import { FbPageService } from 'src/shared/services/fb-page.service';
+import { FbPage } from 'src/shared/models/FbPage';
 
 @Component({
   selector: 'app-global-conf',
@@ -12,23 +14,34 @@ import { DeliveryCompanyService } from 'src/shared/services/delivery-company.ser
 })
 export class GlobalConfComponent implements OnInit, OnDestroy {
 
-
+  multipage: any[] = [{ label: 'Off', value: true }, { label: 'Multipage', value: false }];
+  defaultPage: any[] = [{ label: 'Off', value: false }, { label: 'DefaultPage', value: true }];
   globalConf: GlobalConf;// = {applicationName: ""};
   editMode!: boolean;
   deliveryCompanies: DeliveryCompany[];
   $unsubscribe: Subject<void> = new Subject();
+  fbPages: FbPage[] = [];
+  multipageDisabled:boolean = true;
 
   constructor(
     public globalConfService: GlobalConfService,
-    private deliveryCompanyService: DeliveryCompanyService) {
+    private fbPageService: FbPageService,
+    private deliveryCompanyService: DeliveryCompanyService,) {
 
     }
 
   ngOnInit(): void {
-    //this.deliveryCompanies = this.deliveryCompanyService.deliveryCompanyList;
     this.deliveryCompanyService.getDeliveryCompaniesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
       (deliveryCompany: DeliveryCompany[]) => {
         this.deliveryCompanies = deliveryCompany;
+      }
+    );
+    this.fbPageService.getFbPagesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (fbPages: FbPage[]) => {
+        this.fbPages = fbPages;
+        if(this.fbPages.length >1) {
+          this.multipageDisabled = false;
+        }
       }
     );
 

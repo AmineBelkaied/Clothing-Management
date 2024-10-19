@@ -10,3 +10,12 @@ tr td {
 tr > th {
     text-align: center;
 }
+
+.custom-disabled-colorpicker {
+  opacity: 1 !important; /* Ensure the color picker isn't faded when disabled */
+  pointer-events: none;  /* Disable interaction without graying out */
+}
+.custom-disabled-colorpicker .p-colorpicker-preview {
+  opacity: 1 !important; /* Ensure the color preview isn't faded */
+  background-color: inherit; /* Keep the selected color intact */
+}

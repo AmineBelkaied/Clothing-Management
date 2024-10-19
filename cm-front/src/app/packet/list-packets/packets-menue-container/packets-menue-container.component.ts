@@ -1,13 +1,10 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { StatusContainerComponent } from 'src/app/packet/list-packets/packets-menue-container/status-container/status-container.component';
 import { NOT_CONFIRMED, statesList, statusList, UNREACHABLE } from 'src/shared/utils/status-list';
 import { Packet } from 'src/shared/models/Packet';
 import { StorageService } from 'src/shared/services/strorage.service';
 import { Status } from 'src/shared/models/status';
 import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
-import { SideBarService } from 'src/shared/services/sidebar.service';
-
 @Component({
   selector: 'app-packets-menue-container',
   templateUrl: './packets-menue-container.component.html',
@@ -59,8 +56,7 @@ export class PacketsMenueContainerComponent {
 
   constructor(
     private dateUtils: DateUtils,
-    private storageService: StorageService,
-    private sideBarService: SideBarService
+    private storageService: StorageService
 
     ) {
     this.statusList = statusList;
@@ -117,8 +113,7 @@ export class PacketsMenueContainerComponent {
 
   addNewRow(): void {
     //console.log("activeIndex", this.activeIndex);
-    console.log(this.statusItemsLabel);
-
+    this.filter ='';
     if (this.statusItemsLabel != NOT_CONFIRMED){
       this.statusItemsLabel =NOT_CONFIRMED;
       this.selectedStatus=[NOT_CONFIRMED];
@@ -214,7 +209,7 @@ export class PacketsMenueContainerComponent {
       this.oldStatus=item;
     }
   }
-  
+
   getArrayFromStatusItems(statusItems:any) : string[]{
     return statusItems.map((item :any) => item.value);
   }

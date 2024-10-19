@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from 'src/shared/services/fb-page.service';
@@ -17,13 +17,11 @@ export class ListFbpagesComponent implements OnInit,OnDestroy {
 
   constructor(
     private fbPageService: FbPageService,
-    private messageService: MessageService,
     private confirmationService: ConfirmationService) {
 
      }
 
   ngOnInit(): void {
-    //this.fbPageService.loadFbPages();
     //this.fbPages = this.fbPageService.fbPages;
     this.fbPageService.getFbPagesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
       (fbPages: FbPage[]) => {

@@ -34,6 +34,8 @@ import { ClientReason, ClientReasonDetails } from 'src/shared/enums/client-reaso
 import { Note } from 'src/shared/models/Note';
 import { StringUtils } from 'src/shared/utils/string-utils';
 import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
+import { GlobalConf } from 'src/shared/models/GlobalConf';
+import { GlobalConfService } from 'src/shared/services/global-conf.service';
 
 @Component({
   selector: 'app-list-packets',
@@ -42,6 +44,8 @@ import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
   providers: [DatePipe]
 })
 export class ListPacketsComponent implements OnInit, OnDestroy {
+
+
   nbrSelectedPackets: number;
   oldStatusLabel: string;
 
@@ -58,7 +62,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   packets: Packet[] = [];
   totalItems: number;
   packet: Packet;
-  cols: object[] = [];
   selectedPackets: Packet[] = [];
 
   editMode = false;
@@ -128,8 +131,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   filter: string;
   params: PacketFilterParams;
   pageSize: number = 100;//correction
-
-
+  globalConf: GlobalConf;
+  cols: { field: string; header: string; }[];
   constructor(
     private packetService: PacketService,
     private offerService: OfferService,
@@ -138,7 +141,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     private dateUtils: DateUtils,
     public storageService: StorageService,
     public messageService:MessageService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private globalConfService :GlobalConfService
     ) {
   }
 
@@ -154,17 +158,19 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
       this.activeClass = true;
     });
+    this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (globalConf: GlobalConf) => {
+        this.globalConf = globalConf;
+        this.createColumns();
+      }
+    );
     this.findAllFbPages();
     this.offerService.getOffersSubscriber();
-    this.createColumns();
     this.findAllGroupedCities();
 
   }
 
   findAllFbPages(): void {
-    //this.fbPages = this.fbPageService.fbPages;
-    //console.log(this.fbPages);
-
     this.fbPageService.getFbPagesSubscriber().subscribe((result: any) => {
       this.fbPages = result.filter((fbPage: any) => fbPage.enabled);
     });
@@ -233,14 +239,19 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.cols = [
       { field: 'date', header: 'Date' },
       { field: 'fbPage.name', header: 'PageFB' },
-      { field: 'customerNamePhone', header: 'Client'},
+      { field: 'customerNamePhone', header: 'Client' },
       { field: 'cityAddress', header: 'Ville & Adresse' },  // Combine city and address here
       { field: 'relatedProducts', header: 'Articles' },
       { field: 'price', header: 'Prix' },
       { field: 'status', header: 'Statut' },
       { field: 'barcode', header: 'Barcode' },
     ];
+
+    if (this.globalConf.oneSourceApp) {
+      this.cols = this.cols.filter(col => col.header !== 'PageFB');
+    }
   }
+
 
   formatPhoneNumber(phoneNumber: string): string {
     if (!phoneNumber) {
@@ -315,6 +326,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (responsePacket: any) => {
+          console.log("oldClient0",responsePacket.oldClient);
           let msg = "Packet updated successfully";
           if (this.selectedField === 'status' && status === CONFIRMED && responsePacket.barcode != null) {
             this.updatePacketFields(responsePacket);
@@ -324,8 +336,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
             msg = 'City updated successfully';
           } else if (responsePacket.oldClient !== undefined && this.selectedField === 'customerPhoneNb') {
             const packetIndex = this.packets.findIndex((p: Packet) => p.id === responsePacket.id);
+            console.log("oldClient1",responsePacket.oldClient);
             if (packetIndex !== -1) {
               this.packets[packetIndex].oldClient = responsePacket.oldClient;
+              console.log("oldClient2",responsePacket.oldClient);
+
               msg = 'Phone number updated successfully';
             }
           }
@@ -349,7 +364,12 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
 
   checkPacketValidity(packet: Packet): boolean {
-      if (!(packet.fbPageId && this.isValid(packet.address) && this.isValid(packet.customerName) &&
+    console.log(packet);
+    if (!(packet.fbPageId || this.globalConf.oneSourceApp )) {
+        this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez remplir la page facebook' });
+        return false;
+      }
+    else if (!(this.isValid(packet.address) && this.isValid(packet.customerName) &&
       this.isValid(packet.customerPhoneNb) && packet.cityId! >-1 && this.isValid(packet.packetDescription)))
       {
         this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
@@ -357,8 +377,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       }
       return true;
   }
-
-
 
   checkPacketDescription(packet: Packet): boolean {
     return packet.packetDescription!= undefined && packet.packetDescription.includes('(');
@@ -533,11 +551,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   loadOfferListAndOpenOffersDialog(packet: Packet,editMode:boolean): void {
-    if (packet.fbPageId) {
+    if (packet.fbPageId || this.globalConf.oneSourceApp) {
         this.packet = Object.assign({}, packet);
         this.modelDialog = true;
         this.editMode = editMode;
-
     } else {
       this.messageService.add({ severity: 'info', summary: 'Info', detail: 'Pas de page Facebook selectionné', life: 1000 });
     }
@@ -559,15 +576,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     return false;
   }
 
-
-
   onPageChange($event: any): void {
     this.params.page = $event.page;
     this.params.size = $event.rows;
     this.loadAllPackets(this.params);
   }
-
-
 
   changeColor(this: any): void {
     this.style.color = 'red';
@@ -595,8 +608,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     return '';
   }
 
-
-
   checkCodeABarreExist(packet:Packet){
     return packet.barcode != "" && packet.barcode!= null
   }
@@ -604,7 +615,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   checkPhoneNbExist(packet:Packet){
     return packet.customerPhoneNb !="" && packet.customerPhoneNb!= null
   }
-
 
   selectCity( packet: Packet) {
     this.selectedCityId = packet.cityId;
@@ -614,10 +624,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
   selectedPacketChange($event: Event) {
     this.nbrSelectedPackets = this.selectedPackets.length;
-    console.log(this.nbrSelectedPackets);
-
   }
-
 
   getReasonOptionsByStatus(status: string) {
     return (Object.keys(ClientReason) as (keyof typeof ClientReason)[])
@@ -757,8 +764,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
     this.patchPacketService(packet);
   }
-
-
 
   ngOnDestroy(): void {
     this.$unsubscribe.next();

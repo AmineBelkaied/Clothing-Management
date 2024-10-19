@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class ModelDayCountDTO extends DayCountDTO {
+public class ProductDayCountDTO extends DayCountDTO {
 
     private Long productId;
     private Date date;
@@ -16,7 +16,7 @@ public class ModelDayCountDTO extends DayCountDTO {
     private Size size;
     private long countReturn;
 
-    public ModelDayCountDTO(
+    public ProductDayCountDTO(
             Date packetDate, Long productId,
             Color color, Size size,
             long countPayed, long countProgress, long countReturn

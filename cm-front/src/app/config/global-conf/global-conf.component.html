@@ -15,6 +15,7 @@
                 placeholder="Nom de l'application"
                 name="applicationName"
                 [(ngModel)]="globalConf.applicationName"
+                class="ml-3"
               />
             </div>
           </div>
@@ -33,6 +34,35 @@
               ></p-dropdown>
             </div>
           </div>
+          <div class="row mt-2">
+            <div class="col-md-3">
+              <label for="fbPage" class="form-label">Source par default</label>
+              <p-dropdown
+                [options]="fbPages"
+                [(ngModel)]="globalConf.fbPage"
+                optionLabel="name"
+                name="fbPage"
+                [style]="{ width: '100%'}"
+                appendTo="body"
+                [showClear]="true"
+              ></p-dropdown>
+            </div>
+            <div class="col-md-3">
+              <p-selectButton
+              [options]="multipage"
+              [(ngModel)]="globalConf.oneSourceApp"
+              optionLabel="label"
+              optionValue="value"
+              name = "oneSourceApp"
+              [disabled]="multipageDisabled"
+              class="mt-2">
+            </p-selectButton>
+            </div>
+
+          </div>
+
+
+
 
           <div class="row mt-2">
             <div class="col-md-6">
@@ -44,6 +74,7 @@
                 name="comment"
                 [(ngModel)]="globalConf.comment"
                 placeholder="Veuillez saisir un commentaire"
+                class="ml-3"
               ></textarea>
             </div>
           </div>
@@ -57,6 +88,7 @@
                 name="exchangeComment"
                 [(ngModel)]="globalConf.exchangeComment"
                 placeholder="Veuillez saisir un commentaire"
+                class="ml-3"
               ></textarea>
             </div>
           </div>

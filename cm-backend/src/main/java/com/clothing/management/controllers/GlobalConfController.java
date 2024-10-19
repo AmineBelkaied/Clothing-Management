@@ -38,7 +38,7 @@ public class GlobalConfController {
         try {
             globalConfService.updateGlobalConf(globalConf);
             LOGGER.info("Global configuration updated successfully.");
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             LOGGER.error("Error occurred while updating global configuration: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

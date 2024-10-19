@@ -20,13 +20,14 @@ export class AddColorComponent implements OnInit,OnDestroy {
 
   ngOnInit(): void {
     this.colorService.color.pipe(takeUntil(this.$unsubscribe)).subscribe(color => {
-      this.color = color
+      this.color = color;
     });
   }
 
   addColor(form: NgForm) {
     if(this.colorService.editMode){
       this.color.name = form.value.name;
+      this.color.hex = form.value.hex;
       this.colorService.updateColor(this.color)
       .pipe(
         catchError((err: any): any => {
@@ -38,7 +39,6 @@ export class AddColorComponent implements OnInit,OnDestroy {
         })
       )
       .subscribe((updatedColor: any) => {
-        console.log(updatedColor)
         this.colorService.spliceColor(updatedColor);
         this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La couleur a été modifiée avec succés", life: 1000 });
         form.reset();

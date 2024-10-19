@@ -2,6 +2,7 @@
   padding: 0px;
   font-size: 0.8rem;
   line-height: 1rem;
+  min-width: 5rem;
 }
 
 :host ::ng-deep .p-listbox .p-listbox-list .p-listbox-item {
@@ -22,7 +23,7 @@
 }
 
 .listbox-style {
-  min-width: 200px; /* Set the desired width for the listbox */
+  min-width: 250px; /* Set the desired width for the listbox */
   background-color: #4e99ef;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add some shadow */
   z-index: 1000; /* Ensure it's on top of other content */
@@ -49,10 +50,14 @@
 }
 
 .selected-item {
-  border-color: #005fad !important; /*#32a16e !important ;*/
+  border-color: #005fad !important;
   box-shadow: 0 3px 3px rgb(0 95 173 / 44%), 0 3px 3px rgb(0 95 173 / 46%), 0 20px 25px -8px rgb(0 0 0 / 15%) !important;
+  gap: 3px;
 }
 
 .default-item {
   border-color: #e8e8e8 !important;
+  gap: 3px;
 }
+
+

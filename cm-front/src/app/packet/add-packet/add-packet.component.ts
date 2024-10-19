@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  input,
   Input,
   OnInit,
   Output,
@@ -39,6 +40,7 @@ import { FbPageService } from 'src/shared/services/fb-page.service';
 })
 export class AddPacketComponent implements OnInit {
   @Input() packet: any;
+  @Input() oneSourceApp : boolean;
   @Input() offersIdsListByFbPage: any[] = [];
   @Input() editMode: boolean = false;
   @Input() modelDialog: boolean = false;
@@ -108,6 +110,7 @@ export class AddPacketComponent implements OnInit {
             );
             this.getOffersSwitch();
             console.log("editmode",this.editMode);
+
 
             this.editMode ? this.getSelectedProducts() : this.addOffer();
           }
@@ -201,6 +204,7 @@ export class AddPacketComponent implements OnInit {
   onOfferChange(offerId: number, index: number): void {
     this.models(index).clear();
     let offer: Offer = this.allOffersList.find((offer) => offer.id === offerId)!;
+    console.log(this.models(index));
 
     if (offer) {
       if (offer.offerModels.length > 0) {
@@ -270,6 +274,7 @@ export class AddPacketComponent implements OnInit {
     // Get selected color and size from the form control
     let color: number = selectedModel.get('selectedColor')?.value || null;
     let size: number = selectedModel.get('selectedSize')?.value || null;
+      console.log("colorrrr", color);
 
     // Log for debugging
 
@@ -463,7 +468,7 @@ export class AddPacketComponent implements OnInit {
   // end submit block
 
   getOffersSwitch() {
-    this.offersSelected = this.enableAllOffer
+    this.offersSelected = this.enableAllOffer || this.oneSourceApp
       ? this.allOffersListEnabled
       : this.offersIdsListByFbPage;
   }

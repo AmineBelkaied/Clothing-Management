@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, shareReplay, take, tap, throwError } from 'rxjs';
 import { FbPage } from 'src/shared/models/FbPage';
 import { environment } from '../../environments/environment';
 import { MessageService } from 'primeng/api';
@@ -16,24 +16,31 @@ export class FbPageService {
   public fbPage: BehaviorSubject<any> = new BehaviorSubject([]);
   public fbPages: FbPage[] = [];
   public editMode = false;
+  private fbPagesCache$: Observable<FbPage[]> | undefined;
 
   constructor(private http: HttpClient, private messageService: MessageService) {
-    this.getFbPagesSubscriber();
   }
 
-  loadFbPages() : void{
-    this.findAllFbPages()
-    .subscribe({
-      next: (fbPagesList: FbPage[]) => {
-        this.fbPages = fbPagesList;
-        this.fbPagesSubscriber.next(fbPagesList);
-      //console.log("this.fbPages",this.fbPages);
-      },
-      error: (error) => {
-        console.error('Error fetching fb pages', error);
-      }
-    });
+  loadFbPages(): void {
+    if (!this.fbPagesCache$) {
+      this.fbPagesCache$ = this.findAllFbPages().pipe(
+        take(1), // Ensures that the HTTP call is made only once
+        tap((fbPagesList: FbPage[]) => {
+          this.fbPages = fbPagesList;
+          this.fbPagesSubscriber.next(fbPagesList);
+          console.log("findAllFbPages");
+        }),
+        catchError((error) => {
+          console.error('Error fetching fbPages', error);
+          return throwError(() => error);
+        })
+        ,shareReplay(1) // Cache the response and share it with future subscribers
+      );
+    }
+
+    this.fbPagesCache$.subscribe();
   }
+
   getFbPagesSubscriber(): Observable<FbPage[]> {
     if (this.fbPagesSubscriber.value.length === 0) {
       this.loadFbPages();
@@ -90,5 +97,10 @@ export class FbPageService {
 
   editFbPage(fbPage: FbPage) {
     this.fbPage.next(fbPage);
+  }
+
+  reloadFbPages(): void {
+    this.fbPagesCache$ = undefined;
+    this.loadFbPages();
   }
 }

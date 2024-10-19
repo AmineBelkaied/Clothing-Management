@@ -1,6 +1,9 @@
 package com.clothing.management.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data
@@ -8,13 +11,12 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = false)
-public class StatOfferTableDTO extends StatTableDTO {
-
+public class StatModelTableDTO extends StatTableDTO {
     private Double purchasePrice;
     private Double sellingPrice;
 
-    public StatOfferTableDTO(OfferDTO offer) {
-        super(offer.getName());
+    public StatModelTableDTO(ModelDTO model) {
+        super(model.getName());
         this.purchasePrice = 0.0;
         this.sellingPrice = 0.0;
     }

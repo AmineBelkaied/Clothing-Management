@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, take, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, shareReplay, take, tap, throwError } from 'rxjs';
 import { Color } from '../models/Color';
 import { environment } from '../../environments/environment';
 import { COLOR_ENDPOINTS } from '../constants/api-endpoints';
@@ -12,32 +12,40 @@ export class ColorService {
 
   private baseUrl: string = environment.baseUrl + `${COLOR_ENDPOINTS.BASE}`;
   public colorsSubscriber: BehaviorSubject<Color[]> = new BehaviorSubject<Color[]>([]);
+  //public color: BehaviorSubject<any> = new BehaviorSubject([]);
   public color: BehaviorSubject<any> = new BehaviorSubject([]);
   public colors: Color[] = [];
   public editMode = false;
+  private colorsCache$: Observable<Color[]> | undefined;
+
 
   constructor(private http: HttpClient) {
-    this.getColorsSubscriber().pipe(take(1));
   }
 
-  loadColors(): Observable<Color[]>{
-    return this.findAllColors().pipe(
-      tap((colorList: Color[]) =>
-        {
-          this.colorsSubscriber.next(colorList);
-          this.colors = colorList;
-        }
-      ),
-      catchError((error) => {
-        // Handle the error here
-        console.error('Error fetching colors', error);
-        return throwError(() => error);
-      }))
+  loadColors(): void {
+    if (!this.colorsCache$) {
+      this.colorsCache$ = this.findAllColors().pipe(
+        take(1),
+        tap((colorList: Color[]) =>
+          {
+            this.colorsSubscriber.next(colorList);
+            this.colors = colorList;
+            console.log("findAllColors");
+          }
+        ),
+        catchError((error) => {
+          // Handle the error here
+          console.error('Error fetching colors', error);
+          return throwError(() => error);
+        }),shareReplay(1)
+      )
+    }
+    this.colorsCache$.subscribe();
   }
 
   getColorsSubscriber(): Observable<Color[]> {
     if (this.colorsSubscriber.value.length === 0) {
-      this.loadColors().subscribe();
+      this.loadColors()
     }
     return this.colorsSubscriber.asObservable();
   }
@@ -62,33 +70,66 @@ export class ColorService {
     return this.http.get<Color[]>(`${this.baseUrl}`);
   }
 
-  findColorById(id: number) {
-    return this.http.get(`${this.baseUrl}/${id}`);
+  findColorById(id: number): Observable<Color> {
+    return this.http.get<Color>(`${this.baseUrl}/${id}`)
+      .pipe(
+        catchError((error) => {
+          console.error(`Error fetching color with id ${id}`, error);
+          return throwError(() => error);
+        })
+      );
   }
 
-  addColor(color: Color) {
-    return this.http.post(`${this.baseUrl}`, color , {observe: 'body'});
+
+  addColor(color: Color): Observable<Color> {
+    return this.http.post<Color>(`${this.baseUrl}`, color,  {observe: 'body'})
+      .pipe(
+        catchError((error) => {
+          console.error('Error adding color', error);
+          return throwError(() => error);
+        })
+      );
   }
 
-  updateColor(color: Color) {
-    return this.http.put(`${this.baseUrl}`, color , {headers : { 'content-type': 'application/json'}});
+  updateColor(color: Color): Observable<Color> {
+    return this.http.put<Color>(`${this.baseUrl}`, color, { headers: { 'Content-Type': 'application/json' } })
+      .pipe(
+        catchError((error) => {
+          console.error('Error updating color', error);
+          return throwError(() => error);
+        })
+      );
   }
 
-  deleteColorById(id: number) {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  deleteColorById(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`)
+      .pipe(
+        catchError((error) => {
+          console.error('Error deleting color', error);
+          return throwError(() => error);
+        })
+      );
   }
 
   pushColor(color: Color){
     this.colors.push(color);
   }
 
-  spliceColor(updatedColor: any){
-    let index = this.colors.findIndex(color => color.id == updatedColor.id);
-    console.log(index);
-    this.colors.splice(index , 1 , updatedColor);
+  spliceColor(updatedColor: Color) {
+    const index = this.colors.findIndex(color => color.id === updatedColor.id);
+    if (index !== -1) {
+      this.colors.splice(index, 1, updatedColor);
+    } else {
+      console.error('Color not found in the list.');
+    }
   }
 
   editColor(color: Color) {
     this.color.next(color);
+  }
+
+  reloadColors(): void {
+    this.colorsCache$ = undefined;
+    this.loadColors();
   }
 }

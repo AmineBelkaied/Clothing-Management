@@ -2,10 +2,11 @@
 [paginator]="colors.length > 6 ? true : false" [rows]="6" [showCurrentPageReport]="true">
     <ng-template pTemplate="header">
         <tr>
-            <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon>
+            <th pSortableColumn="id">Id<p-sortIcon field="id"></p-sortIcon>
             </th>
-            <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
+            <th pSortableColumn="name">Nom<p-sortIcon field="name"></p-sortIcon>
             </th>
+            <th></th>
             <th>Actions</th>
         </tr>
     </ng-template>
@@ -13,6 +14,7 @@
         <tr>
             <td>{{color.id}}</td>
             <td>{{color.name}}</td>
+            <td><div [ngStyle]="{'background-color':color.hex , 'height': '2rem', 'width': '2rem'}"></div></td>
             <td>
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-4 buttonSize"
                     (click)="editColor(color)"></button>
