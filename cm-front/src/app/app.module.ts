@@ -38,7 +38,7 @@ import { ChipModule } from 'primeng/chip';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { AvatarModule } from 'primeng/avatar';
-
+import { ColorPickerModule } from 'primeng/colorpicker';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RippleModule } from 'primeng/ripple';
 
@@ -99,6 +99,7 @@ import { DisplayColorPipe } from 'src/shared/pipes/display-color.pipe';
 import { DisplaySizePipe } from 'src/shared/pipes/display-size.pipe';
 import { DisplayFbPagePipe } from 'src/shared/pipes/display-fbPage.pipe';
 import { DisplayJoinPipe } from 'src/shared/pipes/display-join.pipe';
+import { DisplayColorHexPipe } from 'src/shared/pipes/display-color.Hexpipe';
 
 @NgModule({
   declarations: [
@@ -137,6 +138,7 @@ import { DisplayJoinPipe } from 'src/shared/pipes/display-join.pipe';
     GlobalConfComponent,
     DisplayJoinPipe,
     DisplayColorPipe,
+    DisplayColorHexPipe,
     DisplaySizePipe,
     DisplayFbPagePipe,
     DisplayOfferModelsPipe
@@ -188,7 +190,8 @@ import { DisplayJoinPipe } from 'src/shared/pipes/display-join.pipe';
     BreadcrumbModule,
     ReactiveFormsModule,
     RippleModule,
-    OverlayPanelModule
+    OverlayPanelModule,
+    ColorPickerModule
   ],
   providers: [
     MessageService,

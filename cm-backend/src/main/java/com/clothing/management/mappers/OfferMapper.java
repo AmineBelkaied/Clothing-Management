@@ -18,7 +18,6 @@ public interface OfferMapper {
 
     OfferMapper INSTANCE = Mappers.getMapper(OfferMapper.class);
 
-
     @Mapping(target = "fbPages", source = "fbPages", qualifiedByName = "mapFbPagesToIds")
     @Mapping(target = "offerModels", source = "offerModels", qualifiedByName = "mapToOfferDto")
     OfferDTO toDto(Offer offer);

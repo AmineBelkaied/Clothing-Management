@@ -41,6 +41,7 @@ export class StatusContainerComponent {
   isAdmin: boolean;
   statusItems: any[];
   selectedIndex: number | null = null;
+  borderIndex: number = 2;
   item: Status;
   changed = false;
 
@@ -84,15 +85,16 @@ export class StatusContainerComponent {
   }
 
   toggleListbox(index: any, item: any) {
+    this.borderIndex = index;
     if (this.statusItems[index].options) {
       this.selectedIndex = this.selectedIndex === index ? null : index;
       if (this.selectedIndex == null) {
-        console.log("this.selectedIndex", item);
+        console.log("this.selectedIndex", this.borderIndex);
         this.emitSelectedStatus(item);
 
       }
     } else {
-      console.log("no options", item);
+      console.log("no options", this.borderIndex);
       this.emitSelectedStatus(item);
     }
   }
@@ -104,7 +106,7 @@ export class StatusContainerComponent {
     this.statusChange.emit(item);
   }
 
-  changeBgColor(element: HTMLDivElement) {
+/*   changeBgColor(element: HTMLDivElement) {
     element.style.backgroundColor = '#a8b3c1';
   }
 
@@ -125,7 +127,7 @@ export class StatusContainerComponent {
       }
     }
   }
-
+ */
 
   onOptionSelect(item: any) {
     console.log("item changed", item);

@@ -6,6 +6,8 @@ import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from 'src/shared/services/fb-page.service';
 import {Offer} from "src/shared/models/Offer";
 import { Subject, takeUntil } from 'rxjs';
+import { GlobalConf } from 'src/shared/models/GlobalConf';
+import { GlobalConfService } from 'src/shared/services/global-conf.service';
 
 @Component({
   selector: 'app-add-offer',
@@ -31,11 +33,13 @@ export class AddOfferComponent implements OnInit {
   $unsubscribe: Subject<void> = new Subject();
   fbPages :FbPage[];
   offerForm: FormGroup;
+  globalConf: GlobalConf;
 
   constructor(
     private fb: FormBuilder,
     private offerService: OfferService,
-    public fbPageService: FbPageService) {
+    public fbPageService: FbPageService,
+    private globalConfService :GlobalConfService) {
 
     this.offerForm = this.fb.group({
       id: "",
@@ -48,15 +52,14 @@ export class AddOfferComponent implements OnInit {
    }
 
   ngOnInit(): void {
+    this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (globalConf: GlobalConf) => {
+        this.globalConf = globalConf;
+      }
+    );
     this.offerService.offerSubscriber.pipe(takeUntil(this.$unsubscribe))
       .subscribe((offer:Offer) => this.offer = offer)
         this.fbPages = this.fbPageService.fbPages;
-    /* this.fbPageService.getFbPagesSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
-      (fbPages: FbPage[]) => {
-        this.fbPages = fbPages;
-      }
-    ); */
-
 
     if(this.editMode) {
       this.offerForm.get('offerId')?.setValue(this.offer.id);

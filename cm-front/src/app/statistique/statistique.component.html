@@ -129,6 +129,7 @@
                   <th>Min-Max</th>
                   <th pSortableColumn="avg">Average<p-sortIcon field="avg" /></th>
                   <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
+                  <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
                   <th>Retour</th>
                   <th>Payée/Retour</th>
                   <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
@@ -140,6 +141,7 @@
                   <td>{{ item.min }}-{{ item.max }}</td>
                   <td>{{ item.avg }}</td>
                   <td>{{ item.payed }}</td>
+                  <td>{{ item.progress }}</td>
                   <td>{{ item.retour }}</td>
                   <td>{{ formatNumber(item) }}%</td>
                   <td>{{ item.profits | number:'1.0-0' }}</td>
@@ -177,6 +179,7 @@
                 <th>Min-Max</th>
                 <th pSortableColumn="avg">Average<p-sortIcon field="avg" /></th>
                 <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
+                <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
                 <th>Retour</th>
                 <th>Payée/Retour</th>
                 <th pSortableColumn="purchasePrice">Prix Achat<p-sortIcon field="purchasePrice" /></th>
@@ -190,6 +193,7 @@
                 <td>{{ item.min }}-{{ item.max }}</td>
                 <td>{{ item.avg }}</td>
                 <td>{{ item.payed }}</td>
+                <td>{{ item.progress }}</td>
                 <td>{{ item.retour }}</td>
                 <td>{{ formatNumber(item) }}%</td>
                 <!-- Condition for total row -->
@@ -228,7 +232,8 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Model</th>
+                <th></th>
+                <th>Color</th>
                 <th>Min-Max</th>
                 <th>Average</th>
                 <th>Payée</th>
@@ -238,6 +243,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let item of colorsTableData">
+                <td><div [ngStyle]="{'background-color':item.hex , 'height': '2rem', 'width': '2rem'}"></div></td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.min }}-{{ item.max }}</td>
                 <td>{{ item.avg }}</td>

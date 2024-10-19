@@ -4,6 +4,7 @@ import com.clothing.management.dto.*;
 import com.clothing.management.dto.DayCount.*;
 import com.clothing.management.entities.*;
 import com.clothing.management.enums.SystemStatus;
+import com.clothing.management.mappers.ModelMapper;
 import com.clothing.management.mappers.OfferMapper;
 import com.clothing.management.mappers.StatOfferTableMapper;
 import com.clothing.management.repository.IModelStockHistoryRepository;
@@ -22,54 +23,56 @@ import java.util.stream.Collectors;
 @Transactional("tenantTransactionManager")
 public class StatServiceImpl implements StatService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StatService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatServiceImpl.class);
     private final IProductsPacketRepository productsPacketRepository;
     private final IModelStockHistoryRepository modelStockHistoryRepository;
     private final IPacketRepository packetRepository;
     private final OfferMapper offerMapper;
+    private final ModelMapper modelMapper;
     private final StatOfferTableMapper statOfferTableMapper;
 
     public StatServiceImpl(IProductsPacketRepository productsPacketRepository,
                            IModelStockHistoryRepository modelStockHistoryRepository,
-                           IPacketRepository packetRepository, OfferMapper offerMapper, StatOfferTableMapper statOfferTableMapper) {
+                           IPacketRepository packetRepository, OfferMapper offerMapper, ModelMapper modelMapper, StatOfferTableMapper statOfferTableMapper) {
         this.productsPacketRepository = productsPacketRepository;
         this.modelStockHistoryRepository = modelStockHistoryRepository;
         this.packetRepository = packetRepository;
         this.offerMapper = offerMapper;
+        this.modelMapper = modelMapper;
         this.statOfferTableMapper = statOfferTableMapper;
     }
 
     @Override
-    public Map<String, List<?>> statAllModelsChart(String beginDate, String endDate, Boolean countProgressEnabler) {
+    public Map<String, List<?>> statAllModelsChart(String beginDate, String endDate) {
 
         // Initialize lists
         List<Long> countModelsList;
         //ArrayList<Integer> countTotalList = new ArrayList<>();
 
         // Fetch product data
-        List<ProductsDayCountDTO> existingProductsPacket = productsPacketRepository.statAllModels(beginDate, endDate);
+        List<ModelsDayCountDTO> existingProductsPacket = productsPacketRepository.statAllModels(beginDate, endDate);
         LOGGER.info("Fetched {} product packets for the date range.", existingProductsPacket.size());
 
         // Get unique dates and models
-        Map<String, List<?>> uniqueValues = getUnique(existingProductsPacket);
+        Map<String, List<?>> uniqueValues = getUniqueModels(existingProductsPacket);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
-        List<String> uniqueModels = (List<String>) uniqueValues.get("uniqueModelNames");
+        List<ModelDTO> uniqueModels = (List<ModelDTO>) uniqueValues.get("uniqueModels");
 
         LOGGER.debug("Unique dates: {}, Unique models: {}", uniqueDates, uniqueModels);
 
         // Initialize model count lists and recap
         List<List<Long>> listModelsCount = new ArrayList<>();
-        List<StatTableDTO> modelsRecapCount = new ArrayList<>();
+        List<StatOfferTableDTO> modelsRecapCount = new ArrayList<>();
 
-        StatTableDTO modelRecap;
+        StatOfferTableDTO modelRecap;
 
         // Process each unique model
-        for (String uniqueModel : uniqueModels) {
-            LOGGER.debug("Processing model: {}", uniqueModel);
+        for (ModelDTO uniqueModel : uniqueModels) {
+            //LOGGER.debug("Processing model: {}", uniqueModel);
 
             countModelsList = new ArrayList<>();
             double countProfits = 0;
-            modelRecap = new StatTableDTO(uniqueModel);
+            modelRecap = statOfferTableMapper.modelToStatModelTableDTO(uniqueModel);
 
             // Process each unique date for the current model
             for (Date uniqueDate : uniqueDates) {
@@ -78,22 +81,18 @@ public class StatServiceImpl implements StatService {
                 long countProgress = 0;
 
                 // Calculate counts for the current model on the given date
-                for (ProductsDayCountDTO row : existingProductsPacket) {
-                    if (row.getDate().equals(uniqueDate) && row.getModelName().equals(uniqueModel)) {
-                        if (countProgressEnabler) {
-                            count += row.getCountPayed() + row.getCountProgress();
-                            countProfits += row.getProfits();
-                        } else {
-                            count += row.getCountPayed();
-                            countProfits += row.getProfits();
-                        }
-
+                for (ModelsDayCountDTO row : existingProductsPacket) {
+                    if (row.getDate().equals(uniqueDate) && row.getModel().getId().equals(uniqueModel.getId())) {
+                        count += row.getCountPayed();
+                        countProfits += row.getProfits();
                         countProgress += row.getCountProgress();
                         countRetour += row.getCountReturn();
+
                     }
                 }
-
                 // Update the recap for the current model
+                modelRecap.setPurchasePrice((double) (uniqueModel.getPurchasePrice()* modelRecap.getPayed()));
+                modelRecap.setSellingPrice(uniqueModel.getPurchasePrice() + modelRecap.getProfits());
                 modelRecap.setPayed(count + modelRecap.getPayed());
                 modelRecap.setRetour(countRetour + modelRecap.getRetour());
                 modelRecap.setProgress(countProgress + modelRecap.getProgress());
@@ -116,7 +115,7 @@ public class StatServiceImpl implements StatService {
 
         // Create total recap product table
         LOGGER.info("Generating total recap product table.");
-        StatTableDTO modelTotalRecap = createTableRecap(modelsRecapCount);
+        StatOfferTableDTO modelTotalRecap = createOfferTableTotalRecap(modelsRecapCount);
         modelsRecapCount.add(modelTotalRecap);
 
         // Prepare the final data map
@@ -238,9 +237,7 @@ public class StatServiceImpl implements StatService {
     @Transactional("tenantTransactionManager")
     public Map<String, List<?>> statAllOffersChart(String beginDate, String endDate) {
 
-        // Initialize lists
         List<Long> countOffersList;
-
         // Fetch offer data
         List<OffersDayCountDTO> existingOffersPacket = productsPacketRepository.offersCountByDate(beginDate, endDate);
         LOGGER.info("Fetched {} offer packets for the date range.", existingOffersPacket.size());
@@ -249,14 +246,12 @@ public class StatServiceImpl implements StatService {
         Map<String, List<?>> uniqueValues = getUniqueOffers(existingOffersPacket);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<OfferDTO> uniqueOffers = (List<OfferDTO>) uniqueValues.get("uniqueOffers");
-
         LOGGER.debug("Unique dates: {}, Unique offers: {}", uniqueDates, uniqueOffers);
 
         // Initialize offers count list and recap
         List<List<Long>> listOffersCount = new ArrayList<>();
         List<StatOfferTableDTO> offersRecapCount = new ArrayList<>();
-
-        StatOfferTableDTO offerRecap = null;
+        StatOfferTableDTO offerRecap;
 
         // Process each unique offer
         for (OfferDTO uniqueOffer : uniqueOffers) {
@@ -274,7 +269,7 @@ public class StatServiceImpl implements StatService {
 
                 // Calculate counts for the current offer on the given date
                 for (OffersDayCountDTO row : existingOffersPacket) {
-                    if (row.getDate().equals(uniqueDate) && row.getOffer().getId() == uniqueOffer.getId()) {
+                    if (row.getDate().equals(uniqueDate) && row.getOffer().getId().equals(uniqueOffer.getId())) {
                         if (row.getCountPayed() > 0) {
                             countPayed += 1;
                             countProfits += row.getProfits();
@@ -331,6 +326,13 @@ public class StatServiceImpl implements StatService {
         return createTotalRecap(recapCount, totalRecap);
     }
 
+    public StatOfferTableDTO createModelTableTotalRecap(List<StatOfferTableDTO> recapCount) {
+        StatOfferTableDTO totalRecap = statOfferTableMapper.modelToStatModelTableDTO(
+                ModelDTO.builder()
+                        .name("Total")
+                        .build());
+        return createTotalRecap(recapCount, totalRecap);
+    }
     public StatOfferTableDTO createOfferTableTotalRecap(List<StatOfferTableDTO> recapCount) {
         StatOfferTableDTO totalRecap = statOfferTableMapper.offerToStatOfferTableDTO(
                 OfferDTO.builder()
@@ -338,6 +340,7 @@ public class StatServiceImpl implements StatService {
                         .build());
         return createTotalRecap(recapCount, totalRecap);
     }
+
     private <T extends StatTableDTO> T createTotalRecap(List<T> recapCount, T totalRecap) {
         totalRecap.setMin(0L);
 
@@ -350,8 +353,7 @@ public class StatServiceImpl implements StatService {
             totalRecap.setProfits(totalRecap.getProfits() + uniqueRecapCount.getProfits());
 
             // Specific fields for subclasses
-            if (uniqueRecapCount instanceof StatOfferTableDTO) {
-                StatOfferTableDTO offerRecap = (StatOfferTableDTO) uniqueRecapCount;
+            if (uniqueRecapCount instanceof StatOfferTableDTO offerRecap) {
                 StatOfferTableDTO offerTotalRecap = (StatOfferTableDTO) totalRecap;
                 offerTotalRecap.setPurchasePrice(offerTotalRecap.getPurchasePrice() + offerRecap.getPurchasePrice());
                 offerTotalRecap.setSellingPrice(offerTotalRecap.getSellingPrice() + offerRecap.getSellingPrice());
@@ -386,16 +388,14 @@ public class StatServiceImpl implements StatService {
 
         // Initialize lists for color counts and recap
         List<List<Integer>> countColorsLists = new ArrayList<>();
-        List<StatTableDTO> colorsRecapCount = new ArrayList<>();
-        StatTableDTO colorRecap;
+        List<StatColorTableDTO> colorsRecapCount = new ArrayList<>();
+        StatColorTableDTO colorRecap;
         ArrayList<Integer> uniqueColorCountList;
 
         // Process each unique color
         for (Color uniqueColor : uniqueColors) {
-            LOGGER.debug("Processing color: {}", uniqueColor.getName());
-
             uniqueColorCountList = new ArrayList<>();
-            colorRecap = new StatTableDTO(uniqueColor.getName());
+            colorRecap = new StatColorTableDTO(uniqueColor);
 
             // Process each unique date for the current color
             for (Date uniqueDate : uniqueDates) {
@@ -406,8 +406,8 @@ public class StatServiceImpl implements StatService {
                 // Calculate counts for the current color on the given date
                 for (ColorsDayCountDTO product : existingProductsPacketColor) {
                     if (product.getDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId())) {
-                        count += product.getCountPayed();
-                        countProgress += product.getCountProgress();
+                        count += (int) product.getCountPayed();
+                        countProgress += (int) product.getCountProgress();
                     }
                 }
 
@@ -549,7 +549,7 @@ public class StatServiceImpl implements StatService {
     // For packets chart
     private void finalizeRecapStats(StatTableDTO recap, int uniqueDatesSize, double total) {
         if (uniqueDatesSize == 0) uniqueDatesSize = 1;
-        double avg = recap.getPayed() / uniqueDatesSize;
+        double avg = (double) recap.getPayed() / uniqueDatesSize;
         double percentage = total == 0 ? 0 : Math.round(recap.getPayed() * 10000.0 / total) / 100.0;
 
         recap.setAvg((long) avg);
@@ -558,67 +558,26 @@ public class StatServiceImpl implements StatService {
         LOGGER.debug("Finalizing recap stats. Avg: {}, Percentage: {}", avg, percentage);
     }
 
-    public static Map<String, List<?>> getUnique(List<ProductsDayCountDTO> productsList) {
+    public Map<String, List<?>> getUniqueModels(List<ModelsDayCountDTO> productsList) {
 
         Map<String, List<?>> uniqueAttributes = new HashMap<>();
         List<Date> uniqueDates = new ArrayList<>();
-        List<Color> uniqueColors = new ArrayList<>();
-        List<Size> uniqueSizes = new ArrayList<>();
-        List<String> uniqueProductRefs = new ArrayList<>();
-        List<String> uniqueModelNames = new ArrayList<>();
-        List<Long> uniqueModelIds = new ArrayList<>();
-        List<Long> uniqueProductsIds = new ArrayList<>();
+        List<ModelDTO> uniqueModels = new ArrayList<>();
+        List<Long> uniqueModelsIds = new ArrayList<>();
 
-        for (ProductsDayCountDTO product : productsList) {
-            Date packetDate = product.getDate();
-            if (!uniqueDates.contains(packetDate)) {
-                uniqueDates.add(packetDate);
+        for (ModelsDayCountDTO product : productsList) {
+            if (!uniqueDates.contains(product.getDate())) {
+                uniqueDates.add(product.getDate());
             }
 
-            Color color = product.getColor();
-            if (color != null && !uniqueColors.contains(color)) {
-                uniqueColors.add(color);
-            }
-
-            String modelName = product.getModelName();
-            if (!uniqueModelNames.contains(modelName)) {
-                uniqueModelNames.add(modelName);
-                uniqueModelIds.add(product.getModelId());
-            }
-
-            if (product.getSize() != null) {
-                Size size = product.getSize();
-                if (!uniqueSizes.contains(size)) {
-                    uniqueSizes.add(size);
-                }
-            }
-
-            if (product.getId() != null) {
-                long id = product.getId();
-                if (!uniqueProductsIds.contains(id)) {
-                    uniqueProductsIds.add(id);
-                }
-            }
-
-            if (product.getColor() != null) {
-                String productRef = product.getColor().getName() + " " + product.getSize().getReference();
-                if (!uniqueProductRefs.contains(productRef)) {
-                    uniqueProductRefs.add(productRef);
-                }
+            Model model = product.getModel();
+            if (!uniqueModelsIds.contains(model.getId())) {
+                uniqueModels.add(modelMapper.toDto(model));
+                uniqueModelsIds.add(model.getId());
             }
         }
-
-        LOGGER.info("Unique attributes extracted. Dates: {}, Colors: {}, Sizes: {}, Product Refs: {}, Model Names: {}, Model Ids: {}, Product Ids: {}",
-                uniqueDates.size(), uniqueColors.size(), uniqueSizes.size(), uniqueProductRefs.size(), uniqueModelNames.size(), uniqueModelIds.size(), uniqueProductsIds.size());
-
         uniqueAttributes.put("uniqueDates", uniqueDates);
-        uniqueAttributes.put("uniqueColors", uniqueColors);
-        uniqueAttributes.put("uniqueModelNames", uniqueModelNames);
-        uniqueAttributes.put("uniqueModelIds", uniqueModelIds);
-        uniqueAttributes.put("uniqueSizes", uniqueSizes);
-        uniqueAttributes.put("uniqueProductRefs", uniqueProductRefs);
-        uniqueAttributes.put("uniqueProductIds", uniqueProductsIds);
-
+        uniqueAttributes.put("uniqueModels", uniqueModels);
         return uniqueAttributes;
     }
 
@@ -629,9 +588,8 @@ public class StatServiceImpl implements StatService {
         List<Color> uniqueColors = new ArrayList<>();
 
         for (ColorsDayCountDTO product : productsList) {
-            Date packetDate = product.getDate();
-            if (!uniqueDates.contains(packetDate)) {
-                uniqueDates.add(packetDate);
+            if (!uniqueDates.contains(product.getDate())) {
+                uniqueDates.add(product.getDate());
             }
 
             Color color = product.getColor();
@@ -639,12 +597,9 @@ public class StatServiceImpl implements StatService {
                 uniqueColors.add(color);
             }
         }
-
         LOGGER.info("Unique attributes extracted. Dates: {}, Colors: {}", uniqueDates.size(), uniqueColors.size());
-
         uniqueAttributes.put("uniqueDates", uniqueDates);
         uniqueAttributes.put("uniqueColors", uniqueColors);
-
         return uniqueAttributes;
     }
 
@@ -657,10 +612,9 @@ public class StatServiceImpl implements StatService {
         List<Long> uniqueOffersIds = new ArrayList<>();
 
         for (OffersDayCountDTO product : productsList) {
-            Date packetDate = product.getDate();
             Offer offer = product.getOffer();
-            if (!uniqueDates.contains(packetDate)) {
-                uniqueDates.add(packetDate);
+            if (!uniqueDates.contains(product.getDate())) {
+                uniqueDates.add(product.getDate());
             }
             if (offer != null && !uniqueOffersIds.contains(offer.getId())) {
                 uniqueOffersIds.add(offer.getId());
@@ -676,7 +630,7 @@ public class StatServiceImpl implements StatService {
         return uniqueAttributes;
     }
 
-    private Map<String, List<?>> getUniqueValues(List<ModelDayCountDTO> existingProductsPacket) {
+    private Map<String, List<?>> getUniqueValues(List<ProductDayCountDTO> existingProductsPacket) {
 
         Map<String, List<?>> uniqueValues = new HashMap<>();
         List<Date> uniqueDates = new ArrayList<>();
@@ -685,11 +639,14 @@ public class StatServiceImpl implements StatService {
         List<String> uniqueProductRefs = new ArrayList<>();
         List<Long> uniqueProductIds = new ArrayList<>();
 
-        for (ModelDayCountDTO product : existingProductsPacket) {
+        for (ProductDayCountDTO product : existingProductsPacket) {
             if (product.getDate() != null && !uniqueDates.contains(product.getDate())) uniqueDates.add(product.getDate());
             if (product.getColor() != null && !uniqueColors.contains(product.getColor())) uniqueColors.add(product.getColor());
             if (product.getSize() != null && !uniqueSizes.contains(product.getSize())) uniqueSizes.add(product.getSize());
-            String colorAndSize = product.getColor().getName() + " " + product.getSize().getReference();
+            String colorAndSize = null;
+            if (product.getColor() != null && product.getSize() != null) {
+                colorAndSize = product.getColor().getName() + " " + product.getSize().getReference();
+            }
             if (!uniqueProductRefs.contains(colorAndSize)) uniqueProductRefs.add(colorAndSize);
             if (product.getProductId() != null && !uniqueProductIds.contains(product.getProductId())) uniqueProductIds.add(product.getProductId());
         }
@@ -712,14 +669,13 @@ public class StatServiceImpl implements StatService {
     public Map<String, List<?>> statModelSoldChart(Long modelId, String beginDate, String endDate) {
 
         // Fetch existing product packets
-        List<ModelDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSoldProgress(modelId, beginDate, endDate);
+        List<ProductDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSoldProgress(modelId, beginDate, endDate);
         LOGGER.debug("Fetched {} product packets for Model ID: {}", existingProductsPacket.size(), modelId);
 
         // Get unique values (dates, colors, sizes, product refs)
         Map<String, List<?>> uniqueValues = getUniqueValues(existingProductsPacket);
 
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
-        LOGGER.debug("Unique dates: {}", uniqueDates);
 
         List<Color> uniqueColors = (List<Color>) uniqueValues.get("uniqueColors");
         LOGGER.debug("Unique colors: {}", uniqueColors);
@@ -754,7 +710,7 @@ public class StatServiceImpl implements StatService {
         return dataHashMap;
     }
 
-    private List<List<Integer>> getProductCounts(List<ModelDayCountDTO> existingProductsPacket, List<String> uniqueProductRefs, List<Date> uniqueDates) {
+    private List<List<Integer>> getProductCounts(List<ProductDayCountDTO> existingProductsPacket, List<String> uniqueProductRefs, List<Date> uniqueDates) {
 
         List<List<Integer>> listProductsCount = new ArrayList<>();
         for (String uniqueProductRef : uniqueProductRefs) {
@@ -763,10 +719,10 @@ public class StatServiceImpl implements StatService {
             List<Integer> countProductsList = new ArrayList<>();
             for (Date uniqueDate : uniqueDates) {
                 int count = 0;
-                for (ModelDayCountDTO productDto : existingProductsPacket) {
+                for (ProductDayCountDTO productDto : existingProductsPacket) {
                     String colorAndSize = productDto.getColor().getName() + " " + productDto.getSize().getReference();
                     if (productDto.getDate().equals(uniqueDate) && uniqueProductRef.equals(colorAndSize)) {
-                        count += productDto.getCountPayed();
+                        count += (int) productDto.getCountPayed();
                     }
                 }
                 countProductsList.add(count);
@@ -779,7 +735,7 @@ public class StatServiceImpl implements StatService {
         return listProductsCount;
     }
 
-    private List<List<Integer>> getColorCounts(List<ModelDayCountDTO> existingProductsPacket, List<Color> uniqueColors, List<Date> uniqueDates) {
+    private List<List<Integer>> getColorCounts(List<ProductDayCountDTO> existingProductsPacket, List<Color> uniqueColors, List<Date> uniqueDates) {
 
         List<List<Integer>> listColorsCount = new ArrayList<>();
         for (Color uniqueColor : uniqueColors) {
@@ -788,9 +744,9 @@ public class StatServiceImpl implements StatService {
             List<Integer> countColorsList = new ArrayList<>();
             for (Date uniqueDate : uniqueDates) {
                 int count = 0;
-                for (ModelDayCountDTO product : existingProductsPacket) {
+                for (ProductDayCountDTO product : existingProductsPacket) {
                     if (product.getDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId())) {
-                        count += product.getCountPayed();
+                        count += (int) product.getCountPayed();
                     }
                 }
                 countColorsList.add(count);
@@ -802,7 +758,7 @@ public class StatServiceImpl implements StatService {
         return listColorsCount;
     }
 
-    private List<List<Integer>> getSizeCounts(List<ModelDayCountDTO> existingProductsPacket, List<Size> uniqueSizes, List<Date> uniqueDates) {
+    private List<List<Integer>> getSizeCounts(List<ProductDayCountDTO> existingProductsPacket, List<Size> uniqueSizes, List<Date> uniqueDates) {
 
         List<List<Integer>> listSizesCount = new ArrayList<>();
         for (Size uniqueSize : uniqueSizes) {
@@ -811,9 +767,9 @@ public class StatServiceImpl implements StatService {
             List<Integer> countSizesList = new ArrayList<>();
             for (Date uniqueDate : uniqueDates) {
                 int count = 0;
-                for (ModelDayCountDTO product : existingProductsPacket) {
+                for (ProductDayCountDTO product : existingProductsPacket) {
                     if (product.getDate().equals(uniqueDate) && product.getSize().getId().equals(uniqueSize.getId())) {
-                        count += product.getCountPayed();
+                        count += (int) product.getCountPayed();
                     }
                 }
                 countSizesList.add(count);

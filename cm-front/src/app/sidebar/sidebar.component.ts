@@ -1,11 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { Subject, takeUntil } from 'rxjs';
+import { combineLatest, Subject, takeUntil } from 'rxjs';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
+import { ColorService } from 'src/shared/services/color.service';
+import { FbPageService } from 'src/shared/services/fb-page.service';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { PacketService } from 'src/shared/services/packet.service';
 import { SideBarService } from 'src/shared/services/sidebar.service';
+import { SizeService } from 'src/shared/services/size.service';
 import { StorageService } from 'src/shared/services/strorage.service';
 
 @Component({
@@ -28,7 +31,9 @@ export class SidebarComponent implements OnInit {
   isAdmin: boolean;
   isSuperAdmin: boolean;
   globalConf: GlobalConf = {
-    applicationName: "AbySoft"
+    applicationName: "AbySoft",
+    oneSourceApp: true,
+    noDefaultSource: false
   };
   showUserMenu: boolean = false;
 
@@ -41,6 +46,9 @@ export class SidebarComponent implements OnInit {
                private globalConfService: GlobalConfService,
                private messageService: MessageService,
                private sideBarService: SideBarService,
+               private colorService : ColorService,
+               private sizeService : SizeService,
+               private fbPageService : FbPageService,
                private router: Router) {
                 this.menuItems = [
                   { label: 'Commandes', icon: 'pi pi-shopping-cart', routerLink: "/packets", isUserOption : true },
@@ -63,16 +71,18 @@ export class SidebarComponent implements OnInit {
                   this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
                     (globalConf: GlobalConf) => {
                       this.globalConf = globalConf;
+
+                      combineLatest([
+                        this.sizeService.getSizesSubscriber(),
+                        this.colorService.getColorsSubscriber(),
+                        this.fbPageService.getFbPagesSubscriber()
+                      ]).pipe(takeUntil(this.$unsubscribe))
+                        .subscribe();
                     })
-
                 });
-
-
    }
 
   ngOnInit(): void {
-
-    /* this.emitExpansionState(); */
   }
 
   changeClass() {

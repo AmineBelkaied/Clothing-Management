@@ -63,8 +63,10 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public Color updateColor(Color color) {
-        checkColorExistence(color.getName());
-        Color updatedColor = colorRepository.save(color);
+        Color updatedColor;
+        Optional<Color> existingColor = findColorByName(color.getName());
+        if (existingColor.isPresent()) {updatedColor = colorRepository.save(color);}
+        else updatedColor = colorRepository.save(color);
         LOGGER.info("Color updated successfully with ID: {}", updatedColor.getId());
         return updatedColor;
     }

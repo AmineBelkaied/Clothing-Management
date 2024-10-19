@@ -500,11 +500,13 @@ export class StatistiqueComponent implements OnInit {
 
     let k = 0;
     this.colorsTableData.forEach((item: any) => {
+      console.log(item);
+
       this.colorsDataSetArray.push({
-        label: item.name + '/av:' + this.colorsTableData[k].avg,
+        label: item.name+'/av:' + this.colorsTableData[k].avg,
         data: colorsCounts[k],
         fill: false,
-        borderColor: this.getRandomColor(item.name),
+        borderColor: item.hex,
         tension: 0.4,
         hidden: this.colorsTableData[k].avg < 3
       });

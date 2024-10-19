@@ -4,11 +4,14 @@
     <div class="card-text">
       <form #modelForm="ngForm" (ngSubmit)="addColor(modelForm)">
         <div class="container">
-          <div class="row justify-content-between">
-            <div class="col-md-6">
+          <div class="row justify-content">
+            <div class="col-md-4">
               <label for="name">Nom</label>
               <input pInputText id="name" placeholder="Nom de la couleur" name="name" style="width: 10rem;"
                 [(ngModel)]="color.name" />
+            </div>
+            <div class="col-md-2">
+              <p-colorPicker class ='ml-3' name="hex" [(ngModel)]="color.hex"/>
             </div>
           </div>
           <br>

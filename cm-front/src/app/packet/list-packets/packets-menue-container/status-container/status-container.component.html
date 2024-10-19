@@ -1,12 +1,19 @@
 <div class="flex justify-content-center mt-2 mb-2" style="background-color: #ffffff">
   <ng-container *ngFor="let item of statusItems; let i = index">
-    <div class="flex-container shadow-6 d-flex justify-content-center mr-2" style="cursor: pointer;" *ngIf="item.isUserOption==true || isAdmin"  #menuItem>
-      <!-- Icon, Label, and Count -->
-      <div class="flex flex-column align-items-center p-2   relative"
-           [ngClass]="{'cursor-pointer': item.options}"
-           (click)="toggleListbox(i, item)">
+    <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
+      style="cursor: pointer;"
+      *ngIf="item.isUserOption == true || isAdmin"
+      #menuItem
+      (click)="toggleListbox(i,item)"
+      [ngClass]="{
+        'selected-item': i === borderIndex,
+        'default-item': i !== borderIndex
+      }"
+      >
+      <div class="flex flex-column align-items-center p-2 relative"
+      [ngClass]="{'cursor-pointer': item.options}">
         <i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>
-        <span class="text-400  mt-1" style="color: black">{{ item.label }}</span>
+        <span class="text-400 mt-1" style="color: black">{{ item.label }}</span>
         <span class="mt-1">
           <p-badge [value]="item.count" severity="info"></p-badge>
           <b *ngIf="item.dayCount">
@@ -15,7 +22,7 @@
         </span>
       </div>
 
-      <!-- p-listbox next to the icon-label-count -->
+      <!-- Listbox logic here -->
       <div *ngIf="item.options && selectedIndex === i" class="listbox-container">
         <p-listbox
           [options]="item.options"
@@ -23,107 +30,8 @@
           [multiple]="true"
           (onChange)="onOptionSelect(item)"
           class="listbox-style">
-        </p-listbox><!--(click)="$event.stopPropagation()"-->
+        </p-listbox>
       </div>
     </div>
   </ng-container>
-
 </div>
-
-
-
-<!-- <div
-class="card ml-1 mt-1 mb-1"
-style="background-color: #fbfbfb; display: flex; align-items: center; position: relative; padding: 2px"
->
-<div class="px-4 py-2 md:px-6 lg:px-6">
-  <div class="grid grid-cols-1 md:grid-cols-6 gap-2">
-    <div
-      class="col-span-3 md:col-span-1"
-      *ngFor="let item of statusItems; let j = index"
-    >
-      <div
-        class="statusCard surface-card shadow-6 p-3 border-round"
-        *ngIf="(!(j == 0) && !(j == 7)) || isAdmin"
-      >
-        <div
-          class="flex justify-content-between mb-1"
-        >
-          <div>
-              <p-selectButton
-              *ngIf="j == 2"
-              [options]="nonConfirmedOptions"
-              [(ngModel)]="nonConfirmedOptionsValue"
-              [multiple]="true"
-              optionLabel="name"
-              optionValue="value"
-              class="small-select-button"
-              (onOptionClick)="onActiveIndexChange(2)"
-            ></p-selectButton>
-
-            <p-selectButton
-              *ngIf="j == 4"
-              [options]="inProgressOptions"
-              [(ngModel)]="inProgressOptionsValue"
-              [multiple]="true"
-              optionLabel="name"
-              optionValue="value"
-              class="small-select-button"
-              (onOptionClick)="onActiveIndexChange(4)"
-            ></p-selectButton>
-
-            <p-selectButton
-              *ngIf="j == 6"
-              [options]="canceledOptions"
-              [(ngModel)]="canceledOptionsValue"
-              [multiple]="true"
-              optionLabel="name"
-              optionValue="value"
-              class="small-select-button"
-              (onOptionClick)="onActiveIndexChange(6)"
-            ></p-selectButton>
-
-            <p-selectButton
-              *ngIf="j == 7"
-              [options]="endedOptions"
-              [(ngModel)]="endedOptionsValue"
-              [multiple]="true"
-              optionLabel="name"
-              optionValue="value"
-              class="small-select-button"
-              (onOptionClick)="onActiveIndexChange(7)"
-            ></p-selectButton>
-            <span class="block text-500 font-medium mt-1 ml-1" *ngIf="j != 2 && j != 4 && j != 6 && j != 7">
-              {{
-              item.title
-              }}</span>
-          </div>
-          <div
-            class="flex ml-1 align-items-center justify-content-center bg-{{
-              item.color
-            }}-100 border-round"
-            style="width: 2rem; height: 2rem"
-            (click)="onActiveIndexChange(j)"
-          >
-            <i class="{{ item.icon }} text-white-500 text-xl"></i>
-          </div>
-        </div>
-
-          <span class="text-900 font-medium text-xl">
-            ({{ item.badgeByDate }})
-          </span>
-
-        <span *ngIf="isAdmin || (j != 0 && j != 7)"
-          class="text-green-500 font-medium"
-          >{{ item.badge }}</span
-        >
-        <span *ngIf="isAdmin || (j != 0 && j != 7)"
-          class="text-500"
-          > depuis la création</span
-        >
-      </div>
-    </div>
-  </div>
-</div>
-</div>
- -->

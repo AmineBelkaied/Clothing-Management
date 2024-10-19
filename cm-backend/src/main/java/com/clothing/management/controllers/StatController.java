@@ -46,7 +46,7 @@ public class StatController {
             @RequestParam Boolean countProgress) {
         LOGGER.info("Fetching stats for all models from {} to {} with countProgress: {}", beginDate, endDate, countProgress);
         try {
-            Map<String, List<?>> stats = statService.statAllModelsChart(beginDate, endDate, countProgress);
+            Map<String, List<?>> stats = statService.statAllModelsChart(beginDate, endDate);
             LOGGER.info("Successfully fetched stats for all models");
             return ResponseEntity.ok(stats);
         } catch (Exception e) {

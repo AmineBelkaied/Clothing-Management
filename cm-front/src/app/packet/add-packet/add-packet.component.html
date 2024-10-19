@@ -10,7 +10,7 @@
                 <p-checkbox lass="mb-2" [binary]="true" inputId="binary" [ngModelOptions]="{standalone: true}" [(ngModel)]="enableFakeSize" ></p-checkbox>
                 <label class="ml-2 mt-2" for="ny">Fake Size</label>
               </div>
-              <div class="col-md-3" >
+              <div class="col-md-3" *ngIf="!oneSourceApp">
                 <p-checkbox lass="mb-2" [binary]="true" inputId="binary" [ngModelOptions]="{standalone: true}" [(ngModel)]="enableAllOffer" (onChange)="getOffersSwitch()"></p-checkbox>
                 <label class="ml-2 mt-2" for="ny">All offer</label>
               </div>
@@ -52,7 +52,22 @@
                             [style]="{ width: '300px'}" [panelStyle]="{ width: '300px' }"
                             [showClear]="true" appendTo="body"
                             placeholder="Choisir la couleur">
-                          </p-dropdown>
+
+                          <ng-template pTemplate="selectedItem">
+                            <div class="flex align-items-center gap-2" *ngIf="model.get('selectedColor')?.value">
+                              <div [ngStyle]="{'background-color':model.get('selectedColor')?.value | displayColorHex , 'height': '2rem', 'width': '2rem'}"></div>
+
+                                <div>{{ [model.get('selectedColor')?.value] | displayColor }}</div>
+                            </div>
+                        </ng-template>
+                        <ng-template let-color pTemplate="item">
+                            <div class="flex align-items-center gap-2">
+                              <div [ngStyle]="{'background-color':color.hex , 'height': '2rem', 'width': '2rem'}"></div>
+
+                                <div>{{ color.name }}</div>
+                            </div>
+                        </ng-template>
+                      </p-dropdown>
                         </td>
                         <td><!-- ... Dropdown for selecting sizes ... -->
                           <p-dropdown [options]="model.get('sizes')?.value" (ngModelChange)="colorSizeChange(model, j, offer)"

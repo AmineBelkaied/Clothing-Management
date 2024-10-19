@@ -1,8 +1,6 @@
 package com.clothing.management.repository;
 import com.clothing.management.dto.DayCount.*;
-import com.clothing.management.entities.Color;
 import com.clothing.management.entities.ProductsPacket;
-import com.clothing.management.entities.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,10 +32,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     List<SoldProductsDayCountDTO> soldProductsCountByDate(@Param("modelId") Long modelId,@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.OffersDayCountDTO(" +
-            "DATE(pp.packet.date), " +
-            "pp.packet.id , " +
-            "pp.offer ," +
-            "pp.packetOfferId, " +
+            "DATE(pp.packet.date), pp.packet.id , " +
+            "pp.offer , pp.packetOfferId, " +
             "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN pp.packet.status IN ('Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN (pp.packet.status = 'Retour' OR pp.packet.status = 'Retour reçu') AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END)," +
@@ -50,10 +46,9 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     List<OffersDayCountDTO> offersCountByDate(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
 
-   @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.ProductsDayCountDTO(" +
+   @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.ModelsDayCountDTO(" +
            "DATE(pp.packet.date), pp.packet.id, " +
-           "pp.product.model.id, pp.product.model.name, " +
-           "pp.product.color, pp.product.size, " +
+           "pp.product.model, " +
            "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
            "SUM(CASE WHEN pp.packet.status IN ('Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
            "SUM(CASE WHEN pp.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
@@ -65,8 +60,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
            "AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Retour', 'Retour reçu','En rupture') " +
            "GROUP BY DATE(pp.packet.date), pp.product.model.id " +
            "ORDER BY DATE(pp.packet.date) ASC")
-
-    List<ProductsDayCountDTO> statAllModels(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
+    List<ModelsDayCountDTO> statAllModels(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.ProductsDayCountDTO( " +
             "DATE(pp.packet.date), pp.product.id, " +
@@ -146,7 +140,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "GROUP BY DATE(p.date) ORDER BY DATE(p.date) ASC")
     List<PacketsStatCountDTO> statAllPackets(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
-    @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.ModelDayCountDTO(" +
+    @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.ProductDayCountDTO(" +
             "DATE(pp.packet.date), pp.product.id, " +
             "pp.product.color , pp.product.size , " +
             "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
@@ -157,6 +151,6 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "AND pp.product.model.id = :modelId " +
             "AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Retour', 'Retour reçu') " +
             "GROUP BY pp.product.id, DATE(pp.packet.date) ORDER BY DATE(pp.packet.date) ASC")
-    List<ModelDayCountDTO> statModelSoldProgress(@Param("modelId") Long modelId, @Param("beginDate") String beginDate, @Param("endDate") String endDate);
+    List<ProductDayCountDTO> statModelSoldProgress(@Param("modelId") Long modelId, @Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
 }

@@ -11,7 +11,9 @@ import java.util.*;
         @Index(name = "idx_id", columnList = "id")
 })
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Model.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id",
+        scope = Model.class)
 @Data
 @Builder
 @ToString(exclude = {"modelOffers","products","colors","sizes","productHistories"})
