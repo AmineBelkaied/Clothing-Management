@@ -99,7 +99,8 @@ import { DisplayColorPipe } from 'src/shared/pipes/display-color.pipe';
 import { DisplaySizePipe } from 'src/shared/pipes/display-size.pipe';
 import { DisplayFbPagePipe } from 'src/shared/pipes/display-fbPage.pipe';
 import { DisplayJoinPipe } from 'src/shared/pipes/display-join.pipe';
-import { DisplayColorHexPipe } from 'src/shared/pipes/display-color.Hexpipe';
+import { DisplayColorHexPipe } from 'src/shared/pipes/display-colorHex.pipe';
+import { DisplayDeliveryCompanyPipe } from 'src/shared/pipes/display-delivery-company.pipe';
 
 @NgModule({
   declarations: [
@@ -141,7 +142,8 @@ import { DisplayColorHexPipe } from 'src/shared/pipes/display-color.Hexpipe';
     DisplayColorHexPipe,
     DisplaySizePipe,
     DisplayFbPagePipe,
-    DisplayOfferModelsPipe
+    DisplayOfferModelsPipe,
+    DisplayDeliveryCompanyPipe
   ],
   imports: [
     BrowserModule,

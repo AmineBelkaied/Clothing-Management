@@ -133,12 +133,12 @@ public class StatController {
     }
 
     @GetMapping("/pages")
-    public ResponseEntity<List<PagesStatCountDTO>> getPacketsPagesCount(
+    public ResponseEntity<Map<String, List<?>>> getPagesCountChart(
             @RequestParam String beginDate,
             @RequestParam String endDate) {
         LOGGER.info("Fetching packet pages stats from {} to {}", beginDate, endDate);
         try {
-            List<PagesStatCountDTO> pagesStatCountDTO = statService.findAllPacketsPages(beginDate, endDate);
+            Map<String, List<?>> pagesStatCountDTO = statService.statAllPagesChart(beginDate, endDate);
             LOGGER.info("Successfully fetched packet pages stats");
             return ResponseEntity.ok(pagesStatCountDTO);
         } catch (Exception e) {

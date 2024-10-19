@@ -102,57 +102,112 @@
 
 <!-----------------------------------Models Chart---------------------------------------->
 
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-      <p-card [style]="{ width: '100%'}">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <H3>Models Chart</H3>
-          </div>
-          <div>
-            inclure en cours à la somme
-            <p-selectButton [options]="progressOptions"  [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
-          </div>
-          <div>
-            <p-selectButton [options]="enablerOptions" [(ngModel)]="modelsChartEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
-          </div>
-        </div>
+<div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+  <p-card [style]="{ width: '100%'}">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <H3>Models Chart</H3>
+      </div>
+      <div>
+        inclure en cours à la somme
+        <p-selectButton [options]="progressOptions"  [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
+      </div>
+      <div>
+        <p-selectButton [options]="enablerOptions" [(ngModel)]="modelsChartEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
+      </div>
+    </div>
 
-        <p-tabView  *ngIf="modelsChartEnabler">
-          <p-tabPanel header="Chart">
-            <p-chart type="line" [data]="modelsData" [options]="modelsOptions"></p-chart>
-          </p-tabPanel>
-          <p-tabPanel header="Table">
-            <p-table class="table" [value]="modelTableData" >
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Model</th>
-                  <th>Min-Max</th>
-                  <th pSortableColumn="avg">Average<p-sortIcon field="avg" /></th>
-                  <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
-                  <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
-                  <th>Retour</th>
-                  <th>Payée/Retour</th>
-                  <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-item>
-                <tr>
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.min }}-{{ item.max }}</td>
-                  <td>{{ item.avg }}</td>
-                  <td>{{ item.payed }}</td>
-                  <td>{{ item.progress }}</td>
-                  <td>{{ item.retour }}</td>
-                  <td>{{ formatNumber(item) }}%</td>
-                  <td>{{ item.profits | number:'1.0-0' }}</td>
-                </tr>
-              </ng-template>
-            </p-table>
+    <p-tabView  *ngIf="modelsChartEnabler">
+      <p-tabPanel header="Chart">
+        <p-chart type="line" [data]="modelsData" [options]="modelsOptions"></p-chart>
+      </p-tabPanel>
+      <p-tabPanel header="Table">
+        <p-table class="table" [value]="modelTableData" >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Model</th>
+              <th>Min-Max</th>
+              <th pSortableColumn="avg">Average<p-sortIcon field="avg" /></th>
+              <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
+              <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
+              <th>Retour</th>
+              <th>Payée/Retour</th>
+              <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.min }}-{{ item.max }}</td>
+              <td>{{ item.avg }}</td>
+              <td>{{ item.payed }}</td>
+              <td>{{ item.progress }}</td>
+              <td>{{ item.retour }}</td>
+              <td>{{ formatNumber(item) }}%</td>
+              <td>{{ item.profits | number:'1.0-0' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
 
-          </p-tabPanel>
-        </p-tabView>
-      </p-card>
-  </div>
+      </p-tabPanel>
+    </p-tabView>
+  </p-card>
+</div>
+
+<!-----------------------------------Pages Chart---------------------------------------->
+
+<div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+  <p-card [style]="{ width: '100%'}">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <H3>Pages Chart</H3>
+      </div>
+      <div>
+        <p-selectButton [options]="enablerOptions" [(ngModel)]="pagesCountChartEnabler" optionLabel="label" optionValue="value" (click)="pagesCountChartEnablerChange()"></p-selectButton>
+      </div>
+    </div>
+
+    <p-tabView  *ngIf="pagesCountChartEnabler">
+      <p-tabPanel header="Chart">
+        <p-chart type="line" [data]="pagesCountData" [options]="pagesCountOptions"></p-chart>
+      </p-tabPanel>
+      <p-tabPanel header="Table">
+        <p-table class="table" [value]="pagesCountTableData" >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Model</th>
+              <th>Min-Max</th>
+              <th pSortableColumn="avg">Average<p-sortIcon field="avg" /></th>
+              <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
+              <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
+              <th>Retour</th>
+              <th>Payée/Retour</th>
+              <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.min }}-{{ item.max }}</td>
+              <td>{{ item.avg }}</td>
+              <td>{{ item.payed }}</td>
+              <td>{{ item.progress }}</td>
+              <td>{{ item.retour }}</td>
+              <td>{{ formatNumber(item) }}%</td>
+              <td>{{ item.profits | number:'1.0-0' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+      </p-tabPanel>
+      <p-tabPanel header="O Chart">
+        <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
+      </p-tabPanel>
+    </p-tabView>
+  </p-card>
+</div>
+
+
 
 <!-----------------------------------Offers Chart---------------------------------------->
 
@@ -299,25 +354,6 @@
       </p-tabView>
     </p-card>
   </div>
-
-<!-------------------------------------Pages Chart---------------------------------------->
-
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-      <p-card [style]="{ width: '100%'}">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <H3>Pages Chart</H3>
-          </div>
-          <div class="mb-3">
-            <p-selectButton [options]="enablerOptions" [(ngModel)]="pagesChartEnabler" optionLabel="label" optionValue="value" (click)="pagesChartEnablerChange()"></p-selectButton>
-          </div>
-        </div>
-        <p-tabView *ngIf="pagesChartEnabler">
-          <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
-        </p-tabView>
-      </p-card>
-  </div>
-</div>
 
 <!-------------------------------------States/Pages Chart---------------------------------------->
 <!--<div class="container-fluid">

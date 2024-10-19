@@ -15,7 +15,7 @@ import java.util.List;
 public class ModelDTO {
 
     private Long id;
-    private String  name;
+    private String name;
     private String description;
     private float purchasePrice;
     private double earningCoefficient;

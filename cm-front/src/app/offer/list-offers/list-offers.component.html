@@ -36,7 +36,7 @@
                 </th>
                 <th pSortableColumn="models">Modèles <p-sortIcon field="models"></p-sortIcon>
                 </th>
-                <th pSortableColumn="models">Pages <p-sortIcon field="models"></p-sortIcon>
+                <th pSortableColumn="pages" *ngIf ="!globalConf.oneSourceApp" >Pages <p-sortIcon field="pages"></p-sortIcon>
                 </th>
                 <th pSortableColumn="price">Prix <p-sortIcon field="price"></p-sortIcon>
                 </th>
@@ -52,7 +52,7 @@
                 </td>
                 <td>{{offer.name}}</td>
                 <td>{{offer.offerModels | displayOfferModels}}</td>
-                <td>{{ offer.fbPages | displayFbPage | displayJoin : '-'}}</td>
+                <td *ngIf ="!globalConf.oneSourceApp">{{ offer.fbPages | displayFbPage | displayJoin : '-'}}</td>
                 <td>{{offer.price}} DT</td>
                 <td>
                     <ng-container *ngIf="offer.enabled;else disabled">

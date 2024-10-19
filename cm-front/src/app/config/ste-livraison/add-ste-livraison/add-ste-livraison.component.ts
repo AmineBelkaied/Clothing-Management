@@ -32,8 +32,9 @@ export class AddSteLivraisonComponent implements OnInit, OnDestroy {
     if(this.deliveryCompanyService.editMode){
       this.deliveryCompany.name = form.value.name;
       this.deliveryCompany.token = form.value.token;
-      this.deliveryCompany.barCodeUrl = form.value.barCodeUrl;
+      this.deliveryCompany.barreCodeUrl = form.value.barreCodeUrl;
       this.deliveryCompany.apiName = form.value.apiName;
+      this.deliveryCompany.color = form.value.color;
       this.deliveryCompany.additionalName = form.value.additionalName;
       this.deliveryCompanyService.updateDeliveryCompany(this.deliveryCompany).pipe(takeUntil(this.$unsubscribe))
       .subscribe((updatedDeliveryCompany: any) => {

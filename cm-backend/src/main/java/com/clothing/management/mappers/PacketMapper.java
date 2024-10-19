@@ -16,7 +16,7 @@ public interface PacketMapper {
     PacketMapper INSTANCE = Mappers.getMapper(PacketMapper.class);
 
     @Mappings({
-            @Mapping(target = "deliveryCompany", source = "deliveryCompany", qualifiedByName = "toDeliveryCompanyDTO"),
+            @Mapping(target = "deliveryCompanyId", source = "deliveryCompany.id"),
             @Mapping(target = "fbPageId", source = "fbPage.id"),
             @Mapping(target = "cityId", source = "city.id"),
             @Mapping(target = "cityName", expression = "java(packet.getCity() != null ? packet.getCity().getGovernorate().getName() + '-' + packet.getCity().getName() : \"\")"),
@@ -27,8 +27,8 @@ public interface PacketMapper {
 
     @Mappings({
             @Mapping(target = "fbPageName", source = "fbPage.name"),
-            @Mapping(target = "deliveryCompanyName", source = "deliveryCompany.name"),
-            @Mapping(target = "price", expression = "java(packet.getPrice() - packet.getDiscount())")
+            @Mapping(target = "deliveryCompanyId", source = "deliveryCompany.id"),
+            @Mapping(target = "price", expression = "java(packet.getPrice() + packet.getDeliveryPrice() - packet.getDiscount())")
     })
     PacketValidationDTO toValidationDto(Packet packet);
 

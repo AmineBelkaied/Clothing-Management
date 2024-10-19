@@ -6,6 +6,8 @@ import { ModelService } from '../../../shared/services/model.service';
 import { OfferService } from '../../../shared/services/offer.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { Subject, takeUntil } from 'rxjs';
+import { GlobalConf } from 'src/shared/models/GlobalConf';
+import { GlobalConfService } from 'src/shared/services/global-conf.service';
 
 @Component({
   selector: 'app-list-offers',
@@ -39,15 +41,22 @@ export class ListOffersComponent implements OnInit {
 
   clonedOffer: Offer;
   offerNameExists: boolean;
+  globalConf: GlobalConf;
 
   constructor(
     private offerService: OfferService,
     private modelService: ModelService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService,
+    private globalConfService :GlobalConfService) {
   }
 
   ngOnInit() {
+    this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (globalConf: GlobalConf) => {
+        this.globalConf = globalConf;
+      }
+    );
     console.log("init list-offers");
     this.offerService.getOffersSubscriber()
       .pipe(takeUntil(this.$unsubscribe))

@@ -1,4 +1,3 @@
-
 import { SelectItemGroup, PrimeIcons, MenuItem } from 'primeng/api';
 import { MessageService } from 'primeng/api';
 import { Packet } from '../../../shared/models/Packet';
@@ -9,11 +8,17 @@ import { Table } from 'primeng/table';
 import { CityService } from '../../../shared/services/city.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from '../../../shared/services/fb-page.service';
-import { catchError, EMPTY, Observable, Subject,takeUntil} from 'rxjs';
+import { catchError, EMPTY, Observable, Subject, takeUntil } from 'rxjs';
 import { StorageService } from 'src/shared/services/strorage.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { CANCELED, OOS, NOT_SERIOUS, PROBLEME,
-  DELETED, statesList, statusList,
+import {
+  CANCELED,
+  OOS,
+  NOT_SERIOUS,
+  PROBLEME,
+  DELETED,
+  statesList,
+  statusList,
   IN_PROGRESS_1,
   IN_PROGRESS_2,
   IN_PROGRESS_3,
@@ -25,30 +30,40 @@ import { CANCELED, OOS, NOT_SERIOUS, PROBLEME,
   NOT_CONFIRMED,
   DELIVERED,
   UNREACHABLE,
-  IN_PROGRESS} from 'src/shared/utils/status-list';
+  IN_PROGRESS,
+} from 'src/shared/utils/status-list';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { ContextMenu } from 'primeng/contextmenu';
-import { ClientReason, ClientReasonDetails } from 'src/shared/enums/client-reason';
+import {
+  ClientReason,
+  ClientReasonDetails,
+} from 'src/shared/enums/client-reason';
 import { Note } from 'src/shared/models/Note';
 import { StringUtils } from 'src/shared/utils/string-utils';
 import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
+import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
 
 @Component({
   selector: 'app-list-packets',
   templateUrl: './list-packets.component.html',
   styleUrls: ['./list-packets.component.css'],
-  providers: [DatePipe]
+  providers: [DatePipe],
 })
 export class ListPacketsComponent implements OnInit, OnDestroy {
-
-
   nbrSelectedPackets: number;
   oldStatusLabel: string;
-
 
   //@Output() confirmEvent: EventEmitter<string> = new EventEmitter<string>();
 
@@ -68,11 +83,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   isLoading = false;
   selectedPacket: Packet;
 
-
   modelDialog!: boolean;
 
-
-  oldFieldValue: string = "";
+  oldFieldValue: string = '';
   offersIdsListByFbPage: any[] = [];
   allOffersList: any[] = [];
   groupedCities: SelectItemGroup[] = [];
@@ -82,9 +95,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   today_2: Date = new Date(Date.now() - 172800000);
   //selectedCity: string | undefined;
 
-
   enCoursStatus: string[] = [];
-
 
   optionButtons: MenuItem[];
   packetStatusList: string[] = [];
@@ -92,13 +103,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   selectedStates: string[] = [];
   $unsubscribe: Subject<void> = new Subject();
 
-
   nbrConfirmed: number = 0;
-  countUNREACHABLE: string = "0";
+  countUNREACHABLE: string = '0';
   loading: boolean = false;
-
-
-
 
   //private readonly reg: RegExp = /,/gi;
   regBS = /\n/gi;
@@ -113,26 +120,24 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
-  meterGroupValue= [
-    { label: 'Space used', value: 15, color: '#34d399' }
-  ];
+  meterGroupValue = [{ label: 'Space used', value: 15, color: '#34d399' }];
   selectedField: keyof Packet;
   explanation: string;
   clientReasons: any[];
   note: Note = {
-    date: new Date()
+    date: new Date(),
   };
   //note
   selectedPacketNotes: Note[] = [];
-  @ViewChild("expRef") explanationElement: ElementRef;
+  @ViewChild('expRef') explanationElement: ElementRef;
   explanationTitle: string;
   noteActionStatus: string;
 
   filter: string;
   params: PacketFilterParams;
-  pageSize: number = 100;//correction
+  pageSize: number = 100; //correction
   globalConf: GlobalConf;
-  cols: { field: string; header: string; }[];
+  cols: { field: string; header: string }[];
   constructor(
     private packetService: PacketService,
     private offerService: OfferService,
@@ -140,34 +145,34 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     private fbPageService: FbPageService,
     private dateUtils: DateUtils,
     public storageService: StorageService,
-    public messageService:MessageService,
+    public deliveryCompanyService: DeliveryCompanyService,
+    public messageService: MessageService,
     private cdRef: ChangeDetectorRef,
-    private globalConfService :GlobalConfService
-    ) {
-  }
+    private globalConfService: GlobalConfService
+  ) {}
 
-  ngAfterViewChecked(){
+  ngAfterViewChecked() {
     this.cdRef.detectChanges();
   }
 
   ngOnInit(): void {
-    this.storageService.isLoggedIn.subscribe(isLoggedIn => {
+    this.storageService.isLoggedIn.subscribe((isLoggedIn) => {
       this.isLoggedIn = isLoggedIn;
       this.userName = this.storageService.getUserName();
       this.isAdmin = this.storageService.hasRoleAdmin();
       this.isSuperAdmin = this.storageService.hasRoleSuperAdmin();
       this.activeClass = true;
     });
-    this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
-      (globalConf: GlobalConf) => {
+    this.globalConfService
+      .getGlobalConfSubscriber()
+      .pipe(takeUntil(this.$unsubscribe))
+      .subscribe((globalConf: GlobalConf) => {
         this.globalConf = globalConf;
         this.createColumns();
-      }
-    );
+      });
     this.findAllFbPages();
     this.offerService.getOffersSubscriber();
     this.findAllGroupedCities();
-
   }
 
   findAllFbPages(): void {
@@ -195,44 +200,53 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   }
 
   loadAllPackets(params: PacketFilterParams): void {
-
     this.loading = true;
-    this.packetService.findAllPackets(params)
+    this.packetService
+      .findAllPackets(params)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: ResponsePage) => {
           this.selectedPackets = [];
-          this.packets = response.result.filter((packet: any) => this.checkPacketNotNull(packet));
+          this.packets = response.result.filter((packet: any) =>
+            this.checkPacketNotNull(packet)
+          );
           this.realTotalItems = response.totalItems;
           this.totalItems = this.packets.length;
           //let countConfirmed =response.result.filter(packet => packet.status === CONFIRMED).length;
           //this.statusItems[3].badge = countConfirmed > 0 ? countConfirmed:0;
           this.loading = false;
-
         },
         error: (error: Error) => {
           console.log('Error:', error);
           this.loading = false;
-        }
+        },
       });
   }
 
-  addNewPacket(){
+  addNewPacket() {
     this.loading = true;
-    this.packetService
-      .addPacket()
-      .subscribe((response: Packet) => {
-        console.log("new pack", response);
+    this.packetService.addPacket().subscribe((response: Packet) => {
+      console.log('new pack', response);
 
-        this.loading = false;
-        //this.packets = [...this.packets.map(packet => packet.id === updatedPacket.id ? updatedPacket : packet)];
-        this.packets.unshift(response);
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est ajoutée avec succés', life: 1000 });
+      this.loading = false;
+      //this.packets = [...this.packets.map(packet => packet.id === updatedPacket.id ? updatedPacket : packet)];
+      this.packets.unshift(response);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'La commande est ajoutée avec succés',
+        life: 1000,
       });
+    });
   }
   checkPacketNotNull(packet: Packet): boolean {
-    return (this.isValid(packet.address) || this.isValid(packet.customerName) ||
-      this.isValid(packet.customerPhoneNb) || packet.cityId! >0 || this.isValid(packet.packetDescription));
+    return (
+      this.isValid(packet.address) ||
+      this.isValid(packet.customerName) ||
+      this.isValid(packet.customerPhoneNb) ||
+      packet.cityId! > 0 ||
+      this.isValid(packet.packetDescription)
+    );
   }
 
   createColumns(): void {
@@ -240,7 +254,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       { field: 'date', header: 'Date' },
       { field: 'fbPage.name', header: 'PageFB' },
       { field: 'customerNamePhone', header: 'Client' },
-      { field: 'cityAddress', header: 'Ville & Adresse' },  // Combine city and address here
+      { field: 'cityAddress', header: 'Ville & Adresse' }, // Combine city and address here
       { field: 'relatedProducts', header: 'Articles' },
       { field: 'price', header: 'Prix' },
       { field: 'status', header: 'Statut' },
@@ -248,10 +262,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     ];
 
     if (this.globalConf.oneSourceApp) {
-      this.cols = this.cols.filter(col => col.header !== 'PageFB');
+      this.cols = this.cols.filter((col) => col.header !== 'PageFB');
     }
   }
-
 
   formatPhoneNumber(phoneNumber: string): string {
     if (!phoneNumber) {
@@ -266,16 +279,17 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     });
   }
 
-
-
   onEditComplete($event: any): void {
     const packet = $event.data;
     this.loading = true;
-    console.log('this.oldFieldValue',this.oldFieldValue);
-    console.log('packet[this.selectedField]',packet[this.selectedField]);
+    console.log('this.oldFieldValue', this.oldFieldValue);
+    console.log('packet[this.selectedField]', packet[this.selectedField]);
     try {
-      if (packet[this.selectedField] !== undefined
-        && this.oldFieldValue !== packet[this.selectedField]) {//handle to field in 1 <td>
+      if (
+        packet[this.selectedField] !== undefined &&
+        this.oldFieldValue !== packet[this.selectedField]
+      ) {
+        //handle to field in 1 <td>
         switch (this.selectedField) {
           case 'status':
             this.handleStatusField(packet);
@@ -285,7 +299,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
             break;
         }
       } else {
-        console.log("No changes");
+        console.log('No changes');
         this.loading = false;
         return;
       }
@@ -299,23 +313,27 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   patchPacketService(packet: Packet) {
     let updatedField;
-    if (this.selectedField === 'cityId'){
-       updatedField = { ['city']: packet.cityId };
-    }
-    else if (this.selectedField === 'fbPageId'){
+    if (this.selectedField === 'cityId') {
+      updatedField = { ['city']: packet.cityId };
+    } else if (this.selectedField === 'fbPageId') {
       updatedField = { ['fbPage']: packet.fbPageId };
-    }
-    else if (this.selectedField === 'date')
+    } else if (this.selectedField === 'date')
       updatedField = { [this.selectedField]: this.onDateSelect(packet.date) };
-    else
-      updatedField = { [this.selectedField]: packet[this.selectedField] };
+    else updatedField = { [this.selectedField]: packet[this.selectedField] };
 
     let status = packet.status;
-    this.packetService.patchPacket(packet.id!, updatedField)
+    this.packetService
+      .patchPacket(packet.id!, updatedField)
       .pipe(
         catchError((err: any): Observable<any> => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error updating packet ' + err.error.message });
-          const packetIndex = this.packets.findIndex((p: any) => p.id === packet.id);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error updating packet ' + err.error.message,
+          });
+          const packetIndex = this.packets.findIndex(
+            (p: any) => p.id === packet.id
+          );
           if (packetIndex !== -1) {
             this.packets[packetIndex][this.selectedField] = this.oldFieldValue;
           }
@@ -326,34 +344,46 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (responsePacket: any) => {
-          console.log("oldClient0",responsePacket.oldClient);
-          let msg = "Packet updated successfully";
-          if (this.selectedField === 'status' && status === CONFIRMED && responsePacket.barcode != null) {
+          console.log('oldClient0', responsePacket.oldClient);
+          let msg = 'Packet updated successfully';
+          if (
+            this.selectedField === 'status' &&
+            status === CONFIRMED &&
+            responsePacket.barcode != null
+          ) {
             this.updatePacketFields(responsePacket);
             msg = 'Barcode created successfully';
           } else if (this.selectedField === 'cityId') {
             this.updateCityField(responsePacket);
             msg = 'City updated successfully';
-          } else if (responsePacket.oldClient !== undefined && this.selectedField === 'customerPhoneNb') {
-            const packetIndex = this.packets.findIndex((p: Packet) => p.id === responsePacket.id);
-            console.log("oldClient1",responsePacket.oldClient);
+          } else if (
+            responsePacket.oldClient !== undefined &&
+            this.selectedField === 'customerPhoneNb'
+          ) {
+            const packetIndex = this.packets.findIndex(
+              (p: Packet) => p.id === responsePacket.id
+            );
+            console.log('oldClient1', responsePacket.oldClient);
             if (packetIndex !== -1) {
               this.packets[packetIndex].oldClient = responsePacket.oldClient;
-              console.log("oldClient2",responsePacket.oldClient);
+              console.log('oldClient2', responsePacket.oldClient);
 
               msg = 'Phone number updated successfully';
             }
           }
 
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: msg });
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: msg,
+          });
           this.loading = false;
         },
         error: () => {
           this.loading = false;
-        }
+        },
       });
   }
-
 
   onDateSelect(event: any) {
     // Manually set the hours to 3 AM, minutes, and seconds to zero
@@ -362,41 +392,59 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     return selectedDate;
   }
 
-
   checkPacketValidity(packet: Packet): boolean {
     console.log(packet);
-    if (!(packet.fbPageId || this.globalConf.oneSourceApp )) {
-        this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez remplir la page facebook' });
-        return false;
-      }
-    else if (!(this.isValid(packet.address) && this.isValid(packet.customerName) &&
-      this.isValid(packet.customerPhoneNb) && packet.cityId! >-1 && this.isValid(packet.packetDescription)))
-      {
-        this.messageService.add({ severity: 'error',summary: 'Error', detail: 'Veuillez saisir tous les champs' });
-        return false;
-      }
-      return true;
+    if (!(packet.fbPageId || this.globalConf.oneSourceApp)) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Veuillez remplir la page facebook',
+      });
+      return false;
+    } else if (
+      !(
+        this.isValid(packet.address) &&
+        this.isValid(packet.customerName) &&
+        this.isValid(packet.customerPhoneNb) &&
+        packet.cityId! > -1 &&
+        this.isValid(packet.packetDescription)
+      )
+    ) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Veuillez saisir tous les champs',
+      });
+      return false;
+    }
+    return true;
   }
 
   checkPacketDescription(packet: Packet): boolean {
-    return packet.packetDescription!= undefined && packet.packetDescription.includes('(');
+    return (
+      packet.packetDescription != undefined &&
+      packet.packetDescription.includes('(')
+    );
   }
 
   getLastStatus(packet: Packet): void {
-    if (packet.status != PAID && packet.status != RETURN_RECEIVED && packet.status != DELIVERED)
-    this.packetService.getLastStatus(packet.id!)
-      .subscribe({
-          next: (response: any) => {//correction Packet
-            this.updatePacketFields(response);
-          },
-          error : (error: Error) => {
-            console.log(error);
-          }
-        });
+    if (
+      packet.status != PAID &&
+      packet.status != RETURN_RECEIVED &&
+      packet.status != DELIVERED
+    )
+      this.packetService.getLastStatus(packet.id!).subscribe({
+        next: (response: any) => {
+          //correction Packet
+          this.updatePacketFields(response);
+        },
+        error: (error: Error) => {
+          console.log(error);
+        },
+      });
   }
 
   updatePacketFields(updatedPacket: Packet, action?: string) {
-
     let listId = this.packets.map((packetX: Packet) => packetX.id);
     let X = listId.indexOf(updatedPacket.id);
     if (X > -1) {
@@ -426,11 +474,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     }
   }
 
-  addAttempt(status: string,packet?: Packet): void {
+  addAttempt(status: string, packet?: Packet): void {
     console.log(this.selectedPackets);
 
     this.noteActionStatus = status;
-    if(packet)this.selectedPacket = packet;
+    if (packet) this.selectedPacket = packet;
     this.clientReasons = this.getReasonOptionsByStatus(status);
     this.explanationTitle = '';
     this.explanation = '';
@@ -438,83 +486,131 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       date: new Date(),
       packet: packet,
       clientReason: '',
-      status: ''
+      status: '',
     };
-    this.clientReasons.forEach(clientReason => {
-      clientReason.text = true
-      clientReason.outlined = false
+    this.clientReasons.forEach((clientReason) => {
+      clientReason.text = true;
+      clientReason.outlined = false;
     });
     this.visibleNote = true;
   }
 
   confirmNote() {
     this.note.date = new Date();
-    this.note.explanation = StringUtils.isStringValid(this.explanation) ? this.explanationTitle + ' : ' + this.explanation : this.explanationTitle;
+    this.note.explanation = StringUtils.isStringValid(this.explanation)
+      ? this.explanationTitle + ' : ' + this.explanation
+      : this.explanationTitle;
     switch (this.noteActionStatus) {
       case 'DELETED': {
-        let selectedPacketsByIds = this.selectedPackets.map((selectedPacket: Packet) => selectedPacket.id!);
-        this.packetService.deleteSelectedPackets(selectedPacketsByIds, this.note).subscribe({
-          next: () => {
-            // Handle successful response
-            this.packets = this.packets.filter(packet => !selectedPacketsByIds.includes(packet.id!));
-            this.selectedPackets = [];
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Succès',
-              detail: 'Les commandes sélectionnées ont été supprimées avec succès',
-              life: 1000
-            });
-          },
-          error: (err:any) => {
-            // Handle error response
-            console.error('Error:', err);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Une erreur est survenue lors de la suppression des commandes',
-              life: 1000
-            });
-          }
-        });
+        let selectedPacketsByIds = this.selectedPackets.map(
+          (selectedPacket: Packet) => selectedPacket.id!
+        );
+        this.packetService
+          .deleteSelectedPackets(selectedPacketsByIds, this.note)
+          .subscribe({
+            next: () => {
+              // Handle successful response
+              this.packets = this.packets.filter(
+                (packet) => !selectedPacketsByIds.includes(packet.id!)
+              );
+              this.selectedPackets = [];
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Succès',
+                detail:
+                  'Les commandes sélectionnées ont été supprimées avec succès',
+                life: 1000,
+              });
+            },
+            error: (err: any) => {
+              // Handle error response
+              console.error('Error:', err);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail:
+                  'Une erreur est survenue lors de la suppression des commandes',
+                life: 1000,
+              });
+            },
+          });
         break;
       }
       case 'UNREACHABLE': {
-        this.packetService.addAttempt(this.note, this.selectedPacket.id!)
+        this.packetService
+          .addAttempt(this.note, this.selectedPacket.id!)
           .subscribe({
             next: (response: any) => {
               this.updatePacketFields(response, 'ADD_NOTE_ACTION');
-              this.messageService.add({ severity: 'info', summary: 'Success', detail: 'La note a été ajoutée avec succés', life: 1200 });
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Success',
+                detail: 'La note a été ajoutée avec succés',
+                life: 1200,
+              });
             },
             error: () => {
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: "Une erreur est survenue lors de l'ajout de la note", life: 1200 });
-            }
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: "Une erreur est survenue lors de l'ajout de la note",
+                life: 1200,
+              });
+            },
           });
-          break;
+        break;
       }
       case 'CANCELED': {
-        this.packetService.addAttempt(this.note, this.selectedPacket.id!)
+        this.packetService
+          .addAttempt(this.note, this.selectedPacket.id!)
           .subscribe({
             next: (response: any) => {
               this.updatePacketFields(response, 'ADD_NOTE_ACTION');
-              this.messageService.add({ severity: 'info', summary: 'Success', detail: 'La note a été ajoutée avec succés', life: 1200 });
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Success',
+                detail: 'La note a été ajoutée avec succés',
+                life: 1200,
+              });
             },
             error: () => {
-              this.messageService.add({ severity: 'error', summary: 'Error', detail: "Une erreur est survenue lors de l'ajout de la note", life: 1200 });
-            }
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: "Une erreur est survenue lors de l'ajout de la note",
+                life: 1200,
+              });
+            },
           });
-          break;
+        break;
       }
       default: {
-        console.log("Note Action Status did not match any cases.");
+        console.log('Note Action Status did not match any cases.');
       }
     }
     this.visibleNote = false;
-}
+  }
 
-  openLinkGetter(code: any, deliveryCompany: DeliveryCompany): void {
-    let link = deliveryCompany.barCodeUrl + code;
-    console.log("link", link + "/code:" + code);
-    window.open(link, '_blank');
+  openLinkGetter(code: any, deliveryCompanyId: number): void {
+    if (deliveryCompanyId > -1) {
+      let deliveryCompany =
+        this.deliveryCompanyService.getDeliveryCompanyById(deliveryCompanyId)!;
+      if (deliveryCompany.barreCodeUrl != null) {
+        let link = deliveryCompany.barreCodeUrl + code;
+        console.log('link', link + '/code:' + code);
+        window.open(link, '_blank');
+      }
+    }
+  }
+  openLinkGetterJAX(code: any, deliveryCompanyId: number): void {
+    let jax =
+      'https://core.jax-delivery.com/api/user/colis/all?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2NvcmUuamF4LWRlbGl2ZXJ5LmNvbS9hcGkvY2xpZW50L2xvZ2luIiwiaWF0IjoxNzI5MzYxMzMzLCJleHAiOjE3NjU2NDkzMzMsIm5iZiI6MTcyOTM2MTMzMywianRpIjoiYXNZejJxd1FkR1BwSWdtVyIsInN1YiI6IjE2NzciLCJwcnYiOiJkMDkwNWJjZjY1YTZkOTkyZDkwY2JmZTQ2MjI2YmQzMTNhZTUxOTNmIn0.HmVJusi_0DtMYntj3gBADSDEuG6OLrwofOv4FZ1xNt8&code=SOU290207831&id=0&nbr=0&page=0';
+    this.deliveryCompanyService
+      .getJaxStatus()
+      .pipe(takeUntil(this.$unsubscribe))
+      .subscribe((response: any) => {
+        console.log(response.data.status);
+      });
   }
 
   printFirst(link: string): void {
@@ -523,40 +619,61 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   showTimeLineDialog(packet: Packet): void {
     try {
-      this.packetService.getPacketTimeLine(packet.id!).subscribe((response: any) => {
-        this.statusEvents = [];
-        this.suiviHeader = "Suivi Historique - Commande N° " + packet.id;
-        if (response != null && response.length > 0) {
-          response.forEach((element: any) => {
-            this.statusEvents.push({ status: element.status, date: element.date, user: element.user, icon: PrimeIcons.ENVELOPE, color: '#9C27B0' });
-          });
-        }
+      this.packetService
+        .getPacketTimeLine(packet.id!)
+        .subscribe((response: any) => {
+          this.statusEvents = [];
+          this.suiviHeader = 'Suivi Historique - Commande N° ' + packet.id;
+          if (response != null && response.length > 0) {
+            response.forEach((element: any) => {
+              this.statusEvents.push({
+                status: element.status,
+                date: element.date,
+                user: element.user,
+                icon: PrimeIcons.ENVELOPE,
+                color: '#9C27B0',
+              });
+            });
+          }
 
-        this.displayStatus = true;
-      }
-      );
+          this.displayStatus = true;
+        });
     } catch (error) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erreur dans le status'});
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Erreur dans le status',
+      });
     }
   }
-
 
   duplicatePacket(packet: Packet): void {
     this.packetService
       .duplicatePacket(packet.id!)
-      .subscribe((response: any) => {// correction------------------------
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'La commande est dupliqué avec succés', life: 1000});
+      .subscribe((response: any) => {
+        // correction------------------------
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'La commande est dupliqué avec succés',
+          life: 1000,
+        });
         this.packets.unshift(response);
       });
   }
 
-  loadOfferListAndOpenOffersDialog(packet: Packet,editMode:boolean): void {
+  loadOfferListAndOpenOffersDialog(packet: Packet, editMode: boolean): void {
     if (packet.fbPageId || this.globalConf.oneSourceApp) {
-        this.packet = Object.assign({}, packet);
-        this.modelDialog = true;
-        this.editMode = editMode;
+      this.packet = Object.assign({}, packet);
+      this.modelDialog = true;
+      this.editMode = editMode;
     } else {
-      this.messageService.add({ severity: 'info', summary: 'Info', detail: 'Pas de page Facebook selectionné', life: 1000 });
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Info',
+        detail: 'Pas de page Facebook selectionné',
+        life: 1000,
+      });
     }
   }
 
@@ -567,7 +684,19 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   OnSubmit($event: any): void {
     this.modelDialog = $event.modelDialog;
     this.updatePacketFields($event.packet);
-    this.editMode ? this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été mis à jour avec succés', life: 1000 }) : this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Les articles ont été ajoutés avec succés', life: 1000 });
+    this.editMode
+      ? this.messageService.add({
+          severity: 'info',
+          summary: 'Success',
+          detail: 'Les articles ont été mis à jour avec succés',
+          life: 1000,
+        })
+      : this.messageService.add({
+          severity: 'info',
+          summary: 'Success',
+          detail: 'Les articles ont été ajoutés avec succés',
+          life: 1000,
+        });
   }
 
   checkValidity(date1: Date, date2: Date, status: String): boolean {
@@ -608,18 +737,18 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  checkCodeABarreExist(packet:Packet){
-    return packet.barcode != "" && packet.barcode!= null
+  checkCodeABarreExist(packet: Packet) {
+    return packet.barcode != '' && packet.barcode != null;
   }
 
-  checkPhoneNbExist(packet:Packet){
-    return packet.customerPhoneNb !="" && packet.customerPhoneNb!= null
+  checkPhoneNbExist(packet: Packet) {
+    return packet.customerPhoneNb != '' && packet.customerPhoneNb != null;
   }
 
-  selectCity( packet: Packet) {
+  selectCity(packet: Packet) {
     this.selectedCityId = packet.cityId;
   }
-  selectPhoneNumber( packet: any) {
+  selectPhoneNumber(packet: any) {
     this.selectedPhoneNumber = packet.customerPhoneNb;
   }
   selectedPacketChange($event: Event) {
@@ -628,8 +757,12 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   getReasonOptionsByStatus(status: string) {
     return (Object.keys(ClientReason) as (keyof typeof ClientReason)[])
-      .filter(key => isNaN(Number(key)) && ClientReasonDetails[ClientReason[key]].status === status)  // Filter out any non-number keys
-      .map(key => {
+      .filter(
+        (key) =>
+          isNaN(Number(key)) &&
+          ClientReasonDetails[ClientReason[key]].status === status
+      ) // Filter out any non-number keys
+      .map((key) => {
         const reasonKey = ClientReason[key];
         const clientReasonDetails = ClientReasonDetails[reasonKey];
         return {
@@ -640,8 +773,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           text: clientReasonDetails.text,
           outlined: clientReasonDetails.outlined,
           severity: clientReasonDetails.severity,
-        }
-      })
+        };
+      });
   }
 
   onSelectReason(clientReason: ClientReason, index: number) {
@@ -651,9 +784,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         this.explanationElement.nativeElement.focus();
       }, 0);
     }
-    this.clientReasons.forEach(clientReason => {
-      clientReason.text = true
-      clientReason.outlined = false
+    this.clientReasons.forEach((clientReason) => {
+      clientReason.text = true;
+      clientReason.outlined = false;
     });
     this.clientReasons[index].text = false;
     this.clientReasons[index].outlined = true;
@@ -670,8 +803,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     }
   }
 
-
-  getFbPageNameById(fbPageId: number) : String {
+  getFbPageNameById(fbPageId: number): String {
     return this.fbPageService.getFbPageNameById(fbPageId);
   }
 
@@ -679,33 +811,79 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.selectedField = $event.field;
     console.log($event);
 
-    console.log("this.selectedField",this.selectedField);
+    console.log('this.selectedField', this.selectedField);
 
     this.oldFieldValue = $event.data[this.selectedField];
     if (this.selectedField === 'status') {
       this.packetStatusList = [];
 
       if ($event.data.stock === -1) {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: "Please fill in all article fields" });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Please fill in all article fields',
+        });
         this.packetStatusList = [UNREACHABLE];
       } else if ([NOT_CONFIRMED].includes(this.oldFieldValue)) {
         this.packetStatusList = [OOS, CONFIRMED, NOT_SERIOUS, UNREACHABLE];
-      } else if ([NOT_SERIOUS, UNREACHABLE, CANCELED, DELETED, OOS].includes(this.oldFieldValue)) {
-        this.packetStatusList = [NOT_CONFIRMED, OOS, CONFIRMED, NOT_SERIOUS, UNREACHABLE, CANCELED];
+      } else if (
+        [NOT_SERIOUS, UNREACHABLE, CANCELED, DELETED, OOS].includes(
+          this.oldFieldValue
+        )
+      ) {
+        this.packetStatusList = [
+          NOT_CONFIRMED,
+          OOS,
+          CONFIRMED,
+          NOT_SERIOUS,
+          UNREACHABLE,
+          CANCELED,
+        ];
       } else if ([CONFIRMED, TO_VERIFY].includes(this.oldFieldValue)) {
-        this.packetStatusList = [IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, CANCELED, TO_VERIFY, DELIVERED, RETURN, PAID, RETURN_RECEIVED, PROBLEME];
-      } else if ([IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3].includes(this.oldFieldValue)) {
-        this.packetStatusList = [UNREACHABLE, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, TO_VERIFY, DELIVERED, RETURN, PAID, RETURN_RECEIVED, PROBLEME];
+        this.packetStatusList = [
+          IN_PROGRESS_1,
+          IN_PROGRESS_2,
+          IN_PROGRESS_3,
+          CANCELED,
+          TO_VERIFY,
+          DELIVERED,
+          RETURN,
+          PAID,
+          RETURN_RECEIVED,
+          PROBLEME,
+        ];
+      } else if (
+        [IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3].includes(
+          this.oldFieldValue
+        )
+      ) {
+        this.packetStatusList = [
+          UNREACHABLE,
+          IN_PROGRESS_1,
+          IN_PROGRESS_2,
+          IN_PROGRESS_3,
+          TO_VERIFY,
+          DELIVERED,
+          RETURN,
+          PAID,
+          RETURN_RECEIVED,
+          PROBLEME,
+        ];
       } else if ([DELIVERED, PAID].includes(this.oldFieldValue)) {
         this.packetStatusList = [PAID, RETURN, RETURN_RECEIVED];
       } else if (this.oldFieldValue === RETURN) {
         this.packetStatusList = [PROBLEME, RETURN_RECEIVED];
       } else if (this.oldFieldValue === PROBLEME) {
-        this.packetStatusList = [RETURN_RECEIVED, DELIVERED, PAID, IN_PROGRESS_2, CANCELED];
+        this.packetStatusList = [
+          RETURN_RECEIVED,
+          DELIVERED,
+          PAID,
+          IN_PROGRESS_2,
+          CANCELED,
+        ];
       }
     }
   }
-
 
   private handleStatusField(packet: any): void {
     const status = packet[this.selectedField];
@@ -716,14 +894,23 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       case CANCELED:
         if (this.oldFieldValue == NOT_CONFIRMED)
           errorMessage = "Delete don't cancel";
-        else if (this.oldFieldValue !== CONFIRMED && this.oldFieldValue !== TO_VERIFY && this.oldFieldValue !== DELETED) {
+        else if (
+          this.oldFieldValue !== CONFIRMED &&
+          this.oldFieldValue !== TO_VERIFY &&
+          this.oldFieldValue !== DELETED
+        ) {
           errorMessage = 'Please do not cancel outgoing packets';
-        }else if(barcode != null && barcode !== "") this.addAttempt('CANCELED',packet);
+        } else if (barcode != null && barcode !== '')
+          this.addAttempt('CANCELED', packet);
         break;
       case NOT_CONFIRMED:
       case OOS:
       case NOT_SERIOUS:
-        if (this.oldFieldValue === IN_PROGRESS_1 || this.oldFieldValue === IN_PROGRESS_2 || this.oldFieldValue === IN_PROGRESS_3) {
+        if (
+          this.oldFieldValue === IN_PROGRESS_1 ||
+          this.oldFieldValue === IN_PROGRESS_2 ||
+          this.oldFieldValue === IN_PROGRESS_3
+        ) {
           errorMessage = 'This packet is already in progress';
         }
         break;
@@ -734,15 +921,16 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       case RETURN:
       case RETURN_RECEIVED:
       case PAID:
-        if (barcode == null || barcode === "") {
-          errorMessage = "This packet has not been dispatched yet";
+        if (barcode == null || barcode === '') {
+          errorMessage = 'This packet has not been dispatched yet';
         }
         break;
       case UNREACHABLE:
         {
-          if (barcode != null && barcode !== "") {
-          errorMessage = 'This packet is already completed';
-        }}
+          if (barcode != null && barcode !== '') {
+            errorMessage = 'This packet is already completed';
+          }
+        }
         break;
       case CONFIRMED:
         if (!this.checkPacketValidity(packet)) {
@@ -757,7 +945,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
     if (errorMessage) {
       packet[this.selectedField] = this.oldFieldValue;
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessage });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: errorMessage,
+      });
       this.loading = false;
       return;
     }
@@ -772,7 +964,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   //intiator
 
-  openContextMenu(event:any,packet:any, contextMenu:ContextMenu) {
+  openContextMenu(event: any, packet: Packet, contextMenu: ContextMenu) {
+    let deliveryCompany = this.deliveryCompanyService.getDeliveryCompanyById(
+      packet.deliveryCompanyId!
+    );
     event.preventDefault();
     this.selectedPacket = packet;
     this.contextMenu.target = event.currentTarget;
@@ -781,74 +976,89 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         {
           label: 'Duplicate',
           icon: 'pi pi-refresh',
-          disabled:!( packet.status == DELIVERED || packet.status == PAID ),
+          disabled: !(packet.status == DELIVERED || packet.status == PAID),
           command: () => {
-            this.duplicatePacket(packet)
-          }
+            this.duplicatePacket(packet);
+          },
         },
         {
           label: 'Ajouter note',
           icon: 'pi pi-refresh',
-          disabled:packet.status!=UNREACHABLE,
+          disabled: packet.status != UNREACHABLE,
           command: () => {
-            this.addAttempt('UNREACHABLE',packet)
-          }
+            this.addAttempt('UNREACHABLE', packet);
+          },
         },
-
         {
           label: 'History',
           icon: 'pi pi-history',
-          disabled:false,
+          disabled: false,
           command: () => {
             this.showTimeLineDialog(packet);
-          }
+          },
         },
       ];
-      if(this.checkCodeABarreExist(packet)){
+      if (deliveryCompany)
+        if (this.checkCodeABarreExist(packet)) {
+          this.optionButtons.push(
+            { separator: true },
+            {
+              label: 'Actualiser status',
+              icon: 'pi pi-sync',
+              command: () => {
+                this.getLastStatus(packet);
+              },
+            }
+          );
+          if (deliveryCompany.name != 'JAX') {
+            this.optionButtons.push({
+              label: 'BarreCode',
+              icon: 'pi pi-qrcode',
+              command: () => {
+                this.openLinkGetter(packet.barcode, packet.deliveryCompanyId!);
+              },
+            });
+          }
+        }
+      if (this.checkPhoneNbExist(packet)) {
         this.optionButtons.push(
           { separator: true },
           {
-            label: 'Actualiser status',
-            icon: 'pi pi-sync',
+            label: 'Chercher Tel',
+            icon: 'pi pi-phone',
+            disabled: !this.checkPhoneNbExist(packet),
             command: () => {
-              this.getLastStatus(packet);
-            }
-          },
-          {
-            label: 'BarreCode',
-            icon: 'pi pi-qrcode',
-            command: () => {
-              this.openLinkGetter(packet.barcode,packet.deliveryCompany)
-            }
+              this.filter = packet.customerPhoneNb!;
+            },
           }
-        )
+        );
+        if (deliveryCompany)
+          if (deliveryCompany.name != 'JAX') {
+            this.optionButtons.push({
+              label: 'Tel',
+              icon: 'pi pi-search-plus',
+              command: () => {
+                this.openLinkGetter(
+                  packet.customerPhoneNb,
+                  packet.deliveryCompanyId!
+                );
+              },
+            });
+          }
       }
-      if(this.checkPhoneNbExist(packet))
-        this.optionButtons.push(
-          { separator: true },
-          {
-            label: 'Tel',
-            icon: 'pi pi-search-plus',
-            command: () => {
-              this.openLinkGetter(packet.customerPhoneNb,packet.deliveryCompany);
-            }
-          },{
-          label: 'Chercher Tel',
-          icon: 'pi pi-phone',
-          disabled:!this.checkPhoneNbExist(packet),
-          command: () => {
-            this.filter= packet.customerPhoneNb;
-            //this.filterPackets('phone');
-          }
-        });
-      if(packet.deliveryCompany.name != "JAX")
+
+      if (
+        this.deliveryCompanyService.getDeliveryCompanyById(
+          packet.deliveryCompanyId!
+        )!.name != 'JAX'
+      )
         this.optionButtons.push({
           label: 'Print',
           icon: 'pi pi-print',
-          disabled:!(this.checkCodeABarreExist(packet)),
+          disabled: !this.checkCodeABarreExist(packet),
           command: () => {
-            this.printFirst(packet.printLink)
-          }
+            this.printFirst(packet.printLink!);
+          },
         });
     }
   }

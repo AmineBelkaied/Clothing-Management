@@ -26,10 +26,10 @@ export class StatistiqueComponent implements OnInit {
   selectedModels: FormControl = new FormControl();
   packetsChartEnabler : boolean = true;
   modelsChartEnabler : boolean = false;
+  pagesCountChartEnabler : boolean = false;
   offersChartEnabler : boolean = false;
   colorsChartEnabler : boolean = false;
   stockChartEnabler : boolean = false;
-  pagesChartEnabler : boolean = false;
   statesChartEnabler : boolean = false;
   countProgressEnabler : boolean = false;
   //countProductsPerDay : Number[] = [];
@@ -88,6 +88,9 @@ export class StatistiqueComponent implements OnInit {
   modelsDataSetArray: any[];
   modelsData: any;
   modelsOptions: any;
+  pagesCountDataSetArray: any[];
+  pagesCountData: any;
+  pagesCountOptions: any;
   colorsDataSetArray: any[];
   colorsData: any;
   colorsOptions: any;
@@ -108,6 +111,10 @@ export class StatistiqueComponent implements OnInit {
   modelChartOptions: string[] = ['Chart', 'Table'];
   modelChartBoolean: boolean = true;
   modelTableData: any;
+
+  pagesCountChartOptions: string[] = ['Chart', 'Table'];
+  pagesCountChartBoolean: boolean = true;
+  pagesCountTableData: any;
 
   offerChartOptions: string[] = ['Chart', 'Table'];
   offerChartBoolean: boolean = true;
@@ -132,7 +139,6 @@ export class StatistiqueComponent implements OnInit {
     public datePipe: DatePipe,
     private dateUtils: DateUtils,
     private modelService: ModelService,
-    private activateRoute: ActivatedRoute,
     private deliveryCompanyService: DeliveryCompanyService,
   ) {}
 
@@ -170,32 +176,15 @@ export class StatistiqueComponent implements OnInit {
     if(this.endDateString){
       this.packetsChartEnablerChange();
       this.modelsChartEnablerChange();
+      this.pagesCountChartEnablerChange();
       this.offersChartEnablerChange();
       this.stockChartEnablerChange();
       this.colorsChartEnablerChange();
-      //this.statesAndPagesChartEnablerChange();
       this.statesChartEnablerChange();
-      this.pagesChartEnablerChange();
-      //if(this.pagesChartEnabler || this.statesChartEnabler)this.getAllPacketsByDate();
     }
 
   }
 
-  getPagesChart(){
-    if(this.endDateString)
-    this.statsService
-    .statAllPages(this.beginDateString, this.endDateString)
-    .pipe(takeUntil(this.$unsubscribe))
-    .subscribe({
-      next: (response: any) => {
-        console.log('response findAllPacketsByDate:', response);
-        this.createPagesChart(response);
-      },
-      error: (error: Error) => {
-        console.log('Error:', error);
-      },
-    });
-  }
 
   getStatesChart(){
     if(this.endDateString)
@@ -241,32 +230,7 @@ export class StatistiqueComponent implements OnInit {
     };
   }
 
-  createPagesChart(data: any) {
-    const pagesData: number[] = Object.values(data).flatMap(
-      (obj: any) => obj.countPayed
-    );
 
-    const pagesLabel: string[] = Object.values(data).flatMap(
-      (obj: any) => obj.pageName
-    );
-    this.PagesData = {
-      labels: pagesLabel,
-      datasets: [
-        {
-          data: pagesData,
-          backgroundColor: ['blue', 'green', 'red', 'grey', 'yellow', 'pink'],
-          hoverBackgroundColor: [
-            'blue',
-            'green',
-            'red',
-            'grey',
-            'yellow',
-            'pink',
-          ],
-        },
-      ],
-    };
-  }
 
   getStatAllModelsChart() {
     if(this.endDateString)
@@ -277,6 +241,23 @@ export class StatistiqueComponent implements OnInit {
         next: (response: any) => {
           //console.log('statAllModels', response);
           this.createModelsChart(response);
+        },
+        error: (error: any) => {
+          console.log('ErrorProductsCount:', error);
+        },
+        complete: () => {
+          console.log('Observable completed-- getStatAllModelsChart --');
+        },
+      });
+  }
+  getStatAllPagesCountChart() {
+    if(this.endDateString)
+    this.statsService
+      .statAllPagesCount(this.beginDateString, this.endDateString)
+      .pipe(takeUntil(this.$unsubscribe))
+      .subscribe({
+        next: (response: any) => {
+          this.createPagesCountChart(response);
         },
         error: (error: any) => {
           console.log('ErrorProductsCount:', error);
@@ -393,6 +374,63 @@ export class StatistiqueComponent implements OnInit {
       datasets: this.modelsDataSetArray,
     };
   }
+  createPagesCountChart(data: any) {
+    this.pagesCountTableData = [];
+    let pagesCounts: any[] = [];
+    this.pagesCountTableData = data.pagesRecapCount;
+    pagesCounts = data.pagesCount;
+    this.dates = data.dates;
+    this.pagesCountDataSetArray = [];
+
+    this.createPagesChart(pagesCounts);
+    this.createPagesOChart(this.pagesCountTableData);
+  }
+  createPagesChart(pagesCounts:any[]){
+    let i = 0;
+    this.pagesCountTableData.forEach((item: any) => {
+      this.pagesCountDataSetArray.push({
+        label: item.name + '/av:' + this.pagesCountTableData[i].avg,
+        data: pagesCounts[i],
+        fill: false,
+        borderColor: this.getRandomColor(item.name),
+        tension: 0.4,
+        hidden: this.pagesCountTableData[i].avg < 4,
+      });
+      i++;
+    });
+    this.pagesCountData = {
+      labels: this.dates,
+      datasets: this.pagesCountDataSetArray,
+    };
+  }
+
+  createPagesOChart(data: any) {
+    const pagesData: number[] = Object.values(data)
+    .filter((obj: any) => obj.payed && obj.name !== "Total")
+    .map((obj: any) => obj.payed); // Assuming you want to extract `payed` values
+
+    const pagesLabel: string[] = Object.values(data)
+      .filter((obj: any) => obj.name && obj.name !== "Total")
+      .map((obj: any) => obj.name);
+
+    this.PagesData = {
+      labels: pagesLabel,
+      datasets: [
+        {
+          data: pagesData,
+          backgroundColor: ['blue', 'green', 'red', 'grey', 'yellow', 'pink'],
+          hoverBackgroundColor: [
+            'blue',
+            'green',
+            'red',
+            'grey',
+            'yellow',
+            'pink',
+          ],
+        },
+      ],
+    };
+  }
 
   createStockChart(data: any) {
     //console.log('createModelsChart', data);
@@ -500,8 +538,6 @@ export class StatistiqueComponent implements OnInit {
 
     let k = 0;
     this.colorsTableData.forEach((item: any) => {
-      console.log(item);
-
       this.colorsDataSetArray.push({
         label: item.name+'/av:' + this.colorsTableData[k].avg,
         data: colorsCounts[k],
@@ -700,6 +736,10 @@ export class StatistiqueComponent implements OnInit {
     if(this.modelsChartEnabler)
       this.getStatAllModelsChart();
   }
+  pagesCountChartEnablerChange() {
+    if(this.pagesCountChartEnabler)
+      this.getStatAllPagesCountChart();
+  }
 
   colorsChartEnablerChange() {
     if(this.colorsChartEnabler)
@@ -711,19 +751,9 @@ export class StatistiqueComponent implements OnInit {
       this.getStatAllOffersChart();
   }
 
-  /*statesAndPagesChartEnablerChange() {
-    if(this.statesAndPagesChartEnabler)
-      this.getAllPacketsByDate();
-  }*/
-
   statesChartEnablerChange() {
     if(this.statesChartEnabler)
       this.getStatesChart();
-  }
-
-  pagesChartEnablerChange() {
-    if(this.pagesChartEnabler)
-      this.getPagesChart();
   }
 
   stockChartEnablerChange() {

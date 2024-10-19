@@ -82,18 +82,6 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value ="SELECT p FROM Packet p WHERE DATE(p.date) >= DATE(:beginDate) AND DATE(p.date) <= DATE(:endDate)")
     List<Packet> findAllPacketsByDate(@Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
 
-    @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.PagesStatCountDTO( " +
-            "DATE(p.date), p.fbPage.name, " +
-            "SUM(CASE WHEN p.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN (p.status = 'Retour' OR p.status = 'Retour reçu') AND p.exchangeId IS NULL THEN 1 ELSE 0 END)) " +
-            "FROM Packet p " +
-            "WHERE DATE(p.date) >= DATE(:beginDate) " +
-            "AND DATE(p.date) <= DATE(:endDate) " +
-            "AND p.status IN ('Livrée', 'Payée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier', 'Retour' ,'Retour reçu') " +
-            "GROUP BY p.fbPage.name ORDER BY DATE(p.date) ASC ")
-    List<PagesStatCountDTO> findAllPacketsPages(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
-
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.StatesStatCountDTO( " +
             "DATE(p.date), p.city.governorate.name, " +
             "SUM(CASE WHEN p.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
@@ -105,6 +93,8 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             "AND p.status IN ('Livrée', 'Payée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier', 'Retour' ,'Retour reçu') " +
             "GROUP BY p.city.governorate.id ORDER BY DATE(p.date) ASC ")
     List<StatesStatCountDTO> findAllPacketsStates(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
+
+    
 
 
     @Modifying

@@ -1,19 +1,20 @@
 package com.clothing.management.repository;
 import com.clothing.management.dto.DayCount.*;
+import com.clothing.management.entities.FbPage;
 import com.clothing.management.entities.ProductsPacket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 import java.util.List;
 
 public interface IProductsPacketRepository extends JpaRepository<ProductsPacket , Long> {
-
     @Transactional
     @Query(value = "select * from products_packet  where packet_id = :packetId", nativeQuery = true)
     List<ProductsPacket> findByPacketId(Long packetId);
 
-    //long id,Color color, Size size, long qte,long countPayed, long countProgress, long countExchange, long countOos
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.SoldProductsDayCountDTO( " +
             "pp.product.id, " +
             "pp.product.color.id , pp.product.size.id , " +
@@ -46,21 +47,37 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     List<OffersDayCountDTO> offersCountByDate(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
 
-   @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.ModelsDayCountDTO(" +
-           "DATE(pp.packet.date), pp.packet.id, " +
-           "pp.product.model, " +
-           "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
-           "SUM(CASE WHEN pp.packet.status IN ('Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
-           "SUM(CASE WHEN pp.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
-           "SUM(CASE WHEN (pp.packet.status = 'Retour' OR pp.packet.status = 'Retour reçu') AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END), " +//retour
-           "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN pp.profits ELSE 0 END))" +
-           "FROM ProductsPacket pp " +
-           "WHERE DATE(pp.packet.date) >= DATE(:beginDate) " +
-           "AND DATE(pp.packet.date) <= DATE(:endDate) " +
-           "AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Retour', 'Retour reçu','En rupture') " +
-           "GROUP BY DATE(pp.packet.date), pp.product.model.id " +
-           "ORDER BY DATE(pp.packet.date) ASC")
+    @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.ModelsDayCountDTO(" +
+            "DATE(pp.packet.date), pp.packet.id, " +
+            "pp.product.model, " +
+            "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN (pp.packet.status = 'Retour' OR pp.packet.status = 'Retour reçu') AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END), " +//retour
+            "SUM(CASE WHEN pp.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN pp.profits ELSE 0 END))" +
+            "FROM ProductsPacket pp " +
+            "WHERE DATE(pp.packet.date) >= DATE(:beginDate) " +
+            "AND DATE(pp.packet.date) <= DATE(:endDate) " +
+            "AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Retour', 'Retour reçu','En rupture') " +
+            "GROUP BY DATE(pp.packet.date), pp.product.model.id " +
+            "ORDER BY DATE(pp.packet.date) ASC")
     List<ModelsDayCountDTO> statAllModels(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
+
+    @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.PagesDayCountDTO(" +
+            "DATE(pp.packet.date), pp.packet.id, " +
+            "pp.packet.fbPage, " +
+            "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN (pp.packet.status = 'Retour' OR pp.packet.status = 'Retour reçu') AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END), " +//retour
+            "SUM(CASE WHEN pp.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status IN ('Livrée', 'Payée') THEN pp.profits ELSE 0 END))" +
+            "FROM ProductsPacket pp " +
+            "WHERE DATE(pp.packet.date) >= DATE(:beginDate) " +
+            "AND DATE(pp.packet.date) <= DATE(:endDate) " +
+            "AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Retour', 'Retour reçu','En rupture') " +
+            "GROUP BY DATE(pp.packet.date), pp.packet.fbPage.name " +
+            "ORDER BY DATE(pp.packet.date) ASC")
+    List<PagesDayCountDTO> statAllPages(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.ProductsDayCountDTO( " +
             "DATE(pp.packet.date), pp.product.id, " +
@@ -107,6 +124,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "GROUP BY pp.product.color.id, DATE(pp.packet.date) " +
             "ORDER BY DATE(pp.packet.date) ASC")
     List<ColorsDayCountDTO> statAllModelsByColor(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
+
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.PacketsStatCountDTO(" +
             "DATE(p.date), " +
             "SUM(CASE WHEN p.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
@@ -127,7 +145,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.PacketsStatCountDTO(" +
             "DATE(p.date), " +
             "SUM(CASE WHEN p.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.valid = true AND (p.haveExchange = false OR p.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Livrée', 'Payée')) AND p.status <> 'Annuler' THEN 1 ELSE 0 END), " +// out
+            "SUM(CASE WHEN p.valid = true AND (p.haveExchange = false OR p.status IN ('Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Livrée', 'Payée')) AND p.status <> 'Annuler' THEN 1 ELSE 0 END), " +// out
             "SUM(CASE WHEN p.haveExchange = true AND p.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END), " +//echange
             "SUM(CASE WHEN p.status IN ('Retour', 'Retour reçu') AND p.haveExchange = false THEN 1 ELSE 0 END), " +//retour
             "SUM(CASE WHEN p.status = 'En rupture' THEN 1 ELSE 0 END), " +//En rupture
@@ -136,7 +154,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "FROM Packet p " +
             "WHERE DATE(p.date) >= DATE(:beginDate) " +
             "AND DATE(p.date) <= DATE(:endDate) " +
-            "AND p.status IN ('Livrée', 'Payée','Confirmée','En cours (1)','Confirmée', 'En cours (2)', 'En cours (3)', 'A verifier','Retour', 'Retour reçu','En rupture') " +
+            "AND p.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Retour', 'Retour reçu','En rupture') " +
             "GROUP BY DATE(p.date) ORDER BY DATE(p.date) ASC")
     List<PacketsStatCountDTO> statAllPackets(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 

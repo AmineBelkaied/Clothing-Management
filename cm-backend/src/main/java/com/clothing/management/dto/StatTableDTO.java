@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.mapstruct.Mapping;
 
 @Data
 @NoArgsConstructor
@@ -20,13 +21,13 @@ public class StatTableDTO {
 
     private Long Avg;
 
-    private Long Payed;
+    private Long payed;
 
     private double Per;
 
-    private Long Retour;
+    private Long retour;
 
-    private Long Progress;
+    private Long progress;
 
     private Double profits;
 
@@ -36,9 +37,9 @@ public class StatTableDTO {
         this.Max = 0L;
         this.Avg = 0L;
         this.Per = 0L;
-        this.Retour = 0L;
-        this.Progress = 0L;
+        this.retour = 0L;
+        this.progress = 0L;
         this.profits = 0.0;
-        this.Payed = 0L;
+        this.payed = 0L;
     }
 }
