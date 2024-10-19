@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, take, tap } from 'rxjs/operators';
+import { catchError, shareReplay, take, tap } from 'rxjs/operators';
 import { Size } from 'src/shared/models/Size';
 import { environment } from '../../environments/environment';
 import { SIZE_ENDPOINTS } from '../constants/api-endpoints';
@@ -16,26 +16,38 @@ export class SizeService {
   public size: BehaviorSubject<any> = new BehaviorSubject([]);
   public sizes: Size[] = [];
   public editMode = false;
+  private sizesCache$: Observable<Size[]> | undefined;
 
   constructor(private http: HttpClient) {
-    console.log("sizeConstructor");
-
-    this.getSizesSubscriber().pipe(take(1));
   }
 
-  loadSizes(): Observable<Size[]> {
-    return this.findAllSizes().pipe(
-      tap((sizeList: Size[]) => {
-        this.sizes = sizeList;
-        this.sizesSubscriber.next(this.sizes);
-      }),
-      catchError((error) => {
-        // Handle the error here
-        console.error('Error fetching sizes', error);
-        return throwError(() => error);
-      })
-    );
+  loadSizes(): void {
+    if (!this.sizesCache$) {
+      this.sizesCache$ = this.findAllSizes().pipe(
+        take(1),
+        tap((sizeList: Size[]) => {
+          this.sizes = sizeList;
+          this.sizesSubscriber.next(this.sizes);
+          console.log("findAllSizes");
+        }),
+        catchError((error) => {
+          // Handle the error here
+          console.error('Error fetching sizes', error);
+          return throwError(() => error);
+        }),
+        shareReplay(1)
+      );
+    }
+    this.sizesCache$.subscribe();
   }
+
+  getSizesSubscriber(): Observable<Size[]> {
+    if (this.sizesSubscriber.value.length === 0) {
+      this.loadSizes();
+    }
+    return this.sizesSubscriber.asObservable();
+  }
+
 
 
   getSizesByIds(ids: number[]) : Size[]{
@@ -51,25 +63,9 @@ export class SizeService {
     return this.sizes[sizeIndex] != null ? this.sizes[sizeIndex].reference : "";
   }
 
-  getSizesSubscriber(): Observable<Size[]> {
-    if (this.sizesSubscriber.value.length === 0) {
-      this.loadSizes().subscribe();
-    }
-    return this.sizesSubscriber.asObservable();
-  }
-
-
   findAllSizes(): Observable<Size[]> {
-    return this.http.get<Size[]>(`${this.baseUrl}`).pipe(
-      catchError(this.handleError<Size[]>('findAllSizes', []))
-    );
+    return this.http.get<Size[]>(`${this.baseUrl}`);
   }
-
-  /*findSizeById(id: number): Observable<Size> {
-    return this.http.get<Size>(`${this.baseUrl}/${id}`).pipe(
-      catchError(this.handleError<Size>('findSizeById'))
-    );
-  }*/
 
   addSize(size: Size): Observable<Size> {
     return this.http.post<Size>(`${this.baseUrl}`, size, { observe: 'body' }).pipe(
@@ -112,5 +108,10 @@ export class SizeService {
       console.error(`${operation} failed: ${error.message}`);
       return of(result as T);
     };
+  }
+
+  reloadColors(): void {
+    this.sizesCache$ = undefined;
+    this.loadSizes();
   }
 }
