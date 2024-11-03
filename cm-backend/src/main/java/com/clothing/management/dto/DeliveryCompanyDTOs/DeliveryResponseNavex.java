@@ -19,4 +19,5 @@ public class DeliveryResponseNavex extends DeliveryResponse {
     int responseCode;
     @JsonIgnore
     String responseMessage;
+    String agence;
 }

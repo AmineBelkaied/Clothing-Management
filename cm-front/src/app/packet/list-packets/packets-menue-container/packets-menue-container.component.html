@@ -13,9 +13,18 @@
               (input)="handleInputChange()" placeholder="Client, Tel, Ville, Adresse, Page, Id"
               [style]="{ width: '230px' }" class="mr-2" />
           </span>
-          <p-calendar [(ngModel)]="rangeDates" (ngModelChange)="filterPackets('date')" selectionMode="range"
-            [readonlyInput]="true" inputId="range" placeholder="Filtrer par date/période" [showClear]="false"
-            (onClearClick)="resetTable()"  [style]="{ width: '11rem' }" dateFormat="dd/mm"  [showIcon]="true"
+          <p-calendar [(ngModel)]="rangeDates"
+            (ngModelChange)="filterPackets('date')"
+            selectionMode="range"
+            [readonlyInput]="true"
+            inputId="range" placeholder="Filtrer par date/période"
+            [showClear]="false"
+            (onClearClick)="resetTable()" [style]="{ width: '11rem' }"
+            dateFormat="dd/mm"
+            [showIcon]="true"
+            [iconDisplay]="'input'"
+            inputId="icondisplay"
+            variant="filled"
             [touchUI]="true">
             <ng-template pTemplate="footer">
               <div style="display: flex; align-items: center">

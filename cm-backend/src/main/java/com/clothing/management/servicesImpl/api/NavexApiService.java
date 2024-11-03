@@ -110,6 +110,7 @@ public class NavexApiService extends DeliveryCompanyService {
         deliveryResponse.setState(deliveryResponse.getEtat());
         deliveryResponse.setLink(deliveryResponse.getLien());
         deliveryResponse.setMessage(deliveryResponse.getStatus_message());
+        deliveryResponse.setAgence(deliveryResponse.getAgence());
         deliveryResponse.setStatus(responseCode);
         deliveryResponse.setIsError(false);
         return deliveryResponse;

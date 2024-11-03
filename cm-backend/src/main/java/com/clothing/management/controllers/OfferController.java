@@ -123,10 +123,10 @@ public class OfferController {
     }
 
     @PutMapping(value = "/update-offer-fb-pages", produces = "application/json")
-    public ResponseEntity<OfferDTO> updateOfferFbPages(@RequestParam("offerId") long offerId, @RequestBody Set<FbPage> fbPages) {
+    public ResponseEntity<OfferDTO> updateOfferFbPages(@RequestParam("offerId") long offerId, @RequestBody Set<Long> fbPagesId) {
         LOGGER.info("Updating offer fb pages for offerId: {}", offerId);
         try {
-            OfferDTO updatedOffer = offerService.updateOfferFbPages(offerId, fbPages);
+            OfferDTO updatedOffer = offerService.updateOfferFbPages(offerId, fbPagesId);
             LOGGER.info("Offer fb pages updated successfully for offerId: {}", offerId);
             return ResponseEntity.ok(updatedOffer);
         } catch (Exception e) {

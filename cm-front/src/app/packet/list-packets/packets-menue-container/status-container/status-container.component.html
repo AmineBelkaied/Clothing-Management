@@ -3,7 +3,6 @@
     <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
       style="cursor: pointer;"
       *ngIf="item.isUserOption == true || isAdmin"
-      #menuItem
       (click)="toggleListbox(i,item)"
       [ngClass]="{
         'selected-item': i === borderIndex,

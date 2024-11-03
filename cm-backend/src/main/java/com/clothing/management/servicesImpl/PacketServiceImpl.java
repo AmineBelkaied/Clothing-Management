@@ -247,7 +247,6 @@ public class PacketServiceImpl implements PacketService {
                 .deliveryCompany(globalConf.getDeliveryCompany())
                 .build();
         User currentUser = sessionUtils.getCurrentUser();
-        if(globalConf.getOneSourceApp())
             packet.setFbPage(globalConf.getFbPage());
         packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(CREATION.getStatus(), packet, currentUser).build());
         Packet savedPacket = packetRepository.save(packet);

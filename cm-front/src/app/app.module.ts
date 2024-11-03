@@ -71,6 +71,7 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { StatistiqueComponent } from './statistique/statistique.component';
 import { StockHistoryComponent } from './stock/stock-history/stock-history.component';
 import { StockTableComponent } from './stock/stock-table/stock-table.component';
+import { StockTableMinComponent } from './stock/stock-table-min/stock-table-min.component';
 import { PaginatorModule } from 'primeng/paginator';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
 import { VerificationComponent } from './verification/verification.component';
@@ -130,6 +131,7 @@ import { DisplayDeliveryCompanyPipe } from 'src/shared/pipes/display-delivery-co
     StatistiqueComponent,
     StockHistoryComponent,
     StockTableComponent,
+    StockTableMinComponent,
     PayedReturnComponent,
     VerificationComponent,
     PayedReturnComponent,

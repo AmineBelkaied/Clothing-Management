@@ -33,7 +33,6 @@ import {
   IN_PROGRESS,
 } from 'src/shared/utils/status-list';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
-import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 import {
   ChangeDetectorRef,
   Component,

@@ -113,6 +113,7 @@ class="listbox-style">
                           </div>
                           <div *ngIf="stock">
                             <h6>{{ productSize.qte }}</h6>
+                          </div>
                             <ng-container *ngIf="getDaysStock(productSize) as delai">
                               <div class="text-center mt-2" *ngIf="optionFlags['showSeverity']">
                                 <p-tag [value]="getSeverityMsg(productSize.qte, delai)" [severity]="getSeverity(productSize.qte, delai)"></p-tag>
@@ -121,7 +122,7 @@ class="listbox-style">
                                 <h4>{{ delai }} days</h4>
                               </div>
                             </ng-container>
-                          </div>
+
                         </ng-container>
                       </td>
                     </ng-container>

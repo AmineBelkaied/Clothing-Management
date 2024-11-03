@@ -38,6 +38,7 @@ export const PRODUCT_ENDPOINTS = {
     BASE: '/products',
     BATCH_DELETE: '/batch-delete',
     STOCK: '/stock',
+    STOCK_QUANTITY: '/stock-quantity',
     MODEL_IDS: '/byModelIds',
 
 };
@@ -55,12 +56,14 @@ export const STAT_ENDPOINTS = {
     MODEL: '/model',
     MODELS: '/models',
     STOCK: '/stock',
+    VALUES: '/values',
     COLORS: '/colors',
     PACKETS: '/packets',
     OFFERS: '/offers',
     PRODUCTS: '/products',
     PAGES: '/pages',
-    STATES: '/states'
+    STATES: '/states',
+    PACKETSDASHBOARD: '/packets-dachboard'
 };
 
 export const CITY_ENDPOINTS = {

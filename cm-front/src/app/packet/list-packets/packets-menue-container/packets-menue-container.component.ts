@@ -84,11 +84,12 @@ export class PacketsMenueContainerComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['filter']) {
+      console.log("changes detected");
+
       this.handleInputChange();
     }
   }
   handleInputChange() {
-
     const inputValue = this.filter;
     const numbersCount = (inputValue.match(/\d/g) || []).length;
     console.log(inputValue,numbersCount);

@@ -15,8 +15,6 @@ export interface Model {
     enabled: boolean;
     defaultId?: number;
 
-    selectedColor?:number;
-    selectedSize?:number;
     selectedSizeReel?:number;
     selectedProduct?:Product;
 }

@@ -128,12 +128,15 @@
       </div>
       <div class="col-md-9 d-flex flex-column">
       <!-- Right Column: Product Table & History -->
-        <app-stock-table
-          [beginDateString]="beginDateString"
-          [endDateString]="endDateString"
-          [selectedModel]="selectedModel"
-          [datesCount]="datesCount">
-        </app-stock-table>
+      <app-stock-table
+        [beginDateString]="beginDateString"
+        [endDateString]="endDateString"
+        [selectedModel]="selectedModel"
+        [datesCount]="datesCount">
+      </app-stock-table>
+      <app-stock-table-min
+        [selectedModel]="selectedModel">
+      </app-stock-table-min>
       </div>
     </div>
   </div>

@@ -47,13 +47,26 @@ export class StatsService {
     return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.STOCK}`, { params });
   }
 
+  public statValueStock(): Observable<any> {
+    let params = new HttpParams();
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.VALUES}`, { params });
+  }
+
   public statAllPackets(beginDate: string, endDate: string, deliveryCompanyName: string): Observable<any> {
     let params = new HttpParams()
       .set('beginDate', beginDate)
       .set('endDate', endDate)
       .set('deliveryCompanyName', deliveryCompanyName);
-
     return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.PACKETS}`, { params });
+  }
+
+  public statPacketsDashboard(beginDate: string, endDate: string, deliveryCompanyName: string): Observable<any> {
+    let params = new HttpParams()
+      .set('beginDate', beginDate)
+      .set('endDate', endDate)
+      .set('deliveryCompanyName', deliveryCompanyName);
+
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.PACKETSDASHBOARD}`, { params });
   }
 
   public statAllColors(beginDate: string, endDate: string): Observable<any> {//, modelIds: number[]

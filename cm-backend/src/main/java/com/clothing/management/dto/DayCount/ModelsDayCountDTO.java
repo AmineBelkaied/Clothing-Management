@@ -22,7 +22,7 @@ public class ModelsDayCountDTO extends DayCountDTO {
                              Model model,
                              long countPayed, long countProgress, long countReturn,long countOos, double profits
     ) {
-        super( countPayed, countProgress);
+        super(countPayed, countProgress);
         this.date = packetDate;
         this.packetId = packetId;
         this.model = model;

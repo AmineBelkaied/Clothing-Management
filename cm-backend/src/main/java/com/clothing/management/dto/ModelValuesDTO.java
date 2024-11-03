@@ -1,21 +1,26 @@
 package com.clothing.management.dto;
 
-import com.clothing.management.entities.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductDTO {
+public class ModelValuesDTO {
+
     private Long id;
-    private ModelDTO model;
-    private Long qte;
+    private String name;
+    private Long quantity;
+    private float purchasePrice;
+    private double earningCoefficient;
     private boolean deleted;
-    private long modelId;
-    private Size size;
-    private Color color;
+    private boolean enabled;
+
+
 }

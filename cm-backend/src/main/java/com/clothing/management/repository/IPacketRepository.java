@@ -25,7 +25,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     List<Packet> findAllDiggiePackets(@Param("statuses") List<String> statuses);
 
     @Transactional
-    @Query(value=" SELECT * FROM packet p WHERE p.barcode = :barCode OR p.id = :barCode", nativeQuery = true)
+    @Query(value="SELECT * FROM packet p WHERE p.barcode LIKE %:barCode%", nativeQuery = true)
     Optional<Packet> findByBarCode(@Param("barCode") String barCode);
 
     @Query(value="SELECT COUNT(p.id) FROM packet p " +

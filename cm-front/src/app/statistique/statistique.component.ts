@@ -132,6 +132,7 @@ export class StatistiqueComponent implements OnInit {
   progressOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
   deliveryCompanyName : string = "ALL";
   deliveryCompanyList: DeliveryCompany[] = [];
+  stockValueTableData: any;
 
   constructor(
     private packetService: PacketService,
@@ -285,25 +286,62 @@ export class StatistiqueComponent implements OnInit {
           console.log('Observable completed-- getStatStockChart --');
         },
       });
+      this.getStatValueStockTable();
+  }
+  getStatValueStockTable() {
+    if(this.endDateString)
+    this.statsService
+      .statValueStock()
+      .pipe(takeUntil(this.$unsubscribe))
+      .subscribe({
+        next: (response: any) => {
+          console.log('statValueStock', response);
+          this.stockValueTableData = response;
+          //this.createStockChart(response);
+        },
+        error: (error: any) => {
+          console.log('ErrorStockCount:', error);
+        },
+        complete: () => {
+          console.log('Observable completed-- getStatStockChart --');
+        },
+      });
   }
 
   getStatAllPacketsChart() {
     if(this.deliveryCompanyName==null)this.deliveryCompanyName="ALL";
-    if(this.endDateString)
-    this.statsService
-      .statAllPackets(this.beginDateString, this.endDateString, this.deliveryCompanyName)
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe({
-        next: (response: any) => {
-          this.createPacketsChart(response);
-        },
-        error: (error: any) => {
-          console.log('ErrorProductsCount:', error);
-        },
-        complete: () => {
-          console.log('Observable completed-- getStatAllPacketsChart --');
-        },
-      });
+    if(this.endDateString){
+      this.statsService
+        .statAllPackets(this.beginDateString, this.endDateString, this.deliveryCompanyName)
+        .pipe(takeUntil(this.$unsubscribe))
+        .subscribe({
+          next: (response: any) => {
+            this.createPacketsChart(response);
+          },
+          error: (error: any) => {
+            console.log('ErrorProductsCount:', error);
+          },
+          complete: () => {
+            console.log('Observable completed-- getStatAllPacketsChart --');
+          },
+        });
+/*       this.statsService
+        .statPacketsDashboard(this.beginDateString, this.endDateString, this.deliveryCompanyName)
+        .pipe(takeUntil(this.$unsubscribe))
+        .subscribe({
+          next: (response: any) => {
+            console.log(response);
+
+            //this.createPacketsChart(response);
+          },
+          error: (error: any) => {
+            console.log('ErrorProductsCount:', error);
+          },
+          complete: () => {
+            console.log('Observable completed-- getStatAllPacketsChart --');
+          },
+        });*/
+      }
   }
   getStatAllOffersChart() {
     if(this.endDateString)
@@ -385,6 +423,7 @@ export class StatistiqueComponent implements OnInit {
     this.createPagesChart(pagesCounts);
     this.createPagesOChart(this.pagesCountTableData);
   }
+
   createPagesChart(pagesCounts:any[]){
     let i = 0;
     this.pagesCountTableData.forEach((item: any) => {

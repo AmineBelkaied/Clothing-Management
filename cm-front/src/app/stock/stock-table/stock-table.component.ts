@@ -1,12 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { ProductsCount, SoldProduct } from 'src/shared/models/ProductCountDTO';
-import { ModelService } from 'src/shared/services/model.service';
 import { ProductHistoryService } from 'src/shared/services/product-history.service';
 import { ProductService } from 'src/shared/services/product.service';
-import { StatsService } from 'src/shared/services/stats.service';
-import { DateUtils } from 'src/shared/utils/date-utils';
 
 @Component({
   selector: 'app-stock-table',

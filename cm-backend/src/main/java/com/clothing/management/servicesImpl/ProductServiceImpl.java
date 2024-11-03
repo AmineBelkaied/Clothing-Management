@@ -2,6 +2,7 @@ package com.clothing.management.servicesImpl;
 
 import com.clothing.management.auth.util.SessionUtils;
 import com.clothing.management.dto.*;
+import com.clothing.management.dto.DayCount.ProductsQuantityDTO;
 import com.clothing.management.dto.DayCount.SoldProductsDayCountDTO;
 import com.clothing.management.entities.*;
 import com.clothing.management.exceptions.custom.notfound.ProductNotFoundException;
@@ -35,16 +36,19 @@ public class ProductServiceImpl implements ProductService {
     private final IModelRepository modelRepository;
     private final IProductHistoryRepository productHistoryRepository;
     private final IProductsPacketRepository productsPacketRepository;
+    private final IProductRepository productsRepository;
     private final SessionUtils sessionUtils;
     private final EntityBuilderHelper entityBuilderHelper;
     private final SoldProductsDayCountMapper soldProductsDayCountMapper;
     private final ModelMapper modelMapper;
 
-    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository, SessionUtils sessionUtils, EntityBuilderHelper entityBuilderHelper, SoldProductsDayCountMapper soldProductsDayCountMapper, ModelMapper modelMapper) {
+
+    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository, IProductRepository productsRepository, SessionUtils sessionUtils, EntityBuilderHelper entityBuilderHelper, SoldProductsDayCountMapper soldProductsDayCountMapper, ModelMapper modelMapper) {
         this.productRepository = productRepository;
         this.modelRepository = modelRepository;
         this.productHistoryRepository = productHistoryRepository;
         this.productsPacketRepository = productsPacketRepository;
+        this.productsRepository = productsRepository;
         this.sessionUtils = sessionUtils;
         this.entityBuilderHelper = entityBuilderHelper;
         this.soldProductsDayCountMapper = soldProductsDayCountMapper;
@@ -156,13 +160,19 @@ public class ProductServiceImpl implements ProductService {
 
             // 4. Set the Data in stockDTO
             stockDTO.setModel(modelMapper.toDto(model));
-            stockDTO.setProductsByColor(productsByColor); // Set the new HashMap structure
-            //stockDTO.setSizes(orderedSizes);
-
-            LOGGER.info("Stock fetched successfully for model ID: {}", modelId);
+            stockDTO.setProductsByColor(productsByColor);
         });
 
         return stockDTO;
+    }
+
+
+    @Transactional("tenantTransactionManager")
+    public List<ProductsQuantityDTO> getStockQuantity(Long modelId) {
+            return productsRepository.productsQuantity(modelId)
+                    .stream()
+                    .map(ProductsQuantityDTO::new)
+                    .toList();
     }
 
     private List<Long> sortSizes(Set<Size> sizes) {
