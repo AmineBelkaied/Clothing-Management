@@ -1,7 +1,6 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MenuItem, MessageService } from 'primeng/api';
-import { TieredMenu } from 'primeng/tieredmenu';
+import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { DashboardCard } from 'src/shared/models/DashboardCard';
 import { Status } from 'src/shared/models/status';
@@ -31,7 +30,6 @@ import {
 })
 
 export class StatusContainerComponent {
-  @ViewChildren('menuItem') menuItems!: QueryList<ElementRef>;
   @Input() params!: any;
   @Input() activeIndex: number;
   selectedStatus: FormControl = new FormControl();
@@ -48,8 +46,7 @@ export class StatusContainerComponent {
   constructor(
     private packetService: PacketService,
     public storageService: StorageService,
-    public messageService: MessageService,
-    private elementRef: ElementRef
+    public messageService: MessageService
   ) {
   }
 
@@ -106,28 +103,6 @@ export class StatusContainerComponent {
     this.statusChange.emit(item);
   }
 
-/*   changeBgColor(element: HTMLDivElement) {
-    element.style.backgroundColor = '#a8b3c1';
-  }
-
-  resetBgColor(element: HTMLDivElement) {
-    element.style.backgroundColor = 'black';
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    for(let item of this.menuItems) {
-      const clickedInside = item.nativeElement.contains(event.target);
-      if (clickedInside) {
-        item.nativeElement.classList.add('selected-item');
-        item.nativeElement.classList.remove('default-item');
-      } else {
-        item.nativeElement.classList.add('default-item');
-        item.nativeElement.classList.remove('selected-item');
-      }
-    }
-  }
- */
 
   onOptionSelect(item: any) {
     console.log("item changed", item);
@@ -239,183 +214,5 @@ export class StatusContainerComponent {
     this.$unsubscribe.next();
     this.$unsubscribe.complete();
   }
-
-  /*   positionListbox(index: number) {
-    const menuItem = this.menuItems.toArray()[index].nativeElement;
-    const rect = menuItem.getBoundingClientRect();
-    const windowWidth = window.innerWidth;
-    const listboxWidth = 200; // Width of the listbox
-
-    if (rect.right + listboxWidth > windowWidth) {
-      // Position to the left if there's not enough space on the right
-      this.listboxStyle = {
-        ...this.listboxStyle,
-        left: 'auto',
-        right: '100%',
-        marginLeft: '0',
-        marginRight: '0.5rem'
-      };
-    } else {
-      // Position to the right
-      this.listboxStyle = {
-        ...this.listboxStyle,
-        left: '100%',
-        right: 'auto',
-        marginLeft: '0.5rem',
-        marginRight: '0'
-      };
-    }
-  } */
-
-  /*
-    clearAllSelectedStatus(){
-      this.nonConfirmedOptionsValue=[];
-      this.endedOptionsValue=[];
-      this.canceledOptionsValue = [];
-      this.inProgressOptionsValue = [];
-    }*/
-
-  /*
-  handleEndedStatus() {
-    this.nonConfirmedOptionsValue=[];
-        this.canceledOptionsValue = [];
-        this.inProgressOptionsValue = [];
-        if(this.endedOptionsValue != undefined && this.endedOptionsValue.length > 0){
-          this.selectedStatus.patchValue(this.endedOptionsValue);
-          this.noClose=true;
-        }
-        else{
-          this.selectedStatus.patchValue( [ DELIVERED ,PAID ,RETURN_RECEIVED ]);
-          }
-  }
-  handleCanceledStatus() {
-    this.nonConfirmedOptionsValue=[];
-        this.endedOptionsValue=[];
-        this.inProgressOptionsValue = [];
-        if(this.canceledOptionsValue != undefined && this.canceledOptionsValue.length > 0){
-          this.noClose=true;
-          this.selectedStatus.patchValue(this.canceledOptionsValue);
-        }
-        else
-            this.selectedStatus.patchValue([ CANCELED, DELETED ]);
-  }
-  handleNotConfirmedStatus() {
-    this.endedOptionsValue=[];
-        this.canceledOptionsValue = [];
-        this.inProgressOptionsValue = [];
-        if(this.nonConfirmedOptionsValue != undefined && this.nonConfirmedOptionsValue.length > 0){
-          this.noClose=true;
-          this.selectedStatus.patchValue(this.nonConfirmedOptionsValue);
-        }
-        else
-            this.selectedStatus.patchValue([ NOT_CONFIRMED, UNREACHABLE ]);
-  }
-  handleInProgressStatus() {
-    this.nonConfirmedOptionsValue=[];
-    this.endedOptionsValue=[];
-    this.canceledOptionsValue = [];
-    if(this.inProgressOptionsValue != undefined && this.inProgressOptionsValue.length > 0){
-      this.noClose=true;
-      this.selectedStatus.patchValue(this.inProgressOptionsValue);
-    }
-    else
-      this.selectedStatus.patchValue([ TO_VERIFY, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3 ]);
-  }
-
-  loadNotification(){
-    this.statusItems= [
-      {
-        label: "Tous",
-        title: "Tous",
-        icon: 'pi pi-align-justify',
-        color: 'green',
-        badge:this.statusItems[0].badge,
-        badgeByDate:this.statusItems[0].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:"All", detail: event.item.label});
-          this.onActiveIndexChange(event.index);
-        },
-        disabled:true
-      },
-      {
-        label: OOS+"("+this.statusItems[1].badge+")",
-        title: OOS,
-        icon: 'pi pi-times',
-        color: 'red',
-        badge:this.statusItems[1].badge,
-        badgeByDate:this.statusItems[1].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:OOS, detail: event.item.label});
-        }
-      },
-      {
-        label: NOT_CONFIRMED+"("+this.statusItems[2].badge+")",
-        title: NOT_CONFIRMED,
-        icon: 'pi pi-phone',
-        color: 'orange',
-        badge:this.statusItems[2].badge,
-        badgeByDate:this.statusItems[2].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:NOT_CONFIRMED, detail: event.item.label});
-        }
-      },
-      {
-        label: CONFIRMED+"("+this.statusItems[3].badge+")",
-        title: CONFIRMED,
-        icon: 'pi pi-check',
-        color: 'green',
-        badge:this.statusItems[3].badge,
-        badgeByDate:this.statusItems[3].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:NOT_CONFIRMED, detail: event.item.label});
-        }
-      },
-      {
-        label: IN_PROGRESS+"("+this.statusItems[4].badge+")",
-        title: IN_PROGRESS,
-        icon: 'pi pi-truck',
-        color: 'purple',
-        badge:this.statusItems[4].badge,
-        badgeByDate:this.statusItems[4].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:IN_PROGRESS, detail: event.item.label});
-        },
-      },
-      {
-        label: RETURN+"("+this.statusItems[5].badge+")",
-        title: RETURN,
-        icon: 'pi pi-thumbs-down',
-        color: 'red',
-        badge:this.statusItems[5].badge,
-        badgeByDate:this.statusItems[5].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:RETURN, detail: event.item.label});
-          }
-      },
-      {
-        label: CANCELED+"("+this.statusItems[6].badge+")",
-        title: CANCELED,
-        icon: 'pi pi-thumbs-down',
-        color: 'red',
-        badge:this.statusItems[6].badge,
-        badgeByDate:this.statusItems[6].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:RETURN, detail: event.item.label});
-          }
-      },
-      {
-        label: 'Terminé',
-        title: 'Terminé',
-        icon: 'pi pi-flag',
-        color: 'red',
-        badge:this.statusItems[7].badge,
-        badgeByDate:this.statusItems[7].badgeByDate,
-        command: (event: any) => {
-          this.messageService.add({severity:'info', summary:'Last Step', detail: event.item.label})
-        }
-      }
-  ];
-  }
-*/
 
 }

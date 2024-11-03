@@ -26,7 +26,7 @@ export class ListSteLivraisonComponent implements OnInit,OnDestroy {
       (deliveryCompany: DeliveryCompany[]) => {
         this.deliveryCompanyList = deliveryCompany;
       }
-    ); */
+    );  */
   }
 
   editDeliveryCompany(deliveryCompany: any){

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { NOT_CONFIRMED, statesList, statusList, UNREACHABLE } from 'src/shared/utils/status-list';
 import { Packet } from 'src/shared/models/Packet';
@@ -10,7 +10,7 @@ import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
   templateUrl: './packets-menue-container.component.html',
   styleUrls: ['./packets-menue-container.component.css']
 })
-export class PacketsMenueContainerComponent {
+export class PacketsMenueContainerComponent implements OnChanges {
 
   //@ViewChild(StatusContainerComponent) statusContainerComponent!: StatusContainerComponent;
   packetStatusList: string[] = [];
@@ -82,6 +82,13 @@ export class PacketsMenueContainerComponent {
     this.filterPackets('global');
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['filter']) {
+      console.log("changes detected");
+
+      this.handleInputChange();
+    }
+  }
   handleInputChange() {
     const inputValue = this.filter;
     const numbersCount = (inputValue.match(/\d/g) || []).length;

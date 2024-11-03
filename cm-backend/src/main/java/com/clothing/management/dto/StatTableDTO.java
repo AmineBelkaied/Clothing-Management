@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.mapstruct.Mapping;
 
 @Data
 @NoArgsConstructor
@@ -13,32 +14,32 @@ import lombok.experimental.SuperBuilder;
 public class StatTableDTO {
 
     private String name;
-
-    private Long Min;
-
-    private Long Max;
-
-    private Long Avg;
-
-    private Long Payed;
-
-    private double Per;
-
-    private Long Retour;
-
-    private Long Progress;
-
-    private Double profits;
+    @Builder.Default
+    private Long Min=1000L;
+    @Builder.Default
+    private Long Max=0L;
+    @Builder.Default
+    private Long Avg=0L;
+    @Builder.Default
+    private long payed=0L;
+    @Builder.Default
+    private double Per=0.0;
+    @Builder.Default
+    private Long retour=0L;
+    @Builder.Default
+    private Long progress=0L;
+    @Builder.Default
+    private Double profits =0.0;
 
     public StatTableDTO(String name) {
         this.name = name;
         this.Min = 1000L;
         this.Max = 0L;
         this.Avg = 0L;
-        this.Per = 0L;
-        this.Retour = 0L;
-        this.Progress = 0L;
+        this.Per = 0.0;
+        this.retour = 0L;
+        this.progress = 0L;
         this.profits = 0.0;
-        this.Payed = 0L;
+        this.payed = 0L;
     }
 }

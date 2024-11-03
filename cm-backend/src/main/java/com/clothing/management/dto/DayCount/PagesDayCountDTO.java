@@ -1,5 +1,5 @@
 package com.clothing.management.dto.DayCount;
-import com.clothing.management.entities.Model;
+import com.clothing.management.entities.FbPage;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -9,23 +9,23 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class ModelsDayCountDTO extends DayCountDTO {
+public class PagesDayCountDTO extends DayCountDTO {
     private Date date;
     private Long packetId;
-    private Model model;
+    private FbPage fbPage;
     private long countReturn;
     private long countOos;
     private double profits;
 
-    public ModelsDayCountDTO(Date packetDate,
-                             Long packetId,
-                             Model model,
-                             long countPayed, long countProgress, long countReturn,long countOos, double profits
+    public PagesDayCountDTO(Date packetDate,
+                            Long packetId,
+                            FbPage fbPage,
+                            long countPayed, long countProgress, long countReturn, long countOos, double profits
     ) {
-        super(countPayed, countProgress);
+        super( countPayed, countProgress);
         this.date = packetDate;
         this.packetId = packetId;
-        this.model = model;
+        this.fbPage = fbPage;
         this.countOos = countOos;
         this.countReturn = countReturn;
         this.profits = profits;

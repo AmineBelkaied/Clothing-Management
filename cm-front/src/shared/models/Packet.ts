@@ -6,33 +6,33 @@ import {Offer} from "./Offer";
 
 export interface Packet {
     id?: number;
-    date?: any;
+    date?: string;
     customerName?: string;
     customerPhoneNb?: string;
     cityId?: number;
     address?: string;
     packetDescription?: string;
-    barcode?: String;
+    barcode?: string;
     lastDeliveryStatus?: String;
     oldClient?: number;
     offers: Offer[];//??
     fbPageId?: number;
-    deliveryCompany?: DeliveryCompany;
+    deliveryCompanyId?: number;
     deliveryPrice: number;
     totalPrice?: number;
     discount: number;
-    status?: String;
+    status?: string;
     lastUpdateDate?: Date;
-    printLink?:String;
+    printLink?:string;
     valid?: boolean;
     stock?: number;
     notes: Note[];
     lastNote?: Note;
-    note?: String;
+    note?: string;
     productCount: number;
     exchangeId?: number;
     haveExchange?:boolean;
-    cityName: String;
-    //[key: string]: any;
+    cityName: string;
+    [key: string]: any;//to ignore packet[][] error
 
 }

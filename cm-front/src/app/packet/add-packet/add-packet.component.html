@@ -31,7 +31,11 @@
                   </thead>
                   <tr *ngFor="let offer of offers().controls; let i=index" [formGroupName]="i" class="mt-4">
                     <td class="offreTd"><!-- ... Dropdown for selecting offer ... -->
-                      <p-dropdown [options]="offersSelected" (onChange)="onOfferChange($event.value, i)" optionLabel="name"
+                      <p-dropdown [options]="offersSelected"
+                        (onChange)="onOfferChange($event.value, i)"
+                        optionLabel="name"
+                        [filter]="true"
+                        filterBy="name"
                         formControlName="id" optionValue="id" [style]="{ width: '200px'}"
                         [panelStyle]="{ width: '200px','padding-Left':'0rem'}"
                         [showClear]="true" placeholder="Choisir l'offre" appendTo="body">
@@ -47,7 +51,8 @@
                         <td><!-- ... Dropdown for selecting colors ... -->
                           <p-dropdown [options]="model.get('colors')?.value"
                             (ngModelChange)="colorSizeChange(model, j, offer)"
-                            optionLabel="name" optionValue="id"
+                            optionLabel="name"
+                            optionValue="id"
                             formControlName="selectedColor"
                             [style]="{ width: '300px'}" [panelStyle]="{ width: '300px' }"
                             [showClear]="true" appendTo="body"

@@ -15,9 +15,10 @@ public class PacketsStatCountDTO extends DayCountDTO {
     private Long countOos;
     private Long countAll;
     private long countReturn;
-    private double profits;
 
-    public PacketsStatCountDTO(Date date, Long countPayed, Long countOut, Long countExchange, Long countReturn, Long countOos, Long countProgress, Long countAll) {
+    public PacketsStatCountDTO(Date date, Long countPayed, Long countOut,
+                               Long countExchange, Long countReturn,
+                               Long countOos, Long countProgress, Long countAll) {
         super(countPayed, countProgress);
         this.date = date;
         this.countOut = countOut;

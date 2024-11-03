@@ -30,15 +30,19 @@ public interface OfferMapper {
     @Mappings({
             @Mapping(target = "model.colors", source = "model.colors", qualifiedByName = "mapColorsToIds"),
             @Mapping(target = "model.sizes", source = "model.sizes", qualifiedByName = "mapSizesToIds"),
-            @Mapping(target = "model.defaultId", source = "model.products", qualifiedByName = "mapToDefaultId")
+            @Mapping(target = "model.defaultId", expression = "java(mapToDefaultId(model.getProducts(), model.getColors()))")
     })
     OfferModelsDTO toOfferModelsDto(OfferModel offerModel);
 
     @Named("mapToDefaultId")
-    default Long mapToDefaultId(List<Product> products) {
+    default Long mapToDefaultId(List<Product> products, List<Color> colors) {
+        // Extract the first color from the List<Color> if present, otherwise set it to null
+        Color targetColor = colors.size()>1 ? null : colors.get(0);
+
         return products
                 .stream()
-                .filter(product -> product.getColor() == null && product.getSize() == null)
+                .filter(product -> (product.getColor() == null ? targetColor == null : product.getColor().equals(targetColor))
+                        && product.getSize() == null)
                 .findFirst()
                 .map(Product::getId)
                 .orElse(null);

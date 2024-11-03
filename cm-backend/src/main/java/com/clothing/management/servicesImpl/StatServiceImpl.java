@@ -6,16 +6,19 @@ import com.clothing.management.entities.*;
 import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.mappers.ModelMapper;
 import com.clothing.management.mappers.OfferMapper;
-import com.clothing.management.mappers.StatOfferTableMapper;
+import com.clothing.management.mappers.StatTableMapper;
 import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.repository.IPacketRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.services.StatService;
+import com.clothing.management.tenant.DataSourceBasedMultiTenantConnectionProviderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,50 +32,114 @@ public class StatServiceImpl implements StatService {
     private final IPacketRepository packetRepository;
     private final OfferMapper offerMapper;
     private final ModelMapper modelMapper;
-    private final StatOfferTableMapper statOfferTableMapper;
+    private final StatTableMapper statTableMapper;
+    private final DataSourceBasedMultiTenantConnectionProviderImpl dataSourceBasedMultiTenantConnectionProviderImpl;
 
     public StatServiceImpl(IProductsPacketRepository productsPacketRepository,
                            IModelStockHistoryRepository modelStockHistoryRepository,
-                           IPacketRepository packetRepository, OfferMapper offerMapper, ModelMapper modelMapper, StatOfferTableMapper statOfferTableMapper) {
+                           IPacketRepository packetRepository, OfferMapper offerMapper, ModelMapper modelMapper, StatTableMapper statTableMapper, DataSourceBasedMultiTenantConnectionProviderImpl dataSourceBasedMultiTenantConnectionProviderImpl) {
         this.productsPacketRepository = productsPacketRepository;
         this.modelStockHistoryRepository = modelStockHistoryRepository;
         this.packetRepository = packetRepository;
         this.offerMapper = offerMapper;
         this.modelMapper = modelMapper;
-        this.statOfferTableMapper = statOfferTableMapper;
+        this.statTableMapper = statTableMapper;
+        this.dataSourceBasedMultiTenantConnectionProviderImpl = dataSourceBasedMultiTenantConnectionProviderImpl;
     }
 
-    @Override
-    public Map<String, List<?>> statAllModelsChart(String beginDate, String endDate) {
-
-        // Initialize lists
-        List<Long> countModelsList;
-        //ArrayList<Integer> countTotalList = new ArrayList<>();
-
-        // Fetch product data
-        List<ModelsDayCountDTO> existingProductsPacket = productsPacketRepository.statAllModels(beginDate, endDate);
+    public Map<String, List<?>> statAllPagesChart(String beginDate, String endDate) {
+        List<Long> countPagesList;
+        List<PagesDayCountDTO> existingProductsPacket = productsPacketRepository.statAllPages(beginDate, endDate);
         LOGGER.info("Fetched {} product packets for the date range.", existingProductsPacket.size());
 
-        // Get unique dates and models
+        Map<String, List<?>> uniqueValues = getUniquePages(existingProductsPacket);
+        List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
+        List<FbPage> uniquePages = (List<FbPage>) uniqueValues.get("uniquePages");
+
+        List<List<Long>> listPagesCount = new ArrayList<>();
+        List<StatTableDTO> pagesRecapCount = new ArrayList<>();
+
+        for (FbPage page : uniquePages) {
+            StatTableDTO pageRecap = statTableMapper.toStatTableDTO(page.getName());
+            countPagesList = new ArrayList<>();
+            double countProfits = 0;
+
+            // Process each unique date for the current model
+            for (Date uniqueDate : uniqueDates) {
+                long count = 0;
+                long countRetour = 0;
+                long countProgress = 0;
+
+                // Calculate counts for the current model on the given date
+                for (PagesDayCountDTO row : existingProductsPacket) {
+                    if (row.getDate().equals(uniqueDate) && row.getFbPage().getId().equals(page.getId())) {
+                        count += row.getCountPayed();
+                        countProfits += row.getProfits();
+                        countProgress += row.getCountProgress();
+                        countRetour += row.getCountReturn();
+                    }
+                }
+                pageRecap.setPayed(count + pageRecap.getPayed());
+                pageRecap.setRetour(countRetour + pageRecap.getRetour());
+                pageRecap.setProgress(countProgress + pageRecap.getProgress());
+                countPagesList.add(count);
+            }
+
+            // Add the model's data to the list and recap counts
+            listPagesCount.add(countPagesList);
+            pageRecap.setMin(Collections.min(countPagesList));
+            pageRecap.setMax(Collections.max(countPagesList));
+            pageRecap.setAvg(pageRecap.getPayed() / uniqueDates.size());
+            pageRecap.setProfits(countProfits + pageRecap.getProfits());
+            pagesRecapCount.add(pageRecap);
+        }
+
+        // Total models count by date
+        listPagesCount.add(countTotal(uniqueDates, listPagesCount));
+
+        // Create total recap product table
+        StatTableDTO modelTotalRecap = createPageTableRecap(pagesRecapCount);
+        pagesRecapCount.add(modelTotalRecap);
+
+        // Prepare the final data map
+        Map<String, List<?>> data = new HashMap<>();
+        data.put("dates", uniqueDates);
+        data.put("pagesCount", listPagesCount);
+        data.put("pagesRecapCount", pagesRecapCount);
+
+        LOGGER.info("PagesCount chart data generated successfully.");
+        return data;
+    }
+
+
+    @Override
+    public Map<String, List<?>> statAllModelsChart(String beginDate, String endDate,Boolean countProgressEnabler) {
+        List<Long> countModelsList;
+        List<ModelsDayCountDTO> existingProductsPacket ;
+        if(countProgressEnabler)
+            existingProductsPacket = productsPacketRepository.statAllModels2(beginDate, endDate);
+        else
+            existingProductsPacket = productsPacketRepository.statAllModels(beginDate, endDate);
+
+        LOGGER.info("Fetched {} product packets for the date range.", existingProductsPacket.size());
+
         Map<String, List<?>> uniqueValues = getUniqueModels(existingProductsPacket);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
         List<ModelDTO> uniqueModels = (List<ModelDTO>) uniqueValues.get("uniqueModels");
 
         LOGGER.debug("Unique dates: {}, Unique models: {}", uniqueDates, uniqueModels);
 
-        // Initialize model count lists and recap
         List<List<Long>> listModelsCount = new ArrayList<>();
         List<StatOfferTableDTO> modelsRecapCount = new ArrayList<>();
 
         StatOfferTableDTO modelRecap;
 
-        // Process each unique model
         for (ModelDTO uniqueModel : uniqueModels) {
-            //LOGGER.debug("Processing model: {}", uniqueModel);
 
             countModelsList = new ArrayList<>();
             double countProfits = 0;
-            modelRecap = statOfferTableMapper.modelToStatModelTableDTO(uniqueModel);
+
+            modelRecap = statTableMapper.modelToStatModelTableDTO(uniqueModel);
 
             // Process each unique date for the current model
             for (Date uniqueDate : uniqueDates) {
@@ -87,12 +154,11 @@ public class StatServiceImpl implements StatService {
                         countProfits += row.getProfits();
                         countProgress += row.getCountProgress();
                         countRetour += row.getCountReturn();
-
                     }
                 }
                 // Update the recap for the current model
                 modelRecap.setPurchasePrice((double) (uniqueModel.getPurchasePrice()* modelRecap.getPayed()));
-                modelRecap.setSellingPrice(uniqueModel.getPurchasePrice() + modelRecap.getProfits());
+                modelRecap.setSellingPrice(modelRecap.getSellingPrice());
                 modelRecap.setPayed(count + modelRecap.getPayed());
                 modelRecap.setRetour(countRetour + modelRecap.getRetour());
                 modelRecap.setProgress(countProgress + modelRecap.getProgress());
@@ -105,6 +171,7 @@ public class StatServiceImpl implements StatService {
             modelRecap.setMax(Collections.max(countModelsList));
             modelRecap.setAvg(modelRecap.getPayed() / uniqueDates.size());
             modelRecap.setProfits(countProfits + modelRecap.getProfits());
+            modelRecap.setSellingPrice(modelRecap.getPurchasePrice()+modelRecap.getProfits());
             modelsRecapCount.add(modelRecap);
         }
 
@@ -115,7 +182,7 @@ public class StatServiceImpl implements StatService {
 
         // Create total recap product table
         LOGGER.info("Generating total recap product table.");
-        StatOfferTableDTO modelTotalRecap = createOfferTableTotalRecap(modelsRecapCount);
+        StatOfferTableDTO modelTotalRecap = createTableTotalRecap(modelsRecapCount);
         modelsRecapCount.add(modelTotalRecap);
 
         // Prepare the final data map
@@ -131,13 +198,12 @@ public class StatServiceImpl implements StatService {
     private ArrayList<Long> countTotal(List<Date> uniqueDates, List<List<Long>> listModelsCount) {
 
         ArrayList<Long> countTotalList = new ArrayList<>();
-        long index = 0;
-
+        int index = 0;
         for (Date uniqueDate : uniqueDates) {
             long sum = 0;
             for (List<Long> totalPerDay : listModelsCount) {
                 if (index < totalPerDay.size()) {
-                    sum += totalPerDay.get(Math.toIntExact(index));
+                    sum += totalPerDay.get(index);
                 } else {
                     LOGGER.warn("Index {} out of bounds for totalPerDay list with size {}.", index, totalPerDay.size());
                 }
@@ -148,6 +214,37 @@ public class StatServiceImpl implements StatService {
         }
 
         return countTotalList;
+    }
+
+    @Override
+    public ArrayList<ModelStockValueDTO> statValuesDashboard() {
+        // Set date to October 7, 2024
+        LocalDate localDate = LocalDate.of(2024, 10, 7);
+        Date today = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        // Fetch stock history data
+        List<ModelStockHistory> statStock = modelStockHistoryRepository.statValues(today);
+
+        // Initialize variables
+        long totalQuantity = 0L;
+        double totalPurchasePrice = 0.0;
+        double totalSellingPrice = 0.0;
+        ArrayList<ModelStockValueDTO> modelStockValuesList = new ArrayList<>();
+        // Iterate through stock history entries
+        for (ModelStockHistory modelStockHistory : statStock) {
+            Model model = modelStockHistory.getModel();
+            long quantity = modelStockHistory.getQuantity();
+            double purchasePriceForEntry = model.getPurchasePrice() * quantity;
+            double sellingPriceForEntry = purchasePriceForEntry * model.getEarningCoefficient();
+            modelStockValuesList.add(new ModelStockValueDTO(model.getName(),quantity,purchasePriceForEntry,sellingPriceForEntry,sellingPriceForEntry-purchasePriceForEntry));
+            totalQuantity += quantity;
+            totalPurchasePrice += purchasePriceForEntry;
+            totalSellingPrice += sellingPriceForEntry;
+        }
+        modelStockValuesList.add(new ModelStockValueDTO("Total",totalQuantity,totalPurchasePrice,totalSellingPrice,totalSellingPrice - totalPurchasePrice));
+
+        LOGGER.info("Fetched {} stock history entries", modelStockValuesList.size());
+        return modelStockValuesList;
     }
 
     @Override
@@ -166,7 +263,6 @@ public class StatServiceImpl implements StatService {
         LOGGER.debug("Unique dates: {}, Unique model IDs: {}, Unique models: {}", uniqueDates, uniqueModelsIds, uniqueModels);
 
         List<List<Long>> modelsStockHistory = new ArrayList<>();
-
         // Process stock history for each model
         for (Long uniqueModelId : uniqueModelsIds) {
             LOGGER.debug("Processing stock history for model ID: {}", uniqueModelId);
@@ -179,7 +275,7 @@ public class StatServiceImpl implements StatService {
                 Long quantity = statStock.stream()
                         .filter(statStockRow -> {
                             try {
-                                return statStockRow.getDate().equals(uniqueDate) && statStockRow.getModelId().equals(uniqueModelId);
+                                return statStockRow.getDate().equals(uniqueDate) && statStockRow.getModel().getId().equals(uniqueModelId);
                             } catch (Exception e) {
                                 LOGGER.error("Error parsing date for model ID: {} on date: {}", uniqueModelId, uniqueDate, e);
                                 throw new RuntimeException("Error parsing date", e);
@@ -196,7 +292,8 @@ public class StatServiceImpl implements StatService {
 
         // Calculate total models stock history by day
         LOGGER.info("Calculating total stock history by day.");
-        modelsStockHistory.add(countTotal(uniqueDates, modelsStockHistory));
+        List<Long> totalRow = countTotal(uniqueDates, modelsStockHistory);
+        modelsStockHistory.add(totalRow);
         uniqueModels.add("Total");
 
         // Prepare final data map
@@ -204,7 +301,6 @@ public class StatServiceImpl implements StatService {
         data.put("dates", uniqueDates);
         data.put("models", uniqueModels);
         data.put("statStock", modelsStockHistory);
-
         LOGGER.info("Stock chart data generated for {} models over {} dates.", uniqueModels.size(), uniqueDates.size());
         return data;
     }
@@ -220,9 +316,9 @@ public class StatServiceImpl implements StatService {
                 uniqueDates.add(modelStockDate);
             }
 
-            if (!uniquemodelsIds.contains(model.getModelId())) {
-                uniquemodelsIds.add(model.getModelId());
-                uniqueModelNames.add(model.getModelName());
+            if (!uniquemodelsIds.contains(model.getModel().getId())) {
+                uniquemodelsIds.add(model.getModel().getId());
+                uniqueModelNames.add(model.getModel().getName());
             }
         }
         Map<String, List<?>> uniqueAttributes = new HashMap<>();
@@ -258,7 +354,7 @@ public class StatServiceImpl implements StatService {
             LOGGER.debug("Processing offer: {}", uniqueOffer.getName());
 
             countOffersList = new ArrayList<>();
-            offerRecap = statOfferTableMapper.offerToStatOfferTableDTO(uniqueOffer);
+            offerRecap = statTableMapper.offerToStatOfferTableDTO(uniqueOffer);
 
             // Process each unique date for the current offer
             for (Date uniqueDate : uniqueDates) {
@@ -308,7 +404,7 @@ public class StatServiceImpl implements StatService {
 
         // Create total recap table for offers
         LOGGER.info("Generating total recap table for offers.");
-        StatOfferTableDTO offerTotalRecap = createOfferTableTotalRecap(offersRecapCount);
+        StatOfferTableDTO offerTotalRecap = createTableTotalRecap(offersRecapCount);
         offersRecapCount.add(offerTotalRecap);
 
         // Prepare the final data map
@@ -321,20 +417,13 @@ public class StatServiceImpl implements StatService {
         return data;
     }
 
-    public StatTableDTO createTableRecap(List<StatTableDTO> recapCount) {
-        StatTableDTO totalRecap = new StatTableDTO("Total");
+    public StatTableDTO createPageTableRecap(List<StatTableDTO> recapCount) {
+        StatTableDTO totalRecap = statTableMapper.toStatTableDTO(("Total"));
         return createTotalRecap(recapCount, totalRecap);
     }
 
-    public StatOfferTableDTO createModelTableTotalRecap(List<StatOfferTableDTO> recapCount) {
-        StatOfferTableDTO totalRecap = statOfferTableMapper.modelToStatModelTableDTO(
-                ModelDTO.builder()
-                        .name("Total")
-                        .build());
-        return createTotalRecap(recapCount, totalRecap);
-    }
-    public StatOfferTableDTO createOfferTableTotalRecap(List<StatOfferTableDTO> recapCount) {
-        StatOfferTableDTO totalRecap = statOfferTableMapper.offerToStatOfferTableDTO(
+    public StatOfferTableDTO createTableTotalRecap(List<StatOfferTableDTO> recapCount) {
+        StatOfferTableDTO totalRecap = statTableMapper.offerToStatOfferTableDTO(
                 OfferDTO.builder()
                         .name("Total")
                         .build());
@@ -358,6 +447,19 @@ public class StatServiceImpl implements StatService {
                 offerTotalRecap.setPurchasePrice(offerTotalRecap.getPurchasePrice() + offerRecap.getPurchasePrice());
                 offerTotalRecap.setSellingPrice(offerTotalRecap.getSellingPrice() + offerRecap.getSellingPrice());
             }
+        }
+        return totalRecap;
+    }
+
+
+    private <T extends StatTableDTO> T createPagesTotalRecap(List<T> recapCount, T totalRecap) {
+        totalRecap.setMin(0L);
+
+        for (T uniqueRecapCount : recapCount) {
+            totalRecap.setAvg(totalRecap.getAvg() + uniqueRecapCount.getAvg());
+            totalRecap.setMax(totalRecap.getMax() + uniqueRecapCount.getMax());
+            totalRecap.setMin(totalRecap.getMin() + uniqueRecapCount.getMin());
+            totalRecap.setPayed(totalRecap.getPayed() + uniqueRecapCount.getPayed());
         }
         return totalRecap;
     }
@@ -506,13 +608,13 @@ public class StatServiceImpl implements StatService {
 
     private List<StatTableDTO> createStatusRecapCount(List<PacketsStatCountDTO> existingPackets, int datesSize) {
 
-        StatTableDTO exchangeRecap = new StatTableDTO(SystemStatus.EXCHANGE.getStatus());
-        StatTableDTO returnRecap = new StatTableDTO(SystemStatus.RETURN.getStatus());
-        StatTableDTO payedRecap = new StatTableDTO(SystemStatus.PAID.getStatus());
-        StatTableDTO oosRecap = new StatTableDTO(SystemStatus.OOS.getStatus());
-        StatTableDTO outRecap = new StatTableDTO("Sortie");
-        StatTableDTO allRecap = new StatTableDTO("All");
-        StatTableDTO progressRecap = new StatTableDTO("En Cours");
+        StatTableDTO exchangeRecap = statTableMapper.toStatTableDTO(SystemStatus.EXCHANGE.getStatus());
+        StatTableDTO returnRecap = statTableMapper.toStatTableDTO(SystemStatus.RETURN.getStatus());
+        StatTableDTO payedRecap = statTableMapper.toStatTableDTO(SystemStatus.PAID.getStatus());
+        StatTableDTO oosRecap = statTableMapper.toStatTableDTO(SystemStatus.OOS.getStatus());
+        StatTableDTO outRecap = statTableMapper.toStatTableDTO("Sortie");
+        StatTableDTO allRecap = statTableMapper.toStatTableDTO("All");
+        StatTableDTO progressRecap = statTableMapper.toStatTableDTO("En Cours");
 
         // Update recap stats
         for (PacketsStatCountDTO dayStat : existingPackets) {
@@ -578,6 +680,29 @@ public class StatServiceImpl implements StatService {
         }
         uniqueAttributes.put("uniqueDates", uniqueDates);
         uniqueAttributes.put("uniqueModels", uniqueModels);
+        return uniqueAttributes;
+    }
+
+    public Map<String, List<?>> getUniquePages(List<PagesDayCountDTO> pagesList) {
+
+        Map<String, List<?>> uniqueAttributes = new HashMap<>();
+        List<Date> uniqueDates = new ArrayList<>();
+        List<Long> uniquePagesIds = new ArrayList<>();
+        List<FbPage> uniquePages = new ArrayList<>();
+
+        for (PagesDayCountDTO page : pagesList) {
+            if (!uniqueDates.contains(page.getDate())) {
+                uniqueDates.add(page.getDate());
+            }
+            FbPage fbPage = page.getFbPage();
+            if (!uniquePagesIds.contains(fbPage.getId())) {
+                uniquePages.add(fbPage);
+                uniquePagesIds.add(fbPage.getId());
+            }
+
+        }
+        uniqueAttributes.put("uniqueDates", uniqueDates);
+        uniqueAttributes.put("uniquePages", uniquePages);
         return uniqueAttributes;
     }
 
@@ -789,14 +914,6 @@ public class StatServiceImpl implements StatService {
 
         LOGGER.debug("Fetched {} product count entries for Model ID: {}", productCounts.size(), modelId);
         return productCounts;
-    }
-
-    @Override
-    public List<PagesStatCountDTO> findAllPacketsPages(String beginDate, String endDate) {
-        List<PagesStatCountDTO> pagesStatCounts = packetRepository.findAllPacketsPages(beginDate, endDate);
-
-        LOGGER.debug("Fetched {} packet page statistics entries.", pagesStatCounts.size());
-        return pagesStatCounts;
     }
 
     @Override

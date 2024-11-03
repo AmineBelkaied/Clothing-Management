@@ -88,6 +88,11 @@ export class ProductService {
       params : params
       });
   }
+  getStockQuantity(modelId: number) {
+    return this.http.get(`${this.baseUrl}${PRODUCT_ENDPOINTS.STOCK_QUANTITY}/${modelId}`, {
+      headers : {'content-type': 'application/json'}
+      });
+  }
 
   deleteSelectedProducts(productsId: number[]) {
     return this.http.delete(`${this.baseUrl}${PRODUCT_ENDPOINTS.BATCH_DELETE}/${productsId}`);

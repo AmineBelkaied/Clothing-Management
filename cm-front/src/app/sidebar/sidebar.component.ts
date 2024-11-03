@@ -4,6 +4,7 @@ import { MessageService } from 'primeng/api';
 import { combineLatest, Subject, takeUntil } from 'rxjs';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { ColorService } from 'src/shared/services/color.service';
+import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
 import { FbPageService } from 'src/shared/services/fb-page.service';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { PacketService } from 'src/shared/services/packet.service';
@@ -49,6 +50,7 @@ export class SidebarComponent implements OnInit {
                private colorService : ColorService,
                private sizeService : SizeService,
                private fbPageService : FbPageService,
+               private deliveryCompanyService : DeliveryCompanyService,
                private router: Router) {
                 this.menuItems = [
                   { label: 'Commandes', icon: 'pi pi-shopping-cart', routerLink: "/packets", isUserOption : true },
@@ -75,7 +77,8 @@ export class SidebarComponent implements OnInit {
                       combineLatest([
                         this.sizeService.getSizesSubscriber(),
                         this.colorService.getColorsSubscriber(),
-                        this.fbPageService.getFbPagesSubscriber()
+                        this.fbPageService.getFbPagesSubscriber(),
+                        this.deliveryCompanyService.getDeliveryCompaniesSubscriber()
                       ]).pipe(takeUntil(this.$unsubscribe))
                         .subscribe();
                     })

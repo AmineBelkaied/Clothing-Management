@@ -12,18 +12,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ModelDTO {
+public class ModelValuesDTO {
 
     private Long id;
     private String name;
-    private String description;
+    private Long quantity;
     private float purchasePrice;
     private double earningCoefficient;
-    private boolean isDeleted;
-    @Builder.Default
-    private List<Long> colors = new ArrayList<>();
-    @Builder.Default
-    private List<Long> sizes = new ArrayList<>();
-    private boolean isEnabled;
-    private Long defaultId;
+    private boolean deleted;
+    private boolean enabled;
+
+
 }

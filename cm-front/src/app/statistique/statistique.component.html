@@ -71,9 +71,6 @@
         </div>
       </div>
       <p-tabView *ngIf="packetsChartEnabler">
-        <p-tabPanel header="Chart">
-          <p-chart type="line" [data]="packetsData" [options]="packetsOptions"></p-chart>
-        </p-tabPanel>
         <p-tabPanel header="Table">
           <p-table [value]="packetsTableData" styleClass="p-datatable-sm">
             <ng-template pTemplate="header">
@@ -96,63 +93,125 @@
             </ng-template>
           </p-table>
         </p-tabPanel>
+        <p-tabPanel header="Chart">
+          <p-chart type="line" [data]="packetsData" [options]="packetsOptions" height="30rem"></p-chart>
+        </p-tabPanel>
       </p-tabView>
     </p-card>
   </div>
 
 <!-----------------------------------Models Chart---------------------------------------->
 
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-      <p-card [style]="{ width: '100%'}">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <H3>Models Chart</H3>
+<div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+  <p-card [style]="{ width: '100%'}">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <H3>Models Chart</H3>
+      </div>
+      <div>
+        inclure en cours à la somme
+        <p-selectButton [options]="progressOptions"  [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
+      </div>
+      <div>
+        <p-selectButton [options]="enablerOptions" [(ngModel)]="modelsChartEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
+      </div>
+    </div>
+
+    <p-tabView  *ngIf="modelsChartEnabler">
+      <p-tabPanel header="Vue d'ensemble">
+        <div class="flex justify-content-center mt-2 mb-2" style="background-color: #ffffff">
+          <ng-container *ngIf="modelTableData[modelTableData.length - 1] as totalValue">
+            <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
+              style="cursor: pointer;"
+            >
+              <div class="flex flex-column align-items-center p-2 relative">
+                <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
+                <span class="text-400 mt-1" style="color: black">Nombre d'articles commandé</span>
+                <span class="mt-1">
+                  <p-badge [value]="totalValue.payed" severity="info"></p-badge>
+                </span>
+              </div>
+            </div>
+            <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
+              style="cursor: pointer;"
+            >
+              <div class="flex flex-column align-items-center p-2 relative">
+                <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
+                <span class="text-400 mt-1" style="color: black">Article en cours</span>
+                <span class="mt-1">
+                  <p-badge [value]="totalValue.progress | number:'1.0-0'" severity="info"></p-badge>
+                </span>
+              </div>
+            </div>
+
+            <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
+            style="cursor: pointer;"
+          >
+            <div class="flex flex-column align-items-center p-2 relative">
+              <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
+              <span class="text-400 mt-1" style="color: black">moyenne par jour</span>
+              <span class="mt-1">
+                <p-badge [value]="totalValue.avg | number:'1.0-0'" severity="info"></p-badge>
+              </span>
+            </div>
           </div>
-          <div>
-            inclure en cours à la somme
-            <p-selectButton [options]="progressOptions"  [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
-          </div>
-          <div>
-            <p-selectButton [options]="enablerOptions" [(ngModel)]="modelsChartEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
+
+          <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
+          style="cursor: pointer;"
+        >
+          <div class="flex flex-column align-items-center p-2 relative">
+            <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
+            <span class="text-400 mt-1" style="color: black">Profits</span>
+            <span class="mt-1">
+              <p-badge [value]="totalValue.profits | number:'1.0-0'" severity="info"></p-badge>
+            </span>
           </div>
         </div>
 
-        <p-tabView  *ngIf="modelsChartEnabler">
-          <p-tabPanel header="Chart">
-            <p-chart type="line" [data]="modelsData" [options]="modelsOptions"></p-chart>
-          </p-tabPanel>
-          <p-tabPanel header="Table">
-            <p-table class="table" [value]="modelTableData" >
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Model</th>
-                  <th>Min-Max</th>
-                  <th pSortableColumn="avg">Average<p-sortIcon field="avg" /></th>
-                  <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
-                  <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
-                  <th>Retour</th>
-                  <th>Payée/Retour</th>
-                  <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-item>
-                <tr>
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.min }}-{{ item.max }}</td>
-                  <td>{{ item.avg }}</td>
-                  <td>{{ item.payed }}</td>
-                  <td>{{ item.progress }}</td>
-                  <td>{{ item.retour }}</td>
-                  <td>{{ formatNumber(item) }}%</td>
-                  <td>{{ item.profits | number:'1.0-0' }}</td>
-                </tr>
-              </ng-template>
-            </p-table>
 
-          </p-tabPanel>
-        </p-tabView>
-      </p-card>
-  </div>
+          </ng-container>
+        </div>
+
+      </p-tabPanel>
+      <p-tabPanel header="Table">
+        <p-table class="table" [value]="modelTableData" >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Model</th>
+              <th>Min-Max</th>
+              <th pSortableColumn="avg">Average<p-sortIcon field="avg" /></th>
+              <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
+              <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
+              <th>Retour</th>
+              <th>Payée/Retour</th>
+              <th pSortableColumn="purchasePrice">Prix Achat<p-sortIcon field="purchasePrice" /></th>
+              <th pSortableColumn="sellingPrice">Prix Vente<p-sortIcon field="sellingPrice" /></th>
+              <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.min }}-{{ item.max }}</td>
+              <td>{{ item.avg }}</td>
+              <td>{{ item.payed }}</td>
+              <td>{{ item.progress }}</td>
+              <td>{{ item.retour }}</td>
+              <td>{{ formatNumber(item) }}%</td>
+              <td>{{ item.purchasePrice | number:'1.0-0' }}</td>
+              <td>{{ item.sellingPrice | number:'1.0-0' }}</td>
+              <td>{{ item.profits | number:'1.0-0' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+      </p-tabPanel>
+      <p-tabPanel header="Chart">
+        <p-chart type="line" [data]="modelsData" [options]="modelsOptions" height="30rem"></p-chart>
+      </p-tabPanel>
+    </p-tabView>
+  </p-card>
+</div>
 
 <!-----------------------------------Offers Chart---------------------------------------->
 
@@ -168,9 +227,7 @@
         </div>
       </div>
       <p-tabView *ngIf="offersChartEnabler">
-        <p-tabPanel header="Chart">
-          <p-chart type="line" [data]="offersData" [options]="offersOptions"></p-chart>
-        </p-tabPanel>
+
         <p-tabPanel header="Table">
           <p-table class="table" [value]="offerTableData">
             <ng-template pTemplate="header">
@@ -204,9 +261,66 @@
             </ng-template>
           </p-table>
         </p-tabPanel>
+        <p-tabPanel header="Chart">
+          <p-chart type="line" [data]="offersData" [options]="offersOptions" height="30rem"></p-chart>
+        </p-tabPanel>
       </p-tabView>
     </p-card>
   </div>
+
+  <!-----------------------------------Pages Chart---------------------------------------->
+
+<div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+  <p-card [style]="{ width: '100%'}">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <H3>Pages Chart</H3>
+      </div>
+      <div>
+        <p-selectButton [options]="enablerOptions" [(ngModel)]="pagesCountChartEnabler" optionLabel="label" optionValue="value" (click)="pagesCountChartEnablerChange()"></p-selectButton>
+      </div>
+    </div>
+
+    <p-tabView  *ngIf="pagesCountChartEnabler">
+      <p-tabPanel header="Table">
+        <p-table class="table" [value]="pagesCountTableData" >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Model</th>
+              <th>Min-Max</th>
+              <th pSortableColumn="avg">Average<p-sortIcon field="avg" /></th>
+              <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
+              <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
+              <th>Retour</th>
+              <th>Payée/Retour</th>
+              <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.min }}-{{ item.max }}</td>
+              <td>{{ item.avg }}</td>
+              <td>{{ item.payed }}</td>
+              <td>{{ item.progress }}</td>
+              <td>{{ item.retour }}</td>
+              <td>{{ formatNumber(item) }}%</td>
+              <td>{{ item.profits | number:'1.0-0' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+      </p-tabPanel>
+      <p-tabPanel header="Chart">
+        <p-chart type="line" [data]="pagesCountData" [options]="pagesCountOptions" height="30rem"></p-chart>
+      </p-tabPanel>
+
+      <p-tabPanel header="O Chart">
+        <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
+      </p-tabPanel>
+    </p-tabView>
+  </p-card>
+</div>
 
 <!-----------------------------------Colors Chart---------------------------------------->
 
@@ -225,9 +339,6 @@
         </div>
       </div>
       <p-tabView *ngIf="colorsChartEnabler">
-        <p-tabPanel header="Chart">
-          <p-chart type="line" [data]="colorsData" [options]="colorsOptions"></p-chart>
-        </p-tabPanel>
         <p-tabPanel header="Table">
           <table class="table">
             <thead>
@@ -254,12 +365,15 @@
             </tbody>
           </table>
         </p-tabPanel>
+        <p-tabPanel header="Chart">
+          <p-chart type="line" [data]="colorsData" [options]="colorsOptions" height="30rem"></p-chart>
+        </p-tabPanel>
+
       </p-tabView>
     </p-card>
   </div>
 
 <!-----------------------------------Stock Chart---------------------------------------->
-
   <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
       <p-card [style]="{ width: '100%'}">
         <div class="d-flex justify-content-between align-items-center">
@@ -276,8 +390,84 @@
           </p-selectButton>
           </div>
         </div>
+
         <p-tabView *ngIf="stockChartEnabler">
-          <p-chart type="line" [data]="stockData" [options]="stockOptions"></p-chart>
+          <p-tabPanel header="Vue d'ensemble">
+            <div class="flex justify-content-center mt-2 mb-2" style="background-color: #ffffff">
+              <ng-container *ngIf="stockValueTableData[stockValueTableData.length - 1] as totalValue">
+                <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
+                  style="cursor: pointer;"
+                >
+                  <div class="flex flex-column align-items-center p-2 relative">
+                    <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
+                    <span class="text-400 mt-1" style="color: black">Nombre d'articles</span>
+                    <span class="mt-1">
+                      <p-badge [value]="totalValue.quantity" severity="info"></p-badge>
+                    </span>
+                  </div>
+                </div>
+                <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
+                  style="cursor: pointer;"
+                >
+                  <div class="flex flex-column align-items-center p-2 relative">
+                    <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
+                    <span class="text-400 mt-1" style="color: black">Valeur stock</span>
+                    <span class="mt-1">
+                      <p-badge [value]="totalValue.purshasePrice | number:'1.0-0'" severity="info"></p-badge>
+                    </span>
+                  </div>
+                </div>
+                <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
+                  style="cursor: pointer;"
+                >
+                  <div class="flex flex-column align-items-center p-2 relative">
+                    <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
+                    <span class="text-400 mt-1" style="color: black">Valeur de vente</span>
+                    <span class="mt-1">
+                      <p-badge [value]="totalValue.sellingPrice | number:'1.0-0'" severity="info"></p-badge>
+                    </span>
+                  </div>
+                </div>
+                <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
+                  style="cursor: pointer;"
+                >
+                  <div class="flex flex-column align-items-center p-2 relative">
+                    <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
+                    <span class="text-400 mt-1" style="color: black">Profis</span>
+                    <span class="mt-1">
+                      <p-badge [value]="totalValue.profits | number:'1.0-0'" severity="info"></p-badge>
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+
+          </p-tabPanel>
+          <p-tabPanel header="Table">
+            <p-table class="table" [value]="stockValueTableData" >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Model</th>
+                  <th pSortableColumn="quantity">Quantité<p-sortIcon field="quantity" /></th>
+                  <th pSortableColumn="purshasePrice">Valeur Stock<p-sortIcon field="purshasePrice" /></th>
+                  <th pSortableColumn="sellingPrice">Prix de vente<p-sortIcon field="sellingPrice" /></th>
+                  <th pSortableColumn="profits">Profits expercter<p-sortIcon field="profits" /></th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-item>
+                <tr>
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>{{ item.purshasePrice | number:'1.0-0' }}</td>
+                  <td>{{ item.sellingPrice | number:'1.0-0' }}</td>
+                  <td>{{ item.profits | number:'1.0-0' }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-tabPanel>
+          <p-tabPanel header="Chart">
+            <p-chart type="line" [data]="stockData" [options]="stockOptions" height="30rem"></p-chart>
+          </p-tabPanel>
         </p-tabView>
       </p-card>
   </div>
@@ -295,29 +485,10 @@
         </div>
       </div>
       <p-tabView *ngIf="statesChartEnabler">
-        <p-chart type="bar" [data]="StatesData" [options]="StatesOptions"></p-chart>
+        <p-chart type="bar" [data]="StatesData" [options]="StatesOptions" height="30rem"></p-chart>
       </p-tabView>
     </p-card>
   </div>
-
-<!-------------------------------------Pages Chart---------------------------------------->
-
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-      <p-card [style]="{ width: '100%'}">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <H3>Pages Chart</H3>
-          </div>
-          <div class="mb-3">
-            <p-selectButton [options]="enablerOptions" [(ngModel)]="pagesChartEnabler" optionLabel="label" optionValue="value" (click)="pagesChartEnablerChange()"></p-selectButton>
-          </div>
-        </div>
-        <p-tabView *ngIf="pagesChartEnabler">
-          <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
-        </p-tabView>
-      </p-card>
-  </div>
-</div>
 
 <!-------------------------------------States/Pages Chart---------------------------------------->
 <!--<div class="container-fluid">

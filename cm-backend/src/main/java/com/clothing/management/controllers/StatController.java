@@ -1,6 +1,7 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.dto.DayCount.*;
+import com.clothing.management.dto.ModelStockValueDTO;
 import com.clothing.management.services.StatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +49,7 @@ public class StatController {
             @RequestParam Boolean countProgress) {
         LOGGER.info("Fetching stats for all models from {} to {} with countProgress: {}", beginDate, endDate, countProgress);
         try {
-            Map<String, List<?>> stats = statService.statAllModelsChart(beginDate, endDate);
+            Map<String, List<?>> stats = statService.statAllModelsChart(beginDate, endDate,countProgress);
             LOGGER.info("Successfully fetched stats for all models");
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
@@ -62,6 +65,20 @@ public class StatController {
         LOGGER.info("Fetching stock stats from {} to {}", beginDate, endDate);
         try {
             Map<String, List<?>> stats = statService.statAllStockChart(beginDate, endDate);
+            LOGGER.info("Successfully fetched stock stats");
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching stock stats: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/values")
+    public ResponseEntity<ArrayList<ModelStockValueDTO>> getValuesStats() {
+        Date today = new Date();
+
+        try {
+            ArrayList<ModelStockValueDTO> stats = statService.statValuesDashboard();
             LOGGER.info("Successfully fetched stock stats");
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
@@ -133,12 +150,12 @@ public class StatController {
     }
 
     @GetMapping("/pages")
-    public ResponseEntity<List<PagesStatCountDTO>> getPacketsPagesCount(
+    public ResponseEntity<Map<String, List<?>>> getPagesCountChart(
             @RequestParam String beginDate,
             @RequestParam String endDate) {
         LOGGER.info("Fetching packet pages stats from {} to {}", beginDate, endDate);
         try {
-            List<PagesStatCountDTO> pagesStatCountDTO = statService.findAllPacketsPages(beginDate, endDate);
+            Map<String, List<?>> pagesStatCountDTO = statService.statAllPagesChart(beginDate, endDate);
             LOGGER.info("Successfully fetched packet pages stats");
             return ResponseEntity.ok(pagesStatCountDTO);
         } catch (Exception e) {

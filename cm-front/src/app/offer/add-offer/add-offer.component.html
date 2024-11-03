@@ -189,7 +189,7 @@
           </div>
 
         </div>
-        <div class="container-fluid">
+        <div class="container-fluid" *ngIf="!globalConf.oneSourceApp">
           <div class="row mt-5">
             <div class="card" style="width: 100%">
               <div class="card-body">
@@ -207,6 +207,7 @@
                           [panelStyle]="{ width: '50%' }"
                           [placeholder]="'-- Choisir les pages fb --'"
                           optionLabel="name"
+                          optionValue="id"
                           appendTo="body"
                           display="chip"
                           [maxSelectedLabels]="undefined"
@@ -218,15 +219,15 @@
                         </ng-container>
                       </div>
                     </div>
-                    <div class="col-md-4 mt-3" style="margin-left: 73%">
+                    <div class="col-md-4 mt-3" style="margin-left: 73%" *ngIf="editMode">
                       <button
                         pButton
                         pRipple
-                        [label]="editMode ? 'Modifier les pages' : 'Ajouter'"
-                        [icon]="editMode ? 'pi pi-pencil' : 'pi pi-plus'"
+                        [label]="'Modifier les pages'"
+                        [icon]="'pi pi-pencil'"
                         class="p-button-text"
                         (click)="saveOffer('FbPages')"
-                        [disabled]="editMode ? offerForm.get('fbPages')?.invalid || globalConf.oneSourceApp : offerForm.invalid || globalConf.oneSourceApp"
+                        [disabled]="offerForm.get('fbPages')?.invalid || globalConf.oneSourceApp"
                       ></button>
                     </div>
                   </div>
@@ -234,6 +235,22 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="container-fluid" *ngIf="!editMode" style="width: 100%">
+
+                    <div class="col-md-4 mt-3" style="margin-left: 73%">
+                      <button
+                        pButton
+                        pRipple
+                        [label]="'Ajouter'"
+                        [icon]="'pi pi-plus'"
+                        class="p-button-text"
+                        (click)="saveOffer('FbPages')"
+                        [disabled]="offerForm.invalid"
+                      ></button>
+                    </div>
+
         </div>
 
 

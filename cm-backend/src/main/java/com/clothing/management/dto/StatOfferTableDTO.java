@@ -10,12 +10,9 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = false)
 public class StatOfferTableDTO extends StatTableDTO {
 
-    private Double purchasePrice;
-    private Double sellingPrice;
+    @Builder.Default
+    private Double purchasePrice= 0.0;
+    @Builder.Default
+    private Double sellingPrice= 0.0;
 
-    public StatOfferTableDTO(OfferDTO offer) {
-        super(offer.getName());
-        this.purchasePrice = 0.0;
-        this.sellingPrice = 0.0;
-    }
 }

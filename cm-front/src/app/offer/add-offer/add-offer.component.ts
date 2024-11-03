@@ -55,6 +55,10 @@ export class AddOfferComponent implements OnInit {
     this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
       (globalConf: GlobalConf) => {
         this.globalConf = globalConf;
+        if(globalConf.oneSourceApp)
+        {
+          this.offerForm.get('fbPages')?.clearValidators();
+        }
       }
     );
     this.offerService.offerSubscriber.pipe(takeUntil(this.$unsubscribe))

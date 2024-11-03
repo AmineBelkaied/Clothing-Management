@@ -1,6 +1,7 @@
 package com.clothing.management.services;
 
 import com.clothing.management.dto.*;
+import com.clothing.management.dto.DayCount.ProductsQuantityDTO;
 import com.clothing.management.dto.ProductDTO;
 import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
@@ -27,6 +28,7 @@ public interface ProductService {
     void deleteProduct(Product product);
     void deleteSelectedProducts(List<Long> productsId);
     StockDTO getStock(Long modelId, String beginDate, String endDate);
+    List<ProductsQuantityDTO> getStockQuantity(Long modelId);
     List<ModelStockHistory> countStock();
     Page<ProductHistoryDTO> addStock(StockUpdateDTO updateStock);
 

@@ -22,7 +22,7 @@ public interface OfferService {
 
     OfferDTO addOffer(OfferRequest offerDTO);
 
-    OfferDTO updateOfferFbPages(long offerId, Set<FbPage> fbPages) throws Exception;
+    OfferDTO updateOfferFbPages(long offerId, Set<Long> fbPagesId) throws Exception;
     OfferDTO updateOfferModels(long offerId, Set<OfferModelsDTO> modelQuantityList) throws Exception;
     void deleteOffer(Offer offer);
     long checkOfferUsage(Long offerId);

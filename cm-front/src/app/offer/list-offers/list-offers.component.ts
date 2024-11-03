@@ -6,6 +6,8 @@ import { ModelService } from '../../../shared/services/model.service';
 import { OfferService } from '../../../shared/services/offer.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { of, Subject, takeUntil } from 'rxjs';
+import { GlobalConf } from 'src/shared/models/GlobalConf';
+import { GlobalConfService } from 'src/shared/services/global-conf.service';
 
 @Component({
   selector: 'app-list-offers',
@@ -32,7 +34,7 @@ export class ListOffersComponent implements OnInit {
   statuses: any[] = [];
 
   $unsubscribe: Subject<void> = new Subject();
-  
+
   selectedActionsOptions: { name: string; label: string; }[];
   actionsOptions: { name: string; label: string; }[];
   isOptionsDialogVisible: boolean = false;
@@ -43,15 +45,22 @@ export class ListOffersComponent implements OnInit {
 
   clonedOffer: Offer;
   offerNameExists: boolean;
+  globalConf: GlobalConf;
 
   constructor(
     private offerService: OfferService,
     private modelService: ModelService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService,
+    private globalConfService :GlobalConfService) {
   }
 
   ngOnInit() {
+    this.globalConfService.getGlobalConfSubscriber().pipe(takeUntil(this.$unsubscribe)).subscribe(
+      (globalConf: GlobalConf) => {
+        this.globalConf = globalConf;
+      }
+    );
     console.log("init list-offers");
     this.offerService.getOffersSubscriber()
       .pipe(takeUntil(this.$unsubscribe))
@@ -175,7 +184,7 @@ export class ListOffersComponent implements OnInit {
 
 
   private getOfferConfirmationMessage(offerUsageNumber: number, offerName: string) {
-    return offerUsageNumber ? `<p>L'offre <strong>${offerName}</strong> est utilisé 
+    return offerUsageNumber ? `<p>L'offre <strong>${offerName}</strong> est utilisé
                   <strong style="color: red;">${offerUsageNumber} fois</strong> au niveau des commandes.</p>
                   <p style="font-weight: bold; margin-top: 10px;">Etes-vous sûr de bien vouloir l'archiver ?</p>` :
 

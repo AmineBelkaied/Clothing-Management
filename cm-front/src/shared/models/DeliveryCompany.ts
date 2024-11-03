@@ -1,10 +1,11 @@
 export interface DeliveryCompany {
-    id? : string;
+    id? : number;
     name: string;
     token?: string;
     apiName?: string;
-    barCodeUrl?: string;
+    barreCodeUrl?: string;
     additionalName?: string;
+    color: string;
     deleted?: boolean;
 }
 

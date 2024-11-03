@@ -18,7 +18,7 @@ public class PacketValidationDTO {
     private String packetDescription;
     private String barcode;
     private String fbPageName;
-    private String deliveryCompanyName;
+    private String deliveryCompanyId;
     private double price;
     private Date date;
     private boolean valid;

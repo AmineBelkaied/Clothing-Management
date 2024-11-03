@@ -27,7 +27,7 @@ public class PacketDTO {
     private String lastDeliveryStatus;
     private Integer oldClient;
     private Long fbPageId;
-    private DeliveryCompanyDTO deliveryCompany;
+    private Long deliveryCompanyId;
     private double price;
     private double deliveryPrice;
     private double discount;
@@ -65,7 +65,7 @@ public class PacketDTO {
             this.valid= packet.isValid();
             this.stock= !packet.getProductsPackets().isEmpty() ? getStock(packet.getProductsPackets(), packet.getBarcode()):0;
             this.printLink = packet.getPrintLink();
-            this.deliveryCompany = deliveryCompany!= null ? new DeliveryCompanyDTO(deliveryCompany) : null;
+            this.deliveryCompanyId = deliveryCompany!= null ? deliveryCompany.getId() : null;
             this.haveExchange=packet.isHaveExchange();
             this.notes = packet.getNotes();
             this.totalPrice = packet.getPrice()+packet.getDeliveryPrice()-packet.getDiscount();

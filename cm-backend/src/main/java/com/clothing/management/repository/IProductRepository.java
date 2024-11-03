@@ -19,7 +19,7 @@ public interface IProductRepository extends JpaRepository<Product, Long> {
     int deleteProductsByModelAndSize(@Param("modelId") Long modelId,@Param("sizeId") Long sizeId);
 
     @Query(value = "SELECT " +
-            "NEW com.clothing.management.entities.ModelStockHistory(p.model.id, p.model.name , SUM(p.quantity)) " +
+            "NEW com.clothing.management.entities.ModelStockHistory(p.model , SUM(p.quantity)) " +
             "FROM Product p GROUP BY p.model.id")
     List<ModelStockHistory> countStock();
 
@@ -34,5 +34,9 @@ public interface IProductRepository extends JpaRepository<Product, Long> {
 
     @Query(value = "SELECT * FROM `product` WHERE `model_id` = :modelId",nativeQuery = true)
     List<Product> findByModel(@Param("modelId") Long modelId);
+
+    @Query(value = "SELECT p FROM Product p " +
+            "WHERE  p.model.id = :modelId AND p.color IS NOT NULL AND p.size IS NOT NULL")
+    List<Product> productsQuantity(@Param("modelId") Long modelId);
 
 }

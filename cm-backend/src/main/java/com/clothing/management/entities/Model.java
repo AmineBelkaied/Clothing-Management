@@ -71,4 +71,10 @@ public class Model {
     @JsonIgnore
     @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductHistory> productHistories;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ModelStockHistory> modelStockHistories;
+
+
 }

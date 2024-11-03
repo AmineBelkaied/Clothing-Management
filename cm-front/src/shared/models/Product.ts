@@ -7,8 +7,8 @@ export interface Product {
     name: string;
     deleted:boolean;
     qte:number;
-    color:Color;
-    size:Size;
+    colorId:number;
+    sizeId:number;
     modelId:number;
     model?:Model;
 }

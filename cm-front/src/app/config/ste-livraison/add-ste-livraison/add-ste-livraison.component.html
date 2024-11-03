@@ -15,7 +15,9 @@
             optionValue="value"
           ></p-selectButton>
         </div>
-
+        <div class="col-md-2">
+          <p-colorPicker class ='ml-3' name="color" [(ngModel)]="deliveryCompany.color"/>
+        </div>
         <div class="field mb-3">
           <label for="token">Token</label><span class="required pl-1">*</span>
           <input
@@ -68,18 +70,18 @@
         </div>
 
         <div class="field mb-3">
-          <label for="barCodeUrl">Lien colis par barreCode</label><span class="required pl-1">*</span>
+          <label for="barreCodeUrl">Lien colis par barreCode</label><span class="required pl-1">*</span>
           <input
             pInputText
-            id="barCodeUrl"
+            id="barreCodeUrl"
             placeholder="Lien d'accées recherche par code a barre"
-            name="barCodeUrl"
-            [(ngModel)]="deliveryCompany.barCodeUrl"
+            name="barreCodeUrl"
+            [(ngModel)]="deliveryCompany.barreCodeUrl"
             required
-            #barCodeUrl="ngModel"
-            [class.is-invalid]="barCodeUrl.invalid && barCodeUrl.touched"
+            #barreCodeUrl="ngModel"
+            [class.is-invalid]="barreCodeUrl.invalid && barreCodeUrl.touched"
           />
-          <div *ngIf="barCodeUrl.invalid && barCodeUrl.touched" class="invalid-feedback">
+          <div *ngIf="barreCodeUrl.invalid && barreCodeUrl.touched" class="invalid-feedback">
             Barre code URL is required.
           </div>
         </div>

@@ -1,4 +1,5 @@
 package com.clothing.management.controllers;
+import com.clothing.management.dto.DayCount.ProductsQuantityDTO;
 import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDTO;
@@ -128,6 +129,19 @@ public class ProductController {
         LOGGER.info("Fetching stock for modelId: {}, from {} to {}", modelId, beginDate, endDate);
         try {
             StockDTO stock = productService.getStock(modelId, beginDate, endDate);
+            LOGGER.info("Successfully fetched stock for modelId: {}", modelId);
+            return ResponseEntity.ok(stock);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching stock for modelId: {}: ", modelId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/stock-quantity/{modelId}")
+    public ResponseEntity<List<ProductsQuantityDTO>> getStockQuantity(@PathVariable("modelId") Long modelId) {
+        LOGGER.info("Fetching stock for modelId: {}, from {} to {}", modelId);
+        try {
+            List<ProductsQuantityDTO> stock = productService.getStockQuantity(modelId);
             LOGGER.info("Successfully fetched stock for modelId: {}", modelId);
             return ResponseEntity.ok(stock);
         } catch (Exception e) {

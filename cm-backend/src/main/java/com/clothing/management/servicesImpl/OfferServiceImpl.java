@@ -110,13 +110,15 @@ public class OfferServiceImpl implements OfferService {
 
     @Transactional("tenantTransactionManager")
     @Override
-    public OfferDTO updateOfferFbPages(long offerId, Set<FbPage> fbPages) throws Exception {
+    public OfferDTO updateOfferFbPages(long offerId, Set<Long> fbPagesId) throws Exception {
         Offer offer = offerRepository.findById(offerId)
                 .orElseThrow(() -> {
                     LOGGER.error("Offer with id: {} not found for update.", offerId);
                     return new OfferNotFoundException(offerId);
                 });
-
+        Set<FbPage> fbPages  = fbPagesId.stream().map(fbPageId ->
+            FbPage.builder().id(fbPageId).build()
+        ).collect(Collectors.toSet());
         offer.setFbPages(fbPages);
         Offer updatedOffer = offerRepository.save(offer);
         LOGGER.info("Updated fbPages for offerId: {}.", offerId);

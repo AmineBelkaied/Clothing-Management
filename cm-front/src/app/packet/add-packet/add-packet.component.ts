@@ -11,6 +11,7 @@ import {
   AbstractControl,
   FormArray,
   FormBuilder,
+  FormControl,
   FormGroup,
 } from '@angular/forms';
 import { Model } from 'src/shared/models/Model';
@@ -109,9 +110,6 @@ export class AddPacketComponent implements OnInit {
                   .includes(this.packet.fbPageId!)
             );
             this.getOffersSwitch();
-            console.log("editmode",this.editMode);
-
-
             this.editMode ? this.getSelectedProducts() : this.addOffer();
           }
         })
@@ -182,6 +180,7 @@ export class AddPacketComponent implements OnInit {
     else console.log('products est vide');
   }
 
+
   setOfferModelsValues(offerIndex: number, offer: Offer): void {
 
     this.setOfferControlValues(this.offers().at(offerIndex), offer);
@@ -204,8 +203,6 @@ export class AddPacketComponent implements OnInit {
   onOfferChange(offerId: number, index: number): void {
     this.models(index).clear();
     let offer: Offer = this.allOffersList.find((offer) => offer.id === offerId)!;
-    console.log(this.models(index));
-
     if (offer) {
       if (offer.offerModels.length > 0) {
         this.loadOfferProducts(offer).subscribe({
@@ -274,12 +271,8 @@ export class AddPacketComponent implements OnInit {
     // Get selected color and size from the form control
     let color: number = selectedModel.get('selectedColor')?.value || null;
     let size: number = selectedModel.get('selectedSize')?.value || null;
-      console.log("colorrrr", color);
-
     // Log for debugging
-
     let selectedProduct: ProductResponse | null = null;
-
     // Conditional logic based on color and size selection
     if (color == null && size == null) {
       let selectedProductId = model?.defaultId!;//this.getNoChoiceColorSizeProduct(model);
@@ -314,9 +307,9 @@ export class AddPacketComponent implements OnInit {
 
     if (selectedProduct) {
         selectedModel.get('selectedProduct')?.setValue(selectedProduct);
-      //}
     }
   }
+
   //end set data
 
   //start submit block
@@ -351,6 +344,8 @@ export class AddPacketComponent implements OnInit {
       packet,
       packetEarningCoefficient
     );
+    console.log("stock", this.stockAvailable);
+
     if (this.stockAvailable < 1) {
       this.enableFakeSize = true;
       this.confirmationService.confirm({
@@ -423,11 +418,13 @@ export class AddPacketComponent implements OnInit {
         if (offer.offerModels.length > 0) {
           for (let j = 0; j < offer.offerModels.length; j++) {
             let model: Model = offer.offerModels[j];
-            //create packet description
-            let color = this.colorService.getColorNameById(model.selectedColor!);
-            let size = this.sizeService.getSizeNameById(model.selectedSize!);
-            let reelSize = this.sizeService.getSizeNameById(model.selectedSizeReel!);
+            let colorId = model.selectedProduct?.colorId;
+            let sizeId = model.selectedProduct?.sizeId;
 
+            //create packet description
+            let color = this.colorService.getColorNameById(colorId!);
+            let size = this.sizeService.getSizeNameById(sizeId!);
+            let reelSize = this.sizeService.getSizeNameById(model.selectedSizeReel!);
             this.addProductToPacketDescription(
               offer.offerModels[j].name,
               color,
@@ -437,10 +434,8 @@ export class AddPacketComponent implements OnInit {
             let selectedProduct = model.selectedProduct;
             if (selectedProduct !== undefined) {
               let qte = selectedProduct.qte;
-
               let colorSizeFalse: boolean =
-                offer.offerModels[j].selectedSize == null ||
-                offer.offerModels[j].selectedColor == null;
+                colorId == null || sizeId == null;
               let x: number = colorSizeFalse ? -1 : qte < 1 ? 0 : qte ?? 0;
               this.stockAvailable =
                 x < this.stockAvailable ? x : this.stockAvailable;
@@ -504,8 +499,6 @@ export class AddPacketComponent implements OnInit {
   }
 
   newOffer(): FormGroup {
-    console.log("aaa");
-
     return this.fb.group({
       id: 0,
       name: '',
@@ -519,12 +512,11 @@ export class AddPacketComponent implements OnInit {
   }
 
   addOffer(): void {
-    console.log("bbb");
-
     this.offers().push(this.newOffer());
   }
 
   addModel(modelIndex: number, model: Model, selectedProductId?: number): void {
+
     this.models(modelIndex).push(this.newModel(model, selectedProductId!));
   }
   findProduct(selectedProductId: number) : ProductResponse{
@@ -549,20 +541,27 @@ export class AddPacketComponent implements OnInit {
         sizes: sizes,
         purchasePrice: [model.purchasePrice],
         earningCoefficient: [model.earningCoefficient],
-        selectedColor: [selectedProduct.colorId],
-        selectedSize: [selectedProduct.sizeId],
+        selectedColor: [{
+          value: selectedProduct.colorId,
+          disabled: colors.length === 1  // Set initial disabled state here
+        }],
+        selectedSize: [{
+          value: selectedProduct.sizeId,
+          disabled: sizes.length === 1  // Set initial disabled state here
+        }],
         selectedProduct: [selectedProduct],
-        selectedSizeReel: [model.selectedSizeReel],
+        selectedSizeReel: [model.selectedSizeReel]
     };
-
+    //if(colors.length == 1)
+    //this.disableColorSelect(formControls);
     return this.fb.group(formControls);
   }
+
+
 
   // Abstracted method to get colors
   private getColors(colorIds: number[]): FormArray {
     let colors : Color[] = this.colorService.getColorByIds(colorIds)
-    console.log("colors", colors);
-
       return this.fb.array(colors);
   }
 

@@ -22,7 +22,7 @@ import static com.clothing.management.enums.SystemStatus.NOT_CONFIRMED;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = {"productsPackets","packetStatus","notes"})
+@ToString(exclude = {"city","deliveryCompany","fbPage","productsPackets","packetStatus","notes"})
 public class Packet {
 
     @Id
