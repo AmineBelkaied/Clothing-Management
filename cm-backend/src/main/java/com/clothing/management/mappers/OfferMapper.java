@@ -18,14 +18,20 @@ public interface OfferMapper {
 
     OfferMapper INSTANCE = Mappers.getMapper(OfferMapper.class);
 
-    @Mapping(target = "fbPages", source = "fbPages", qualifiedByName = "mapFbPagesToIds")
-    @Mapping(target = "offerModels", source = "offerModels", qualifiedByName = "mapToOfferDto")
+    @Mappings({
+            @Mapping(target = "fbPages", source = "fbPages", qualifiedByName = "mapFbPagesToIds"),
+            @Mapping(target = "offerModels", source = "offerModels", qualifiedByName = "mapToOfferDto"),
+            @Mapping(target = "isDeleted", source = "deleted"),
+            @Mapping(target = "isEnabled", source = "enabled")
+    })
     OfferDTO toDto(Offer offer);
 
     @Named("mapToOfferDto")
-    @Mapping(target = "model.colors", source = "model.colors", qualifiedByName = "mapColorsToIds")
-    @Mapping(target = "model.sizes", source = "model.sizes", qualifiedByName = "mapSizesToIds")
-    @Mapping(target = "model.defaultId", source = "model.products", qualifiedByName = "mapToDefaultId")
+    @Mappings({
+            @Mapping(target = "model.colors", source = "model.colors", qualifiedByName = "mapColorsToIds"),
+            @Mapping(target = "model.sizes", source = "model.sizes", qualifiedByName = "mapSizesToIds"),
+            @Mapping(target = "model.defaultId", source = "model.products", qualifiedByName = "mapToDefaultId")
+    })
     OfferModelsDTO toOfferModelsDto(OfferModel offerModel);
 
     @Named("mapToDefaultId")

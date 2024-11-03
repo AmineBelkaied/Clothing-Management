@@ -31,16 +31,28 @@ export class ListSizesComponent implements OnInit, OnDestroy {
   }
 
   deleteSize(size: any) {
-    this.confirmationService.confirm({
-      message: 'Êtes-vous sûr de vouloir supprimer la taille séléctionnée ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.sizeService.deleteSizeById(size.id).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(() => {
-            this.sizes = this.sizes.filter(val => val.id !== size.id);
-            this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été supprimée avec succés", life: 1000 });
-          })
+    this.sizeService.checkSizeUsage(size.id)
+    .subscribe((sizeUsage: any) => {
+      if(sizeUsage > 0) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Attention !',
+          detail:`La taille ne peut pas être supprimée car elle est utilisée au niveau des commandes ${sizeUsage} fois` ,
+          life: 5000,
+        });
+      } else {
+        this.confirmationService.confirm({
+          message: 'Êtes-vous sûr de vouloir supprimer la taille séléctionnée ?',
+          header: 'Confirmation',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            this.sizeService.deleteSizeById(size.id).pipe(takeUntil(this.$unsubscribe))
+              .subscribe(() => {
+                this.sizes = this.sizes.filter(val => val.id !== size.id);
+                this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La taille a été supprimée avec succés", life: 1000 });
+              })
+          }
+        });
       }
     });
   }

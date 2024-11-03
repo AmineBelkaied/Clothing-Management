@@ -52,9 +52,9 @@ import { AddColorComponent } from './config/color/add-color/add-color.component'
 import { ListColorsComponent } from './config/color/list-colors/list-colors.component';
 import { ConfigComponent } from './config/config.component';
 import { AddFbpageComponent } from './config/fbpage/add-fbpage/add-fbpage.component';
-import { AddSteLivraisonComponent } from './config/ste-livraison/add-ste-livraison/add-ste-livraison.component';
+import { AddDeliveryCompanyComponent } from './config/delivery-company/add-delivery-company/add-delivery-company.component';
 import { ListFbpagesComponent } from './config/fbpage/list-fbpages/list-fbpages.component';
-import { ListSteLivraisonComponent } from './config/ste-livraison/list-ste-livraison/list-ste-livraison.component';
+import { ListDeliveryCompaniesComponent } from './config/delivery-company/list-delivery-companies/list-delivery-companies.component';
 import { ListGovernoratesComponent } from './config/list-governorates/list-governorates.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { AddModelComponent } from './model/add-model/add-model.component';
@@ -99,7 +99,7 @@ import { DisplayColorPipe } from 'src/shared/pipes/display-color.pipe';
 import { DisplaySizePipe } from 'src/shared/pipes/display-size.pipe';
 import { DisplayFbPagePipe } from 'src/shared/pipes/display-fbPage.pipe';
 import { DisplayJoinPipe } from 'src/shared/pipes/display-join.pipe';
-import { DisplayColorHexPipe } from 'src/shared/pipes/display-color.Hexpipe';
+import { DisplayColorHexPipe } from 'src/shared/pipes/display-colorHex.pipe';
 
 @NgModule({
   declarations: [
@@ -122,9 +122,9 @@ import { DisplayColorHexPipe } from 'src/shared/pipes/display-color.Hexpipe';
     ConfigComponent,
     ListGovernoratesComponent,
     AddFbpageComponent,
-    AddSteLivraisonComponent,
+    AddDeliveryCompanyComponent,
     ListFbpagesComponent,
-    ListSteLivraisonComponent,
+    ListDeliveryCompaniesComponent,
     StockComponent,
     StatistiqueComponent,
     StockHistoryComponent,

@@ -5,20 +5,20 @@
 </div> -->
 
 <div class="container-fluid">
-<!--     <p-toolbar styleClass="mb-4"> -->
+    <!--     <p-toolbar styleClass="mb-4"> -->
     <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
         <div class="card-body">
-        <div class="d-flex megabar-header menu">
-            <div class="toggle-b-space"></div>
-            <div class="menu-middle">
-                <h5>Liste des modèles</h5>
-            </div>
-            <div class="d-flex justify-content-end">
-                <button pButton pRipple icon="pi pi-plus" class="p-button-success mr-2 buttonSize" (click)="openNew()"></button>
-                <button pButton pRipple icon="pi pi-trash" class="p-button-danger mr-3 buttonSize" (click)="deleteSelectedModels()" [disabled]="!selectedModels || selectedModels.length == 0"></button>
+            <div class="d-flex megabar-header menu">
+                <div class="toggle-b-space"></div>
+                <div class="menu-middle">
+                    <h5>Liste des modèles</h5>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button pButton pRipple icon="pi pi-plus" class="p-button-success mr-2 addButtonSize"
+                        (click)="openNew()"></button>
+                </div>
             </div>
         </div>
-    </div>
     </div>
 </div>
 <!--         <ng-template pTemplate="right">
@@ -27,13 +27,10 @@
         </ng-template> -->
 <!--     </p-toolbar> -->
 <div class="container-fluid" [style]="{ width: '99%'}">
-    <p-table #dt [value]="models" [rows]="10" responsiveLayout="scroll" [(selection)]="selectedModels" [rowHover]="true" dataKey="id">
+    <p-table #dt [value]="models" [rows]="10" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
 
         <ng-template pTemplate="header">
             <tr>
-                <th style="width: 3rem">
-                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                </th>
                 <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon></th>
                 <!--th>Image</th-->
                 <th pSortableColumn="purchasePrice">Prix d'achat<p-sortIcon field="reference"></p-sortIcon></th>
@@ -42,14 +39,19 @@
                 <th pSortableColumn="size">Taille (Max) <p-sortIcon field="size"></p-sortIcon></th>
                 <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
                 <th pSortableColumn="enabled">Activé <p-sortIcon field="enabled"></p-sortIcon></th>
-                <th>Actions</th>
+                <th>
+                    <div class="d-flex flex-wrap align-items-center w-100">
+                        <div class="d-flex justify-content-end">
+                            <span style="margin-top: 0.7rem">Actions</span>
+                            <button pButton icon="pi pi-ellipsis-v" (click)="op.toggle($event)"
+                                style="border: none; background: none; color:blue" aria-label="Options"></button>
+                        </div>
+                    </div>
+                </th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-model>
-            <tr>
-                <td>
-                    <p-tableCheckbox [value]="model"></p-tableCheckbox>
-                </td>
+            <tr [ngStyle]="{'background-color': model.deleted ? '#ebebeb' : 'white'}">
                 <td>{{model.name}}</td>
                 <!--td><img  *ngIf="model.bytes != null" [src]="model.image" [alt]="model.name" width="100" height="100" class="shadow-4" /></td-->
                 <td>{{model.purchasePrice}}</td>
@@ -61,39 +63,61 @@
                     <div class="align-items-center gap-3" *ngIf="model.description != ''">
                         <span class="align-items-center gap-2">
                             <i class="pi pi-tag"></i>
-                        {{ model.description }}
+                            {{ model.description }}
                         </span>
                     </div>
                 </td>
                 <td>
-                  <ng-container *ngIf="model.enabled;else disabled">
-                      <i class="pi pi-unlock" style="color: green;font-size: 1.2rem;"></i>
-                  </ng-container>
-                  <ng-template #disabled>
-                      <i class="pi pi-lock" style="color: red;font-size: 1.2rem;"></i>
-                  </ng-template>
+                    <ng-container *ngIf="model.enabled;else disabled">
+                        <i class="pi pi-unlock" style="color: green;font-size: 1.2rem;"></i>
+                    </ng-container>
+                    <ng-template #disabled>
+                        <i class="pi pi-lock" style="color: red;font-size: 1.2rem;"></i>
+                    </ng-template>
                 </td>
                 <td>
-                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2 buttonSize" (click)="editModel(model)"></button>
-<!--                     <button pButton pRipple icon="pi pi-table" class="p-button-rounded p-button-success mr-2 buttonSize" [routerLink]="['/stock', model.id]"></button> -->
+                    <ng-container *ngIf="!model.deleted;else rollBackButton">
+                        <button pButton pRipple icon="pi pi-pencil"
+                            class="p-button-rounded p-button-warning mr-2 buttonSize"
+                            (click)="editModel(model)"></button>
+                        <button pButton pRipple icon="pi pi-trash"
+                            class="p-button-rounded  p-button-danger mr-2 buttonSize"
+                            (click)="deleteModel(model)"></button>
+                    </ng-container>
+                    <ng-template #rollBackButton>
+                        <button pButton pRipple icon="pi pi-undo"
+                            class="p-button-rounded  p-button-primary ml-2 buttonSize"
+                            (click)="rollBackModel(model)"></button>
+                    </ng-template>
+                    <!--                     
+                    <button pButton pRipple icon="pi pi-table" class="p-button-rounded p-button-success mr-2 buttonSize" [routerLink]="['/stock', model.id]"></button> -->
                 </td>
             </tr>
         </ng-template>
     </p-table>
 </div>
 
-<p-dialog [(visible)]="modelDialog" [style]="{width: '60%'}" header="Détails du modèle" [modal]="true" styleClass="p-fluid">
+<p-dialog [(visible)]="modelDialog" [style]="{width: '60%'}" header="Détails du modèle" [modal]="true"
+    styleClass="p-fluid">
     <ng-template pTemplate="content">
-        <app-add-model [editMode]="editMode" [model]="model" [modelNameExists]="modelNameExists" (formValidationEmitter)="checkFormValidation($event)"></app-add-model>
+        <app-add-model [editMode]="editMode" [model]="model" [modelNameExists]="modelNameExists"
+            (formValidationEmitter)="checkFormValidation($event)"></app-add-model>
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple
-          [label]="editMode ? 'Modifier' : 'Ajouter'"
-          [icon]="editMode ? 'pi pi-pencil small' : 'pi pi-plus small'"
-          class="p-button-text" [disabled]="!isValidModel" (click)="saveModel()">
+        <button pButton pRipple [label]="editMode ? 'Modifier' : 'Ajouter'"
+            [icon]="editMode ? 'pi pi-pencil small' : 'pi pi-plus small'" class="p-button-text"
+            [disabled]="!isValidModel" (click)="saveModel()">
         </button>
     </ng-template>
 </p-dialog>
 
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<p-overlayPanel #op [style]="{ width: '250px' }">
+    <p class="font-bold">Filter Par :</p>
+    <p-listbox [options]="actionsOptions" [(ngModel)]="selectedActionsOptions" optionLabel="label" [multiple]="true"
+        [style]="{ width: '100%' }" [listStyle]="{ 'max-height': '40rem' }" (onChange)="onOptionSelect()"
+        class="listbox-style">
+    </p-listbox>
+</p-overlayPanel>

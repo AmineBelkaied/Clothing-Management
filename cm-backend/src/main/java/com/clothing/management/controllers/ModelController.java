@@ -1,8 +1,10 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.dto.ModelDTO;
+import com.clothing.management.dto.ModelDeleteDTO;
 import com.clothing.management.entities.Model;
 import com.clothing.management.services.ModelService;
+import jakarta.websocket.server.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -66,10 +68,18 @@ public class ModelController {
         return new ResponseEntity<>(updatedModel, HttpStatus.OK);
     }
 
+    @GetMapping("/check-model-usage/{id}")
+    public ResponseEntity<ModelDeleteDTO> checkModelUsage(@PathVariable Long id) {
+        LOGGER.info("Checking model with id: {}", id);
+        ModelDeleteDTO modelDeleteDTO = modelService.checkModelUsage(id);
+        LOGGER.info("Model with id used : {} .", modelDeleteDTO.getUsedOffersCount());
+        return new ResponseEntity<>(modelDeleteDTO, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteModelById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteModelById(@PathVariable Long id, @RequestParam("soft-delete") boolean isSoftDelete) {
         LOGGER.info("Deleting model with id: {}", id);
-        modelService.deleteModelById(id);
+        modelService.deleteModelById(id, isSoftDelete);
         LOGGER.info("Model with id: {} deleted successfully.", id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -88,5 +98,13 @@ public class ModelController {
         List<ModelDTO> modelDTOs = modelService.getModels();
         LOGGER.info("Successfully fetched {} model DTOs.", modelDTOs.size());
         return modelDTOs;
+    }
+
+    @DeleteMapping("/rollback/{id}")
+    public ResponseEntity<Void> rollBackModel(@PathVariable Long id) {
+        LOGGER.info("Rollback model with id: {}", id);
+        modelService.rollBackModel(id);
+        LOGGER.info("Model with id: {} rolled back successfully.", id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

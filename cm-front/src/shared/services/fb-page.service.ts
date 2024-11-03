@@ -72,6 +72,10 @@ export class FbPageService {
     return this.http.post(`${this.baseUrl}`, fbPage , {headers : { 'content-type': 'application/json'}});
   }
 
+  checkFbPageUsage(id: number) {
+    return this.http.get(`${this.baseUrl}${FB_PAGE_ENDPOINTS.CHECK_FB_PAGE_USAGE}/${id}`);
+  }
+  
   deleteFbPageById(id: any) {
     return this.http.delete(`${this.baseUrl}/${id}`);
   }

@@ -25,3 +25,13 @@
   margin: 0 0.5rem 0 0 !important;
 }
 
+::ng-deep .buttonSize {
+  width: 2.2rem !important;
+  height: 2.2rem !important;
+ }
+
+ 
+::ng-deep .addButtonSize {
+  width: 2.5rem;
+  height: 2.5rem;
+} 

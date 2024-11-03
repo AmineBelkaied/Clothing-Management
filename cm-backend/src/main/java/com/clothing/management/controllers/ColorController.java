@@ -1,5 +1,6 @@
 package com.clothing.management.controllers;
 
+import com.clothing.management.dto.ModelDeleteDTO;
 import com.clothing.management.entities.Color;
 import com.clothing.management.services.ColorService;
 import org.slf4j.Logger;
@@ -55,6 +56,14 @@ public class ColorController {
         LOGGER.info("Updating color with ID: {}", color.getId());
         Color updatedColor = colorService.updateColor(color);
         return new ResponseEntity<>(updatedColor, HttpStatus.OK);
+    }
+
+    @GetMapping("/check-color-usage/{id}")
+    public ResponseEntity<Long> checkColorUsage(@PathVariable Long id) {
+        LOGGER.info("Checking color with id: {}", id);
+        Long colorUsage = colorService.checkColorUsage(id);
+        LOGGER.info("Color with id used : {} .", colorUsage);
+        return new ResponseEntity<>(colorUsage, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

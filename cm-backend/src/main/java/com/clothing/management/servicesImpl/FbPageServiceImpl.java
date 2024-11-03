@@ -3,6 +3,7 @@ package com.clothing.management.servicesImpl;
 import com.clothing.management.entities.FbPage;
 import com.clothing.management.exceptions.custom.alreadyexists.FbPageAlreadyExistsException;
 import com.clothing.management.repository.IFbPageRepository;
+import com.clothing.management.repository.IPacketRepository;
 import com.clothing.management.services.FbPageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +20,11 @@ public class FbPageServiceImpl implements FbPageService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FbPageServiceImpl.class);
 
     private final IFbPageRepository fbPageRepository;
+    private final IPacketRepository packetRepository;
 
-    public FbPageServiceImpl(IFbPageRepository fbPageRepository) {
+    public FbPageServiceImpl(IFbPageRepository fbPageRepository, IPacketRepository packetRepository) {
         this.fbPageRepository = fbPageRepository;
+        this.packetRepository = packetRepository;
     }
 
     @Override
@@ -66,6 +69,11 @@ public class FbPageServiceImpl implements FbPageService {
     public void deleteFbPage(FbPage fbPage) {
         fbPageRepository.delete(fbPage);
         LOGGER.info("Facebook page deleted: {}", fbPage.getName());
+    }
+
+    @Override
+    public Long checkFbPageUsage(Long id) {
+        return packetRepository.countPacketByFbPage_Id(id);
     }
 
     @Override

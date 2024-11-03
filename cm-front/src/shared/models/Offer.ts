@@ -8,4 +8,5 @@ export interface Offer {
     enabled: boolean;
     offerModels: any[];
     fbPages: any[]; // Pages in request / number in response
+    deleted: boolean;
 }

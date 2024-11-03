@@ -14,4 +14,5 @@ public interface ColorService {
     Color updateColor(Color color);
     void deleteColor(Color color);
     void deleteColorById(Long idColor);
+    Long checkColorUsage(Long id);
 }

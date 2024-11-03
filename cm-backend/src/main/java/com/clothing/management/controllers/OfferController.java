@@ -110,10 +110,10 @@ public class OfferController {
 
     @GetMapping(value = "/update-data", produces = "application/json")
     public ResponseEntity<OfferDTO> updateOffer(@RequestParam("id") Long id, @RequestParam("name") String name,
-                                                @RequestParam("price") double price, @RequestParam("enabled") boolean enabled) {
+                                                @RequestParam("price") double price, @RequestParam("isEnabled") boolean isEnabled) {
         LOGGER.info("Updating offer data for id: {}", id);
         try {
-            OfferDTO updatedOffer = offerService.updateOfferData(id, name, price, enabled);
+            OfferDTO updatedOffer = offerService.updateOfferData(id, name, price, isEnabled);
             LOGGER.info("Offer data updated successfully for id: {}", id);
             return ResponseEntity.ok(updatedOffer);
         } catch (Exception e) {
@@ -135,10 +135,18 @@ public class OfferController {
         }
     }
 
+    @GetMapping("/check-offer-usage/{id}")
+    public ResponseEntity<Long> checkOfferUsage(@PathVariable Long id) {
+        LOGGER.info("Checking offer with id: {}", id);
+        long offerUsageNumber = offerService.checkOfferUsage(id);
+        LOGGER.info("Model with id used : {} .", offerUsageNumber);
+        return new ResponseEntity<>(offerUsageNumber, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOffer(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteOffer(@PathVariable Long id, @RequestParam("soft-delete") boolean isSoftDelete) {
         try {
-            offerService.deleteOffer(Offer.builder().id(id).build());
+            offerService.deleteOfferById(id, isSoftDelete);
             LOGGER.info("Offer with id: {} deleted successfully.", id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
@@ -171,5 +179,13 @@ public class OfferController {
             LOGGER.error("Error deleting offers with ids: {}: ", offerIds, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @DeleteMapping("/rollback/{id}")
+    public ResponseEntity<Void> rollBackOffer(@PathVariable Long id) {
+        LOGGER.info("Rollback model with id: {}", id);
+        offerService.rollBackOffer(id);
+        LOGGER.info("Offer with id: {} rolled back successfully.", id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

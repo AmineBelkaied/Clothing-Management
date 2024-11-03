@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { catchError, Subject, switchMap, take, takeUntil, tap, throwError } from 'rxjs';
+import { catchError, of, Subject, switchMap, take, takeUntil, tap, throwError } from 'rxjs';
 import { Color } from 'src/shared/models/Color';
-import { Model } from 'src/shared/models/Model';
+import { Model, ModelDeleteDTO } from 'src/shared/models/Model';
 import { Size } from 'src/shared/models/Size';
 import { ModelService } from 'src/shared/services/model.service';
 import { NumberUtils } from 'src/shared/utils/number-utils';
@@ -38,11 +38,14 @@ export class ListModelsComponent implements OnInit, OnDestroy {
   selectedModels: Model[] = [];
   isValidModel: boolean = false;
   modelNameExists: boolean = false;
+  selectedActionsOptions: { name: string; label: string; }[];
+  actionsOptions: { name: string; label: string; }[];
 
   submitted: boolean = false;
   selectedFile: any;
   $unsubscribe: Subject<void> = new Subject();
   clonedModel: Model;
+  isOptionsDialogVisible: boolean = false;
 
   constructor(
     private modelService: ModelService,
@@ -57,10 +60,17 @@ export class ListModelsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.$unsubscribe))
       .pipe(
         tap((models: Model[]) => {
-          this.models = models;
+          this.models = models.filter((model: Model) => !model.deleted);
         })
       )
       .subscribe();
+
+    this.actionsOptions = [
+      { name: 'showArchivedModels', label: 'Modèles archivés' },
+      { name: 'showEnabledModels', label: 'Modèles activés' },
+      { name: 'showDisabledModels', label: 'Modèles désactivés' }
+    ];
+
   }
 
   saveModel() {
@@ -119,34 +129,34 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     this.editMode = false;
     this.model = this.modelService.defaultModel;
   }
-
-  deleteSelectedModels() {
-    let selectedModelsId = this.selectedModels.map(
-      (selectedModel: any) => selectedModel.id
-    );
-    this.confirmationService.confirm({
-      message: 'Êtes-vous sûr de vouloir supprimer les modèles séléctionnés ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.modelService
-          .deleteSelectedModels(selectedModelsId)
-          .pipe(takeUntil(this.$unsubscribe))
-          .subscribe(() => {
-            this.models = this.models.filter(
-              (val) => !this.selectedModels.includes(val)
-            );
-            this.selectedModels = [];
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Succés',
-              detail: 'Les modèles séléctionnés ont été supprimé avec succés',
-              life: 1000,
+  /* 
+    deleteSelectedModels() {
+      let selectedModelsId = this.selectedModels.map(
+        (selectedModel: any) => selectedModel.id
+      );
+      this.confirmationService.confirm({
+        message: 'Êtes-vous sûr de vouloir supprimer les modèles séléctionnés ?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+          this.modelService
+            .deleteModelById(selectedModelsId[0])
+            .pipe(takeUntil(this.$unsubscribe))
+            .subscribe(() => {
+              this.models = this.models.filter(
+                (val) => !this.selectedModels.includes(val)
+              );
+              this.selectedModels = [];
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Succés',
+                detail: 'Les modèles séléctionnés ont été supprimé avec succés',
+                life: 1000,
+              });
             });
-          });
-      },
-    });
-  }
+        },
+      });
+    } */
 
   editModel(model: Model) {
     this.model = { ...model };
@@ -162,13 +172,40 @@ export class ListModelsComponent implements OnInit, OnDestroy {
   }
 
   deleteModel(model: Model) {
+    this.modelService.checkModelUsage(model.id!)
+      .subscribe((modelDeleteDTO: ModelDeleteDTO) => {
+
+        this.confirmationService.confirm({
+          message: this.getModelConfirmationMessage(modelDeleteDTO, model.name),
+          header: 'Confirmation',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            this.modelService
+              .deleteModelById(model.id!, modelDeleteDTO.usedOffersCount > 0)
+              .pipe(takeUntil(this.$unsubscribe))
+              .subscribe(() => {
+                this.models = this.models.filter((val) => val.id !== model.id);
+                this.model = Object.assign({}, this.model);
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Successful',
+                  detail: modelDeleteDTO.usedOffersCount > 0 ? 'Modèle archivé avec succès' : 'Modèle supprimé avec succès',
+                  life: 3000,
+                });
+              });
+          },
+        });
+      });
+  }
+  
+  rollBackModel(model: Model) {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete ' + this.model.name + '?',
-      header: 'Confirm',
+      message: 'Etes-vous sûr de bien vouloir restaurer ce modèle?',
+      header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.modelService
-          .deleteModelById(model.id!)
+          .rollBackModel(model.id!)
           .pipe(takeUntil(this.$unsubscribe))
           .subscribe(() => {
             this.models = this.models.filter((val) => val.id !== model.id);
@@ -176,7 +213,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'success',
               summary: 'Successful',
-              detail: 'model Deleted',
+              detail: 'Modèle restauré avec succès',
               life: 3000,
             });
           });
@@ -184,9 +221,43 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     });
   }
 
+  private getModelConfirmationMessage(modelDeleteDTO: ModelDeleteDTO, modelName: string) {
+    const offersList = modelDeleteDTO.usedOffersNames.join(', ');
+    return modelDeleteDTO.usedOffersCount ? `<p>Le modèle <strong>${modelName}</strong> est utilisé 
+                  <strong style="color: red;">${modelDeleteDTO.usedOffersCount} fois</strong> au niveau des commandes.</p>
+                  <p>Les offres qui utilisent ce modèle sont : 
+                  <strong style="color: blue;">${offersList}</strong></p>
+                  <p style="font-weight: bold; margin-top: 10px;">Etes-vous sûr de bien vouloir archiver le modèle et les offres associés ?</p>` :
+
+      `<p>Le modèle <strong>${modelName}</strong> n'est pas encore utilisé` +
+      (modelDeleteDTO.usedOffersNames.length > 0 ?
+        `<p>Les offres qui utilisent ce modèle sont :
+                  <strong style="color: blue;">${offersList}</strong></p>` : ``) +
+      `<p style="font-weight: bold; margin-top: 10px;">Etes-vous sûr de bien vouloir supprimer le modèle et les offres associés ?</p>`
+  }
+
+  onOptionSelect(): void {
+    const filters: { [key: string]: (model: Model) => boolean } = {
+      'showArchivedModels': (model) => model.deleted,
+      'showEnabledModels': (model) => model.enabled,
+      'showDisabledModels': (model) => !model.enabled && !model.deleted
+    };
+
+    this.models = this.selectedActionsOptions.length
+      ?
+      this.selectedActionsOptions.flatMap(selectedAction =>
+        this.modelService.models.filter(filters[selectedAction.name] || (() => true))
+      )
+      : this.modelService.models.filter((model: Model) => !model.deleted);
+  }
+
   hideDialog() {
     this.modelDialog = false;
     this.submitted = false;
+  }
+
+  showOptionsDialog() {
+    this.isOptionsDialogVisible = true;
   }
 
   findIndexById(id: number): number {

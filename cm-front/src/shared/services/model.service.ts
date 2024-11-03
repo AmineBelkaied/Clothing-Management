@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Model } from 'src/shared/models/Model';
+import { Model, ModelDeleteDTO } from 'src/shared/models/Model';
 import { environment } from '../../environments/environment';
 import { MODEL_ENDPOINTS } from '../constants/api-endpoints';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
@@ -21,8 +21,8 @@ export class ModelService {
     products: [] = [],
     earningCoefficient: 2,
     purchasePrice: 15,
-    deleted: false,
-    enabled: false
+    enabled: false,
+    deleted: false
   };
 
   public modelsSubscriber: BehaviorSubject<any> = new BehaviorSubject([]);
@@ -97,11 +97,19 @@ export class ModelService {
     return this.http.put(`${this.baseUrl}`, model , {headers : {'content-type': 'application/json'}});
   }
 
-  deleteModelById(id: number) {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  deleteModelById(id: number, isSoftDelete: boolean) {
+    return this.http.delete(`${this.baseUrl}/${id}?soft-delete=`+ isSoftDelete);
   }
 
   deleteSelectedModels(modelsId: number[]) {
     return this.http.delete(`${this.baseUrl}${MODEL_ENDPOINTS.BATCH_DELETE}/${modelsId}`);
+  }
+
+  checkModelUsage(modelId: number): Observable<ModelDeleteDTO> {
+    return this.http.get<ModelDeleteDTO>(`${this.baseUrl}${MODEL_ENDPOINTS.CHECK_MODEL_USAGE}/${modelId}`);
+  }
+
+  rollBackModel(modelId: number) {
+    return this.http.delete(`${this.baseUrl}${MODEL_ENDPOINTS.ROLLBACK}/${modelId}`);
   }
 }

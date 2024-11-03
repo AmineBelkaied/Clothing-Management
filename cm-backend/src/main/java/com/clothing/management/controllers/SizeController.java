@@ -87,6 +87,14 @@ public class SizeController {
         }
     }
 
+    @GetMapping("/check-size-usage/{id}")
+    public ResponseEntity<Long> checkSizeUsage(@PathVariable Long id) {
+        LOGGER.info("Checking size with id: {}", id);
+        Long sizeUsage = sizeService.checkSizeUsage(id);
+        LOGGER.info("Size with id used : {} .", sizeUsage);
+        return new ResponseEntity<>(sizeUsage, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSizeById(@PathVariable Long id) {
         LOGGER.info("Deleting size with id: {}", id);

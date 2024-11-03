@@ -137,7 +137,7 @@
 
             <!-- Optional: Notes logic -->
             <tr *ngIf="packet?.notes?.length > 0 && (packet.status === 'Injoignable' || packet.status === 'Supprimé' || packet.status === 'Annuler')">
-              <td colspan="2" style="background-color: #f2f8ff !important; border-radius: 10px">
+              <td colspan="2" style="background-color: #f2f8ff !important; border-radius: 10px" (click)="onNoteClick($event, op, packet?.notes)">
                 <i class="pi pi-comment mr-3 p-text-secondary" severity="info" [value]="packet?.notes.length" *ngIf="packet?.notes.length > 1" pBadge style="font-size: 0.8rem" value="2"></i>
                 <span class="note-explanation"> - {{ packet.notes[packet.notes.length - 1]?.explanation }} </span><br>
                 <span class="align-center note-user">{{ packet.notes[packet.notes.length - 1]?.user?.userName }} - {{ packet.notes[packet.notes.length - 1]?.date | date: 'dd/MM/yy HH:mm' }}</span>
@@ -401,7 +401,7 @@
   <ng-template pTemplate="content">
       <p-table
           [value]="selectedPacketNotes"
-          styleClass="p-datatable p-datatable-sm mb-1"
+          styleClass="p-datatable p-datatable-sm mb-1 small"
           [paginator]="selectedPacketNotes.length > 6"
           [rows]="7"
           responsiveLayout="scroll">

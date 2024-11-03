@@ -2,6 +2,7 @@ package com.clothing.management.servicesImpl;
 
 import com.clothing.management.entities.Size;
 import com.clothing.management.exceptions.custom.alreadyexists.SizeAlreadyExistsException;
+import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.repository.ISizeRepository;
 import com.clothing.management.services.SizeService;
 import org.slf4j.Logger;
@@ -17,9 +18,11 @@ public class SizeServiceImpl implements SizeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SizeServiceImpl.class);
 
     private final ISizeRepository sizeRepository;
+    private final IProductsPacketRepository productsPacketRepository;
 
-    public SizeServiceImpl(ISizeRepository sizeRepository) {
+    public SizeServiceImpl(ISizeRepository sizeRepository, IProductsPacketRepository productsPacketRepository) {
         this.sizeRepository = sizeRepository;
+        this.productsPacketRepository = productsPacketRepository;
     }
 
     @Override
@@ -72,6 +75,12 @@ public class SizeServiceImpl implements SizeService {
         sizeRepository.deleteById(idSize);
         LOGGER.info("Size with ID {} deleted successfully", idSize);
     }
+
+    @Override
+    public Long checkSizeUsage(Long id) {
+        return productsPacketRepository.countProductsPacketByProduct_Size_Id(id);
+    }
+
 
     private void checkSizeExistence(String reference) {
         findSizeByReference(reference)

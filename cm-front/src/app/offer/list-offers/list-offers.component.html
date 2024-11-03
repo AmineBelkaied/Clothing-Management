@@ -8,11 +8,11 @@
                     <h5>Liste des offres</h5>
                 </div>
                 <div class="col-md-3 d-flex justify-content-end">
-                    <button pButton pRipple icon="pi pi-plus" class="p-button-success mr-2 buttonSize pull-right"
+                    <button pButton pRipple icon="pi pi-plus" class="p-button-success mr-2 addButtonSize pull-right"
                         (click)="openNew()"></button>
-                    <button pButton pRipple icon="pi pi-trash" class="p-button-danger mr-3 buttonSize pull-right"
+                    <!--                     <button pButton pRipple icon="pi pi-trash" class="p-button-danger mr-3 buttonSize pull-right"
                         (click)="deleteSelectedOffers()"
-                        [disabled]="!selectedOffers || !selectedOffers.length"></button>
+                        [disabled]="!selectedOffers || !selectedOffers.length"></button> -->
                 </div>
             </div>
         </div>
@@ -25,13 +25,9 @@
 </div>
 <div class="container-fluid" [style]="{ width: '99%'}">
     <p-table #dt [value]="offers" [rows]="10" responsiveLayout="scroll" [(selection)]="selectedOffers" [rowHover]="true"
-        dataKey="id" [rowTrackBy]="trackByFunction"
-        selectionMode="multiple">
+        dataKey="id" [rowTrackBy]="trackByFunction" selectionMode="multiple">
         <ng-template pTemplate="header">
             <tr>
-                <th style="width: 3rem">
-                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                </th>
                 <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
                 </th>
                 <th pSortableColumn="models">Modèles <p-sortIcon field="models"></p-sortIcon>
@@ -40,22 +36,27 @@
                 </th>
                 <th pSortableColumn="price">Prix <p-sortIcon field="price"></p-sortIcon>
                 </th>
-                <th pSortableColumn="enabled">Activé <p-sortIcon field="enabled"></p-sortIcon>
+                <th pSortableColumn="isEnabled">Activé <p-sortIcon field="isEnabled"></p-sortIcon>
                 </th>
-                <th>Actions</th>
+                <th>
+                    <div class="d-flex flex-wrap align-items-center w-100">
+                        <div class="d-flex justify-content-end">
+                            <span style="margin-top: 0.7rem">Actions</span>
+                            <button pButton icon="pi pi-ellipsis-v" (click)="op.toggle($event)"
+                                style="border: none; background: none; color:blue;" aria-label="Options"></button>
+                        </div>
+                    </div>
+                </th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-offer>
-            <tr>
-                <td>
-                    <p-tableCheckbox [value]="offer">{{offer.id}}</p-tableCheckbox>
-                </td>
+            <tr [ngStyle]="{'background-color': offer.deleted ? '#ebebeb' : 'white'}">
                 <td>{{offer.name}}</td>
                 <td>{{offer.offerModels | displayOfferModels}}</td>
-                <td>{{ offer.fbPages | displayFbPage | displayJoin : '-'}}</td>
+                <td>{{offer.fbPages | displayFbPage | displayJoin : '-'}}</td>
                 <td>{{offer.price}} DT</td>
                 <td>
-                    <ng-container *ngIf="offer.enabled;else disabled">
+                    <ng-container *ngIf="offer.isEnabled;else disabled">
                         <i class="pi pi-unlock" style="color: green;font-size: 17px;"></i>
                     </ng-container>
                     <ng-template #disabled>
@@ -63,9 +64,21 @@
                     </ng-template>
                 </td>
                 <td>
-                    <button pButton pRipple icon="pi pi-pencil"
-                        class="p-button-rounded p-button-warning mr-2 buttonSize" (click)="editOffer(offer)"></button>
-                    <!--   <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteOffer(offer)"></button> -->
+                    <ng-container *ngIf="!offer.deleted;else rollBackButton">
+                        <button pButton pRipple icon="pi pi-pencil"
+                            class="p-button-rounded p-button-warning mr-2 buttonSize"
+                            (click)="editOffer(offer)"></button>
+                        <button pButton pRipple icon="pi pi-trash"
+                            class="p-button-rounded  p-button-danger buttonSize"
+                            (click)="deleteOffer(offer)"></button>
+                    </ng-container>
+                    <ng-template #rollBackButton>
+                        <button pButton pRipple icon="pi pi-undo"
+                            class="p-button-rounded  p-button-primary ml-2 buttonSize"
+                            (click)="rollBackOffer(offer)"></button>
+                    </ng-template>
+                    <!--                     
+                    <button pButton pRipple icon="pi pi-table" class="p-button-rounded p-button-success mr-2 buttonSize" [routerLink]="['/stock', model.id]"></button> -->
                 </td>
             </tr>
         </ng-template>
@@ -89,3 +102,11 @@
 </p-dialog>
 
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<p-overlayPanel #op [style]="{ width: '250px' }">
+    <p class="font-bold">Filter Par :</p>
+    <p-listbox [options]="actionsOptions" [(ngModel)]="selectedActionsOptions" optionLabel="label" [multiple]="true"
+        [style]="{ width: '100%' }" [listStyle]="{ 'max-height': '40rem' }" (onChange)="onOptionSelect()"
+        class="listbox-style">
+    </p-listbox>
+</p-overlayPanel>

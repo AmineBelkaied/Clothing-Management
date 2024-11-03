@@ -4,6 +4,7 @@ import com.clothing.management.entities.ProductsPacket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
@@ -153,7 +154,17 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "GROUP BY pp.product.id, DATE(pp.packet.date) ORDER BY DATE(pp.packet.date) ASC")
     List<ProductDayCountDTO> statModelSoldProgress(@Param("modelId") Long modelId, @Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
+
     List<ProductsPacket> findByProductId(Long productId);
 
     List<ProductsPacket> findByOfferId(Long offerId);
+
+    @Query("SELECT COUNT(*) FROM ProductsPacket pp where pp.product.model.id = :id AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') ")
+    long countProductsPacketByModelId(@Param("id") Long id);
+
+    Long countProductsPacketByOfferId(Long id);
+
+    Long countProductsPacketByProduct_Color_Id(Long id);
+
+    Long countProductsPacketByProduct_Size_Id(Long id);
 }

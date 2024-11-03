@@ -19,11 +19,11 @@ public class ModelDTO {
     private String description;
     private float purchasePrice;
     private double earningCoefficient;
-    private boolean deleted;
+    private boolean isDeleted;
     @Builder.Default
     private List<Long> colors = new ArrayList<>();
     @Builder.Default
     private List<Long> sizes = new ArrayList<>();
-    private boolean enabled;
+    private boolean isEnabled;
     private Long defaultId;
 }

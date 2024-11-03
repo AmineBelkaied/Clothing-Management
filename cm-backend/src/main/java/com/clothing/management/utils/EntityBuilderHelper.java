@@ -25,7 +25,7 @@ public class EntityBuilderHelper {
                 .productHistories(productHistories)
                 .purchasePrice(purchasePrice)
                 .earningCoefficient(earningCoefficient)
-                .deleted(deleted);
+                .isDeleted(deleted);
     }
 
     public Offer.OfferBuilder createOfferBuilder(String name, Set<FbPage> fbPages, Double price, boolean enabled, boolean deleted) {
@@ -33,8 +33,8 @@ public class EntityBuilderHelper {
                 .name(name)
                 .fbPages(fbPages)
                 .price(price)
-                .enabled(enabled)
-                .deleted(deleted);
+                .isEnabled(enabled)
+                .isDeleted(deleted);
     }
 
     public Product.ProductBuilder createProductBuilder(Size size, Color color, long quantity, Date date, Model model) {

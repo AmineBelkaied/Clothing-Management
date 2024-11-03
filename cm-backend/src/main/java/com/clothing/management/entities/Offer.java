@@ -47,11 +47,11 @@ public class Offer {
     @Column(nullable = false)
     private Double price;
 
-    @Column(nullable = false)
+    @Column(name = "is_enabled", nullable = false)
     @Builder.Default
-    private boolean enabled = false;
+    private boolean isEnabled = false;
 
-    @Column(nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     @Builder.Default
-    private boolean deleted = false;
+    private boolean isDeleted = false;
 }

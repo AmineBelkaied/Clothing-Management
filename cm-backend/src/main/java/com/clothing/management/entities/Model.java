@@ -44,10 +44,13 @@ public class Model {
     @Builder.Default
     private double earningCoefficient = 1.5;
 
+    @Column(name = "is_enabled", nullable = false)
     @Builder.Default
-    private boolean deleted = false;
+    private boolean isEnabled = false;
 
-    private boolean enabled;
+    @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
+    private boolean isDeleted = false;
 
     @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(

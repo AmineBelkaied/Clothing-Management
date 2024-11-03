@@ -12,10 +12,13 @@ public interface IOfferRepository extends JpaRepository<Offer, Long> {
     Offer findByName(String name);
 
     @Modifying
-    @Query("UPDATE Offer o SET o.deleted = true WHERE o.id IN :ids")
-    void setDeletedByIds(@Param("ids") List<Long> ids);
+    @Query("UPDATE Offer o SET o.isDeleted = true , o.isEnabled = false WHERE o.id IN :ids")
+    void softDeletedByIds(@Param("ids") List<Long> ids);
 
-    @Query(value = "SELECT * FROM offer o WHERE o.enabled = true", nativeQuery = true)
+    @Query(value = "SELECT * FROM offer o WHERE o.isEnabled = true", nativeQuery = true)
     List<Offer> findAllEnabledOffers();
 
+    @Modifying
+    @Query("UPDATE Offer o SET o.isDeleted = false WHERE o.id = :id")
+    void rollBackOffer(@Param("id") Long id);
 }

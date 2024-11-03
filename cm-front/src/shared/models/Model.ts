@@ -20,3 +20,8 @@ export interface Model {
     selectedSizeReel?:number;
     selectedProduct?:Product;
 }
+
+export interface ModelDeleteDTO {
+    usedOffersCount: number;
+    usedOffersNames: string[];
+}

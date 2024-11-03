@@ -80,6 +80,10 @@ export class SizeService {
     );
   }
 
+  checkSizeUsage(id: number) {
+    return this.http.get(`${this.baseUrl}${SIZE_ENDPOINTS.CHECK_SIZE_USAGE}/${id}`);
+  }
+
   deleteSizeById(id: number) {
     return this.http.delete(`${this.baseUrl}/${id}`).pipe(
       catchError(this.handleError<void>('deleteSizeById'))

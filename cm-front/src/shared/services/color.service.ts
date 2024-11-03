@@ -101,6 +101,10 @@ export class ColorService {
       );
   }
 
+  checkColorUsage(id: number) {
+    return this.http.get(`${this.baseUrl}${COLOR_ENDPOINTS.CHECK_COLOR_USAGE}/${id}`);
+  }
+
   deleteColorById(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`)
       .pipe(

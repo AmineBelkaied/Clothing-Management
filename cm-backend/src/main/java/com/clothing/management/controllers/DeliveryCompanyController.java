@@ -62,6 +62,14 @@ public class DeliveryCompanyController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/check-delivery-company-usage/{id}")
+    public ResponseEntity<Long> checkDeliveryCompanyUsage(@PathVariable Long id) {
+        LOGGER.info("Checking size with id: {}", id);
+        Long deliveryCompanyUsage = deliveryCompanyService.checkDeliveryCompanyUsage(id);
+        LOGGER.info("Size with id used : {} .", deliveryCompanyUsage);
+        return new ResponseEntity<>(deliveryCompanyUsage, HttpStatus.OK);
+    }
+
     @DeleteMapping
     public ResponseEntity<Void> deleteDeliveryCompany(@RequestBody DeliveryCompany deliveryCompany) {
         LOGGER.info("Deleting delivery company with ID: {}", deliveryCompany.getId());

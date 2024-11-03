@@ -128,12 +128,20 @@ cleanOffre() {
       );
   }
 
-  deleteOfferById(id: number) {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  checkOfferUsage(offerId: number): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}${OFFER_ENDPOINTS.CHECK_OFFER_USAGE}/${offerId}`);
+  }
+
+  deleteOfferById(id: number, isSoftDelete: boolean) {
+    return this.http.delete(`${this.baseUrl}/${id}?soft-delete=`+ isSoftDelete);
   }
 
   deleteSelectedOffers(offersId: number[]) {
     return this.http.delete(`${this.baseUrl}${OFFER_ENDPOINTS.BATCH_DELETE}/${offersId}`);
+  }
+
+  rollBackOffer(offerId: number) {
+    return this.http.delete(`${this.baseUrl}${OFFER_ENDPOINTS.ROLLBACK}/${offerId}`);
   }
 
   spliceOffer(){

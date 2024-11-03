@@ -1,4 +1,5 @@
 package com.clothing.management.servicesImpl;
+import com.clothing.management.dto.ModelDeleteDTO;
 import com.clothing.management.dto.OfferDTO;
 import com.clothing.management.dto.OfferModelsDTO;
 import com.clothing.management.dto.OfferRequest;
@@ -8,6 +9,7 @@ import com.clothing.management.mappers.OfferMapper;
 import com.clothing.management.repository.IModelRepository;
 import com.clothing.management.repository.IOfferModelRepository;
 import com.clothing.management.repository.IOfferRepository;
+import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.services.OfferService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,19 +29,19 @@ public class OfferServiceImpl implements OfferService {
     private final OfferMapper offerMapper;
     private final EntityBuilderHelper entityBuilderHelper;
     private static final Logger LOGGER = LoggerFactory.getLogger(OfferServiceImpl.class);
-    private final IModelRepository modelRepository;
+    private final IProductsPacketRepository productsPacketRepository;
 
-    public OfferServiceImpl(IOfferRepository offerRepository, IOfferModelRepository offerModelRepository, IModelRepository modelRepository, OfferMapper offerMapper, EntityBuilderHelper entityBuilderHelper) {
+    public OfferServiceImpl(IOfferRepository offerRepository, IOfferModelRepository offerModelRepository, IModelRepository modelRepository, OfferMapper offerMapper, EntityBuilderHelper entityBuilderHelper, IProductsPacketRepository productsPacketRepository) {
         this.offerRepository = offerRepository;
         this.offerModelRepository = offerModelRepository;
-        this.modelRepository = modelRepository;
+        this.productsPacketRepository = productsPacketRepository;
         this.offerMapper = offerMapper;
         this.entityBuilderHelper = entityBuilderHelper;
     }
 
     @Override
     public void setDeletedByIds(List<Long> ids) {
-        offerRepository.setDeletedByIds(ids);
+        offerRepository.softDeletedByIds(ids);
         LOGGER.info("Deleted status set for offers with ids: {}", ids);
     }
 
@@ -131,7 +133,7 @@ public class OfferServiceImpl implements OfferService {
 
     @Transactional("tenantTransactionManager")
     @Override
-    public OfferDTO updateOfferData(long id, String name, double price,boolean enabled) throws Exception {
+    public OfferDTO updateOfferData(long id, String name, double price, boolean isEnabled) throws Exception {
         Offer offer = offerRepository.findById(id)
                 .orElseThrow(() -> {
                     LOGGER.error("Offer with id: {} not found for update.", id);
@@ -140,7 +142,7 @@ public class OfferServiceImpl implements OfferService {
 
         offer.setName(name);
         offer.setPrice(price);
-        offer.setEnabled(enabled);
+        offer.setEnabled(isEnabled);
         Offer updatedOffer = offerRepository.save(offer);
         LOGGER.info("Offer data updated for id: {}.", id);
         return offerMapper.toDto(updatedOffer);
@@ -173,8 +175,28 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
+    public void deleteOfferById(Long offerId, boolean isSoftDelete) {
+        if(isSoftDelete) {
+            offerRepository.softDeletedByIds(List.of(offerId));
+        } else {
+            offerRepository.deleteById(offerId);
+        }
+    }
+
+    @Override
+    public long checkOfferUsage(Long offerId) {
+        return productsPacketRepository.countProductsPacketByOfferId(offerId);
+    }
+
+    @Override
     public void deleteSelectedOffers(List<Long> offersId) {
         offerRepository.deleteAllById(offersId);
         LOGGER.info("Deleted selected offers with ids: {}", offersId);
+    }
+
+    @Override
+    public void rollBackOffer(Long id) {
+        offerRepository.rollBackOffer(id);
+        LOGGER.info("Offer with ID: {} rolled back.", id);
     }
 }

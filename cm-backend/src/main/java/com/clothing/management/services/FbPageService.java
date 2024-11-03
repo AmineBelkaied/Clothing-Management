@@ -15,4 +15,5 @@ public interface FbPageService {
     FbPage saveFbPage(FbPage fbPage);
     void deleteFbPage(FbPage fbPage);
     void deleteFbPageById(Long idFbPage);
+    Long checkFbPageUsage(Long id);
 }

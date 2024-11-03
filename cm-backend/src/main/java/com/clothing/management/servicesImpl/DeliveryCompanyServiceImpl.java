@@ -2,6 +2,7 @@ package com.clothing.management.servicesImpl;
 
 import com.clothing.management.entities.DeliveryCompany;
 import com.clothing.management.repository.IDeliveryCompanyRepository;
+import com.clothing.management.repository.IPacketRepository;
 import com.clothing.management.services.DeliveryCompanyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,12 @@ public class DeliveryCompanyServiceImpl implements DeliveryCompanyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeliveryCompanyServiceImpl.class);
 
     private final IDeliveryCompanyRepository deliveryCompanyRepository;
+    private final IPacketRepository packetRepository;
 
     @Autowired
-    public DeliveryCompanyServiceImpl(IDeliveryCompanyRepository deliveryCompanyRepository) {
+    public DeliveryCompanyServiceImpl(IDeliveryCompanyRepository deliveryCompanyRepository, IPacketRepository packetRepository) {
         this.deliveryCompanyRepository = deliveryCompanyRepository;
+        this.packetRepository = packetRepository;
     }
 
     @Override
@@ -52,6 +55,11 @@ public class DeliveryCompanyServiceImpl implements DeliveryCompanyService {
         DeliveryCompany updatedCompany = deliveryCompanyRepository.save(deliveryCompany);
         LOGGER.info("Delivery company updated successfully with ID: {}", updatedCompany.getId());
         return updatedCompany;
+    }
+
+    @Override
+    public Long checkDeliveryCompanyUsage(Long id) {
+        return packetRepository.countPacketByDeliveryCompany_Id(id);
     }
 
     @Override

@@ -18,14 +18,16 @@ public interface OfferService {
     Offer findOfferByName(String name);
     //OfferDTO addOffer(OfferDTO offerDTO);
     OfferDTO updateOffer(Offer offer);
-    OfferDTO updateOfferData(long id, String name, double price,boolean enabled) throws Exception;
+    OfferDTO updateOfferData(long id, String name, double price,boolean isEnabled) throws Exception;
 
     OfferDTO addOffer(OfferRequest offerDTO);
 
     OfferDTO updateOfferFbPages(long offerId, Set<FbPage> fbPages) throws Exception;
     OfferDTO updateOfferModels(long offerId, Set<OfferModelsDTO> modelQuantityList) throws Exception;
     void deleteOffer(Offer offer);
+    long checkOfferUsage(Long offerId);
+    void deleteOfferById(Long offerId, boolean isSoftDelete);
     void deleteSelectedOffers(List<Long> offersId);
     void setDeletedByIds(List<Long> ids);
-
+    void rollBackOffer(Long id);
 }

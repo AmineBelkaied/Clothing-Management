@@ -139,4 +139,8 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value="UPDATE packet SET barcode = :barcode WHERE id = :packetId", nativeQuery = true)
     void saveBarcode(@Param("packetId") Long packetId, @Param("barcode") String barcode);
 
+    Long countPacketByFbPage_Id(Long id);
+
+    Long countPacketByDeliveryCompany_Id(Long id);
+
 }

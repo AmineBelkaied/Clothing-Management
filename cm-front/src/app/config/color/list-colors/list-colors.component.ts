@@ -33,16 +33,31 @@ export class ListColorsComponent implements OnInit,OnDestroy {
   }
 
   deleteColor(color: any)  {
-    this.confirmationService.confirm({
-      message: 'Êtes-vous sûr de vouloir supprimer la couleur séléctionnée ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.colorService.deleteColorById(color.id).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(() => {
-            this.colors = this.colors.filter(val => val.id !== color.id);
-            this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La couleur a été supprimée avec succés", life: 1000 });
-          })
+    this.colorService.checkColorUsage(color.id)
+    .subscribe((colorUsage: any) => {
+      console.log(colorUsage);
+      if(colorUsage > 0) {
+        console.log(colorUsage);
+        
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Attention !',
+          detail:`La couleur ne peut pas être supprimée car elle est utilisée au niveau des commandes ${colorUsage} fois` ,
+          life: 5000,
+        });
+      } else {
+        this.confirmationService.confirm({
+          message: 'Êtes-vous sûr de vouloir supprimer la couleur séléctionnée ?',
+          header: 'Confirmation',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            this.colorService.deleteColorById(color.id).pipe(takeUntil(this.$unsubscribe))
+              .subscribe(() => {
+                this.colors = this.colors.filter(val => val.id !== color.id);
+                this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La couleur a été supprimée avec succés", life: 1000 });
+              })
+          }
+        });
       }
     });
   }

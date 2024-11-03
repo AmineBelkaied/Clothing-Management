@@ -1,6 +1,7 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.dto.ModelDTO;
+import com.clothing.management.dto.ModelDeleteDTO;
 import com.clothing.management.entities.*;
 import com.clothing.management.exceptions.custom.alreadyexists.ModelAlreadyExistsException;
 import com.clothing.management.exceptions.custom.notfound.ModelNotFoundException;
@@ -30,10 +31,12 @@ public class ModelServiceImpl implements ModelService {
     private final IColorRepository colorRepository;
     private final ISizeRepository sizeRepository;
     private final IProductsPacketRepository productsPacketRepository;
+    private final IOfferRepository offerRepository;
+    private final IOfferModelRepository offerModelRepository;
     private static List<String> confirmedPacketStatus = List.of(new String[]{"Livrée", "Payée","En cours (1)", "En cours (2)", "En cours (3)", "A verifier"});
 
     public ModelServiceImpl(IModelRepository modelRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper, ModelMapper modelMapper,
-                            IColorRepository colorRepository, ISizeRepository sizeRepository, IProductsPacketRepository productsPacketRepository) {
+                            IColorRepository colorRepository, ISizeRepository sizeRepository, IProductsPacketRepository productsPacketRepository, IOfferRepository offerRepository, IOfferModelRepository offerModelRepository) {
         this.modelRepository = modelRepository;
         this.productRepository = productRepository;
         this.entityBuilderHelper = entityBuilderHelper;
@@ -41,6 +44,8 @@ public class ModelServiceImpl implements ModelService {
         this.colorRepository = colorRepository;
         this.sizeRepository = sizeRepository;
         this.productsPacketRepository = productsPacketRepository;
+        this.offerRepository = offerRepository;
+        this.offerModelRepository = offerModelRepository;
     }
 
     @Override
@@ -149,34 +154,33 @@ public class ModelServiceImpl implements ModelService {
     }
 
     @Override
-    public void deleteModelById(Long idModel) {
-        Model model = modelRepository.findById(idModel)
-                .orElseThrow(() -> new ModelNotFoundException(idModel));
+    public void deleteModelById(Long idModel, boolean isSoftDelete) {
+        Set<OfferModel> offerModels = offerModelRepository.findByModelId(idModel);
+        if (isSoftDelete) {
+            modelRepository.softDeleteModel(idModel);
+            offerRepository.softDeletedByIds(offerModels.stream().map(offerModel -> offerModel.getOffer().getId()).toList());
+        } else {
+            modelRepository.deleteById(idModel);
+            offerRepository.deleteAllById(offerModels.stream().map(offerModel -> offerModel.getOffer().getId()).toList());
+            LOGGER.info("Model with ID: {} deleted.", idModel);
+        }
+    }
 
-        List<Product> products = model.getProducts();
-        long usedProductsCount = products.stream()
-                .flatMap(product -> productsPacketRepository.findByProductId(product.getId()).stream())
-                .map(productsPacket -> Optional.ofNullable(productsPacket.getPacket()))
-                .filter(optPacket -> optPacket.isPresent() && confirmedPacketStatus.contains(optPacket.get().getStatus()))
-                .count();
+    @Override
+    public ModelDeleteDTO checkModelUsage(Long idModel) {
+        long usedOffersCount = productsPacketRepository.countProductsPacketByModelId(idModel);
+        Set<OfferModel> offerModels = offerModelRepository.findByModelId(idModel);
 
-        LOGGER.info("usedProductsNumber : {} ", usedProductsCount);
+        return ModelDeleteDTO.builder()
+                .usedOffersCount(usedOffersCount)
+                .usedOffersNames(offerModels.stream().map(offerModel -> offerModel.getOffer().getName()).toList())
+                .build();
+    }
 
-        Set<OfferModel> offerModels = model.getModelOffers();
-        long usedOffersCount = offerModels.stream()
-                .flatMap(offerModel -> productsPacketRepository.findByOfferId(offerModel.getOffer().getId()).stream())
-                .map(productsPacket -> Optional.ofNullable(productsPacket.getPacket()))
-                .filter(optPacket -> optPacket.isPresent() && confirmedPacketStatus.contains(optPacket.get().getStatus()))
-                .count();
-
-        LOGGER.info("usedOffersCount : {} ", usedOffersCount);
-
-       /* LOGGER.info("Offers with NAMES ARE");
-        usedOffersNames.stream().distinct().forEach(System.out::println);
-*/
-
-        //modelRepository.deleteById(idModel);
-        LOGGER.info("Model with ID: {} deleted.", idModel);
+    @Override
+    public void rollBackModel(Long id) {
+        modelRepository.rollBackModel(id);
+        LOGGER.info("Models with ID: {} rolled back.", id);
     }
 
     @Override

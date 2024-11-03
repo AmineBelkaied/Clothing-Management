@@ -12,5 +12,6 @@ public interface SizeService {
     Optional<Size> findSizeByReference(String reference);
     Size addSize(Size size) throws Exception;
     Size updateSize(Size size) throws Exception;
-    void deleteSizeById(Long idSize);
+    void deleteSizeById(Long id);
+    Long checkSizeUsage(Long id);
 }

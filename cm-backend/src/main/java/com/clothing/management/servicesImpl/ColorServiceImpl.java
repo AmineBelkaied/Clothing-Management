@@ -3,6 +3,7 @@ package com.clothing.management.servicesImpl;
 import com.clothing.management.entities.Color;
 import com.clothing.management.exceptions.custom.alreadyexists.ColorAlreadyExistsException;
 import com.clothing.management.repository.IColorRepository;
+import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.services.ColorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +19,12 @@ public class ColorServiceImpl implements ColorService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ColorServiceImpl.class);
 
     private final IColorRepository colorRepository;
+    private final IProductsPacketRepository productsPacketRepository;
 
     @Autowired
-    public ColorServiceImpl(IColorRepository colorRepository) {
+    public ColorServiceImpl(IColorRepository colorRepository, IProductsPacketRepository productsPacketRepository) {
         this.colorRepository = colorRepository;
+        this.productsPacketRepository = productsPacketRepository;
     }
 
     @Override
@@ -81,6 +84,11 @@ public class ColorServiceImpl implements ColorService {
     public void deleteColorById(Long idColor) {
         colorRepository.deleteById(idColor);
         LOGGER.info("Color with ID {} deleted successfully", idColor);
+    }
+
+    @Override
+    public Long checkColorUsage(Long id) {
+        return productsPacketRepository.countProductsPacketByProduct_Color_Id(id);
     }
 
     private void checkColorExistence(String name) {

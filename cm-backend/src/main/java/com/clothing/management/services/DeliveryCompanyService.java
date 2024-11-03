@@ -13,4 +13,5 @@ public interface DeliveryCompanyService {
     DeliveryCompany updateDeliveryCompany(DeliveryCompany deliveryCompany);
     void deleteDeliveryCompany(DeliveryCompany deliveryCompany);
     void deleteDeliveryCompanyById(Long id);
+    Long checkDeliveryCompanyUsage(Long id);
 }

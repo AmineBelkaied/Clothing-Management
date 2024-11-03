@@ -33,4 +33,6 @@ public interface IOfferModelRepository extends JpaRepository<OfferModel , Long> 
 
     @Query("SELECT om FROM OfferModel om WHERE om.model.id = :modelId AND om.offer.id = :offerId")
     OfferModel findOfferModelByModelIdAndOfferId(Long modelId, Long offerId);
+
+    Set<OfferModel> findByModelId(Long modelId);
 }

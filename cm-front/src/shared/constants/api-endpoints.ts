@@ -26,12 +26,16 @@ export const OFFER_ENDPOINTS = {
     BATCH_DELETE: '/batch-delete',
     UPDATE_DATA: '/update-data',
     UPDATE_OFFER_FB_PAGES: '/update-offer-fb-pages',
-    UPDATE_OFFER_MODESLS: '/update-offer-models'
+    UPDATE_OFFER_MODESLS: '/update-offer-models',
+    CHECK_OFFER_USAGE: '/check-offer-usage',
+    ROLLBACK: '/rollback'
 };
 
 export const MODEL_ENDPOINTS = {
     BASE: '/models',
-    BATCH_DELETE: '/batch-delete'
+    BATCH_DELETE: '/batch-delete',
+    CHECK_MODEL_USAGE: '/check-model-usage',
+    ROLLBACK: '/rollback',
 };
 
 export const PRODUCT_ENDPOINTS = {
@@ -75,19 +79,23 @@ export const GOVERNORATE_ENDPOINTS = {
 };
 
 export const FB_PAGE_ENDPOINTS = {
-    BASE: '/fb-pages'
+    BASE: '/fb-pages',
+    CHECK_FB_PAGE_USAGE: '/check-fb-page-usage'
 };
 
 export const DELIVERY_COMPANY_ENDPOINTS = {
-    BASE: '/delivery-companies'
+    BASE: '/delivery-companies',
+    CHECK_DELIVERY_COMPANY_USAGE: '/check-delivery-company-usage'
 };
 
 export const COLOR_ENDPOINTS = {
-    BASE: '/colors'
+    BASE: '/colors',
+    CHECK_COLOR_USAGE: '/check-color-usage'
 };
 
 export const SIZE_ENDPOINTS = {
-    BASE: '/sizes'
+    BASE: '/sizes',
+    CHECK_SIZE_USAGE: '/check-size-usage'
 };
 
 export const NOTE_ENDPOINTS = {

@@ -3,10 +3,10 @@
     <div class="megabar">
       <div class="d-flex megabar-header menu">
         <div class="left-section d-flex align-items-center">
-          <button pButton icon="pi pi-plus" class="p-button-success mr-2 p-2" (click)="addNewRow()"></button>
-          <button pButton icon="pi pi-trash" class="p-button-danger mr-2 p-2" (click)="deleteSelectedPackets()"
+          <button pButton icon="pi pi-plus" class="p-button-success mr-2 p-2 buttonSize" (click)="addNewRow()"></button>
+          <button pButton icon="pi pi-trash" class="p-button-danger mr-2 p-2 buttonSize" (click)="deleteSelectedPackets()"
             [disabled]="nbrSelectedPackets==0"></button><!--[disabled]="!selectedPackets || selectedPackets.length == 0"//Correction-->
-          <button pButton icon="pi pi-refresh" class="p-button-info mr-2 p-2" (click)="resetTable()"></button>
+          <button pButton icon="pi pi-refresh" class="p-button-info mr-2 p-2 buttonSize" (click)="resetTable()"></button>
           <span class="p-input-icon-left">
             <i class="pi pi-search"></i>
             <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets()"
@@ -15,7 +15,7 @@
           </span>
           <p-calendar [(ngModel)]="rangeDates" (ngModelChange)="filterPackets('date')" selectionMode="range"
             [readonlyInput]="true" inputId="range" placeholder="Filtrer par date/période" [showClear]="false"
-            (onClearClick)="resetTable()"  [style]="{ width: '11rem' }" dateFormat="dd/mm"  [showIcon]="true"
+            (onClearClick)="resetTable()"  [style]="{ width: '11rem' }" dateFormat="dd/mm" 
             [touchUI]="true">
             <ng-template pTemplate="footer">
               <div style="display: flex; align-items: center">
