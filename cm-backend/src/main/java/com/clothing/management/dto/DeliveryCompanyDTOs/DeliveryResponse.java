@@ -24,7 +24,7 @@ public class DeliveryResponse {
 
     public String state;
 
-    public String barCode;
+    public String barcode;
 
     public Boolean isError;
 

@@ -18,7 +18,7 @@ export class VerificationComponent implements OnInit {
 
   targetPackets: PacketValidationDTO[] = [];
 
-  barCode : string;
+  barcode : string;
 
   $unsubscribe: Subject<void> = new Subject();
 
@@ -72,10 +72,10 @@ findAllConfirmedPackets(): void {
 }
 
 Validate(){
-  let lastNineCharacters = this.barCode.slice(-9);
-  let num: number = Number(this.barCode);
+  let lastNineCharacters = this.barcode.slice(-9);
+  let num: number = Number(this.barcode);
   if (this.type == VALIDATION){
-    if(this.barCode.length > 8){
+    if(this.barcode.length > 8){
 
       if (!(this.sourcePackets.map((packet : PacketValidationDTO) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1)){
         if (this.targetPackets.map((packet : PacketValidationDTO) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1){
@@ -88,7 +88,7 @@ Validate(){
         return;
       }
     }
-    if(this.barCode.length < 9){
+    if(this.barcode.length < 9){
       if (!(this.sourcePackets.map((packet : PacketValidationDTO) => packet.id).indexOf(num) > -1)){
         if (this.targetPackets.map((packet : PacketValidationDTO) => packet.id).indexOf(num) > -1){
           alert('Error: BarreCode déja validé');
@@ -100,17 +100,17 @@ Validate(){
         return;
       }
     }
-    if(this.barCode.length > 8){
+    if(this.barcode.length > 8){
       this.packetSameBarCode = this.sourcePackets.filter((packet : PacketValidationDTO) => packet.barcode.slice(-9) == lastNineCharacters);
-      this.barCode = this.packetSameBarCode[0].barcode;
+      this.barcode = this.packetSameBarCode[0].barcode;
     }
     else {
       this.packetSameBarCode = this.sourcePackets.filter((packet : PacketValidationDTO) => packet.id == num);
-      this.barCode = this.packetSameBarCode[0].barcode;
+      this.barcode = this.packetSameBarCode[0].barcode;
     }
 
     if (this.packetSameBarCode.length>1){
-      alert('Error: le code a barre '+this.barCode +' existe plusieur fois');
+      alert('Error: le code a barre '+this.barcode +' existe plusieur fois');
       return;
     }
     else {
@@ -123,28 +123,28 @@ Validate(){
       return;
     }}
   }
-  this.packetService.validatePacket(this.barCode, this.type).subscribe({
+  this.packetService.validatePacket(this.barcode, this.type).subscribe({
     next: (response: any) => {
       // Handle the response here
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
-        detail: `code à barre validé: ${this.barCode}`
+        detail: `code à barre validé: ${this.barcode}`
       });
       console.log('response', response);
 
       if (this.type === VALIDATION) {
-        this.movePacketToTarget(this.barCode);
+        this.movePacketToTarget(this.barcode);
       }
 
-      this.barCode = ""; // Reset the barcode after processing
+      this.barcode = ""; // Reset the barcode after processing
     },
     error: (error: any) => {
       // Handle errors here
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: `Erreur lors de la validation du barcode: ${this.barCode}`
+        detail: `Erreur lors de la validation du barcode: ${this.barcode}`
       });
       console.error(error);
     },
@@ -154,9 +154,9 @@ Validate(){
     }
   });
 }
-  private movePacketToTarget(barCode: string): void {
+  private movePacketToTarget(barcode: string): void {
     const packetIndex = this.sourcePackets.findIndex(
-      (packet: PacketValidationDTO) => packet.barcode === barCode
+      (packet: PacketValidationDTO) => packet.barcode === barcode
     );
     console.log("packetIndex", packetIndex);
 

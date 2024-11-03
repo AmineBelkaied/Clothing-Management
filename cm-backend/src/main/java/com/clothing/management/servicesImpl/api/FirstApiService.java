@@ -43,9 +43,9 @@ public class FirstApiService extends DeliveryCompanyService {
     }
 
     @Override
-    public DeliveryResponseFirst getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException {
-        LOGGER.info("Fetching last status for barcode: {}", barCode);  // Log barcode
-        JSONObject jsonBody = createJsonBarCode(barCode);
+    public DeliveryResponseFirst getLastStatus(String barcode, DeliveryCompany deliveryCompany) throws IOException {
+        LOGGER.info("Fetching last status for barcode: {}",barcode);  // Log barcode
+        JSONObject jsonBody = createJsonBarCode(barcode);
         return executeHttpRequest(getLastStatusEndPoint, jsonBody.toString(), deliveryCompany);
     }
 
@@ -115,7 +115,7 @@ public class FirstApiService extends DeliveryCompanyService {
         deliveryResponse.setStatus(deliveryResponse.getStatus());
         deliveryResponse.setLink(deliveryResponse.getResult().getLink());
         deliveryResponse.setState(deliveryResponse.getResult().getState());
-        deliveryResponse.setBarCode(deliveryResponse.getResult().getBarCode());
+        deliveryResponse.setBarcode(deliveryResponse.getResult().getBarCode());
         deliveryResponse.setIsError(deliveryResponse.isError());
         deliveryResponse.setMessage(deliveryResponse.getMessage());
         deliveryResponse.setResponseCode(responseCode);
@@ -135,10 +135,10 @@ public class FirstApiService extends DeliveryCompanyService {
         return connection;
     }
 
-    private JSONObject createJsonBarCode(String barCode) {
-        LOGGER.debug("Creating JSON object for barcode: {}", barCode);  // Log barcode
+    private JSONObject createJsonBarCode(String barcode) {
+        LOGGER.debug("Creating JSON object for barcode: {}",barcode);  // Log barcode
         JSONObject json = new JSONObject();
-        json.put("barCode", barCode);
+        json.put("barCode",barcode);
         return json;
     }
 

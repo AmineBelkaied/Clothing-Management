@@ -594,8 +594,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     if (deliveryCompanyId > -1) {
       let deliveryCompany =
         this.deliveryCompanyService.getDeliveryCompanyById(deliveryCompanyId)!;
-      if (deliveryCompany.barreCodeUrl != null) {
-        let link = deliveryCompany.barreCodeUrl + code;
+      if (deliveryCompany.barcodeUrl != null) {
+        let link = deliveryCompany.barcodeUrl + code;
         console.log('link', link + '/code:' + code);
         window.open(link, '_blank');
       }

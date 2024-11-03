@@ -68,18 +68,18 @@
         </div>
 
         <div class="field mb-3">
-          <label for="barCodeUrl">Lien colis par barreCode</label><span class="required pl-1">*</span>
+          <label for="barcodeUrl">Lien colis par barreCode</label><span class="required pl-1">*</span>
           <input
             pInputText
-            id="barCodeUrl"
+            id="barcodeUrl"
             placeholder="Lien d'accées recherche par code a barre"
-            name="barCodeUrl"
-            [(ngModel)]="deliveryCompany.barCodeUrl"
+            name="barcodeUrl"
+            [(ngModel)]="deliveryCompany.barcodeUrl"
             required
-            #barCodeUrl="ngModel"
-            [class.is-invalid]="barCodeUrl.invalid && barCodeUrl.touched"
+            #barcodeUrl="ngModel"
+            [class.is-invalid]="barcodeUrl.invalid && barcodeUrl.touched"
           />
-          <div *ngIf="barCodeUrl.invalid && barCodeUrl.touched" class="invalid-feedback">
+          <div *ngIf="barcodeUrl.invalid && barcodeUrl.touched" class="invalid-feedback">
             Barre code URL is required.
           </div>
         </div>

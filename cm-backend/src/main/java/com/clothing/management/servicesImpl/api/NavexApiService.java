@@ -42,11 +42,11 @@ public class NavexApiService extends DeliveryCompanyService {
         return executeHttpRequest(url, requestBody);
     }
 
-    public DeliveryResponseNavex getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException {
-        LOGGER.debug("Getting last status for barcode: {}", barCode);
+    public DeliveryResponseNavex getLastStatus(String barcode, DeliveryCompany deliveryCompany) throws IOException {
+        LOGGER.debug("Getting last status for barcode: {}",barcode);
 
         StringBuilder body = new StringBuilder();
-        body.append("code=").append(URLEncoder.encode(barCode, StandardCharsets.UTF_8));
+        body.append("code=").append(URLEncoder.encode(barcode, StandardCharsets.UTF_8));
         String url = API_URL + deliveryCompany.getApiName() + "-etat-" + deliveryCompany.getToken() + END_URL;
 
         LOGGER.debug("Request URL for last status: {}", url);
@@ -106,7 +106,7 @@ public class NavexApiService extends DeliveryCompanyService {
         DeliveryResponseNavex deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseNavex.class);
         deliveryResponse.setResponseCode(responseCode);
         deliveryResponse.setResponseMessage(responseMessage);
-        deliveryResponse.setBarCode(deliveryResponse.getStatus_message());
+        deliveryResponse.setBarcode(deliveryResponse.getStatus_message());
         deliveryResponse.setState(deliveryResponse.getEtat());
         deliveryResponse.setLink(deliveryResponse.getLien());
         deliveryResponse.setMessage(deliveryResponse.getStatus_message());

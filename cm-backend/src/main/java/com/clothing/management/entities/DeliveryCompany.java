@@ -23,8 +23,8 @@ public class DeliveryCompany {
     @Column(name = "api_name")
     private String apiName;
 
-    @Column(name = "barre_code_url")
-    private String barreCodeUrl;
+    @Column(name = "barcode_url")
+    private String barcodeUrl;
 
     @Builder.Default
     private boolean deleted = false;

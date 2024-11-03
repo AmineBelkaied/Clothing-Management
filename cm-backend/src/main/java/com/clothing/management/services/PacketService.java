@@ -1,14 +1,13 @@
 package com.clothing.management.services;
 
 import com.clothing.management.dto.*;
-import com.clothing.management.dto.DeliveryCompanyDTOs.BarCodeStatusDTO;
+import com.clothing.management.dto.DeliveryCompanyDTOs.BarcodeStatusDTO;
 import com.clothing.management.dto.DeliveryCompanyDTOs.DeliveryResponse;
 import com.clothing.management.entities.Note;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.User;
 import com.clothing.management.exceptions.custom.notfound.PacketNotFoundException;
 import com.clothing.management.models.DashboardCard;
-import com.clothing.management.servicesImpl.PacketServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,10 +19,9 @@ public interface PacketService {
 
  Packet getPacketById(Long packetId) throws Exception;
 
- Packet getPacketByBarcode(String barCode) throws Exception;
-
+ Packet getPacketByBarcode(String barcode) throws Exception;
  List<Packet> findAllPackets();
-  Page<PacketDTO> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status, boolean mandatoryDate) throws ParseException;
+ Page<PacketDTO> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status, boolean mandatoryDate) throws ParseException;
  public List<PacketValidationDTO> findValidationPackets();
  List<PacketDTO> findAllPacketsByDate(String start,String end) throws ParseException;
  List<Packet> findAllPacketsByDate(Date date);
@@ -43,8 +41,8 @@ public interface PacketService {
     //List<DashboardCard> createDashboard();
     List<DashboardCard> syncNotification(String beginDate, String endDate);
     PacketDTO duplicatePacket(Long idPacket) throws Exception;
-    List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO);
+    List<String> updatePacketsByBarcodes(BarcodeStatusDTO barcodeStatusDTO);
     //Long getExchangeId(Packet packet);
     int deleteEmptyPacket();
-    PacketValidationDTO updatePacketValid(String barCode, String type) throws Exception;
+    PacketValidationDTO updatePacketValid(String barcode, String type) throws Exception;
 }

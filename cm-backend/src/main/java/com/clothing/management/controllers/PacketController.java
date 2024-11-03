@@ -3,7 +3,7 @@ package com.clothing.management.controllers;
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
 import com.clothing.management.dto.*;
-import com.clothing.management.dto.DeliveryCompanyDTOs.BarCodeStatusDTO;
+import com.clothing.management.dto.DeliveryCompanyDTOs.BarcodeStatusDTO;
 import com.clothing.management.entities.Note;
 import com.clothing.management.entities.Packet;
 import com.clothing.management.mappers.PacketMapper;
@@ -172,8 +172,8 @@ public class PacketController {
     }
 
     @PostMapping("/barcode/status")
-    public ResponseEntity<List<String>> updatePacketsByBarCode(@RequestBody BarCodeStatusDTO barCodeStatusDTO) {
+    public ResponseEntity<List<String>> updatePacketsByBarcode(@RequestBody BarcodeStatusDTO barcodeStatusDTO) {
         LOGGER.info("Updating packets by barcode.");
-        return new ResponseEntity<>(packetService.updatePacketsByBarCodes(barCodeStatusDTO), HttpStatus.OK);
+        return new ResponseEntity<>(packetService.updatePacketsByBarcodes(barcodeStatusDTO), HttpStatus.OK);
     }
 }

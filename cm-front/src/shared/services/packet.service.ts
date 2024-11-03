@@ -21,7 +21,7 @@ export class PacketService {
   constructor(private http: HttpClient) { }
 
   public updateStatus(extractedBarcodes: string[], type: string) {
-    let updateStock = { 'barCodes': extractedBarcodes, 'status': type }
+    let updateStock = { 'barcodes': extractedBarcodes, 'status': type }
     return this.http.post(`${this.baseUrl}${PACKET_ENDPOINTS.BARCODE_STATUS}`, updateStock);
   }
 
@@ -108,10 +108,10 @@ export class PacketService {
   }
 
 
-  validatePacket(barCode: string, state: string): Observable<any> {
+  validatePacket(barcode: string, state: string): Observable<any> {
     if (state == VALIDATION)
       state = CONFIRMED;
-    return this.http.post(`${this.baseUrl}${PACKET_ENDPOINTS.VALIDATE}/${barCode}`, state, {
+    return this.http.post(`${this.baseUrl}${PACKET_ENDPOINTS.VALIDATE}/${barcode}`, state, {
       headers: { 'content-type': 'application/json' },
     });
   }

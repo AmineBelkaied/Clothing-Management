@@ -11,8 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BarCodeStatusDTO {
+public class BarcodeStatusDTO {
 
-    private List<String> barCodes;
+    private List<String> barcodes;
     private String status;
 }

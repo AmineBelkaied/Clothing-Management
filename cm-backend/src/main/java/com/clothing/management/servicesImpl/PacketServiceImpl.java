@@ -1,7 +1,7 @@
 package com.clothing.management.servicesImpl;
 import com.clothing.management.auth.util.SessionUtils;
 import com.clothing.management.dto.*;
-import com.clothing.management.dto.DeliveryCompanyDTOs.BarCodeStatusDTO;
+import com.clothing.management.dto.DeliveryCompanyDTOs.BarcodeStatusDTO;
 import com.clothing.management.dto.DeliveryCompanyDTOs.DeliveryResponse;
 import com.clothing.management.enums.DeliveryCompanyName;
 import com.clothing.management.enums.DeliveryCompanyStatus;
@@ -91,13 +91,13 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public Packet getPacketByBarcode(String barCode) throws EntityNotFoundException {
-        LOGGER.info("Attempting to retrieve packet with Barcode: {}", barCode);
+    public Packet getPacketByBarcode(String barcode) throws EntityNotFoundException {
+        LOGGER.info("Attempting to retrieve packet with Barcode: {}", barcode);
 
-        return packetRepository.findByBarCode(barCode)
+        return packetRepository.findByBarcode(barcode)
                 .orElseThrow(() -> {
-                    LOGGER.error("Packet with Barcode: {} not found", barCode);
-                    return new EntityNotFoundException("BarCode", 0L, barCode);
+                    LOGGER.error("Packet with Barcode: {} not found", barcode);
+                    return new EntityNotFoundException("BarCode", 0L, barcode);
                 });
     }
 
@@ -264,10 +264,10 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public PacketValidationDTO updatePacketValid(String barCode, String type) {
+    public PacketValidationDTO updatePacketValid(String barcode, String type) {
         Packet nonValidPacket;
         try {
-            nonValidPacket = getPacketByBarcode(barCode);
+            nonValidPacket = getPacketByBarcode(barcode);
             Packet packet;
             if (type.equals(CONFIRMED.getStatus())) {
                 nonValidPacket.setValid(true);
@@ -276,11 +276,11 @@ public class PacketServiceImpl implements PacketService {
                 packet = updatePacketStatus(nonValidPacket, RETURN_RECEIVED.getStatus());
             }
 
-            LOGGER.info("Updated packet validation for barcode: {}. New status: {}", barCode, packet.getPacketStatus());
+            LOGGER.info("Updated packet validation for barcode: {}. New status: {}",barcode, packet.getPacketStatus());
             return packetMapper.toValidationDto(packet);
 
         } catch (Exception e) {
-            LOGGER.error("Error updating packet validation for barcode: {}. Error: {}", barCode, e.getMessage(), e);
+            LOGGER.error("Error updating packet validation for barcode: {}. Error: {}",barcode, e.getMessage(), e);
             return null;
         }
     }
@@ -468,12 +468,12 @@ public class PacketServiceImpl implements PacketService {
 
         if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201) {
             packet.setPrintLink(deliveryResponse.getLink());
-            packet.setBarcode(deliveryResponse.getBarCode());
+            packet.setBarcode(deliveryResponse.getBarcode());
             packet.setDate(new Date());
             packetRepository.save(packet);
 
             LOGGER.info("Barcode created successfully for packet ID: {}. Link: {}, Barcode: {}",
-                    packet.getId(), deliveryResponse.getLink(), deliveryResponse.getBarCode());
+                    packet.getId(), deliveryResponse.getLink(), deliveryResponse.getBarcode());
 
             return deliveryResponse;
         } else {
@@ -681,25 +681,25 @@ public class PacketServiceImpl implements PacketService {
             return packetMapper.toDto(newPacket);
         }
 
-        public List<String> updatePacketsByBarCodes(BarCodeStatusDTO barCodeStatusDTO) {
-            LOGGER.info("Updating packets by barcodes. Status: {}", barCodeStatusDTO.getStatus());
+        public List<String> updatePacketsByBarcodes(BarcodeStatusDTO barcodeStatusDTO) {
+            LOGGER.info("Updating packets by barcodes. Status: {}", barcodeStatusDTO.getStatus());
             List<String> errors = new ArrayList<>();
-            String newState = barCodeStatusDTO.getStatus();
+            String newState = barcodeStatusDTO.getStatus();
 
-            barCodeStatusDTO.getBarCodes().forEach(barCode -> {
+           barcodeStatusDTO.getBarcodes().forEach(barcode -> {
                 try {
-                    Packet packet = getPacketByBarcode(barCode);
-                    LOGGER.debug("Updating packet with barcode: {}", barCode);
+                    Packet packet = getPacketByBarcode(barcode);
+                    LOGGER.debug("Updating packet with barcode: {}",barcode);
 
                     if (!packet.getStatus().equals(RETURN_RECEIVED.getStatus())) {
                         updatePacketStatus(packet, newState);
                     } else {
-                        LOGGER.warn("Barcode {} already received", barCode);
-                        errors.add(barCode + " déja récu");
+                        LOGGER.warn("Barcode {} already received",barcode);
+                        errors.add(barcode + " déja récu");
                     }
                 } catch (Exception e) {
-                    LOGGER.error("Error updating packet with barcode {}: {}", barCode, e.getMessage());
-                    errors.add(barCode + " erreur");
+                    LOGGER.error("Error updating packet with barcode {}: {}",barcode, e.getMessage());
+                    errors.add(barcode + " erreur");
                 }
             });
 

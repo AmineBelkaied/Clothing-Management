@@ -31,7 +31,7 @@ public abstract class DeliveryCompanyService {
 
     public abstract DeliveryResponse createBarCode(Packet packet) throws IOException;
 
-    public abstract DeliveryResponse getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException;
+    public abstract DeliveryResponse getLastStatus(String barcode, DeliveryCompany deliveryCompany) throws IOException;
 
     public abstract Double getPacketPrice(Packet packet);
 

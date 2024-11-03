@@ -22,7 +22,7 @@ public class DeliveryResponseJax extends DeliveryResponse {
     private String updatedAt;
 
     @JsonProperty("code")
-    private String barCode;
+    private String barcode;
     @JsonProperty("referenceExterne")
     private String referenceExterne;
     @JsonProperty("depot_id")

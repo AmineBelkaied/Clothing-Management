@@ -39,9 +39,9 @@ public class JaxApiService extends DeliveryCompanyService {
     }
 
     @Override
-    public DeliveryResponseJax getLastStatus(String barCode, DeliveryCompany deliveryCompany) throws IOException {
-        String url = apiUrl + "getstatut_uptated/" + barCode + "?token=" + deliveryCompany.getToken();
-        LOGGER.debug("Getting last status for barcode: {}", barCode);
+    public DeliveryResponseJax getLastStatus(String barcode, DeliveryCompany deliveryCompany) throws IOException {
+        String url = apiUrl + "getstatut_uptated/" +barcode + "?token=" + deliveryCompany.getToken();
+        LOGGER.debug("Getting last status for barcode: {}",barcode);
         LOGGER.debug("Request URL: {}", url);
         return executeHttpRequest(url, null, deliveryCompany, HttpMethod.GET);
     }
@@ -118,7 +118,7 @@ public class JaxApiService extends DeliveryCompanyService {
         deliveryResponse = mapper.readValue(response.toString(), DeliveryResponseJax.class);
         deliveryResponse.setResponseCode(responseCode);
         deliveryResponse.setResponseMessage(responseMessage);
-        deliveryResponse.setBarCode(deliveryResponse.getBarCode());
+        deliveryResponse.setBarcode(deliveryResponse.getBarcode());
         deliveryResponse.setIsError(false);
         deliveryResponse.setState(deliveryResponse.getState());
         deliveryResponse.setStatus(responseCode);
