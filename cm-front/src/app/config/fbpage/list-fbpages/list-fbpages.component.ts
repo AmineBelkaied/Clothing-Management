@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from 'src/shared/services/fb-page.service';
@@ -17,6 +17,7 @@ export class ListFbpagesComponent implements OnInit,OnDestroy {
 
   constructor(
     private fbPageService: FbPageService,
+    private messageService: MessageService,
     private confirmationService: ConfirmationService) {
 
      }
@@ -36,17 +37,29 @@ export class ListFbpagesComponent implements OnInit,OnDestroy {
     this.fbPageService.editMode = true;
   }
 
-  deleteFbPage(fbPage: any)  {
-    this.confirmationService.confirm({
-      message: 'Êtes-vous sûr de vouloir supprimer la page facebook séléctionnée ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        /*this.fbPageService.deleteFbPageById(fbPage.id).pipe(takeUntil(this.$unsubscribe))
-          .subscribe(() => {
-            this.fbPages = this.fbPages.filter(val => val.id !== fbPage.id);
-            this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page faecbook a été supprimée avec succés", life: 1000 });
-          })*/
+  deleteFbPage(fbPage: FbPage)  {
+    this.fbPageService.checkFbPageUsage(fbPage.id!)
+    .subscribe((fbPageUsage: any) => {
+      if(fbPageUsage > 0) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Attention !',
+          detail:`La page facebook ne peut pas être supprimée car elle est utilisée au niveau des commandes ${fbPageUsage} fois` ,
+          life: 5000,
+        });
+      } else {
+        this.confirmationService.confirm({
+          message: 'Êtes-vous sûr de vouloir supprimer la page facebook séléctionnée ?',
+          header: 'Confirmation',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            this.fbPageService.deleteFbPageById(fbPage.id).pipe(takeUntil(this.$unsubscribe))
+              .subscribe(() => {
+                this.fbPages = this.fbPages.filter(val => val.id !== fbPage.id);
+                this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La page facebook a été supprimée avec succés", life: 1000 });
+              })
+          }
+        });
       }
     });
   }

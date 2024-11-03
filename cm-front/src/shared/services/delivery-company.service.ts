@@ -52,6 +52,10 @@ export class DeliveryCompanyService {
   }
 
 
+  checkDeliveryCompanyUsage(deliveryCompanyId: number) {
+    return this.http.get(`${this.baseUrl}${DELIVERY_COMPANY_ENDPOINTS.CHECK_DELIVERY_COMPANY_USAGE}/${deliveryCompanyId}`);
+  }
+
   addDeliveryCompany(deliveryCompany: DeliveryCompany) {
     return this.http.post(`${this.baseUrl}`, deliveryCompany , {observe: 'body'});
   }

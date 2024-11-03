@@ -6,6 +6,7 @@ import { catchError } from 'rxjs/operators';
 import { StorageService } from '../services/strorage.service';
 import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
+import { environment } from 'src/environments/environment';
 
 // const TOKEN_HEADER_KEY = 'Authorization';  // for Spring Boot back-end
 // const TOKEN_HEADER_KEY = 'x-access-token';    // for Node.js Express back-end
@@ -25,7 +26,7 @@ export class AuthInterceptor implements HttpInterceptor {
     if (token) {
       return next.handle(cloned).pipe(
         catchError((error: HttpErrorResponse) => {
-          if (!navigator.onLine) {
+          if (!navigator.onLine && environment.production) {
             // alert('You are offline. Please check your network connection.');
              this.confirmationService.confirm({
                message: "Problème de connexion. Veuillez vérifier votre connexion svp !",
