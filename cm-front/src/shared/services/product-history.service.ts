@@ -37,8 +37,10 @@ export class ProductHistoryService {
     return this.http.get(`${this.baseUrl}${PRODUCT_HISTORY_ENDPOINTS.BY_MODEL}/${modelId}`, { params });
   }
 
-  findAll(modelId: any, colorSize?: string, beginDate?: any, endDate?: any): Observable<any> {
+  findAll(modelId: any, page:number, colorSize?: string, beginDate?: any, endDate?: any): Observable<any> {
     let params = new HttpParams();
+    if(page>0)
+    params = params.set('page', page);
 
     if (colorSize) {
       params = params.set('colorSize', colorSize);

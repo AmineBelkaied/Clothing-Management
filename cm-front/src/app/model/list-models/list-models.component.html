@@ -76,26 +76,48 @@
                     </ng-template>
                 </td>
                 <td>
-                    <ng-container *ngIf="!model.deleted;else rollBackButton">
-                        <button pButton pRipple icon="pi pi-pencil"
-                            class="p-button-rounded p-button-warning mr-2 buttonSize"
-                            (click)="editModel(model)"></button>
-                        <button pButton pRipple icon="pi pi-trash"
-                            class="p-button-rounded  p-button-danger mr-2 buttonSize"
-                            (click)="deleteModel(model)"></button>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- Eye Icon to open dialog -->
+                    <i class="pi pi-eye" style="cursor: pointer; font-size: 1.5em;" (click)="openStockTable(model)"></i>
+
+                    <!-- Conditional Buttons for Edit and Delete, or Rollback -->
+                    <ng-container *ngIf="!model.deleted; else rollBackButton">
+                      <button pButton pRipple icon="pi pi-pencil"
+                          class="p-button-rounded p-button-warning buttonSize"
+                          (click)="editModel(model)">
+                      </button>
+                      <button pButton pRipple icon="pi pi-trash"
+                          class="p-button-rounded p-button-danger buttonSize"
+                          (click)="deleteModel(model)">
+                      </button>
                     </ng-container>
+
+                    <!-- Rollback Button -->
                     <ng-template #rollBackButton>
-                        <button pButton pRipple icon="pi pi-undo"
-                            class="p-button-rounded  p-button-primary ml-2 buttonSize"
-                            (click)="rollBackModel(model)"></button>
+                      <button pButton pRipple icon="pi pi-undo"
+                          class="p-button-rounded p-button-primary buttonSize"
+                          (click)="rollBackModel(model)">
+                      </button>
                     </ng-template>
-                    <!--                     
-                    <button pButton pRipple icon="pi pi-table" class="p-button-rounded p-button-success mr-2 buttonSize" [routerLink]="['/stock', model.id]"></button> -->
+                  </div>
                 </td>
+
             </tr>
         </ng-template>
     </p-table>
 </div>
+
+
+<!-- Button to open the Stock Table component -->
+
+
+<!-- Conditionally display StockTableMinComponent -->
+
+<p-dialog [(visible)]="showStockDialog" modal="true" [closable]="true" [header]="selectedModel.name" (onHide)="closeStockDialog()">
+  <ng-container *ngIf="showStockDialog">
+    <app-stock-table-min [selectedModel]="selectedModel"></app-stock-table-min>
+  </ng-container>
+</p-dialog>
 
 <p-dialog [(visible)]="modelDialog" [style]="{width: '60%'}" header="Détails du modèle" [modal]="true"
     styleClass="p-fluid">

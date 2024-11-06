@@ -125,16 +125,24 @@ public class ProductServiceImpl implements ProductService {
 
         modelRepository.findById(modelId).ifPresent((Model model) -> {
             // 1. Sort Sizes for the Model
+
             List<Product> listProducts = model.getProducts();
+            List<Size> sizes = model.getSizes();
             List<Long> orderedSizes = sortSizes(
                     model.getSizes().stream()
-                            .filter(Objects::nonNull)
+                            .filter(size-> {
+                                return Objects.nonNull(size)
+                                        && sizes.contains(size);
+                            })
                             .collect(Collectors.toSet())
             );
-
+            List<Color> colors = model.getColors();
             // Group products by color
             Map<Color, List<Product>> groupedProductsByColor = listProducts.stream()
-                    .filter(product -> Objects.nonNull(product.getColor()) && Objects.nonNull(product.getSize()))
+                    .filter(product ->
+                            Objects.nonNull(product.getColor())
+                            && Objects.nonNull(product.getSize())
+                            && colors.contains(product.getColor()))
                     .collect(groupingBy(Product::getColor));
 
             // 2. Fetch and Group Products by Color
@@ -142,16 +150,16 @@ public class ProductServiceImpl implements ProductService {
 
             // 3. Process Each Group of Products by Color
             groupedProductsByColor.forEach((color, products) -> {
-                //LOGGER.info("Processing products for color: {}", color.getId());
-                List<SoldProductsDayCountDTO> productsDayCountDTOByColor = productsDayCountDTO.stream()
-                        .filter(productDayCountDTO -> productDayCountDTO.getColor().equals(color.getId()))
-                        .collect(Collectors.toList());
-                List<SoldProductsDayCountDTO> sortedProducts = sortSoldProductsDayCountDTOBySize(productsDayCountDTOByColor, products, orderedSizes);
-                HashMap<Long, SoldProductsDayCountDTO> productsBySize = new HashMap<>();
-                for (SoldProductsDayCountDTO soldProduct : sortedProducts) {
-                    productsBySize.put(soldProduct.getSize(), soldProduct);
-                }
-                productsByColor.put(color.getId(), productsBySize);
+                    //LOGGER.info("Processing products for color: {}", color.getId());
+                    List<SoldProductsDayCountDTO> productsDayCountDTOByColor = productsDayCountDTO.stream()
+                            .filter(productDayCountDTO -> productDayCountDTO.getColor().equals(color.getId()))
+                            .collect(Collectors.toList());
+                    List<SoldProductsDayCountDTO> sortedProducts = sortSoldProductsDayCountDTOBySize(productsDayCountDTOByColor, products, orderedSizes);
+                    HashMap<Long, SoldProductsDayCountDTO> productsBySize = new HashMap<>();
+                    for (SoldProductsDayCountDTO soldProduct : sortedProducts) {
+                        productsBySize.put(soldProduct.getSize(), soldProduct);
+                    }
+                    productsByColor.put(color.getId(), productsBySize);
             });
 
             model.setColors(model.getColors().stream()

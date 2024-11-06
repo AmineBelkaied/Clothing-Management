@@ -34,7 +34,7 @@ export class StockComponent implements OnInit, OnDestroy {
   filteredModels = this.models;
   filterQuery: string = '';
 
-  selectedModel: Model = {
+  selectedModel: Model; /* = {
     id: 0,
     name: '',
     colors: [],
@@ -44,7 +44,7 @@ export class StockComponent implements OnInit, OnDestroy {
     earningCoefficient: 1,
     deleted: false,
     enabled: false
-  };
+  }; */
 
 
   isMultiple = false;
@@ -155,7 +155,6 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   selectModel(model: Model): void {
-    console.log("selectModel",model);
     this.selectedModel = model;
     this.modelId = model.id!;
     this.modelName = this.selectedModel.name!;
@@ -177,12 +176,12 @@ export class StockComponent implements OnInit, OnDestroy {
         tap((models: Model[]) => {
           if (models && models.length > 0) {
             this.models = models.filter((model: Model) => model.enabled);
-            let modelsLength = this.models.length - 1;
+            //let modelsLength = this.models.length - 1;
             this.filteredModels = this.models;
             this.selectModel(this.models[0]);
-          } /* else {
+          } else {
             console.warn('No models available.');
-          } */
+          }
         })
       )
       .subscribe({
@@ -202,7 +201,6 @@ export class StockComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.$unsubscribe))
         .subscribe({
           next: (response: any) => {
-            console.log('getStatModelSold', response);
             this.colors = response.colors;
             this.createChart(response, option);
           },
@@ -223,7 +221,6 @@ export class StockComponent implements OnInit, OnDestroy {
       chartList = data.sizes;
       chartCounts = data.sizesCount;
     } else if (option == 'Id') {
-      //console.log('data',data);
       chartList = data.productRefs;
       chartCounts = data.productsCount;
     } else {
@@ -366,13 +363,11 @@ export class StockComponent implements OnInit, OnDestroy {
       newLast.getDate() == this.today.getDate() &&
       newLast.getMonth() == this.today.getMonth()
     ) {
-      console.log('max');
       return;
     }
 
     // Subtract the range in days
     newFirst.setDate(newFirst.getDate() + this.range);
-    console.log('newFirst1', newFirst);
 
     newLast.setDate(newLast.getDate() + this.range);
     this.rangeDates = [newFirst, newLast];
@@ -385,12 +380,9 @@ export class StockComponent implements OnInit, OnDestroy {
     const newFirst = new Date(this.rangeDates[0]);
     const newLast =
       this.rangeDates[1] == undefined ? newFirst : new Date(this.rangeDates[1]);
-    console.log('newFirst0', newFirst);
 
     // Subtract the range in days
     newFirst.setDate(newFirst.getDate() - this.range);
-    console.log('newFirst1', newFirst);
-
     newLast.setDate(newLast.getDate() - this.range);
     this.rangeDates = [newFirst, newLast];
 

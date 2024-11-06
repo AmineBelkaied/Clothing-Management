@@ -41,7 +41,7 @@ public class ProductHistoryController {
                 modelId, beginDate, endDate, colorSize, page, size);
         try {
             Page<ProductHistoryDTO> pageProductHistory = productHistoryService.findAllProductsHistory(
-                    modelId, page, size, colorSize, beginDate, endDate);
+                    modelId, page, size, colorSize);
             ResponsePage responsePage = new ResponsePage.Builder()
                     .result(pageProductHistory.getContent())
                     .currentPage(pageProductHistory.getNumber())
@@ -110,7 +110,9 @@ public class ProductHistoryController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteProductHistory(@RequestBody ProductHistory productHistory) {
+    public ResponseEntity<Void> deleteProductHistory(
+            @RequestBody ProductHistory productHistory,
+            @RequestParam(required = false) String colorSize) {
         LOGGER.info("Deleting product history: {}", productHistory);
         try {
             productHistoryService.deleteProductHistory(productHistory);
@@ -124,14 +126,15 @@ public class ProductHistoryController {
 
     @PostMapping("/batch-delete/{modelId}")
     public ResponseEntity<ResponsePage> deleteProductHistories(
-            @RequestBody List<ProductHistory> productHistories,
+            @RequestBody List<ProductHistoryDTO> productHistories,
             @PathVariable("modelId") Long modelId,
+            @RequestParam(required = false) String colorSize,
             @RequestParam(defaultValue = "0") int page
     ) {
         LOGGER.info("Deleting batch of product histories for modelId: {}: {}", modelId, productHistories);
         try {
             Page<ProductHistoryDTO> pageProductHistory = productHistoryService.deleteProductsHistory(
-                    productHistories, modelId, page);
+                    productHistories, modelId,colorSize, page);
             ResponsePage responsePage = new ResponsePage.Builder()
                     .result(pageProductHistory.getContent())
                     .currentPage(pageProductHistory.getNumber())

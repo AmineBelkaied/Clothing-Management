@@ -76,3 +76,8 @@ table.table-bordered tr:hover {
 td button {
   margin: 0.2rem; /* Adds spacing between buttons */
 }
+::ng-deep .custom-dialog {
+  max-height: 85vh; /* Adjust as needed */
+  width: 60vw; /* Adjust width as needed */
+}
+

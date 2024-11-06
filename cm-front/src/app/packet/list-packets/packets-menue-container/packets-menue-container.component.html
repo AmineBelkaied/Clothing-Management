@@ -28,8 +28,8 @@
             [touchUI]="true">
             <ng-template pTemplate="footer">
               <div style="display: flex; align-items: center">
-                <p-selectButton [options]="dateOptions" [(ngModel)]="mandatoryDateCheckBox" optionLabel="label"
-                  optionValue="value" (click)="mandatoryDateChange()"></p-selectButton>
+                <p-inputSwitch [(ngModel)]="mandatoryDateCheckBox" optionLabel="label"
+                  optionValue="value" (click)="mandatoryDateChange()"></p-inputSwitch><p>Obligatoire</p>
                 <p-button label="Ancien Date" styleClass="p-button-text" (click)="oldDateFilter()"></p-button>
                 <p-button label="Today" styleClass="p-button-text" (click)="todayDate()"></p-button>
                 <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
@@ -41,15 +41,11 @@
 
         <!-- Middle section -->
         <div class="middle-section flex align-items-center">
-
-          <!--           <button pButton icon="pi pi-file" class="ml-2" pTooltip="CSV" tooltipPosition="bottom"></button> -->
         </div>
 
         <!-- Right section -->
         <div class="right-section justify-content-end">
           <app-status-container [params]="params" (statusChange)="onStatusChange($event)"></app-status-container>
-          <!--           <p-button [label]="statusItemsLabel" (onClick)="toggleStatus()" severity="success" [style]="{'min-width': '180px'}"></p-button> -->
-
         </div>
       </div>
 

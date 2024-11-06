@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface SizeService {
 
     List<Size> findAllSizes();
-    Optional<Size> findSizeById(Long idSize);
+    Size findSizeById(Long idSize);
     Optional<Size> findSizeByReference(String reference);
     Size addSize(Size size) throws Exception;
     Size updateSize(Size size) throws Exception;

@@ -2,7 +2,6 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
-  input,
   Input,
   OnInit,
   Output,
@@ -11,14 +10,12 @@ import {
   AbstractControl,
   FormArray,
   FormBuilder,
-  FormControl,
   FormGroup,
 } from '@angular/forms';
 import { Model } from 'src/shared/models/Model';
 import { PacketService } from '../../../shared/services/packet.service';
 import { ProductsPacket } from 'src/shared/models/ProductsPacket';
 import { Color } from 'src/shared/models/Color';
-import { Size } from 'src/shared/models/Size';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { OOS, NOT_CONFIRMED } from 'src/shared/utils/status-list';
 import { Offer } from 'src/shared/models/Offer';
@@ -32,6 +29,7 @@ import { ColorService } from 'src/shared/services/color.service';
 import { SizeService } from 'src/shared/services/size.service';
 import { FbPage } from 'src/shared/models/FbPage';
 import { FbPageService } from 'src/shared/services/fb-page.service';
+import { ModelService } from 'src/shared/services/model.service';
 
 @Component({
   selector: 'app-add-packet',
@@ -66,6 +64,20 @@ export class AddPacketComponent implements OnInit {
   allOffersListEnabled: Offer[];
   //productsList: ProductResponse[];
   modelIds: number[]=[];
+
+  showStockDialog: boolean = false;
+  selectedModel: Model= {
+    id: 0, // Or any default value
+    name: '',
+    description: '',
+    colors: [] = [],
+    sizes: [] = [],
+    products: [] = [],
+    earningCoefficient: 2,
+    purchasePrice: 15,
+    deleted: false,
+    enabled: false
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -182,9 +194,7 @@ export class AddPacketComponent implements OnInit {
 
 
   setOfferModelsValues(offerIndex: number, offer: Offer): void {
-
     this.setOfferControlValues(this.offers().at(offerIndex), offer);
-
     for (let i = 0; i < offer.offerModels.length; i++) {
       let selectedModel: Model = offer.offerModels[i].model;
       for (let j = 0; j < offer.offerModels[i].quantity; j++) {
@@ -232,24 +242,17 @@ export class AddPacketComponent implements OnInit {
     return this.productService.loadProductsByModels(this.modelIds);
   }
 
-  colorSizeChange(
-    selectedModel: AbstractControl,
-    modelIndex: number,
-    selectedOffer: AbstractControl
-  ): void {
-    // Find the offer by matching the name
-    let offer: Offer | undefined = this.allOffersList.find(
-      (offer) => offer.name === selectedOffer.get('name')?.value
-    );
-
-    if (!offer) {
-      console.warn('Offer not found.');
-      return;
-    }
-
+  getModelFromOffer(modelIndex: number,selectedOffer: AbstractControl):Model | undefined{
     let pos = 0;
     let model: Model | undefined;
 
+    let offer: Offer | undefined = this.allOffersList.find(
+      (offer) => offer.name === selectedOffer.get('name')?.value
+    );
+    if (!offer) {
+      console.warn('Offer not found.');
+      return undefined;
+    }
     // Loop through the offer models to find the correct model
     for (let i = 0; i < offer.offerModels.length; i++) {
       for (let j = 0; j < offer.offerModels[i].quantity; j++) {
@@ -261,7 +264,15 @@ export class AddPacketComponent implements OnInit {
       }
       if (model) break; // Exit the outer loop if model is found
     }
-
+    return model
+  }
+  colorSizeChange(
+    selectedModel: AbstractControl,
+    modelIndex: number,
+    selectedOffer: AbstractControl
+  ): void {
+    // Find the offer by matching the name
+    let model: Model | undefined = this.getModelFromOffer(modelIndex,selectedOffer);
     // Log for debugging
     if (!model) {
       console.warn('Model is undefined, skipping product selection.');
@@ -536,6 +547,7 @@ export class AddPacketComponent implements OnInit {
     }
 
     const formControls = {
+        id: [model.id],
         name: [model.name],
         colors: colors,
         sizes: sizes,
@@ -570,11 +582,6 @@ export class AddPacketComponent implements OnInit {
     return this.fb.array(this.sizeService.getSizesByIds(sizeIds));
   }
 
-  private getFbPages(fbPageIds: number[]): FbPage[] {
-    return this.fbPageService.getFbPagesByIds(fbPageIds);
-  }
-
-
   addProductToPacketDescription(
     modelName: any,
     color?: String,
@@ -605,6 +612,18 @@ export class AddPacketComponent implements OnInit {
 
   enableFake() {
     this.enableFakeSize = !this.enableFakeSize;
+  }
+
+  openStockTable(modelIndex: number,selectedOffer: AbstractControl) {
+    let model :Model | undefined = this.getModelFromOffer(modelIndex,selectedOffer)
+    console.log("model",model);
+    this.selectedModel = model!;
+    this.showStockDialog = true;
+
+  }
+
+  closeStockDialog() {
+    this.showStockDialog = false;
   }
 
   ngOnDestroy(): void {

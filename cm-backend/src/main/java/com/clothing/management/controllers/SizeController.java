@@ -42,14 +42,8 @@ public class SizeController {
     public ResponseEntity<Size> getSizeById(@PathVariable Long id) {
         LOGGER.info("Fetching size with id: {}", id);
         try {
-            Optional<Size> size = sizeService.findSizeById(id);
-            if (size.isPresent()) {
-                LOGGER.info("Successfully fetched size: {}", size.get());
-                return ResponseEntity.ok(size.get());
-            } else {
-                LOGGER.warn("Size with id {} not found", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
+            Size size = sizeService.findSizeById(id);
+            return ResponseEntity.ok(size);
         } catch (Exception e) {
             LOGGER.error("Error fetching size with id {}: ", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
