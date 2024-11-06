@@ -11,16 +11,15 @@ export class StockHistoryComponent implements OnInit {
   @Input()
   productsHistory: any;
 
-  @Input()
-  modelId!: number;
+  @Input() modelId!: number;
 
   rangeDates: Date[] = [];
   searchField: string = "";
   selectedProductsHistory: any[] = [];
   currentPage: number = 0;
 
-  @Output()
-  deleteProductsHistoryEvent: EventEmitter<any> = new EventEmitter();
+  @Output() deleteProductsHistoryEvent: EventEmitter<any> = new EventEmitter();
+  @Output() currentPageChange: EventEmitter<any> = new EventEmitter();
 
   constructor(private productHistoryService: ProductHistoryService) { }
 
@@ -28,23 +27,8 @@ export class StockHistoryComponent implements OnInit {
 
   onPageChange($event: any): void {
     this.currentPage = $event.page;
-    this.loadProductsHistory($event.page, $event.rows);
-  }
-
-  loadProductsHistory(page: number, rows: number): void {
-    const beginDate = this.convertDateToString(this.rangeDates[0]);
-    const endDate = this.convertDateToString(this.rangeDates[1]);
-
-    this.productHistoryService.findAllProductsHistory(
-      this.modelId,
-      page,
-      rows,
-      this.searchField,
-      beginDate,
-      endDate
-    ).subscribe((result: any) => {
-      this.productsHistory = result;
-    });
+    this.currentPageChange.emit($event.page);
+    //this.loadProductsHistory($event.page, $event.rows);
   }
 
   displayQuantity(quantity: number): string {

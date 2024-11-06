@@ -16,6 +16,19 @@ import { StringUtils } from 'src/shared/utils/string-utils';
 export class ListModelsComponent implements OnInit, OnDestroy {
   modelDialog!: boolean;
   msg: String = 'Erreur de connexion';
+  showStockDialog: boolean = false;
+  selectedModel: Model = {
+    id: 0, // Or any default value
+    name: '',
+    description: '',
+    colors: [] = [],
+    sizes: [] = [],
+    products: [] = [],
+    earningCoefficient: 2,
+    purchasePrice: 15,
+    deleted: false,
+    enabled: false
+  }
 
   models: Model[] = [];
 
@@ -129,34 +142,6 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     this.editMode = false;
     this.model = this.modelService.defaultModel;
   }
-  /* 
-    deleteSelectedModels() {
-      let selectedModelsId = this.selectedModels.map(
-        (selectedModel: any) => selectedModel.id
-      );
-      this.confirmationService.confirm({
-        message: 'Êtes-vous sûr de vouloir supprimer les modèles séléctionnés ?',
-        header: 'Confirmation',
-        icon: 'pi pi-exclamation-triangle',
-        accept: () => {
-          this.modelService
-            .deleteModelById(selectedModelsId[0])
-            .pipe(takeUntil(this.$unsubscribe))
-            .subscribe(() => {
-              this.models = this.models.filter(
-                (val) => !this.selectedModels.includes(val)
-              );
-              this.selectedModels = [];
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Succés',
-                detail: 'Les modèles séléctionnés ont été supprimé avec succés',
-                life: 1000,
-              });
-            });
-        },
-      });
-    } */
 
   editModel(model: Model) {
     this.model = { ...model };
@@ -197,7 +182,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
         });
       });
   }
-  
+
   rollBackModel(model: Model) {
     this.confirmationService.confirm({
       message: 'Etes-vous sûr de bien vouloir restaurer ce modèle?',
@@ -223,9 +208,9 @@ export class ListModelsComponent implements OnInit, OnDestroy {
 
   private getModelConfirmationMessage(modelDeleteDTO: ModelDeleteDTO, modelName: string) {
     const offersList = modelDeleteDTO.usedOffersNames.join(', ');
-    return modelDeleteDTO.usedOffersCount ? `<p>Le modèle <strong>${modelName}</strong> est utilisé 
+    return modelDeleteDTO.usedOffersCount ? `<p>Le modèle <strong>${modelName}</strong> est utilisé
                   <strong style="color: red;">${modelDeleteDTO.usedOffersCount} fois</strong> au niveau des commandes.</p>
-                  <p>Les offres qui utilisent ce modèle sont : 
+                  <p>Les offres qui utilisent ce modèle sont :
                   <strong style="color: blue;">${offersList}</strong></p>
                   <p style="font-weight: bold; margin-top: 10px;">Etes-vous sûr de bien vouloir archiver le modèle et les offres associés ?</p>` :
 
@@ -270,7 +255,14 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     }
     return index;
   }
+  openStockTable(model: any) {
+    this.selectedModel = model;
+    this.showStockDialog = true;
+  }
 
+  closeStockDialog() {
+    this.showStockDialog = false;
+  }
   ngOnDestroy(): void {
     this.$unsubscribe.next();
     this.$unsubscribe.complete();

@@ -2,6 +2,7 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.dto.ModelDeleteDTO;
 import com.clothing.management.entities.Color;
+import com.clothing.management.exceptions.custom.notfound.PacketNotFoundException;
 import com.clothing.management.services.ColorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +37,11 @@ public class ColorController {
     @GetMapping("/{id}")
     public ResponseEntity<Color> getColorById(@PathVariable Long id) {
         LOGGER.info("Fetching color with ID: {}", id);
-        Optional<Color> color = colorService.findColorById(id);
-        return color.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> {
-                    LOGGER.warn("Color with ID {} not found.", id);
-                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                });
+        Color color = colorService.findColorById(id).orElseThrow(() -> {
+            LOGGER.error("Color with ID: {} not found", id);
+            return new PacketNotFoundException(id, "Packet not found!");
+        });;
+        return new ResponseEntity<>(color, HttpStatus.OK);
     }
 
     @PostMapping

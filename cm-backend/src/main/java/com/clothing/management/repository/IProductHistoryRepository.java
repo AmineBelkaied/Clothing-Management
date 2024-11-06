@@ -19,6 +19,7 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
 
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductHistoryDTO("
             + "pr.id, "
+            + "pr.product.id, "
             + "CONCAT(pr.product.color.name, ' ', pr.product.size.reference), "
             + "pr.model.id, "
             + "pr.quantity, "
@@ -27,10 +28,11 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
             + "pr.comment) "
             + "FROM ProductHistory pr "
             + "WHERE pr.model.id = :modelId")
-    public Page<ProductHistoryDTO> findAll(@Param("modelId") Long modelId, Pageable pageable);
+    Page<ProductHistoryDTO> findAll(@Param("modelId") Long modelId, Pageable pageable);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductHistoryDTO("
             + "pr.id, "
+            + "pr.product.id, "
             + "CONCAT(pr.product.color.name, ' ', pr.product.size.reference), "
             + "pr.model.id, "
             + "pr.quantity, "
@@ -41,7 +43,7 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
             + "WHERE pr.model.id = :modelId "
             + "AND DATE(pr.lastModificationDate) >= DATE(:beginDate) "
             + "AND DATE(pr.lastModificationDate) <= DATE(:endDate)")
-    public Page<ProductHistoryDTO> findAllByDateRange(
+    Page<ProductHistoryDTO> findAllByDateRange(
             @Param("modelId") Long modelId,
             @Param("beginDate") Date beginDate,
             @Param("endDate") Date endDate,
@@ -49,6 +51,7 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
 
     @Query(value = "SELECT NEW com.clothing.management.dto.ProductHistoryDTO("
             + "pr.id, "
+            + "pr.product.id, "
             + "CONCAT(pr.product.color.name, ' ', pr.product.size.reference), "
             + "pr.model.id, "
             + "pr.quantity, "
@@ -56,6 +59,9 @@ public interface IProductHistoryRepository extends JpaRepository<ProductHistory,
             + "pr.user,"
             + "pr.comment) "
             + "FROM ProductHistory pr "
-            + "WHERE pr.model.id = :modelId AND CONCAT(pr.product.color.name, ' ', pr.product.size.reference) LIKE %:reference%")
-    public Page<ProductHistoryDTO> findAllByReference(@Param("modelId") Long modelId, @Param("reference") String reference, Pageable pageable);
+            + "WHERE pr.model.id = :modelId "
+            + "AND (pr.user.userName LIKE %:reference% "
+            + "OR CONCAT(pr.product.color.name,' ', pr.product.size.reference) LIKE %:reference%)")
+    Page<ProductHistoryDTO> findAllByReference(@Param("modelId") Long modelId, @Param("reference") String reference, Pageable pageable);
+
 }

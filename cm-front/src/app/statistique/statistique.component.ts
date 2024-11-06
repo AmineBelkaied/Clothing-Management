@@ -128,11 +128,12 @@ export class StatistiqueComponent implements OnInit {
   filtredCitysCount: any;
   packetsTableData: any;
   dates: any[];
-  enablerOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
-  progressOptions : any[] = [{label: 'Off', value: false}, {label: 'On', value: true}];
   deliveryCompanyName : string = "ALL";
   deliveryCompanyList: DeliveryCompany[] = [];
   stockValueTableData: any;
+  totalModel: any;
+  totalOffer: any;
+  totalStock: any;
 
   constructor(
     private packetService: PacketService,
@@ -297,7 +298,8 @@ export class StatistiqueComponent implements OnInit {
         next: (response: any) => {
           console.log('statValueStock', response);
           this.stockValueTableData = response;
-          //this.createStockChart(response);
+          this.totalStock = this.stockValueTableData[this.stockValueTableData.length - 1];
+          this.stockValueTableData.pop();
         },
         error: (error: any) => {
           console.log('ErrorStockCount:', error);
@@ -362,9 +364,6 @@ export class StatistiqueComponent implements OnInit {
   }
 
   getStatAllColorsChart() {
-    /*const modelsListIdsArray: number[] = this.selectedModels.value.flatMap(
-      (obj: any) => obj.id
-    );*/
     if(this.endDateString)
     this.statsService
       .statAllColors(
@@ -406,7 +405,8 @@ export class StatistiqueComponent implements OnInit {
       });
       i++;
     });
-
+    this.totalModel = this.modelTableData[this.modelTableData.length - 1];
+    this.modelTableData.pop();
     this.modelsData = {
       labels: this.dates,
       datasets: this.modelsDataSetArray,
@@ -616,6 +616,8 @@ export class StatistiqueComponent implements OnInit {
       });
       k++;
     });
+    this.totalOffer = this.offerTableData[this.offerTableData.length - 1];
+    this.offerTableData.pop();
 
     this.offersData = {
       labels: this.dates,

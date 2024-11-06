@@ -637,7 +637,7 @@ public class StatServiceImpl implements StatService {
         finalizeRecapStats(progressRecap, datesSize, allRecap.getPayed()); // No percentage for progressRecap
 
         LOGGER.debug("Status recap count created successfully.");
-        return Arrays.asList(exchangeRecap, returnRecap, payedRecap, outRecap, progressRecap, oosRecap, allRecap);
+        return Arrays.asList(exchangeRecap, returnRecap, progressRecap, payedRecap, outRecap, oosRecap, allRecap);
     }
 
     // For packets chart
@@ -871,7 +871,7 @@ public class StatServiceImpl implements StatService {
                 int count = 0;
                 for (ProductDayCountDTO product : existingProductsPacket) {
                     if (product.getDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId())) {
-                        count += (int) product.getCountPayed();
+                        count += (int) (product.getCountPayed()+ product.getCountProgress());
                     }
                 }
                 countColorsList.add(count);
@@ -894,7 +894,7 @@ public class StatServiceImpl implements StatService {
                 int count = 0;
                 for (ProductDayCountDTO product : existingProductsPacket) {
                     if (product.getDate().equals(uniqueDate) && product.getSize().getId().equals(uniqueSize.getId())) {
-                        count += (int) product.getCountPayed();
+                        count += (int) (product.getCountPayed()+product.getCountProgress());
                     }
                 }
                 countSizesList.add(count);

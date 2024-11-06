@@ -56,7 +56,7 @@
                 <td *ngIf ="!globalConf.oneSourceApp">{{ offer.fbPages | displayFbPage | displayJoin : '-'}}</td>
                 <td>{{offer.price}} DT</td>
                 <td>
-                    <ng-container *ngIf="offer.isEnabled;else disabled">
+                    <ng-container *ngIf="offer.enabled;else disabled">
                         <i class="pi pi-unlock" style="color: green;font-size: 17px;"></i>
                     </ng-container>
                     <ng-template #disabled>

@@ -62,12 +62,11 @@
             (onOptionClick)="getStatAllPacketsChart()"/>
         </div>
         <div>
-          <p-selectButton
-          [options]="enablerOptions"
+          <p-inputSwitch
           [(ngModel)]="packetsChartEnabler"
           optionLabel="label"
           optionValue="value"
-          (click)="packetsChartEnablerChange()"></p-selectButton>
+          (click)="packetsChartEnablerChange()"></p-inputSwitch>
         </div>
       </div>
       <p-tabView *ngIf="packetsChartEnabler">
@@ -75,7 +74,7 @@
           <p-table [value]="packetsTableData" styleClass="p-datatable-sm">
             <ng-template pTemplate="header">
               <tr>
-                <th>Model</th>
+                <th>Etat</th>
                 <th>Min-Max</th>
                 <th>Average</th>
                 <th>Sum</th>
@@ -110,10 +109,11 @@
       </div>
       <div>
         inclure en cours à la somme
-        <p-selectButton [options]="progressOptions"  [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
+        <p-inputSwitch [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-inputSwitch>
       </div>
       <div>
-        <p-selectButton [options]="enablerOptions" [(ngModel)]="modelsChartEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()"></p-selectButton>
+        <p-inputSwitch  [(ngModel)]="modelsChartEnabler" optionLabel="label" optionValue="value" (click)="modelsChartEnablerChange()">
+        </p-inputSwitch>
       </div>
     </div>
 
@@ -174,7 +174,9 @@
 
       </p-tabPanel>
       <p-tabPanel header="Table">
-        <p-table class="table" [value]="modelTableData" >
+        <p-table class="table" [value]="modelTableData"
+            sortField="profits" [sortOrder]="-1"
+            [scrollable]="true" scrollHeight="400px" >
           <ng-template pTemplate="header">
             <tr>
               <th>Model</th>
@@ -203,6 +205,20 @@
               <td>{{ item.profits | number:'1.0-0' }}</td>
             </tr>
           </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td>{{ totalModel.name }}</td>
+              <td>{{ totalModel.min }}-{{ totalModel.max }}</td>
+              <td>{{ totalModel.avg }}</td>
+              <td>{{ totalModel.payed }}</td>
+              <td>{{ totalModel.progress }}</td>
+              <td>{{ totalModel.retour }}</td>
+              <td>{{ formatNumber(totalModel) }}%</td>
+              <td>{{ totalModel.purchasePrice | number:'1.0-0' }}</td>
+              <td>{{ totalModel.sellingPrice | number:'1.0-0' }}</td>
+              <td>{{ totalModel.profits | number:'1.0-0' }}</td>
+            </tr>
+          </ng-template>
         </p-table>
 
       </p-tabPanel>
@@ -223,13 +239,15 @@
         </div>
 
         <div>
-          <p-selectButton [options]="enablerOptions" [(ngModel)]="offersChartEnabler" optionLabel="label" optionValue="value" (click)="offersChartEnablerChange()"></p-selectButton>
+          <p-inputSwitch [(ngModel)]="offersChartEnabler" optionLabel="label" optionValue="value" (click)="offersChartEnablerChange()"></p-inputSwitch>
         </div>
       </div>
       <p-tabView *ngIf="offersChartEnabler">
 
         <p-tabPanel header="Table">
-          <p-table class="table" [value]="offerTableData">
+          <p-table class="table" [value]="offerTableData"
+              sortField="profits" [sortOrder]="-1"
+              [scrollable]="true" scrollHeight="400px" >
             <ng-template pTemplate="header">
               <tr>
                 <th>Model</th>
@@ -259,6 +277,21 @@
                   <td>{{ item.profits | number:'1.0-0' }}</td>
               </tr>
             </ng-template>
+            <ng-template pTemplate="footer">
+              <tr>
+                <td>{{ totalOffer.name }}</td>
+                <td>{{ totalOffer.min }}-{{ totalOffer.max }}</td>
+                <td>{{ totalOffer.avg }}</td>
+                <td>{{ totalOffer.payed }}</td>
+                <td>{{ totalOffer.progress }}</td>
+                <td>{{ totalOffer.retour }}</td>
+                <td>{{ formatNumber(totalOffer) }}%</td>
+                <!-- Condition for total row -->
+                  <td>{{ totalOffer.purchasePrice | number:'1.0-0' }}</td>
+                  <td>{{ totalOffer.sellingPrice | number:'1.0-0' }}</td>
+                  <td>{{ totalOffer.profits | number:'1.0-0' }}</td>
+              </tr>
+            </ng-template>
           </p-table>
         </p-tabPanel>
         <p-tabPanel header="Chart">
@@ -277,13 +310,15 @@
         <H3>Pages Chart</H3>
       </div>
       <div>
-        <p-selectButton [options]="enablerOptions" [(ngModel)]="pagesCountChartEnabler" optionLabel="label" optionValue="value" (click)="pagesCountChartEnablerChange()"></p-selectButton>
+        <p-inputSwitch [(ngModel)]="pagesCountChartEnabler" optionLabel="label" optionValue="value" (click)="pagesCountChartEnablerChange()"></p-inputSwitch>
       </div>
     </div>
 
     <p-tabView  *ngIf="pagesCountChartEnabler">
       <p-tabPanel header="Table">
-        <p-table class="table" [value]="pagesCountTableData" >
+        <p-table class="table" [value]="pagesCountTableData"
+              sortField="profits" [sortOrder]="-1"
+              [scrollable]="true" scrollHeight="400px" >
           <ng-template pTemplate="header">
             <tr>
               <th>Model</th>
@@ -331,11 +366,11 @@
           <H3>Colors Chart</H3>
         </div>
         <div>
-          <p-selectButton [options]="enablerOptions"
+          <p-inputSwitch
           [(ngModel)]="colorsChartEnabler"
           optionLabel="label"
           optionValue="value"
-          (click)="colorsChartEnablerChange()"></p-selectButton>
+          (click)="colorsChartEnablerChange()"></p-inputSwitch>
         </div>
       </div>
       <p-tabView *ngIf="colorsChartEnabler">
@@ -381,20 +416,19 @@
             <H3>Stock Chart</H3>
           </div>
           <div>
-            <p-selectButton
-            [options]="enablerOptions"
+            <p-inputSwitch
             [(ngModel)]="stockChartEnabler"
             optionLabel="label"
             optionValue="value"
             (click)="stockChartEnablerChange()">
-          </p-selectButton>
+          </p-inputSwitch>
           </div>
         </div>
 
         <p-tabView *ngIf="stockChartEnabler">
           <p-tabPanel header="Vue d'ensemble">
             <div class="flex justify-content-center mt-2 mb-2" style="background-color: #ffffff">
-              <ng-container *ngIf="stockValueTableData[stockValueTableData.length - 1] as totalValue">
+              <ng-container>
                 <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
                   style="cursor: pointer;"
                 >
@@ -402,7 +436,7 @@
                     <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
                     <span class="text-400 mt-1" style="color: black">Nombre d'articles</span>
                     <span class="mt-1">
-                      <p-badge [value]="totalValue.quantity" severity="info"></p-badge>
+                      <p-badge [value]="totalStock.quantity" severity="info"></p-badge>
                     </span>
                   </div>
                 </div>
@@ -413,7 +447,7 @@
                     <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
                     <span class="text-400 mt-1" style="color: black">Valeur stock</span>
                     <span class="mt-1">
-                      <p-badge [value]="totalValue.purshasePrice | number:'1.0-0'" severity="info"></p-badge>
+                      <p-badge [value]="totalStock.purshasePrice | number:'1.0-0'" severity="info"></p-badge>
                     </span>
                   </div>
                 </div>
@@ -424,7 +458,7 @@
                     <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
                     <span class="text-400 mt-1" style="color: black">Valeur de vente</span>
                     <span class="mt-1">
-                      <p-badge [value]="totalValue.sellingPrice | number:'1.0-0'" severity="info"></p-badge>
+                      <p-badge [value]="totalStock.sellingPrice | number:'1.0-0'" severity="info"></p-badge>
                     </span>
                   </div>
                 </div>
@@ -435,7 +469,7 @@
                     <!--<i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>-->
                     <span class="text-400 mt-1" style="color: black">Profis</span>
                     <span class="mt-1">
-                      <p-badge [value]="totalValue.profits | number:'1.0-0'" severity="info"></p-badge>
+                      <p-badge [value]="totalStock.profits | number:'1.0-0'" severity="info"></p-badge>
                     </span>
                   </div>
                 </div>
@@ -444,7 +478,9 @@
 
           </p-tabPanel>
           <p-tabPanel header="Table">
-            <p-table class="table" [value]="stockValueTableData" >
+            <p-table class="table" [value]="stockValueTableData"
+                      sortField="quantity" [sortOrder]="-1"
+                      [scrollable]="true" scrollHeight="400px" >
               <ng-template pTemplate="header">
                 <tr>
                   <th>Model</th>
@@ -461,6 +497,15 @@
                   <td>{{ item.purshasePrice | number:'1.0-0' }}</td>
                   <td>{{ item.sellingPrice | number:'1.0-0' }}</td>
                   <td>{{ item.profits | number:'1.0-0' }}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="footer">
+                <tr>
+                  <td>{{ totalStock.name }}</td>
+                  <td>{{ totalStock.quantity }}</td>
+                  <td>{{ totalStock.purshasePrice | number:'1.0-0' }}</td>
+                  <td>{{ totalStock.sellingPrice | number:'1.0-0' }}</td>
+                  <td>{{ totalStock.profits | number:'1.0-0' }}</td>
                 </tr>
               </ng-template>
             </p-table>
@@ -481,7 +526,7 @@
           <H3>Gouvernerat Chart</H3>
         </div>
         <div class="mb-3">
-          <p-selectButton [options]="enablerOptions" [(ngModel)]="statesChartEnabler" optionLabel="label" optionValue="value" (click)="statesChartEnablerChange()"></p-selectButton>
+          <p-inputSwitch [(ngModel)]="statesChartEnabler" optionLabel="label" optionValue="value" (click)="statesChartEnablerChange()"></p-inputSwitch>
         </div>
       </div>
       <p-tabView *ngIf="statesChartEnabler">

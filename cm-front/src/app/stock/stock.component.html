@@ -100,12 +100,12 @@
             <!-- Model List -->
             <div
               class="list-container"
-              style="overflow-y: auto; max-height: 50rem"
+              style="overflow-y: auto; max-height: 65vh"
             >
               <ul class="list-unstyled mb-0">
                 <li
                   *ngFor="let model of filteredModels"
-                  [class.selected]="model === selectedModel"
+                  [class.selected]="model.id === selectedModel.id"
                   class="model-item p-2 mb-2 rounded shadow-sm"
                   style="
                     cursor: pointer;
@@ -127,16 +127,12 @@
         </div>
       </div>
       <div class="col-md-9 d-flex flex-column">
-      <!-- Right Column: Product Table & History -->
-      <app-stock-table
-        [beginDateString]="beginDateString"
-        [endDateString]="endDateString"
-        [selectedModel]="selectedModel"
-        [datesCount]="datesCount">
-      </app-stock-table>
-      <app-stock-table-min
-        [selectedModel]="selectedModel">
-      </app-stock-table-min>
+        <app-stock-table
+          [beginDateString]="beginDateString"
+          [endDateString]="endDateString"
+          [selectedModel]="selectedModel"
+          [datesCount]="datesCount">
+        </app-stock-table>
       </div>
     </div>
   </div>
@@ -155,13 +151,12 @@
           ></p-selectButton>
         </div>
         <div>
-          <p-selectButton
-            [options]="chartEnablerOptions"
+          <p-inputSwitch
             [(ngModel)]="chartEnabler"
             optionLabel="label"
             optionValue="value"
             (click)="chartEnablerChange()"
-          ></p-selectButton>
+          ></p-inputSwitch>
         </div>
       </div>
       <p-card *ngIf="chartEnabler">

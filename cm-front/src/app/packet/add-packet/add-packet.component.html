@@ -81,16 +81,24 @@
                             [panelStyle]="{ width: '100px' }" [showClear]="true" placeholder="Choisir la taille">
                           </p-dropdown>
                         </td>
-                        <td><!-- ... Model Stock Box ... -->
-                          <ng-container class="d-flex flex-column align-items-center">
-                            <div class="text-center">
-                              <h6>Stock:</h6>
-                              <h5>{{ model.get('selectedProduct')?.value.qte }}</h5>
-                            </div>
-                          </ng-container>
+                        <td class="d-flex align-items-center justify-content-between">
+                          <!-- Model Stock Box -->
+                          <div class="d-flex flex-column align-items-center text-center mr-3">
+                            <h6>Stock:</h6>
+                            <h5>{{ model.get('selectedProduct')?.value.qte }}</h5>
+                          </div>
+                          <!-- Eye Icon -->
+                          <i class="pi pi-eye" style="cursor: pointer; font-size: 1.5em;" (click)="openStockTable(j, offer)"></i>
                         </td>
+
                         <td *ngIf="enableFakeSize == true"><!-- ... Fake size Box ... -->
-                          <p-dropdown [options]="model.get('sizes')?.value" (ngModelChange)="colorSizeChange(model, j, offer)" optionLabel="reference" optionValue="id" formControlName="selectedSizeReel" [style]="{ width: '150px'}" [panelStyle]="{ width: '80%' }" appendTo="body"
+                          <p-dropdown [options]="model.get('sizes')?.value"
+                                      (ngModelChange)="colorSizeChange(model, j, offer)"
+                                      optionLabel="reference" optionValue="id"
+                                      formControlName="selectedSizeReel"
+                                      [style]="{ width: '150px'}"
+                                      [panelStyle]="{ width: '80%' }"
+                                      appendTo="body"
                             [panelStyle]="{ width: '100px' }" [showClear]="true" placeholder="msg">
                           </p-dropdown>
                         </td>
@@ -152,8 +160,17 @@
           </p-confirmPopup>
           <p-button (click)="onSubmit($event)" icon="pi pi-check" label="Valider"></p-button>
         </div>
-        </div>
-      <!-- <button type="submit" class="btn btn-success" >Valider</button> -->
-
+      </div>
     </form>
 </div>
+
+<p-dialog
+      [(visible)]="showStockDialog"
+      modal="true" [closable]="true"
+      [header]="selectedModel.name"
+      (onHide)="closeStockDialog()"
+      styleClass="custom-dialog" >
+  <ng-container *ngIf="showStockDialog">
+    <app-stock-table-min [selectedModel]="selectedModel"></app-stock-table-min>
+  </ng-container>
+</p-dialog>

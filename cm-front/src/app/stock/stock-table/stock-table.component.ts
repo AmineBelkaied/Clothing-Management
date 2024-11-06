@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
+import { Model } from 'src/shared/models/Model';
 import { ProductsCount, SoldProduct } from 'src/shared/models/ProductCountDTO';
 import { ProductHistoryService } from 'src/shared/services/product-history.service';
 import { ProductService } from 'src/shared/services/product.service';
@@ -33,7 +34,7 @@ export class StockTableComponent implements OnInit,OnChanges{
   @ViewChild('dt') dt!: Table;
   @Input() beginDateString: string;
   @Input() endDateString: string;
-  @Input() selectedModel: any;
+  @Input() selectedModel: Model;
   @Input() datesCount: any;
   enablerHistoryOptions: any[] = [
     { label: 'Off', value: false },
@@ -46,6 +47,8 @@ export class StockTableComponent implements OnInit,OnChanges{
   selectedTableOptions: { name: string; label: string; }[];
   optionFlags: { [key: string]: boolean } = {};
   edit: boolean = true;
+  page: number = 0;
+  size: number = 10;
   constructor(
     private productService: ProductService,
     private productHistoryService: ProductHistoryService,
@@ -92,10 +95,11 @@ export class StockTableComponent implements OnInit,OnChanges{
   }
 
   ngOnChanges(simpleChanges: SimpleChanges){
-    console.log(simpleChanges);
+    //console.log(simpleChanges);
     this.selectedProducts = [];
     if(simpleChanges['selectedModel'])
       {
+        this.historyEnabler = false;
         this.selectedModel = simpleChanges['selectedModel'].currentValue
         this.modelId = this.selectedModel.id!;
         this.getStockByModelId(this.modelId);
@@ -103,7 +107,10 @@ export class StockTableComponent implements OnInit,OnChanges{
     else if(simpleChanges['endDateString'])
         {
           this.getStockByModelId(this.modelId);
+          this.historyEnablerChange();
         }
+
+
   }
   handleColorClick(colorId: number) {
     if (!this.optionFlags['showNoStockColors'] || !this.optionFlags['showNoStockSizes']) {
@@ -263,8 +270,12 @@ export class StockTableComponent implements OnInit,OnChanges{
         for (let size in this.productsCount[color])
           if (product.productId == this.productsCount[color][size].id)
             this.productsCount[color][size].qte =
-              this.productsCount[color][size].qte - product.qte;
+              this.productsCount[color][size].qte - product.quantity;
     });
+  }
+  onHistoryPageChange($event: any): void {
+    this.page = $event;
+    this.getProductHistory();
   }
 
   getSeverity(qte: number, delait: any) {
@@ -414,6 +425,7 @@ export class StockTableComponent implements OnInit,OnChanges{
     this.productHistoryService
       .findAll(
         this.modelId,
+        this.page,
         this.searchField,
         this.beginDateString,
         this.endDateString
@@ -423,7 +435,15 @@ export class StockTableComponent implements OnInit,OnChanges{
       });
   }
 
+
   historyEnablerChange() {
     if (this.historyEnabler) this.getProductHistory();
+  }
+
+  onInputChange(): void {
+    // Check if the search field is empty
+    if (!this.searchField || this.searchField.trim() === '') {
+      this.getProductHistory();
+    }
   }
 }

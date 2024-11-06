@@ -1,8 +1,10 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.dto.ProductHistoryDTO;
+import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.Product;
 import com.clothing.management.entities.ProductHistory;
+import com.clothing.management.exceptions.custom.notfound.PacketNotFoundException;
 import com.clothing.management.repository.IProductHistoryRepository;
 import com.clothing.management.repository.IProductRepository;
 import com.clothing.management.services.ProductHistoryService;
@@ -15,7 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,26 +34,17 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
     }
 
     @Override
-    public Page<ProductHistoryDTO> findAllProductsHistory(Long modelId, int page, int size, String colorSize, String beginDate, String endDate) throws ParseException {
-
+    public Page<ProductHistoryDTO> findAllProductsHistory(Long modelId, int page, int size, String colorSize) {
         Pageable paging = PageRequest.of(page, size, Sort.by("lastModificationDate").descending());
 
-        if (beginDate.isEmpty() && endDate.isEmpty()) {
             Page<ProductHistoryDTO> result;
-            if (colorSize.isEmpty()) {
+            if (colorSize == null) {
                 result = productHistoryRepository.findAll(modelId, paging);
             } else {
                 result = productHistoryRepository.findAllByReference(modelId, colorSize, paging);
             }
             LOGGER.info("Fetched product history with filter. Result size: {}", result.getSize());
             return result;
-        } else {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Page<ProductHistoryDTO> result = productHistoryRepository.findAllByDateRange(
-                    modelId, dateFormat.parse(beginDate), dateFormat.parse(endDate), paging);
-            LOGGER.info("Fetched product history within date range. Result size: {}", result.getSize());
-            return result;
-        }
     }
 
     @Override
@@ -94,19 +86,22 @@ public class ProductHistoryServiceImpl implements ProductHistoryService {
     }
 
     @Override
-    public Page<ProductHistoryDTO> deleteProductsHistory(List<ProductHistory> productsHistory, Long modelId, int page) {
+    public Page<ProductHistoryDTO> deleteProductsHistory(List<ProductHistoryDTO> productsHistory, Long modelId,String colorSize, int page) {
         productsHistory.forEach(productHistory -> {
-            Optional<Product> optionalProduct = productRepository.findById(productHistory.getProduct().getId());
-            optionalProduct.ifPresent(product -> {
+            Product product = productRepository.findById(productHistory.getProductId())
+                    .orElseThrow(() -> {
+                        LOGGER.error("Packet with ID {} does not exist", productHistory.getProductId());
+                        return new PacketNotFoundException(productHistory.getProductId(), "does not exist.");
+                    });
                 product.setQuantity(product.getQuantity() - productHistory.getQuantity());
                 productRepository.save(product);
-                LOGGER.info("Updated product quantity for productId: {}", product.getId());
-            });
+                LOGGER.info("Updated product quantity for modelId: {}", product.getId());
+
             productHistoryRepository.deleteById(productHistory.getId());
             LOGGER.info("Deleted product history with id: {}", productHistory.getId());
         });
-        Pageable paging = PageRequest.of(page, 10, Sort.by("lastModificationDate").descending());
-        Page<ProductHistoryDTO> result = productHistoryRepository.findAll(modelId, paging);
+
+        Page<ProductHistoryDTO> result = findAllProductsHistory(modelId, page, 10, colorSize);
         LOGGER.info("Fetched updated product history after deletion. Result size: {}", result.getSize());
         return result;
     }

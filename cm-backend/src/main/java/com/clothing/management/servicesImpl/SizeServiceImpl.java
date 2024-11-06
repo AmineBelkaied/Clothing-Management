@@ -2,6 +2,7 @@ package com.clothing.management.servicesImpl;
 
 import com.clothing.management.entities.Size;
 import com.clothing.management.exceptions.custom.alreadyexists.SizeAlreadyExistsException;
+import com.clothing.management.exceptions.custom.notfound.PacketNotFoundException;
 import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.repository.ISizeRepository;
 import com.clothing.management.services.SizeService;
@@ -33,13 +34,11 @@ public class SizeServiceImpl implements SizeService {
     }
 
     @Override
-    public Optional<Size> findSizeById(Long idSize) {
-        Optional<Size> size = sizeRepository.findById(idSize);
-        if (size.isPresent()) {
-            LOGGER.debug("Found size: {}", size.get().getReference());
-        } else {
-            LOGGER.warn("Size with ID {} not found", idSize);
-        }
+    public Size findSizeById(Long idSize) {
+        Size size = sizeRepository.findById(idSize).orElseThrow(() -> {
+            LOGGER.error("Size with ID: {} not found", idSize);
+            return new PacketNotFoundException(idSize, "Size not found!");
+        });
         return size;
     }
 

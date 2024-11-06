@@ -2,10 +2,7 @@ package com.clothing.management.dto;
 
 import com.clothing.management.entities.User;
 import jakarta.annotation.Nullable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
@@ -13,11 +10,12 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"user"})
 public class ProductHistoryDTO {
-
-    private  long id;
-    private String description;
+    private long id;
     private long productId;
+    private String description;
+    private long modelId;
     private long quantity;
     private Date date;
     @Nullable

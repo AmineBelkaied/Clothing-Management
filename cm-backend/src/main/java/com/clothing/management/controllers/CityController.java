@@ -2,6 +2,7 @@ package com.clothing.management.controllers;
 
 import com.clothing.management.dto.GroupedCitiesDTO;
 import com.clothing.management.entities.City;
+import com.clothing.management.exceptions.custom.notfound.PacketNotFoundException;
 import com.clothing.management.services.CityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,12 +44,12 @@ public class CityController {
     @GetMapping("/{id}")
     public ResponseEntity<City> getCityById(@PathVariable Long id) {
         LOGGER.info("Fetching city with ID: {}", id);
-        Optional<City> city = cityService.findCityById(id);
-        return city.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> {
-                    LOGGER.warn("City with ID {} not found.", id);
-                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        City city = cityService.findCityById(id)
+                .orElseThrow(() -> {
+                    LOGGER.error("city with ID {} does not exist", id);
+                    return new PacketNotFoundException(id, "does not exist.");
                 });
+        return new ResponseEntity<>(city, HttpStatus.OK);
     }
 
     @PostMapping
