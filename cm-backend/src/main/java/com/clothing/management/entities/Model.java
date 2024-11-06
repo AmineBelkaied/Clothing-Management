@@ -16,7 +16,7 @@ import java.util.*;
         scope = Model.class)
 @Data
 @Builder
-@ToString(exclude = {"modelOffers","products","colors","sizes","productHistories"})
+@ToString(exclude = {"modelOffers","products","colors","sizes","productHistories","modelStockHistories"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Model {
@@ -32,7 +32,8 @@ public class Model {
 
     @JsonIgnore
     @OneToMany(mappedBy = "model", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    private List<Product> products;
+    @Builder.Default
+    private List<Product> products = new ArrayList<>();
 
     private String description;
 
@@ -52,7 +53,7 @@ public class Model {
     @Builder.Default
     private boolean isDeleted = false;
 
-    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "model_colors",
             joinColumns = @JoinColumn(name = "model_id"),
@@ -60,7 +61,7 @@ public class Model {
     )
     private List<Color> colors = new ArrayList<>();
 
-    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "model_sizes",
             joinColumns = @JoinColumn(name = "model_id"),

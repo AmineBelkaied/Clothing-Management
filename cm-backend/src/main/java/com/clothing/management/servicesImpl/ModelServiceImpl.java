@@ -28,21 +28,17 @@ public class ModelServiceImpl implements ModelService {
     private final IProductRepository productRepository;
     private final EntityBuilderHelper entityBuilderHelper;
     private final ModelMapper modelMapper;
-    private final IColorRepository colorRepository;
-    private final ISizeRepository sizeRepository;
     private final IProductsPacketRepository productsPacketRepository;
     private final IOfferRepository offerRepository;
     private final IOfferModelRepository offerModelRepository;
     private static List<String> confirmedPacketStatus = List.of(new String[]{"Livrée", "Payée","En cours (1)", "En cours (2)", "En cours (3)", "A verifier"});
 
     public ModelServiceImpl(IModelRepository modelRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper, ModelMapper modelMapper,
-                            IColorRepository colorRepository, ISizeRepository sizeRepository, IProductsPacketRepository productsPacketRepository, IOfferRepository offerRepository, IOfferModelRepository offerModelRepository) {
+                            IProductsPacketRepository productsPacketRepository, IOfferRepository offerRepository, IOfferModelRepository offerModelRepository) {
         this.modelRepository = modelRepository;
         this.productRepository = productRepository;
         this.entityBuilderHelper = entityBuilderHelper;
         this.modelMapper = modelMapper;
-        this.colorRepository = colorRepository;
-        this.sizeRepository = sizeRepository;
         this.productsPacketRepository = productsPacketRepository;
         this.offerRepository = offerRepository;
         this.offerModelRepository = offerModelRepository;
@@ -67,32 +63,20 @@ public class ModelServiceImpl implements ModelService {
     }
 
     @Override
-    public ModelDTO saveModel(Model model) {
-        if (model.getId() == null) {
-            modelRepository.findByNameIsIgnoreCase(model.getName())
+    public ModelDTO saveModel(ModelDTO modelDTO) {
+        if (modelDTO.getId() == null) {
+            modelRepository.findByNameIsIgnoreCase(modelDTO.getName())
                     .ifPresent(existingModel -> {
                         LOGGER.error("Model already exists with ID: {} and name: {}", existingModel.getId(), existingModel.getName());
                         throw new ModelAlreadyExistsException(existingModel.getId(), existingModel.getName());
                     });
         }
-        List<Color> colors = new ArrayList<>();
-        model.getColors().forEach(color -> {
-            Color modelColor = colorRepository.findById(color.getId()).orElse(null);
-            colors.add(modelColor);
-        });
-        model.setColors(colors);
-        List<Size> sizes = new ArrayList<>();
-        model.getSizes().forEach(size -> {
-            Size modelSize = sizeRepository.findById(size.getId()).orElse(null);
-            sizes.add(modelSize);
-        });
-        model.setSizes(sizes);
-        model = modelRepository.save(model);
+        Model model = modelRepository.save(modelMapper.toEntity(modelDTO));
         LOGGER.info("Model saved with ID: {}", model.getId());
 
         // Generate products
         LOGGER.info("Generating products for model ID: {}", model.getId());
-        model = generateModelProducts(model);
+        generateModelProducts(model);
 
         return modelMapper.toDto(model);
     }

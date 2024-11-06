@@ -11,7 +11,7 @@ public interface ModelService {
 
     List<Model> findAllModels();
     Optional<Model> findModelById(Long idModel);
-    ModelDTO saveModel(Model model);
+    ModelDTO saveModel(ModelDTO modelDTO);
     void deleteModelById(Long idModel, boolean isSoftDelete);
     void deleteSelectedModels(List<Long> modelsId);
     List<ModelDTO> getModels();

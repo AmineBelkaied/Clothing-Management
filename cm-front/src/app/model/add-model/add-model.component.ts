@@ -29,6 +29,7 @@ export class AddModelComponent implements OnInit, OnDestroy {
   message: string;
   allOffersList: any[] = [];
   $unsubscribe: Subject<void> = new Subject();
+  
   constructor(
     private colorService: ColorService,
     private sizeService: SizeService

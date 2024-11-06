@@ -4,7 +4,6 @@ import com.clothing.management.dto.ModelDTO;
 import com.clothing.management.dto.ModelDeleteDTO;
 import com.clothing.management.entities.Model;
 import com.clothing.management.services.ModelService;
-import jakarta.websocket.server.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -50,20 +49,20 @@ public class ModelController {
     }
 
     @PostMapping
-    public ResponseEntity<ModelDTO> createModel(@RequestBody Model model) {
-        LOGGER.info("Creating new model: {}", model);
-        ModelDTO createdModel = modelService.saveModel(model);
+    public ResponseEntity<ModelDTO> createModel(@RequestBody ModelDTO modelDTO) {
+        LOGGER.info("Creating new model: {}", modelDTO);
+        ModelDTO createdModel = modelService.saveModel(modelDTO);
         LOGGER.info("Model created successfully: {}", createdModel);
-        if(model.getId() != null) {
+        if(modelDTO.getId() != null) {
             return new ResponseEntity<>(createdModel, HttpStatus.OK);
         }
         return new ResponseEntity<>(createdModel, HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<ModelDTO> updateModel(@RequestBody Model model) {
-        LOGGER.info("Updating model: {}", model);
-        ModelDTO updatedModel = modelService.saveModel(model);
+    public ResponseEntity<ModelDTO> updateModel(@RequestBody ModelDTO modelDTO) {
+        LOGGER.info("Updating model: {}", modelDTO);
+        ModelDTO updatedModel = modelService.saveModel(modelDTO);
         LOGGER.info("Model updated successfully: {}", updatedModel);
         return new ResponseEntity<>(updatedModel, HttpStatus.OK);
     }

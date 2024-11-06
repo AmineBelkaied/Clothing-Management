@@ -25,6 +25,14 @@ public interface ModelMapper {
     })
     ModelDTO toDto(Model model);
 
+    @Mappings({
+            @Mapping(target = "colors", source = "colors", qualifiedByName = "mapIdsToColors"),
+            @Mapping(target = "sizes", source = "sizes", qualifiedByName = "mapIdsToSizes"),
+            @Mapping(target = "isDeleted", source = "deleted"),
+            @Mapping(target = "isEnabled", source = "enabled")
+    })
+    Model toEntity(ModelDTO modelDTO);
+
     @Named("mapColorsToIds")
     default List<Long> mapColorsToIds(List<Color> colors) {
         return colors.stream()
@@ -36,6 +44,20 @@ public interface ModelMapper {
     default List<Long> mapSizesToIds(List<Size> sizes) {
         return sizes.stream()
                 .map(Size::getId)
+                .collect(Collectors.toList());
+    }
+
+    @Named("mapIdsToColors")
+    default List<Color> mapIdsToColors(List<Long> ids) {
+        return ids.stream()
+                .map(id -> Color.builder().id(id).build())
+                .collect(Collectors.toList());
+    }
+
+    @Named("mapIdsToSizes")
+    default List<Size> mapIdsToSizes(List<Long> ids) {
+        return ids.stream()
+                .map(id -> Size.builder().id(id).build())
                 .collect(Collectors.toList());
     }
 
