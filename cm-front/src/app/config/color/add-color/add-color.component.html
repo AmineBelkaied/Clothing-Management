@@ -1,34 +1,45 @@
 <h5 class="mb-3 ml-3 mt-4">Ajouter une couleur</h5>
-<div class="card ml-4 mt-4 mb-4" style="width: 90%;">
+<div class="card mx-auto mt-4 mb-4" style="max-width: 90%;">
   <div class="card-body">
     <div class="card-text">
       <form #modelForm="ngForm" (ngSubmit)="addColor(modelForm)">
         <div class="container">
-          <div class="row justify-content">
-            <div class="col-md-4">
+          <div class="row align-items-center">
+            <!-- Name Input -->
+            <div class="col-12 col-sm-6 col-md-4 mb-3">
               <label for="name">Nom</label>
-              <input pInputText id="name" placeholder="Nom de la couleur" name="name" style="width: 10rem;"
+              <input
+                pInputText
+                id="name"
+                placeholder="Nom de la couleur"
+                name="name"
+                class="form-control"
                 [(ngModel)]="color.name" />
             </div>
-            <div class="col-md-2">
-              <p-colorPicker class ='ml-3' name="hex" [(ngModel)]="color.hex"/>
+
+            <!-- Color Picker Input with Left Margin on Larger Screens -->
+            <div class="col-12 col-sm-6 col-md-4 mb-3 ml-md-3">
+              <label for="hex">Couleur</label>
+              <p-colorPicker
+                class="w-100 ml-4"
+                id="hex"
+                name="hex"
+                [(ngModel)]="color.hex">
+              </p-colorPicker>
             </div>
           </div>
-          <br>
-          <div class="col-md-12 mt-2">
-            <ng-container *ngIf="colorService.editMode;else addMode">
-              <div class="row">
-                <div class="col-md-3">
-                  <button type="submit" class="btn btn-success">Modifier</button>
-                </div>
-                <div class="col-md-9">
-                  <button type="button" class="btn btn-info" (click)="reset(modelForm)">Reset</button>
-                </div>
-              </div>
-            </ng-container>
-            <ng-template #addMode>
-              <button type="submit" class="btn btn-primary">Ajouter</button>
-            </ng-template>
+
+          <!-- Button Row with Buttons on the Same Line -->
+          <div class="row mt-4">
+            <div class="col-12 d-flex justify-content-start">
+              <ng-container *ngIf="colorService.editMode; else addMode">
+                <button type="submit" class="btn btn-success mr-2">Modifier</button>
+              </ng-container>
+              <ng-template #addMode>
+                <button type="submit" class="btn btn-primary mr-2">Ajouter</button>
+              </ng-template>
+              <button type="button" class="btn btn-info" (click)="reset(modelForm)">Reset</button>
+            </div>
           </div>
         </div>
       </form>

@@ -5,6 +5,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 public class StatesStatCountDTO extends DayCountDTO {

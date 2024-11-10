@@ -110,7 +110,7 @@ public class OfferController {
 
     @GetMapping(value = "/update-data", produces = "application/json")
     public ResponseEntity<OfferDTO> updateOffer(@RequestParam("id") Long id, @RequestParam("name") String name,
-                                                @RequestParam("price") double price, @RequestParam("isEnabled") boolean isEnabled) {
+                                                @RequestParam("price") double price, @RequestParam("enabled") boolean isEnabled) {
         LOGGER.info("Updating offer data for id: {}", id);
         try {
             OfferDTO updatedOffer = offerService.updateOfferData(id, name, price, isEnabled);

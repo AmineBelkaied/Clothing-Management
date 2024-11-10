@@ -20,9 +20,7 @@ public interface OfferMapper {
 
     @Mappings({
             @Mapping(target = "fbPages", source = "fbPages", qualifiedByName = "mapFbPagesToIds"),
-            @Mapping(target = "offerModels", source = "offerModels", qualifiedByName = "mapToOfferDto"),
-            @Mapping(target = "isDeleted", source = "deleted"),
-            @Mapping(target = "isEnabled", source = "enabled")
+            @Mapping(target = "offerModels", source = "offerModels", qualifiedByName = "mapToOfferDto")
     })
     OfferDTO toDto(Offer offer);
 

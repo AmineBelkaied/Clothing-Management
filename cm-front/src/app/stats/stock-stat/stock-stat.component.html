@@ -1,0 +1,43 @@
+
+        <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+          <p-card [style]="{ width: '100%'}">
+            <p-tabView>
+              <p-tabPanel header="Table">
+                <p-table class="table" [value]="stockValueTableData"
+                          sortField="quantity" [sortOrder]="-1"
+                          [scrollable]="true" scrollHeight="400px" >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Model</th>
+                      <th pSortableColumn="quantity">Quantité<p-sortIcon field="quantity" /></th>
+                      <th pSortableColumn="purchasePrice">Valeur Stock<p-sortIcon field="purchasePrice" /></th>
+                      <th pSortableColumn="sellingPrice">Prix de vente<p-sortIcon field="sellingPrice" /></th>
+                      <th pSortableColumn="profits">Profits expercter<p-sortIcon field="profits" /></th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-item>
+                    <tr>
+                      <td>{{ item.name }}</td>
+                      <td>{{ item.quantity }}</td>
+                      <td>{{ item.purchasePrice | number:'1.0-0' }}</td>
+                      <td>{{ item.sellingPrice | number:'1.0-0' }}</td>
+                      <td>{{ item.profits | number:'1.0-0' }}</td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="footer">
+                    <tr>
+                      <td>{{ totalStock.name }}</td>
+                      <td>{{ totalStock.quantity }}</td>
+                      <td>{{ totalStock.purchasePrice | number:'1.0-0' }}</td>
+                      <td>{{ totalStock.sellingPrice | number:'1.0-0' }}</td>
+                      <td>{{ totalStock.profits | number:'1.0-0' }}</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </p-tabPanel>
+              <p-tabPanel header="Chart">
+                <p-chart type="line" [data]="stockData" [options]="stockOptions" height="30rem"></p-chart>
+              </p-tabPanel>
+            </p-tabView>
+          </p-card>
+        </div>

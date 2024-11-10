@@ -41,6 +41,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RippleModule } from 'primeng/ripple';
+import { ScrollerModule } from 'primeng/scroller';
 
 
 
@@ -68,7 +69,8 @@ import { AddSizeComponent } from './config/size/add-size/add-size.component';
 import { ListSizesComponent } from './config/size/list-sizes/list-sizes.component';
 import { ChartModule } from 'primeng/chart';
 import { ToggleButtonModule } from 'primeng/togglebutton';
-import { StatistiqueComponent } from './statistique/statistique.component';
+
+
 import { StockHistoryComponent } from './stock/stock-history/stock-history.component';
 import { StockTableComponent } from './stock/stock-table/stock-table.component';
 import { StockTableMinComponent } from './stock/stock-table-min/stock-table-min.component';
@@ -102,6 +104,15 @@ import { DisplayFbPagePipe } from 'src/shared/pipes/display-fbPage.pipe';
 import { DisplayJoinPipe } from 'src/shared/pipes/display-join.pipe';
 import { DisplayColorHexPipe } from 'src/shared/pipes/display-colorHex.pipe';
 import { DisplayDeliveryCompanyPipe } from 'src/shared/pipes/display-delivery-company.pipe';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { ModelStatComponent } from './stats/model-stat/model-stat.component';
+import { StatsComponent } from './stats/stats.component';
+import { OfferStatComponent } from './stats/offer-stat/offer-stat.component';
+import { PacketStatComponent } from './stats/packet-stat/packet-stat.component';
+import { PageStatComponent } from './stats/page-stat/page-stat.component';
+import { StatesStatComponent } from './stats/states-stat/states-stat.component';
+import { StockStatComponent } from './stats/stock-stat/stock-stat.component';
+import { ColorStatComponent } from './stats/color-stat/color-stat.component';
 
 @NgModule({
   declarations: [
@@ -128,7 +139,14 @@ import { DisplayDeliveryCompanyPipe } from 'src/shared/pipes/display-delivery-co
     ListFbpagesComponent,
     ListDeliveryCompaniesComponent,
     StockComponent,
-    StatistiqueComponent,
+    StatsComponent,
+    ModelStatComponent,
+    OfferStatComponent,
+    PageStatComponent,
+    PacketStatComponent,
+    StatesStatComponent,
+    StockStatComponent,
+    ColorStatComponent,
     StockHistoryComponent,
     StockTableComponent,
     StockTableMinComponent,
@@ -195,7 +213,9 @@ import { DisplayDeliveryCompanyPipe } from 'src/shared/pipes/display-delivery-co
     ReactiveFormsModule,
     RippleModule,
     OverlayPanelModule,
-    ColorPickerModule
+    ColorPickerModule,
+    ScrollerModule,
+    TabMenuModule
   ],
   providers: [
     MessageService,

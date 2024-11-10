@@ -20,6 +20,6 @@ public class OfferDTO {
     private Set<OfferModelsDTO> offerModels;
     private Set<Long> fbPages;
     private Double price;
-    private boolean isEnabled;
-    private boolean isDeleted;
+    private boolean enabled;
+    private boolean deleted;
 }

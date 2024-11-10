@@ -6,7 +6,7 @@
 
 <div class="container-fluid">
     <!--     <p-toolbar styleClass="mb-4"> -->
-    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card mt-2 mb-3" style="background-color: #fbfbfb; margin-left: 6rem;">
         <div class="card-body">
             <div class="d-flex megabar-header menu">
                 <div class="toggle-b-space"></div>
@@ -21,11 +21,7 @@
         </div>
     </div>
 </div>
-<!--         <ng-template pTemplate="right">
-            <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
-            <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"></button>
-        </ng-template> -->
-<!--     </p-toolbar> -->
+
 <div class="container-fluid" [style]="{ width: '99%'}">
     <p-table #dt [value]="models" [rows]="10" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
 
@@ -104,14 +100,15 @@
 
             </tr>
         </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="8">
+                <label>Liste vide</label>
+            </td>
+          </tr>
+        </ng-template>
     </p-table>
 </div>
-
-
-<!-- Button to open the Stock Table component -->
-
-
-<!-- Conditionally display StockTableMinComponent -->
 
 <p-dialog [(visible)]="showStockDialog" modal="true" [closable]="true" [header]="selectedModel.name" (onHide)="closeStockDialog()">
   <ng-container *ngIf="showStockDialog">

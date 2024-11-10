@@ -10,7 +10,7 @@
 }
 
 .flex-container {
-  display: flex;
+  max-width: 100%;
   align-items: center; /* Align items vertically centered */
   gap: 10px; /* Add space between the icon-label-count and the p-listbox */
   position: relative; /* Make the container relative for absolute positioning if needed */

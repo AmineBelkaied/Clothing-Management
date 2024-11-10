@@ -9,7 +9,7 @@ import { StorageService } from 'src/shared/services/strorage.service';
 
 import {
   CANCELED, OOS, NOT_SERIOUS, PROBLEME,
-  DELETED, statesList, statusList,
+  DELETED,
   IN_PROGRESS_1,
   IN_PROGRESS_2,
   IN_PROGRESS_3,
@@ -37,7 +37,7 @@ export class StatusContainerComponent {
   $unsubscribe: Subject<void> = new Subject();
   @Output() statusChange = new EventEmitter<Status>();
   isAdmin: boolean;
-  statusItems: any[];
+  statusItems: Status[];
   selectedIndex: number | null = null;
   borderIndex: number = 2;
   item: Status;
@@ -84,32 +84,26 @@ export class StatusContainerComponent {
   toggleListbox(index: any, item: any) {
     this.borderIndex = index;
     if (this.statusItems[index].options) {
-      this.selectedIndex = this.selectedIndex === index ? null : index;
-      if (this.selectedIndex == null) {
-        console.log("this.selectedIndex", this.borderIndex);
+      if (index != null && this.changed==false) {
+        this.selectedIndex = this.selectedIndex === index ? null : index;
         this.emitSelectedStatus(item);
-
       }
     } else {
-      console.log("no options", this.borderIndex);
       this.emitSelectedStatus(item);
     }
+    this.changed = false;
   }
 
 
   emitSelectedStatus(item: any) {
-    this.changed = false;
-    this.item = item;
-    this.statusChange.emit(item);
+      this.item = item;
+      this.statusChange.emit(item);
   }
 
 
   onOptionSelect(item: any) {
-    console.log("item changed", item);
     this.changed = true
-    //console.log(`Selected options for ${item.label}:`, item.selectedOptions);
     this.item = item;
-    // Implement your logic here
   }
 
   getNonConfirmedOptions() {
@@ -145,7 +139,6 @@ export class StatusContainerComponent {
 
 
   createNotification(): void {
-    console.log("createNotification");
     let all = 0;
 
     this.packetService.syncNotification(this.params.beginDate, this.params.endDate)

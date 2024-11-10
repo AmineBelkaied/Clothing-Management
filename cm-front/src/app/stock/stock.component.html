@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="container-fluid">
-    <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <div class="card mt-2 mb-3" style="background-color: #fbfbfb; margin-left: 6rem;">
         <div class="card-body">
             <div class="d-flex megabar-header menu">
               <div class="toggle-b-space"></div>
@@ -25,6 +25,7 @@
                 [touchUI]="true"
                 [showOnFocus]="true"
                 [iconDisplay]="'input'"
+                (onClickOutside) = "onClickOutside()"
               >
                 <ng-template pTemplate="footer">
                   <div style="display: flex; align-items: center">
@@ -120,6 +121,12 @@
                       <h6>{{ model.name }}</h6>
                     </div>
                   </div>
+                </li>
+
+              </ul>
+              <ul *ngIf="filteredModels.length === 0" class="list-unstyled mb-0">
+                <li class="model-item p-2 mb-2 rounded shadow-sm">
+                  <p class="mt-4" style="text-align: center;font-size: medium">Liste vide</p>
                 </li>
               </ul>
             </div>

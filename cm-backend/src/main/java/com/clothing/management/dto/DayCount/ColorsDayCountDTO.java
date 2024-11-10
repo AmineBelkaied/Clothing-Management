@@ -4,6 +4,7 @@ import com.clothing.management.entities.Color;
 import lombok.*;
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 public class ColorsDayCountDTO extends DayCountDTO {

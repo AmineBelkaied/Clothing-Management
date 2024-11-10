@@ -1,0 +1,36 @@
+<div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+  <p-card [style]="{ width: '100%'}">
+    <p-tabView>
+      <p-tabPanel header="Table">
+        <table class="table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Color</th>
+              <th>Min-Max</th>
+              <th>Avg</th>
+              <th>Payée</th>
+              <th>Retour</th>
+              <th>Payée/Retour</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of colorsTableData">
+              <td><div [ngStyle]="{'background-color':item.hex , 'height': '2rem', 'width': '2rem'}"></div></td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.min }}-{{ item.max }}</td>
+              <td>{{ item.avg }}</td>
+              <td>{{ item.payed }}</td>
+          <td>{{ item.retour }}</td>
+          <td>{{ formatNumber(item) }}%</td>
+        </tr>
+      </tbody>
+    </table>
+  </p-tabPanel>
+  <p-tabPanel header="Chart">
+    <p-chart type="line" [data]="colorsData" [options]="colorsOptions" height="30rem"></p-chart>
+  </p-tabPanel>
+
+</p-tabView>
+</p-card>
+</div>

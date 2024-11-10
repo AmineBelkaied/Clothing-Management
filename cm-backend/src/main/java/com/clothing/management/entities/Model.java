@@ -28,6 +28,7 @@ public class Model {
 
     @JsonBackReference
     @OneToMany(mappedBy = "model", fetch = FetchType.LAZY)
+    @Builder.Default
     private Set<OfferModel> modelOffers = new HashSet<>();
 
     @JsonIgnore
@@ -47,11 +48,11 @@ public class Model {
 
     @Column(name = "is_enabled", nullable = false)
     @Builder.Default
-    private boolean isEnabled = false;
+    private boolean enabled = false;
 
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default
-    private boolean isDeleted = false;
+    private boolean deleted = false;
 
     @ManyToMany(cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinTable(
@@ -59,6 +60,7 @@ public class Model {
             joinColumns = @JoinColumn(name = "model_id"),
             inverseJoinColumns = @JoinColumn(name = "color_id")
     )
+    @Builder.Default
     private List<Color> colors = new ArrayList<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
@@ -67,6 +69,7 @@ public class Model {
             joinColumns = @JoinColumn(name = "model_id"),
             inverseJoinColumns = @JoinColumn(name = "size_id")
     )
+    @Builder.Default
     private List<Size> sizes = new ArrayList<>();
 
     @JsonIgnore

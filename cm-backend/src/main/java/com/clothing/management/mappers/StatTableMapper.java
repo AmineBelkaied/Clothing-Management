@@ -45,7 +45,6 @@ public interface StatTableMapper {
 
     @Mappings({
             @Mapping(target = "name", source = "nameRow"),
-            @Mapping(target = "payed", constant = "0L"),
             @Mapping(target = "retour", constant = "0L"),
             @Mapping(target = "Min", constant = "1000L"),
             @Mapping(target = "Max", constant = "0L"),

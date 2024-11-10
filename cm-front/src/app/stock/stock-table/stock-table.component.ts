@@ -95,16 +95,16 @@ export class StockTableComponent implements OnInit,OnChanges{
   }
 
   ngOnChanges(simpleChanges: SimpleChanges){
-    //console.log(simpleChanges);
+    console.log("simpleChanges",simpleChanges);
     this.selectedProducts = [];
-    if(simpleChanges['selectedModel'])
+    if(simpleChanges['selectedModel'] && simpleChanges['selectedModel'].firstChange == false )
       {
         this.historyEnabler = false;
         this.selectedModel = simpleChanges['selectedModel'].currentValue
         this.modelId = this.selectedModel.id!;
         this.getStockByModelId(this.modelId);
       }
-    else if(simpleChanges['endDateString'])
+    else if(simpleChanges['endDateString'] && simpleChanges['endDateString'].firstChange == false)
         {
           this.getStockByModelId(this.modelId);
           this.historyEnablerChange();

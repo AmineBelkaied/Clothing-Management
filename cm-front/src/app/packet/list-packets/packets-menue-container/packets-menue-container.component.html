@@ -1,56 +1,49 @@
 <div class="container-fluid">
-  <div class="card ml-4 mt-2 mb-3" style="background-color: #ffffff; margin-left: 6rem !important">
-    <div class="megabar">
-      <div class="d-flex megabar-header menu">
-        <div class="left-section d-flex align-items-center">
-          <button pButton icon="pi pi-plus" class="p-button-success mr-2 p-2 buttonSize" (click)="addNewRow()"></button>
-          <button pButton icon="pi pi-trash" class="p-button-danger mr-2 p-2 buttonSize" (click)="deleteSelectedPackets()"
-            [disabled]="nbrSelectedPackets==0"></button><!--[disabled]="!selectedPackets || selectedPackets.length == 0"//Correction-->
-          <button pButton icon="pi pi-refresh" class="p-button-info mr-2 p-2 buttonSize" (click)="resetTable()"></button>
-          <span class="p-input-icon-left">
-            <i class="pi pi-search"></i>
-            <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets()"
-              (input)="handleInputChange()" placeholder="Client, Tel, Ville, Adresse, Page, Id"
-              [style]="{ width: '230px' }" class="mr-2" />
-          </span>
-          <p-calendar [(ngModel)]="rangeDates"
-            (ngModelChange)="filterPackets('date')"
-            selectionMode="range"
-            [readonlyInput]="true"
-            inputId="range" placeholder="Filtrer par date/période"
-            [showClear]="false"
-            (onClearClick)="resetTable()" [style]="{ width: '11rem' }"
-            dateFormat="dd/mm"
-            [showIcon]="true"
-            [iconDisplay]="'input'"
-            inputId="icondisplay"
-            variant="filled"
-            [touchUI]="true">
-            <ng-template pTemplate="footer">
-              <div style="display: flex; align-items: center">
-                <p-inputSwitch [(ngModel)]="mandatoryDateCheckBox" optionLabel="label"
-                  optionValue="value" (click)="mandatoryDateChange()"></p-inputSwitch><p>Obligatoire</p>
-                <p-button label="Ancien Date" styleClass="p-button-text" (click)="oldDateFilter()"></p-button>
-                <p-button label="Today" styleClass="p-button-text" (click)="todayDate()"></p-button>
-                <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
-              </div>
-            </ng-template>
-          </p-calendar>
-        </div>
+  <div class="card mt-2 mb-3" style="background-color: #ffffff; margin-left: 6rem !important">
+    <p-toolbar>
+      <div class="p-toolbar-group-start">
+        <button pButton icon="pi pi-plus" class="p-button-success mr-2 p-2 buttonSize" (click)="addNewRow()"></button>
+        <button pButton icon="pi pi-trash" class="p-button-danger mr-2 p-2 buttonSize" (click)="deleteSelectedPackets()"
+          [disabled]="nbrSelectedPackets==0"></button><!--[disabled]="!selectedPackets || selectedPackets.length == 0"//Correction-->
+        <button pButton icon="pi pi-refresh" class="p-button-info mr-2 p-2 buttonSize" (click)="resetTable()"></button>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets()"
+            (input)="handleInputChange()" placeholder="Client, Tel, Ville, Adresse, Page, Id"
+            [style]="{ width: '230px' }" class="mr-2" />
+        </span>
 
-
-        <!-- Middle section -->
-        <div class="middle-section flex align-items-center">
-        </div>
-
-        <!-- Right section -->
-        <div class="right-section justify-content-end">
-          <app-status-container [params]="params" (statusChange)="onStatusChange($event)"></app-status-container>
-        </div>
       </div>
-
-      <div *ngIf="showStatus">
+      <div class="p-toolbar-group-center">
+        <p-calendar [(ngModel)]="rangeDates"
+        (ngModelChange)="filterPackets('date')"
+        selectionMode="range"
+        [readonlyInput]="true"
+        inputId="range" placeholder="Filtrer par date/période"
+        [showClear]="false"
+        (onClearClick)="resetTable()" [style]="{ width: '11rem' }"
+        dateFormat="dd/mm"
+        [showIcon]="true"
+        [iconDisplay]="'input'"
+        inputId="icondisplay"
+        variant="filled"
+        [touchUI]="true"
+        (onClickOutside) = "onClickOutside()">
+        <ng-template pTemplate="footer">
+          <div style="display: flex; align-items: center">
+            <p-inputSwitch [(ngModel)]="mandatoryDateCheckBox" optionLabel="label"
+              optionValue="value" (click)="mandatoryDateChange()"></p-inputSwitch><p>Obligatoire</p>
+            <p-button label="Ancien Date" styleClass="p-button-text" (click)="oldDateFilter()"></p-button>
+            <p-button label="Today" styleClass="p-button-text" (click)="todayDate()"></p-button>
+            <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
+          </div>
+        </ng-template>
+      </p-calendar>
       </div>
-    </div>
+      <div class="p-toolbar-group-end">
+        <app-status-container [params]="params" (statusChange)="onStatusChange($event)"></app-status-container>
+      </div>
+    </p-toolbar>
   </div>
 </div>
+

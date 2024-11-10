@@ -7,6 +7,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 public class ProductsDayCountDTO extends DayCountDTO {

@@ -149,7 +149,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
 
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.PacketsStatCountDTO(" +
             "DATE(p.date), " +
-            "SUM(CASE WHEN p.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status IN ('Livrée') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status IN ('Payée') THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.valid = true AND (p.haveExchange = false OR p.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Livrée', 'Payée')) AND p.status <> 'Annuler' THEN 1 ELSE 0 END), " +// out
             "SUM(CASE WHEN p.haveExchange = true AND p.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END), " +//echange
             "SUM(CASE WHEN p.status IN ('Retour', 'Retour reçu') AND p.haveExchange = false THEN 1 ELSE 0 END), " +//retour
@@ -166,7 +167,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
 
     @Query(value = "SELECT NEW com.clothing.management.dto.DayCount.PacketsStatCountDTO(" +
             "DATE(p.date), " +
-            "SUM(CASE WHEN p.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status IN ('Livrée') THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status IN ('Payée') THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN p.valid = true AND (p.haveExchange = false OR p.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','Livrée', 'Payée')) AND p.status <> 'Annuler' THEN 1 ELSE 0 END), " +// out
             "SUM(CASE WHEN p.haveExchange = true AND p.status IN ('Retour', 'Retour reçu') THEN 1 ELSE 0 END), " +//echange
             "SUM(CASE WHEN p.status IN ('Retour', 'Retour reçu') AND p.haveExchange = false THEN 1 ELSE 0 END), " +//retour

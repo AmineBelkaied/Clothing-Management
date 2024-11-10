@@ -60,7 +60,7 @@ public class StatServiceImpl implements StatService {
         List<StatTableDTO> pagesRecapCount = new ArrayList<>();
 
         for (FbPage page : uniquePages) {
-            StatTableDTO pageRecap = statTableMapper.toStatTableDTO(page.getName());
+            StatTableDTO pageRecap = new StatTableDTO(page.getName());
             countPagesList = new ArrayList<>();
             double countProfits = 0;
 
@@ -190,7 +190,8 @@ public class StatServiceImpl implements StatService {
         data.put("dates", uniqueDates);
         data.put("modelsCount", listModelsCount);
         data.put("modelsRecapCount", modelsRecapCount);
-
+        ArrayList<ModelStockValueDTO>  statValuesDashboard = statValuesTotalDashboard();
+        data.put("statValuesDashboard", statValuesDashboard);
         LOGGER.info("Model chart data generated successfully.");
         return data;
     }
@@ -237,6 +238,35 @@ public class StatServiceImpl implements StatService {
             double purchasePriceForEntry = model.getPurchasePrice() * quantity;
             double sellingPriceForEntry = purchasePriceForEntry * model.getEarningCoefficient();
             modelStockValuesList.add(new ModelStockValueDTO(model.getName(),quantity,purchasePriceForEntry,sellingPriceForEntry,sellingPriceForEntry-purchasePriceForEntry));
+            totalQuantity += quantity;
+            totalPurchasePrice += purchasePriceForEntry;
+            totalSellingPrice += sellingPriceForEntry;
+        }
+        modelStockValuesList.add(new ModelStockValueDTO("Total",totalQuantity,totalPurchasePrice,totalSellingPrice,totalSellingPrice - totalPurchasePrice));
+
+        LOGGER.info("Fetched {} stock history entries", modelStockValuesList.size());
+        return modelStockValuesList;
+    }
+
+    public ArrayList<ModelStockValueDTO> statValuesTotalDashboard() {
+        // Set date to October 7, 2024
+        LocalDate localDate = LocalDate.of(2024, 10, 7);
+        Date today = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        // Fetch stock history data
+        List<ModelStockHistory> statStock = modelStockHistoryRepository.statValues(today);
+
+        // Initialize variables
+        long totalQuantity = 0L;
+        double totalPurchasePrice = 0.0;
+        double totalSellingPrice = 0.0;
+        ArrayList<ModelStockValueDTO> modelStockValuesList = new ArrayList<>();
+        // Iterate through stock history entries
+        for (ModelStockHistory modelStockHistory : statStock) {
+            Model model = modelStockHistory.getModel();
+            long quantity = modelStockHistory.getQuantity();
+            double purchasePriceForEntry = model.getPurchasePrice() * quantity;
+            double sellingPriceForEntry = purchasePriceForEntry * model.getEarningCoefficient();
             totalQuantity += quantity;
             totalPurchasePrice += purchasePriceForEntry;
             totalSellingPrice += sellingPriceForEntry;
@@ -390,7 +420,7 @@ public class StatServiceImpl implements StatService {
             offerRecap.setAvg(offerRecap.getPayed() / uniqueDates.size());
 
             // Calculate purchase price
-            Double purchasePrice = calculateOfferPurshasePrice(uniqueOffer);
+            Double purchasePrice = calculateOfferpurchasePrice(uniqueOffer);
             offerRecap.setPurchasePrice(purchasePrice * offerRecap.getPayed());
             offerRecap.setSellingPrice(offerRecap.getPurchasePrice() + offerRecap.getProfits());
 
@@ -465,13 +495,13 @@ public class StatServiceImpl implements StatService {
     }
 
 
-    private Double calculateOfferPurshasePrice(OfferDTO offer) {
-        double purshasePrice = 0;
+    private Double calculateOfferpurchasePrice(OfferDTO offer) {
+        double purchasePrice = 0;
         Set<OfferModelsDTO> offerModels= offer.getOfferModels();
         for (OfferModelsDTO uniqueOfferModel : offerModels) {
-            purshasePrice +=uniqueOfferModel.getQuantity()*uniqueOfferModel.getModel().getPurchasePrice();
+            purchasePrice +=uniqueOfferModel.getQuantity()*uniqueOfferModel.getModel().getPurchasePrice();
         }
-        return purshasePrice;
+        return purchasePrice;
     }
 
     @Override
@@ -596,7 +626,7 @@ public class StatServiceImpl implements StatService {
             countAll.add(dayStat.getCountAll());
             countExchange.add(dayStat.getCountExchange());
             countOut.add(dayStat.getCountOut());
-            countPayed.add(dayStat.getCountPayed());
+            countPayed.add(dayStat.getCountPayed()+dayStat.getCountRecived());
             countReturn.add(dayStat.getCountReturn());
             countOos.add(dayStat.getCountOos());
             countProgress.add(dayStat.getCountProgress());
@@ -611,6 +641,7 @@ public class StatServiceImpl implements StatService {
         StatTableDTO exchangeRecap = statTableMapper.toStatTableDTO(SystemStatus.EXCHANGE.getStatus());
         StatTableDTO returnRecap = statTableMapper.toStatTableDTO(SystemStatus.RETURN.getStatus());
         StatTableDTO payedRecap = statTableMapper.toStatTableDTO(SystemStatus.PAID.getStatus());
+        StatTableDTO receivedRecap = statTableMapper.toStatTableDTO(SystemStatus.LIVREE.getStatus());
         StatTableDTO oosRecap = statTableMapper.toStatTableDTO(SystemStatus.OOS.getStatus());
         StatTableDTO outRecap = statTableMapper.toStatTableDTO("Sortie");
         StatTableDTO allRecap = statTableMapper.toStatTableDTO("All");
@@ -622,22 +653,25 @@ public class StatServiceImpl implements StatService {
             updateRecapStats(outRecap, dayStat.getCountOut());
             updateRecapStats(allRecap, dayStat.getCountAll());
             updateRecapStats(payedRecap, dayStat.getCountPayed());
+            updateRecapStats(receivedRecap, dayStat.getCountRecived());
             updateRecapStats(returnRecap, dayStat.getCountReturn());
             updateRecapStats(oosRecap, dayStat.getCountOos());
             updateRecapStats(progressRecap, dayStat.getCountProgress());
         }
 
         // Finalize recap stats
-        finalizeRecapStats(exchangeRecap, datesSize, payedRecap.getPayed());
+        long totalPayedReceived = outRecap.getPayed()+outRecap.getReceived();
+        finalizeRecapStats(exchangeRecap, datesSize, totalPayedReceived);
         finalizeRecapStats(outRecap, datesSize, allRecap.getPayed());
         finalizeRecapStats(allRecap, datesSize, allRecap.getPayed());
-        finalizeRecapStats(payedRecap, datesSize, outRecap.getPayed());
+        finalizeRecapStats(payedRecap, datesSize, totalPayedReceived);
+        finalizeRecapStats(receivedRecap, datesSize, totalPayedReceived);
         finalizeRecapStats(returnRecap, datesSize, outRecap.getPayed());
         finalizeRecapStats(oosRecap, datesSize, allRecap.getPayed());
         finalizeRecapStats(progressRecap, datesSize, allRecap.getPayed()); // No percentage for progressRecap
 
         LOGGER.debug("Status recap count created successfully.");
-        return Arrays.asList(exchangeRecap, returnRecap, progressRecap, payedRecap, outRecap, oosRecap, allRecap);
+        return Arrays.asList(exchangeRecap, returnRecap, progressRecap, receivedRecap, payedRecap, outRecap, oosRecap, allRecap);
     }
 
     // For packets chart

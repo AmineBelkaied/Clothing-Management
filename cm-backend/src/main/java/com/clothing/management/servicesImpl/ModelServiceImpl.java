@@ -31,7 +31,6 @@ public class ModelServiceImpl implements ModelService {
     private final IProductsPacketRepository productsPacketRepository;
     private final IOfferRepository offerRepository;
     private final IOfferModelRepository offerModelRepository;
-    private static List<String> confirmedPacketStatus = List.of(new String[]{"Livrée", "Payée","En cours (1)", "En cours (2)", "En cours (3)", "A verifier"});
 
     public ModelServiceImpl(IModelRepository modelRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper, ModelMapper modelMapper,
                             IProductsPacketRepository productsPacketRepository, IOfferRepository offerRepository, IOfferModelRepository offerModelRepository) {

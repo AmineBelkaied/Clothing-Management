@@ -35,7 +35,7 @@ public class Offer {
     @Builder.Default
     private List<ProductsPacket> productsPacket = new ArrayList<>();
 
-    @ManyToMany(cascade = { CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = { CascadeType.PERSIST }, fetch = FetchType.EAGER)
     @JoinTable(
             name = "offer_fb_pages",
             joinColumns = { @JoinColumn(name = "offer_id") },
@@ -49,9 +49,9 @@ public class Offer {
 
     @Column(name = "is_enabled", nullable = false)
     @Builder.Default
-    private boolean isEnabled = false;
+    private boolean enabled = false;
 
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default
-    private boolean isDeleted = false;
+    private boolean deleted = false;
 }

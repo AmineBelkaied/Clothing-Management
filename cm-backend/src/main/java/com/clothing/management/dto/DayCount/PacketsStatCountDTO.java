@@ -1,26 +1,30 @@
 package com.clothing.management.dto.DayCount;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 public class PacketsStatCountDTO extends DayCountDTO {
 
     private Date date;
+    private Long countRecived;
     private Long countOut;
     private Long countExchange;
     private Long countOos;
     private Long countAll;
     private long countReturn;
 
-    public PacketsStatCountDTO(Date date, Long countPayed, Long countOut,
+    public PacketsStatCountDTO(Date date, Long countRecived, Long countPayed, Long countOut,
                                Long countExchange, Long countReturn,
                                Long countOos, Long countProgress, Long countAll) {
         super(countPayed, countProgress);
         this.date = date;
+        this.countRecived = countRecived;
         this.countOut = countOut;
         this.countExchange = countExchange;
         this.countOos = countOos;
