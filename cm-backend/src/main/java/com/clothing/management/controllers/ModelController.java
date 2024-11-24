@@ -3,6 +3,7 @@ package com.clothing.management.controllers;
 import com.clothing.management.dto.ModelDTO;
 import com.clothing.management.dto.ModelDeleteDTO;
 import com.clothing.management.entities.Model;
+import com.clothing.management.models.ModelSaveResponse;
 import com.clothing.management.services.ModelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,20 +50,20 @@ public class ModelController {
     }
 
     @PostMapping
-    public ResponseEntity<ModelDTO> createModel(@RequestBody ModelDTO modelDTO) {
+    public ResponseEntity<ModelSaveResponse> createModel(@RequestBody ModelDTO modelDTO) {
         LOGGER.info("Creating new model: {}", modelDTO);
-        ModelDTO createdModel = modelService.saveModel(modelDTO);
-        LOGGER.info("Model created successfully: {}", createdModel);
+        ModelSaveResponse modelSaveResponse = modelService.saveModel(modelDTO);
+        LOGGER.info("Model created successfully: {}", modelSaveResponse);
         if(modelDTO.getId() != null) {
-            return new ResponseEntity<>(createdModel, HttpStatus.OK);
+            return new ResponseEntity<>(modelSaveResponse, HttpStatus.OK);
         }
-        return new ResponseEntity<>(createdModel, HttpStatus.CREATED);
+        return new ResponseEntity<>(modelSaveResponse, HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<ModelDTO> updateModel(@RequestBody ModelDTO modelDTO) {
+    public ResponseEntity<ModelSaveResponse> updateModel(@RequestBody ModelDTO modelDTO) throws Exception {
         LOGGER.info("Updating model: {}", modelDTO);
-        ModelDTO updatedModel = modelService.saveModel(modelDTO);
+        ModelSaveResponse updatedModel = modelService.saveModel(modelDTO);
         LOGGER.info("Model updated successfully: {}", updatedModel);
         return new ResponseEntity<>(updatedModel, HttpStatus.OK);
     }

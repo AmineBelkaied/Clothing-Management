@@ -59,6 +59,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
   $unsubscribe: Subject<void> = new Subject();
   clonedModel: Model;
   isOptionsDialogVisible: boolean = false;
+  error: string = '';
 
   constructor(
     private modelService: ModelService,
@@ -90,7 +91,18 @@ export class ListModelsComponent implements OnInit, OnDestroy {
     this.submitted = true;
     if (this.isValidModel) {
       return this.modelService.addModel(this.model).pipe(
-        tap((response: Model) => {
+        tap((response: any) => {
+          console.log(response);
+          if(!response.success) {
+            const formattedErrors = response.errors.replace(/\n/g, '<br>');
+            this.confirmationService.confirm({
+              message: formattedErrors,
+              header: 'Confirmation',
+              icon: 'pi pi-exclamation-triangle',
+              accept: () => {
+              }
+            });
+          }
           this.modelService.updateModelsSubscriber(response);
 
           if (this.editMode) {

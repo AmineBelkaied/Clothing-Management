@@ -32,11 +32,20 @@ public interface IProductRepository extends JpaRepository<Product, Long> {
     @Query(value = "SELECT * FROM `product` WHERE `model_id` = :modelId AND `color_id` = :colorId AND size_id = :sizeId LIMIT 1",nativeQuery = true)
     Product findByModelAndColorAndSize(@Param("modelId") Long modelId, @Param("colorId") Long colorId, @Param("sizeId") Long sizeId);
 
+    @Query(value = "SELECT * FROM `product` WHERE `model_id` = :modelId AND `color_id` = :colorId",nativeQuery = true)
+    List<Product> findByModelAndColor(@Param("modelId") Long modelId, @Param("colorId") Long colorId);
+
     @Query(value = "SELECT * FROM `product` WHERE `model_id` = :modelId",nativeQuery = true)
     List<Product> findByModel(@Param("modelId") Long modelId);
 
     @Query(value = "SELECT p FROM Product p " +
             "WHERE  p.model.id = :modelId AND p.color IS NOT NULL AND p.size IS NOT NULL")
     List<Product> productsQuantity(@Param("modelId") Long modelId);
+
+    @Query("SELECT p FROM Product p WHERE p.model.id = :modelId AND p.color.id IN :colorIds")
+    List<Product> findByModelAndColors(@Param("modelId") Long modelId, @Param("colorIds") List<Long> colorIds);
+
+    @Query("SELECT p FROM Product p WHERE p.model.id = :modelId AND p.size.id IN :sizeIds")
+    List<Product> findByModelAndSizes(@Param("modelId") Long modelId, @Param("sizeIds") List<Long> sizeIds);
 
 }

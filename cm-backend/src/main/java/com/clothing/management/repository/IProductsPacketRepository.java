@@ -222,6 +222,9 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     @Query("SELECT COUNT(*) FROM ProductsPacket pp where pp.product.model.id = :id AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') ")
     long countProductsPacketByModelId(@Param("id") Long id);
 
+    @Query("SELECT COUNT(*) FROM ProductsPacket pp where pp.product.id = :id AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') ")
+    long countProductsPacketByProductId(@Param("id") Long id);
+
     Long countProductsPacketByOfferId(Long id);
 
     Long countProductsPacketByProduct_Color_Id(Long id);
