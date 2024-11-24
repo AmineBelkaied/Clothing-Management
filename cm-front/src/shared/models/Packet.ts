@@ -31,8 +31,9 @@ export interface Packet {
     note?: string;
     productCount: number;
     exchangeId?: number;
-    haveExchange?:boolean;
+    haveExchange?: boolean;
     cityName: string;
+    changedPrice: boolean;
     [key: string]: any;//to ignore packet[][] error
 
 }

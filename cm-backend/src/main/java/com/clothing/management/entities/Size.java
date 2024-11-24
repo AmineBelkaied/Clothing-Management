@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +15,7 @@ import java.util.Set;
 })
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Data
+@ToString(exclude = {"models"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -28,6 +26,7 @@ public class Size implements Comparable<Size> {
     private Long id;
     private String reference;
     private String description;
+
     @ManyToMany(mappedBy = "colors")
     @JsonBackReference
     @Builder.Default

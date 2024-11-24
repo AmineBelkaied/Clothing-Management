@@ -4,11 +4,11 @@ import { PacketService } from 'src/shared/services/packet.service';
 import { PAID } from 'src/shared/utils/status-list';
 
 @Component({
-  selector: 'app-payed-return',
-  templateUrl: './payed-return.component.html',
-  styleUrls: ['./payed-return.component.scss']
+  selector: 'app-paid-return',
+  templateUrl: './paid-return.component.html',
+  styleUrls: ['./paid-return.component.scss']
 })
-export class PayedReturnComponent implements OnInit {
+export class PaidReturnComponent implements OnInit {
   text: string = ''; // Initialize with the provided text
   extractedBarcodes: string[] = [];
   type: string= PAID;

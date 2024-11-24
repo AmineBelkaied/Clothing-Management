@@ -14,8 +14,8 @@ public class StatesStatCountDTO extends DayCountDTO {
     private String governerateName;
     private Long countReturn;
 
-    public StatesStatCountDTO(Date date, String governerateName, Long countPayed, Long countProgress, Long countReturn) {
-        super(countPayed, countProgress);
+    public StatesStatCountDTO(Date date, String governerateName, Long countPaid, Long countProgress, Long countReturn) {
+        super(countPaid, countProgress);
         this.date = date;
         this.governerateName = governerateName;
         this.countReturn =countReturn;

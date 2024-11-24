@@ -2,14 +2,17 @@ package com.clothing.management.repository;
 import com.clothing.management.dto.DayCount.*;
 import com.clothing.management.dto.ProductDTO;
 import com.clothing.management.entities.FbPage;
+import com.clothing.management.entities.Packet;
 import com.clothing.management.entities.Product;
 import com.clothing.management.entities.ProductsPacket;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,12 +30,14 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN pp.packet.status = 'En rupture' THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN (pp.packet.status = 'Retour' OR pp.packet.status = 'Retour reçu') AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END)) " +
             "FROM ProductsPacket pp " +
-            "WHERE DATE(pp.packet.date) IS NOT NULL " +
+            "WHERE pp.product.model.id = :modelId " +
+            "AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','En rupture','Retour','Retour reçu') " +
+            "AND DATE(pp.packet.date) IS NOT NULL " +
+            "AND pp.product.color IS NOT NULL " +
+            "AND pp.product.size IS NOT NULL " +
             "AND DATE(pp.packet.date) >= DATE(:beginDate) " +
             "AND DATE(pp.packet.date) <= DATE(:endDate) " +
-            "AND pp.product.model.id = :modelId " +
-            "AND pp.packet.status IN ('Livrée', 'Payée','Confirmée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier','En rupture','Retour','Retour reçu') " +
-            "GROUP BY pp.product.color.name, pp.product.size.reference")
+            "GROUP BY pp.product.color, pp.product.size")
     List<SoldProductsDayCountDTO> soldProductsCountByDate(@Param("modelId") Long modelId,@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
 
@@ -229,6 +234,19 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     Long countProductsPacketByProduct_Color_Id(Long id);
 
     Long countProductsPacketByProduct_Size_Id(Long id);
+
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Packet p " +
+            "SET p.changedPrice = true " +
+            "WHERE p.id IN ( " +
+            "    SELECT pp.packet.id " +
+            "    FROM ProductsPacket pp " +
+            "    WHERE pp.offer.id = :offerId " +
+            "    AND pp.packet.status NOT IN ('Livrée', 'Payée', 'Confirmée', 'En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') " +
+            ")")
+    int updatePacketsByOfferId(long offerId);
 }
 
 /*

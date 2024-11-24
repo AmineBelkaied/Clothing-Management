@@ -16,8 +16,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-
 @RestController
 @RequestMapping("${api.prefix}/products")
 @CrossOrigin
@@ -139,10 +137,8 @@ public class ProductController {
 
     @GetMapping("/stock-quantity/{modelId}")
     public ResponseEntity<List<ProductsQuantityDTO>> getStockQuantity(@PathVariable("modelId") Long modelId) {
-        LOGGER.info("Fetching stock for modelId: {}, from {} to {}", modelId);
         try {
             List<ProductsQuantityDTO> stock = productService.getStockQuantity(modelId);
-            LOGGER.info("Successfully fetched stock for modelId: {}", modelId);
             return ResponseEntity.ok(stock);
         } catch (Exception e) {
             LOGGER.error("Error fetching stock for modelId: {}: ", modelId, e);

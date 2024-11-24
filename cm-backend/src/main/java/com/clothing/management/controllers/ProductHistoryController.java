@@ -13,7 +13,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("${api.prefix}/product-histories")
@@ -111,8 +110,7 @@ public class ProductHistoryController {
 
     @DeleteMapping
     public ResponseEntity<Void> deleteProductHistory(
-            @RequestBody ProductHistory productHistory,
-            @RequestParam(required = false) String colorSize) {
+            @RequestBody ProductHistory productHistory) {
         LOGGER.info("Deleting product history: {}", productHistory);
         try {
             productHistoryService.deleteProductHistory(productHistory);

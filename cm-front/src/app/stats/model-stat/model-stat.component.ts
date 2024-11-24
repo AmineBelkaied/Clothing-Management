@@ -76,7 +76,7 @@ export class ModelStatComponent implements OnInit,OnChanges {
     min: 0,               // Minimum range (e.g., price or quantity)
     max: 0,               // Maximum range (e.g., price or quantity)
     avg: 0,               // Average value
-    payed: 0,             // Total articles sold
+    paid: 0,             // Total articles sold
     progress: 0,          // Current progress
     retour: 0,            // Return rate or count
     purchasePrice: 0,     // Purchase price
@@ -203,7 +203,7 @@ export class ModelStatComponent implements OnInit,OnChanges {
   }
 
   formatNumber(item: any) {
-    let value = (item.payed*100) / (item.retour+item.payed)
+    let value = (item.paid*100) / (item.retour+item.paid)
       if (!isNaN(value)) {
         return value.toFixed(2);
       }
@@ -266,7 +266,7 @@ export class ModelStatComponent implements OnInit,OnChanges {
 interface CountDates {
   [date: string]: {
     count: number;
-    payed: number;
+    paid: number;
     return: number;
     exchange: number;
     out: number;

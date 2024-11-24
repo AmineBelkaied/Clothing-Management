@@ -23,7 +23,7 @@ public class StatTableDTO {
     @Builder.Default
     private long received=0;
     @Builder.Default
-    private long payed=0;
+    private long paid=0;
     @Builder.Default
     private double Per=0.0;
     @Builder.Default
@@ -43,6 +43,6 @@ public class StatTableDTO {
         this.progress = 0;
         this.profits = 0.0;
         this.received = 0;
-        this.payed = 0;
+        this.paid = 0;
     }
 }

@@ -241,6 +241,7 @@
               {{ packet.packetDescription }}
               <i class="pi pi-pencil" style="color: red; font-size: 14.5px; padding-left: 10px"></i>
             </p>
+            <span class="align-center note-user" style="color: red;" *ngIf="packet.changedPrice">Le prix a été changé</span>
           </ng-container>
           <ng-template #addMode>
             <button pButton pRipple (click)="loadOfferListAndOpenOffersDialog(packet,false)" icon="pi pi-plus" style ="width: 2.3rem;"

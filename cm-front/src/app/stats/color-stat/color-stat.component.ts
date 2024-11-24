@@ -172,7 +172,7 @@ export class ColorStatComponent implements OnInit,OnChanges {
   }
 
   formatNumber(item: any) {
-    let value = (item.payed*100) / (item.retour+item.payed)
+    let value = (item.paid*100) / (item.retour+item.paid)
       if (!isNaN(value)) {
         return value.toFixed(2);
       }

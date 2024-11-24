@@ -73,13 +73,13 @@ public class StatServiceImpl implements StatService {
                 // Calculate counts for the current model on the given date
                 for (PagesDayCountDTO row : existingProductsPacket) {
                     if (row.getDate().equals(uniqueDate) && row.getFbPage().getId().equals(page.getId())) {
-                        count += row.getCountPayed();
+                        count += row.getCountPaid();
                         countProfits += row.getProfits();
                         countProgress += row.getCountProgress();
                         countRetour += row.getCountReturn();
                     }
                 }
-                pageRecap.setPayed(count + pageRecap.getPayed());
+                pageRecap.setPaid(count + pageRecap.getPaid());
                 pageRecap.setRetour(countRetour + pageRecap.getRetour());
                 pageRecap.setProgress(countProgress + pageRecap.getProgress());
                 countPagesList.add(count);
@@ -89,7 +89,7 @@ public class StatServiceImpl implements StatService {
             listPagesCount.add(countPagesList);
             pageRecap.setMin(Collections.min(countPagesList));
             pageRecap.setMax(Collections.max(countPagesList));
-            pageRecap.setAvg(pageRecap.getPayed() / uniqueDates.size());
+            pageRecap.setAvg(pageRecap.getPaid() / uniqueDates.size());
             pageRecap.setProfits(countProfits + pageRecap.getProfits());
             pagesRecapCount.add(pageRecap);
         }
@@ -150,16 +150,16 @@ public class StatServiceImpl implements StatService {
                 // Calculate counts for the current model on the given date
                 for (ModelsDayCountDTO row : existingProductsPacket) {
                     if (row.getDate().equals(uniqueDate) && row.getModel().getId().equals(uniqueModel.getId())) {
-                        count += row.getCountPayed();
+                        count += row.getCountPaid();
                         countProfits += row.getProfits();
                         countProgress += row.getCountProgress();
                         countRetour += row.getCountReturn();
                     }
                 }
                 // Update the recap for the current model
-                modelRecap.setPurchasePrice((double) (uniqueModel.getPurchasePrice()* modelRecap.getPayed()));
+                modelRecap.setPurchasePrice((double) (uniqueModel.getPurchasePrice()* modelRecap.getPaid()));
                 modelRecap.setSellingPrice(modelRecap.getSellingPrice());
-                modelRecap.setPayed(count + modelRecap.getPayed());
+                modelRecap.setPaid(count + modelRecap.getPaid());
                 modelRecap.setRetour(countRetour + modelRecap.getRetour());
                 modelRecap.setProgress(countProgress + modelRecap.getProgress());
                 countModelsList.add(count);
@@ -169,7 +169,7 @@ public class StatServiceImpl implements StatService {
             listModelsCount.add(countModelsList);
             modelRecap.setMin(Collections.min(countModelsList));
             modelRecap.setMax(Collections.max(countModelsList));
-            modelRecap.setAvg(modelRecap.getPayed() / uniqueDates.size());
+            modelRecap.setAvg(modelRecap.getPaid() / uniqueDates.size());
             modelRecap.setProfits(countProfits + modelRecap.getProfits());
             modelRecap.setSellingPrice(modelRecap.getPurchasePrice()+modelRecap.getProfits());
             modelsRecapCount.add(modelRecap);
@@ -388,7 +388,7 @@ public class StatServiceImpl implements StatService {
 
             // Process each unique date for the current offer
             for (Date uniqueDate : uniqueDates) {
-                long countPayed = 0;
+                long countPaid = 0;
                 long countProgress = 0;
                 long countRetour = 0;
                 double countProfits = 0;
@@ -396,8 +396,8 @@ public class StatServiceImpl implements StatService {
                 // Calculate counts for the current offer on the given date
                 for (OffersDayCountDTO row : existingOffersPacket) {
                     if (row.getDate().equals(uniqueDate) && row.getOffer().getId().equals(uniqueOffer.getId())) {
-                        if (row.getCountPayed() > 0) {
-                            countPayed += 1;
+                        if (row.getCountPaid() > 0) {
+                            countPaid += 1;
                             countProfits += row.getProfits();
                         }
                         if (row.getCountReturn() > 0) countRetour += 1;
@@ -406,22 +406,22 @@ public class StatServiceImpl implements StatService {
                 }
 
                 // Update the recap for the current offer
-                offerRecap.setPayed(countPayed + offerRecap.getPayed());
+                offerRecap.setPaid(countPaid + offerRecap.getPaid());
                 offerRecap.setRetour(countRetour + offerRecap.getRetour());
                 offerRecap.setProgress(countProgress + offerRecap.getProgress());
                 offerRecap.setProfits(countProfits + offerRecap.getProfits());
-                countOffersList.add(countPayed);
+                countOffersList.add(countPaid);
             }
 
             // Add the offer's data to the list and recap counts
             listOffersCount.add(countOffersList);
             offerRecap.setMin(Collections.min(countOffersList));
             offerRecap.setMax(Collections.max(countOffersList));
-            offerRecap.setAvg(offerRecap.getPayed() / uniqueDates.size());
+            offerRecap.setAvg(offerRecap.getPaid() / uniqueDates.size());
 
             // Calculate purchase price
             Double purchasePrice = calculateOfferpurchasePrice(uniqueOffer);
-            offerRecap.setPurchasePrice(purchasePrice * offerRecap.getPayed());
+            offerRecap.setPurchasePrice(purchasePrice * offerRecap.getPaid());
             offerRecap.setSellingPrice(offerRecap.getPurchasePrice() + offerRecap.getProfits());
 
             offersRecapCount.add(offerRecap);
@@ -467,7 +467,7 @@ public class StatServiceImpl implements StatService {
             totalRecap.setAvg(totalRecap.getAvg() + uniqueRecapCount.getAvg());
             totalRecap.setMax(totalRecap.getMax() + uniqueRecapCount.getMax());
             totalRecap.setMin(totalRecap.getMin() + uniqueRecapCount.getMin());
-            totalRecap.setPayed(totalRecap.getPayed() + uniqueRecapCount.getPayed());
+            totalRecap.setPaid(totalRecap.getPaid() + uniqueRecapCount.getPaid());
             totalRecap.setRetour(totalRecap.getRetour() + uniqueRecapCount.getRetour());
             totalRecap.setProfits(totalRecap.getProfits() + uniqueRecapCount.getProfits());
 
@@ -489,7 +489,7 @@ public class StatServiceImpl implements StatService {
             totalRecap.setAvg(totalRecap.getAvg() + uniqueRecapCount.getAvg());
             totalRecap.setMax(totalRecap.getMax() + uniqueRecapCount.getMax());
             totalRecap.setMin(totalRecap.getMin() + uniqueRecapCount.getMin());
-            totalRecap.setPayed(totalRecap.getPayed() + uniqueRecapCount.getPayed());
+            totalRecap.setPaid(totalRecap.getPaid() + uniqueRecapCount.getPaid());
         }
         return totalRecap;
     }
@@ -538,14 +538,14 @@ public class StatServiceImpl implements StatService {
                 // Calculate counts for the current color on the given date
                 for (ColorsDayCountDTO product : existingProductsPacketColor) {
                     if (product.getDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId())) {
-                        count += (int) product.getCountPayed();
+                        count += (int) product.getCountPaid();
                         countProgress += (int) product.getCountProgress();
                     }
                 }
 
                 // Update the color recap
                 if (count == 0) colorRecap.setMin(0L);
-                colorRecap.setPayed(colorRecap.getPayed() + count);
+                colorRecap.setPaid(colorRecap.getPaid() + count);
                 colorRecap.setRetour(countRetour + colorRecap.getRetour());
                 colorRecap.setProgress(countProgress + colorRecap.getProgress());
                 uniqueColorCountList.add(count);
@@ -555,7 +555,7 @@ public class StatServiceImpl implements StatService {
             countColorsLists.add(uniqueColorCountList);
             colorRecap.setMin(Long.valueOf(Collections.min(uniqueColorCountList)));
             colorRecap.setMax(Long.valueOf(Collections.max(uniqueColorCountList)));
-            colorRecap.setAvg(colorRecap.getPayed() / uniqueDates.size());
+            colorRecap.setAvg(colorRecap.getPaid() / uniqueDates.size());
             colorsRecapCount.add(colorRecap);
         }
 
@@ -616,7 +616,7 @@ public class StatServiceImpl implements StatService {
         List<Long> countAll = new ArrayList<>();
         List<Long> countExchange = new ArrayList<>();
         List<Long> countOut = new ArrayList<>();
-        List<Long> countPayed = new ArrayList<>();
+        List<Long> countPaid = new ArrayList<>();
         List<Long> countReturn = new ArrayList<>();
         List<Long> countOos = new ArrayList<>();
         List<Long> countProgress = new ArrayList<>();
@@ -626,21 +626,21 @@ public class StatServiceImpl implements StatService {
             countAll.add(dayStat.getCountAll());
             countExchange.add(dayStat.getCountExchange());
             countOut.add(dayStat.getCountOut());
-            countPayed.add(dayStat.getCountPayed()+dayStat.getCountRecived());
+            countPaid.add(dayStat.getCountPaid()+dayStat.getCountRecived());
             countReturn.add(dayStat.getCountReturn());
             countOos.add(dayStat.getCountOos());
             countProgress.add(dayStat.getCountProgress());
         }
 
         LOGGER.debug("Status count lists created successfully.");
-        return Arrays.asList(countExchange, countReturn, countPayed, countOut, countProgress, countOos, countAll);
+        return Arrays.asList(countExchange, countReturn, countPaid, countOut, countProgress, countOos, countAll);
     }
 
     private List<StatTableDTO> createStatusRecapCount(List<PacketsStatCountDTO> existingPackets, int datesSize) {
 
         StatTableDTO exchangeRecap = statTableMapper.toStatTableDTO(SystemStatus.EXCHANGE.getStatus());
         StatTableDTO returnRecap = statTableMapper.toStatTableDTO(SystemStatus.RETURN.getStatus());
-        StatTableDTO payedRecap = statTableMapper.toStatTableDTO(SystemStatus.PAID.getStatus());
+        StatTableDTO paidRecap = statTableMapper.toStatTableDTO(SystemStatus.PAID.getStatus());
         StatTableDTO receivedRecap = statTableMapper.toStatTableDTO(SystemStatus.LIVREE.getStatus());
         StatTableDTO oosRecap = statTableMapper.toStatTableDTO(SystemStatus.OOS.getStatus());
         StatTableDTO outRecap = statTableMapper.toStatTableDTO("Sortie");
@@ -652,7 +652,7 @@ public class StatServiceImpl implements StatService {
             updateRecapStats(exchangeRecap, dayStat.getCountExchange());
             updateRecapStats(outRecap, dayStat.getCountOut());
             updateRecapStats(allRecap, dayStat.getCountAll());
-            updateRecapStats(payedRecap, dayStat.getCountPayed());
+            updateRecapStats(paidRecap, dayStat.getCountPaid());
             updateRecapStats(receivedRecap, dayStat.getCountRecived());
             updateRecapStats(returnRecap, dayStat.getCountReturn());
             updateRecapStats(oosRecap, dayStat.getCountOos());
@@ -660,33 +660,33 @@ public class StatServiceImpl implements StatService {
         }
 
         // Finalize recap stats
-        long totalPayedReceived = outRecap.getPayed()+outRecap.getReceived();
-        finalizeRecapStats(exchangeRecap, datesSize, totalPayedReceived);
-        finalizeRecapStats(outRecap, datesSize, allRecap.getPayed());
-        finalizeRecapStats(allRecap, datesSize, allRecap.getPayed());
-        finalizeRecapStats(payedRecap, datesSize, totalPayedReceived);
-        finalizeRecapStats(receivedRecap, datesSize, totalPayedReceived);
-        finalizeRecapStats(returnRecap, datesSize, outRecap.getPayed());
-        finalizeRecapStats(oosRecap, datesSize, allRecap.getPayed());
-        finalizeRecapStats(progressRecap, datesSize, allRecap.getPayed()); // No percentage for progressRecap
+        long totalPaidReceived = outRecap.getPaid()+outRecap.getReceived();
+        finalizeRecapStats(exchangeRecap, datesSize, totalPaidReceived);
+        finalizeRecapStats(outRecap, datesSize, allRecap.getPaid());
+        finalizeRecapStats(allRecap, datesSize, allRecap.getPaid());
+        finalizeRecapStats(paidRecap, datesSize, totalPaidReceived);
+        finalizeRecapStats(receivedRecap, datesSize, totalPaidReceived);
+        finalizeRecapStats(returnRecap, datesSize, outRecap.getPaid());
+        finalizeRecapStats(oosRecap, datesSize, allRecap.getPaid());
+        finalizeRecapStats(progressRecap, datesSize, allRecap.getPaid()); // No percentage for progressRecap
 
         LOGGER.debug("Status recap count created successfully.");
-        return Arrays.asList(exchangeRecap, returnRecap, progressRecap, receivedRecap, payedRecap, outRecap, oosRecap, allRecap);
+        return Arrays.asList(exchangeRecap, returnRecap, progressRecap, receivedRecap, paidRecap, outRecap, oosRecap, allRecap);
     }
 
     // For packets chart
     private void updateRecapStats(StatTableDTO recap, long count) {
         recap.setMin(Math.min(count, recap.getMin()));
         recap.setMax(Math.max(count, recap.getMax()));
-        recap.setPayed(count + recap.getPayed());
-        LOGGER.debug("Updated recap stats. New min: {}, New max: {}, New payed: {}", recap.getMin(), recap.getMax(), recap.getPayed());
+        recap.setPaid(count + recap.getPaid());
+        LOGGER.debug("Updated recap stats. New min: {}, New max: {}, New paid: {}", recap.getMin(), recap.getMax(), recap.getPaid());
     }
 
     // For packets chart
     private void finalizeRecapStats(StatTableDTO recap, int uniqueDatesSize, double total) {
         if (uniqueDatesSize == 0) uniqueDatesSize = 1;
-        double avg = (double) recap.getPayed() / uniqueDatesSize;
-        double percentage = total == 0 ? 0 : Math.round(recap.getPayed() * 10000.0 / total) / 100.0;
+        double avg = (double) recap.getPaid() / uniqueDatesSize;
+        double percentage = total == 0 ? 0 : Math.round(recap.getPaid() * 10000.0 / total) / 100.0;
 
         recap.setAvg((long) avg);
         recap.setPer(percentage);
@@ -881,7 +881,7 @@ public class StatServiceImpl implements StatService {
                 for (ProductDayCountDTO productDto : existingProductsPacket) {
                     String colorAndSize = productDto.getColor().getName() + " " + productDto.getSize().getReference();
                     if (productDto.getDate().equals(uniqueDate) && uniqueProductRef.equals(colorAndSize)) {
-                        count += (int) productDto.getCountPayed();
+                        count += (int) productDto.getCountPaid();
                     }
                 }
                 countProductsList.add(count);
@@ -905,7 +905,7 @@ public class StatServiceImpl implements StatService {
                 int count = 0;
                 for (ProductDayCountDTO product : existingProductsPacket) {
                     if (product.getDate().equals(uniqueDate) && product.getColor().getId().equals(uniqueColor.getId())) {
-                        count += (int) (product.getCountPayed()+ product.getCountProgress());
+                        count += (int) (product.getCountPaid()+ product.getCountProgress());
                     }
                 }
                 countColorsList.add(count);
@@ -928,7 +928,7 @@ public class StatServiceImpl implements StatService {
                 int count = 0;
                 for (ProductDayCountDTO product : existingProductsPacket) {
                     if (product.getDate().equals(uniqueDate) && product.getSize().getId().equals(uniqueSize.getId())) {
-                        count += (int) (product.getCountPayed()+product.getCountProgress());
+                        count += (int) (product.getCountPaid()+product.getCountProgress());
                     }
                 }
                 countSizesList.add(count);

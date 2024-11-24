@@ -16,7 +16,6 @@ import java.util.Objects;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id",scope = Product.class)
 @Data
 @Builder
-@ToString(exclude = {"productsPacket","productHistory"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
@@ -55,4 +54,16 @@ public class Product {
 
     @Builder.Default
     private boolean deleted = false;
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", color=" + color.getName() +
+                ", size=" + size.getReference() +
+                ", quantity=" + quantity +
+                ", date=" + date +
+                ", deleted=" + deleted +
+                '}';
+    }
 }

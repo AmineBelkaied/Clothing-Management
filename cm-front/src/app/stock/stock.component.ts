@@ -179,9 +179,9 @@ export class StockComponent implements OnInit, OnDestroy {
             //let modelsLength = this.models.length - 1;
             this.filteredModels = this.models;
             this.selectModel(this.models[0]);
-          } else {
+          }/*  else {
             console.warn('No models available.');
-          }
+          } */
         })
       )
       .subscribe({

@@ -17,6 +17,7 @@ import com.clothing.management.utils.EntityBuilderHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -143,11 +144,18 @@ public class OfferServiceImpl implements OfferService {
                 });
 
         offer.setName(name);
-        offer.setPrice(price);
+        if(price != offer.getPrice()){
+            offer.setPrice(price);
+            correctPacketPrice(id);
+        }
+
         offer.setEnabled(isEnabled);
         Offer updatedOffer = offerRepository.save(offer);
         LOGGER.info("Offer data updated for id: {}.", id);
         return offerMapper.toDto(updatedOffer);
+    }
+    private int correctPacketPrice(long offerId){
+        return productsPacketRepository.updatePacketsByOfferId(offerId);
     }
 
     @Override

@@ -458,8 +458,7 @@ export class AddPacketComponent implements OnInit {
               this.stockAvailable =
                 x < this.stockAvailable ? x : this.stockAvailable;
 
-              const profits =
-                packetEarningCoefficient * model.earningCoefficient;
+              const profits = packetEarningCoefficient * model.earningCoefficient;
               const formatteProfits = this.decimalPipe.transform(
                 profits,
                 '1.2-2'

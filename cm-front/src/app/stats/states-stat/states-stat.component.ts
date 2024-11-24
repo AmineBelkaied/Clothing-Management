@@ -100,8 +100,8 @@ export class StatesStatComponent implements OnInit,OnChanges {
     const labels: String[] = Object.values(data).flatMap(
       (obj : any) => obj.governerateName
     );
-    const payed: number[] = Object.values(data).flatMap(
-      (obj : any) => obj.countPayed
+    const paid: number[] = Object.values(data).flatMap(
+      (obj : any) => obj.countPaid
     );
     const returned: number[] = Object.values(data).flatMap(
       (obj : any) => obj.countReturn
@@ -113,7 +113,7 @@ export class StatesStatComponent implements OnInit,OnChanges {
           type: 'bar',
           label: 'Payée:',
           backgroundColor: 'blue',
-          data: payed,
+          data: paid,
         },
         {
           type: 'bar',

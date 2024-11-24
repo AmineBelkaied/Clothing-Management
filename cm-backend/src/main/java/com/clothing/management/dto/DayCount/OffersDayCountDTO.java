@@ -20,9 +20,9 @@ public class OffersDayCountDTO  extends DayCountDTO {
                               Long packetId,
                               Offer offer,
                               Long packetOfferId,
-                              long countPayed, long countProgress, long countReturn, double profits
+                              long countPaid, long countProgress, long countReturn, double profits
     ) {
-        super( countPayed, countProgress);
+        super( countPaid, countProgress);
         this.date = packetDate;
         this.packetId = packetId;
         this.offer = offer;

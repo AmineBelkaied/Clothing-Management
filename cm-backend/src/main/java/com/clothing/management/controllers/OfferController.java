@@ -1,7 +1,6 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.dto.*;
-import com.clothing.management.entities.FbPage;
 import com.clothing.management.entities.Offer;
 import com.clothing.management.entities.OfferModel;
 import com.clothing.management.services.OfferService;
@@ -57,7 +56,7 @@ public class OfferController {
     }
 
     @GetMapping("/fb-page/{fbPageId}")
-    public ResponseEntity<List<OfferModel>> getOffersByFbPageId(@PathVariable("fbPageId") Long fbPageId) throws IOException {
+    public ResponseEntity<List<OfferModel>> getOffersByFbPageId(@PathVariable("fbPageId") Long fbPageId){
         LOGGER.info("Fetching offers for fbPageId: {}", fbPageId);
         try {
             List<OfferModel> offers = offerService.findOfferByFbPageId(fbPageId);

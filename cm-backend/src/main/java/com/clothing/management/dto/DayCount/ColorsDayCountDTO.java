@@ -14,9 +14,9 @@ public class ColorsDayCountDTO extends DayCountDTO {
     public ColorsDayCountDTO(
             Date packetDate,
             Color color,
-            long countPayed, long countProgress
+            long countPaid, long countProgress
     ) {
-        super(countPayed, countProgress);
+        super(countPaid, countProgress);
         this.date = packetDate;
         this.color = color;
     }

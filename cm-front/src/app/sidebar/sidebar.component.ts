@@ -59,7 +59,7 @@ export class SidebarComponent implements OnInit {
                   { label: 'Stock', icon: 'pi pi-box', routerLink: "/stock", isUserOption : true },
                   { label: 'Configuration', icon: 'pi pi-cog', routerLink: "/config", isUserOption : false },
                   { label: 'Statistique', icon: 'pi pi-chart-bar', routerLink: "/statistique", isUserOption : false },
-                  { label: 'Suivie packet', icon: 'pi pi-map-marker', routerLink: "/payed-return", isUserOption : false },
+                  { label: 'Suivie packet', icon: 'pi pi-map-marker', routerLink: "/paid-return", isUserOption : false },
                   { label: 'Validation', icon: 'pi pi-check-square', routerLink: "/verification", isUserOption : true },
                 ];
 

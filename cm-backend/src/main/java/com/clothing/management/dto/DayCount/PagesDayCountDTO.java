@@ -20,9 +20,9 @@ public class PagesDayCountDTO extends DayCountDTO {
     public PagesDayCountDTO(Date packetDate,
                             Long packetId,
                             FbPage fbPage,
-                            long countPayed, long countProgress, long countReturn, long countOos, double profits
+                            long countPaid, long countProgress, long countReturn, long countOos, double profits
     ) {
-        super( countPayed, countProgress);
+        super( countPaid, countProgress);
         this.date = packetDate;
         this.packetId = packetId;
         this.fbPage = fbPage;

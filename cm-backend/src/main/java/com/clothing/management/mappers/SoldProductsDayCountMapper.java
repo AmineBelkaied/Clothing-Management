@@ -15,8 +15,8 @@ public interface SoldProductsDayCountMapper {
 
     @Mappings({
             @Mapping(target = "qte", source = "quantity"),
-            @Mapping(target = "color", source = "color.id"),
-            @Mapping(target = "size", source = "size.id"),
+            @Mapping(target = "colorId", source = "color.id"),
+            @Mapping(target = "sizeId", source = "size.id"),
     })
     SoldProductsDayCountDTO produtToSoldProductsDayCountDTO(Product product);
 }

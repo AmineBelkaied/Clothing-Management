@@ -22,6 +22,7 @@ public interface PacketMapper {
             @Mapping(target = "cityName", expression = "java(packet.getCity() != null ? packet.getCity().getGovernorate().getName() + '-' + packet.getCity().getName() : \"\")"),
             @Mapping(target = "totalPrice", expression = "java(packet.getPrice() + packet.getDeliveryPrice() - packet.getDiscount())"),
             @Mapping(target = "stock", expression = "java(packet.getProductsPackets().size() > 0 ? PacketMapper.getStock(packet.getProductsPackets(), packet.getBarcode()) : 0)")
+
     })
     PacketDTO toDto(Packet packet);
 

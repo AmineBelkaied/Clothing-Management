@@ -114,8 +114,8 @@ export class PageStatComponent implements OnInit ,OnChanges{
   }
   createPagesOChart(data: any) {
     const pagesData: number[] = Object.values(data)
-    .filter((obj: any) => obj.payed && obj.name !== "Total")
-    .map((obj: any) => obj.payed); // Assuming you want to extract `payed` values
+    .filter((obj: any) => obj.paid && obj.name !== "Total")
+    .map((obj: any) => obj.paid); // Assuming you want to extract `paid` values
 
     const pagesLabel: string[] = Object.values(data)
       .filter((obj: any) => obj.name && obj.name !== "Total")
@@ -157,7 +157,7 @@ export class PageStatComponent implements OnInit ,OnChanges{
   }
 
   formatNumber(item: any) {
-    let value = (item.payed*100) / (item.retour+item.payed)
+    let value = (item.paid*100) / (item.retour+item.paid)
       if (!isNaN(value)) {
         return value.toFixed(2);
       }

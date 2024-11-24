@@ -11,7 +11,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DayCountDTO {
-    private long countPayed;
+    private long countPaid;
     private long countProgress;
 
 }

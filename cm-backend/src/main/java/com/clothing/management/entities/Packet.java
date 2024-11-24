@@ -103,12 +103,14 @@ public class Packet {
     @OneToMany(mappedBy = "packet", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Note> notes;
 
-    @Column(name = "product_count")
-    private Integer productCount;
-
     @Column(name = "have_exchange")
     @Builder.Default
     private boolean haveExchange = false;
+
+    @Column(name = "changed_price")
+    @Builder.Default
+    private boolean changedPrice = false;
+
 
     // Custom methods
     public void addProductsToPacket(List<ProductsPacket> productsPacket) {

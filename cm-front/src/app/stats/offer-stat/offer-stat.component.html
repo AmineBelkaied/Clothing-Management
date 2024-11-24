@@ -10,7 +10,7 @@
                 <th>Model</th>
                 <th>Min-Max</th>
                 <th pSortableColumn="avg">Avg<p-sortIcon field="avg" /></th>
-                <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
+                <th pSortableColumn="paid">Payée<p-sortIcon field="paid" /></th>
                 <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
                 <th>Retour</th>
                 <th>Payée/Retour</th>
@@ -24,7 +24,7 @@
                 <td>{{ item.name }}</td>
                 <td>{{ item.min }}-{{ item.max }}</td>
                 <td>{{ item.avg }}</td>
-                <td>{{ item.payed }}</td>
+                <td>{{ item.paid }}</td>
                 <td>{{ item.progress }}</td>
                 <td>{{ item.retour }}</td>
                 <td>{{ formatNumber(item) }}%</td>
@@ -39,7 +39,7 @@
                 <td>{{ totalOffer.name }}</td>
                 <td>{{ totalOffer.min }}-{{ totalOffer.max }}</td>
                 <td>{{ totalOffer.avg }}</td>
-                <td>{{ totalOffer.payed }}</td>
+                <td>{{ totalOffer.paid }}</td>
                 <td>{{ totalOffer.progress }}</td>
                 <td>{{ totalOffer.retour }}</td>
                 <td>{{ formatNumber(totalOffer) }}%</td>

@@ -9,14 +9,14 @@ export interface ProductCountDTO {
     countExchange : number;//
     countOos : number;//
     countProgress: number;//
-    countPayed: number;//
+    countPaid: number;//
     count: number;
     qte:number;//
 }
 
 export interface SoldProduct {
   countProgress: number;
-  countPayed: number;
+  countPaid: number;
   id: number;
   countExchange: number;
   countOos: number;

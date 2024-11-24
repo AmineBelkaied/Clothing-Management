@@ -14,10 +14,10 @@ import java.util.Set;
 })
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Data
+@ToString(exclude = {"models"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"models"})
 public class Color {
 
     @Id

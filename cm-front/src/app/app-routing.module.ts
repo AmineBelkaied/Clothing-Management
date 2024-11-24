@@ -7,7 +7,7 @@ import { StockComponent } from './stock/stock.component';
 import { ListPacketsComponent } from './packet/list-packets/list-packets.component';
 import { ListSizesComponent } from './config/size/list-sizes/list-sizes.component';
 import { StatsComponent } from './stats/stats.component';
-import { PayedReturnComponent } from './payed-return/payed-return.component';
+import { PaidReturnComponent } from './paid-return/paid-return.component';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { Roles } from 'src/shared/enums/roles';
 import { VerificationComponent } from './verification/verification.component';
@@ -48,7 +48,7 @@ const routes: Routes = [
     }
   },
   {
-    path: "payed-return", "component": PayedReturnComponent, canActivate: [AuthGuard], data: {
+    path: "paid-return", "component": PaidReturnComponent, canActivate: [AuthGuard], data: {
       role: [Roles.ADMIN,, Roles.USER]
     }
   },

@@ -75,7 +75,7 @@ import { StockHistoryComponent } from './stock/stock-history/stock-history.compo
 import { StockTableComponent } from './stock/stock-table/stock-table.component';
 import { StockTableMinComponent } from './stock/stock-table-min/stock-table-min.component';
 import { PaginatorModule } from 'primeng/paginator';
-import { PayedReturnComponent } from './payed-return/payed-return.component';
+import { PaidReturnComponent } from './paid-return/paid-return.component';
 import { VerificationComponent } from './verification/verification.component';
 import { PickListModule } from 'primeng/picklist';
 import { GlobalConfComponent } from './config/global-conf/global-conf.component';
@@ -150,9 +150,9 @@ import { ColorStatComponent } from './stats/color-stat/color-stat.component';
     StockHistoryComponent,
     StockTableComponent,
     StockTableMinComponent,
-    PayedReturnComponent,
+    PaidReturnComponent,
     VerificationComponent,
-    PayedReturnComponent,
+    PaidReturnComponent,
     PacketsMenueContainerComponent,
     StatusContainerComponent,
     UserComponent,

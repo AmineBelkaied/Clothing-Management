@@ -37,7 +37,7 @@
                       <i class="pi pi-cart-plus"></i>
                     </div>
                     <div class="text-section">
-                      <div class="value">{{ totalModel.payed }}</div>
+                      <div class="value">{{ totalModel.paid }}</div>
                       <div class="label2">Articles vendu</div>
                     </div>
                     <div class="info-section">
@@ -69,7 +69,7 @@
                   <th>Model</th>
                   <th>Min-Max</th>
                   <th pSortableColumn="avg">Avg<p-sortIcon field="avg" /></th>
-                  <th pSortableColumn="payed">Payée<p-sortIcon field="payed" /></th>
+                  <th pSortableColumn="paid">Payée<p-sortIcon field="paid" /></th>
                   <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
                   <th>Retour</th>
                   <th>Payée/Retour</th>
@@ -83,7 +83,7 @@
                   <td>{{ item.name }}</td>
                   <td>{{ item.min }}-{{ item.max }}</td>
                   <td>{{ item.avg }}</td>
-                  <td>{{ item.payed }}</td>
+                  <td>{{ item.paid }}</td>
                   <td>{{ item.progress }}</td>
                   <td>{{ item.retour }}</td>
                   <td>{{ formatNumber(item) }}%</td>
@@ -97,7 +97,7 @@
                   <td>{{ totalModel.name }}</td>
                   <td>{{ totalModel.min }}-{{ totalModel.max }}</td>
                   <td>{{ totalModel.avg }}</td>
-                  <td>{{ totalModel.payed }}</td>
+                  <td>{{ totalModel.paid }}</td>
                   <td>{{ totalModel.progress }}</td>
                   <td>{{ totalModel.retour }}</td>
                   <td>{{ formatNumber(totalModel) }}%</td>

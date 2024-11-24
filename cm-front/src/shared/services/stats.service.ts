@@ -98,7 +98,7 @@ export class StatsService {
 
     interface CountCity { [cityName: string]: { count: number, confirm: number, citys: { [name: string]: { count: number, confirm: number } } } }
     interface CountPage { [pageName: string]: { count: number, confirm: number } }
-    interface CountDate { [date: string]: { count: number, payed: number, return: number, exchange: number, out: number } }
+    interface CountDate { [date: string]: { count: number, paid: number, return: number, exchange: number, out: number } }
     interface Count { cityCounts: CountCity, pageCounts: CountPage, dateCounts: CountDate }
 
     let cityCounts: CountCity = {};
@@ -125,10 +125,10 @@ export class StatsService {
           dateCounts[date].count++;
         }
         else {
-          dateCounts[date] = { count: 1, payed: 0, return: 0, exchange: 0, out: 0 };
+          dateCounts[date] = { count: 1, paid: 0, return: 0, exchange: 0, out: 0 };
         }
         if (packet.status == PAID || packet.status == DELIVERED) {
-          dateCounts[date].payed++;
+          dateCounts[date].paid++;
         }
         else if (packet.status == RETURN || packet.status == RETURN_RECEIVED) {
           dateCounts[date].return++;

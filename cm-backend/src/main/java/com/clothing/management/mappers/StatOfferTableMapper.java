@@ -20,7 +20,7 @@ public interface StatOfferTableMapper {
             @Mapping(target = "purchasePrice", constant = "0.0"),
             @Mapping(target = "sellingPrice", constant = "0.0"),
             // Set default values explicitly for inherited fields from StatTableDTO
-            @Mapping(target = "payed", constant = "0L"),
+            @Mapping(target = "paid", constant = "0L"),
             @Mapping(target = "retour", constant = "0L"),
             @Mapping(target = "Min", constant = "1000L"),
             @Mapping(target = "Max", constant = "0L"),
@@ -34,7 +34,7 @@ public interface StatOfferTableMapper {
             @Mapping(target = "purchasePrice", constant = "0.0"),
             @Mapping(target = "sellingPrice", constant = "0.0"),
             // Set default values explicitly for inherited fields from StatTableDTO
-            @Mapping(target = "payed", constant = "0L"),
+            @Mapping(target = "paid", constant = "0L"),
             @Mapping(target = "retour", constant = "0L"),
             @Mapping(target = "Min", constant = "1000L"),
             @Mapping(target = "Max", constant = "0L"),

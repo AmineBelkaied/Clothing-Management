@@ -10,7 +10,6 @@ import com.clothing.management.exceptions.custom.notfound.PacketNotFoundExceptio
 import com.clothing.management.exceptions.generic.EntityNotFoundException;
 import com.clothing.management.mappers.PacketMapper;
 import com.clothing.management.mappers.PacketStatusMapper;
-import com.clothing.management.mappers.ProductMapper;
 import com.clothing.management.models.DashboardCard;
 import com.clothing.management.servicesImpl.api.DeliveryCompanyService;
 import com.clothing.management.servicesImpl.api.DeliveryCompanyServiceFactory;
@@ -43,7 +42,7 @@ import static com.clothing.management.enums.SystemStatus.LIVREE;
 @Service
 public class PacketServiceImpl implements PacketService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PacketService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PacketServiceImpl.class);
     private final IPacketRepository packetRepository;
     private final IProductRepository productRepository;
     private final IProductsPacketRepository productsPacketRepository;
@@ -54,7 +53,6 @@ public class PacketServiceImpl implements PacketService {
     private final PacketBuilderHelper packetBuilderHelper;
     private final EntityBuilderHelper entityBuilderHelper;
     private final PacketMapper packetMapper;
-    private final ProductMapper productMapper;
     private final PacketStatusMapper packetStatusMapper;
 
     @Autowired
@@ -65,7 +63,7 @@ public class PacketServiceImpl implements PacketService {
             DeliveryCompanyServiceFactory deliveryCompanyServiceFactory,
             SessionUtils sessionUtils,
             IGlobalConfRepository globalConfRepository, PacketBuilderHelper packetBuilderHelper,
-            EntityBuilderHelper entityBuilderHelper, PacketMapper packetMapper, ProductMapper productMapper, PacketStatusMapper packetStatusMapper) {
+            EntityBuilderHelper entityBuilderHelper, PacketMapper packetMapper, PacketStatusMapper packetStatusMapper) {
         this.packetRepository = packetRepository;
         this.productRepository = productRepository;
         this.productsPacketRepository = productsPacketRepository;
@@ -75,7 +73,6 @@ public class PacketServiceImpl implements PacketService {
         this.packetBuilderHelper = packetBuilderHelper;
         this.entityBuilderHelper = entityBuilderHelper;
         this.packetMapper = packetMapper;
-        this.productMapper = productMapper;
         this.packetStatusMapper = packetStatusMapper;
     }
 
@@ -103,12 +100,9 @@ public class PacketServiceImpl implements PacketService {
 
     @Override
     public List<Packet> findAllPackets() {
-        List<Packet> packets = packetRepository.findAll().stream()
+        return packetRepository.findAll().stream()
                 .sorted(Comparator.comparingLong(Packet::getId).reversed())
                 .collect(Collectors.toList());
-
-        LOGGER.info("Retrieved {} packets.", packets.size());
-        return packets;
     }
 
     @Override
@@ -710,7 +704,8 @@ public class PacketServiceImpl implements PacketService {
             LOGGER.debug("Updating packet status. Packet ID: {}, New Status: {}", packet.getId(), status);
 
             if (packet.getExchangeId() != null) {
-                if (status.equals(LIVREE.getStatus())) {//status.equals(PAID.getStatus()) correction ahmed should add alert before payed if not received
+                if (status.equals(LIVREE.getStatus())) {
+                    //status.equals(PAID.getStatus()) correction ahmed should add alert before paid if not received
                     return updateExchangePacketStatusToPaid(packet, status);
                 }
                 if (status.equals(RETURN_RECEIVED.getStatus())) {
@@ -769,8 +764,6 @@ public class PacketServiceImpl implements PacketService {
         }
 
         public void updateProducts_Quantity(Packet packet, String status) {
-            LOGGER.debug("Updating products quantity for packet ID: {}, Status: {}", packet.getId(), status);
-
             if (status.equals(RETURN_RECEIVED.getStatus())
                     || status.equals(CONFIRMED.getStatus())
                     || status.equals(CANCELED.getStatus())) {
@@ -839,8 +832,7 @@ public class PacketServiceImpl implements PacketService {
             packet.setPrice(selectedProductsDTO.getTotalPrice());
             packet.setDeliveryPrice(selectedProductsDTO.getDeliveryPrice());
             packet.setDiscount(selectedProductsDTO.getDiscount());
-            packet.setProductCount(selectedProductsDTO.getProductCount());
-
+            packet.setChangedPrice(false);
             Packet savedPacket = packetRepository.save(packet);
             LOGGER.info("Products added to packet ID: {}. New packet details: {}", packet.getId(), savedPacket);
 
@@ -919,10 +911,4 @@ public class PacketServiceImpl implements PacketService {
                 throw e;
             }
         }
-    private long getStock(List<ProductsPacket> productsPackets, String barcode) {
-        return (barcode == null || barcode.equals("")) ? productsPackets.stream()
-                .mapToLong(productsPacket -> productsPacket.getProduct().getQuantity()) // Assuming getQte() returns the quantity
-                .min()
-                .orElse(-1) : 100;
-    }
 }

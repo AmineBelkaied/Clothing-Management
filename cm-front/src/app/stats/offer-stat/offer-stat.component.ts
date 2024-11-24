@@ -36,7 +36,7 @@ export class OfferStatComponent implements OnInit,OnChanges {
     min: 0,                     // Minimum value, e.g., min price or quantity
     max: 0,                     // Maximum value, e.g., max price or quantity
     avg: 0,                     // Average value, e.g., average sales per day
-    payed: 0,                   // Total items sold or payed amount
+    paid: 0,                   // Total items sold or paid amount
     progress: 0,                // Current progress metric
     retour: 0,                  // Returns or refund count/rate
     purchasePrice: 0,           // Total purchase price value
@@ -183,7 +183,7 @@ export class OfferStatComponent implements OnInit,OnChanges {
   }
 
   formatNumber(item: any) {
-    let value = (item.payed*100) / (item.retour+item.payed)
+    let value = (item.paid*100) / (item.retour+item.paid)
       if (!isNaN(value)) {
         return value.toFixed(2);
       }

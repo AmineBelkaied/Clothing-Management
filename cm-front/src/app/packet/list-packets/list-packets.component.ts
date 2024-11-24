@@ -461,6 +461,8 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       this.packets[X].totalPrice = updatedPacket.totalPrice;
       this.packets[X].deliveryPrice = updatedPacket.deliveryPrice;
       this.packets[X].discount = updatedPacket.discount;
+      this.packets[X].changedPrice = updatedPacket.changedPrice;
+
     }
   }
   updateCityField(updatedPacket: Packet) {

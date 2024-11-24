@@ -28,9 +28,9 @@ public class ProductsDayCountDTO extends DayCountDTO {
             Date packetDate, Long id,
             Long modelId, String modelName,
             Color color, Size size,
-            long countPayed, long countProgress, long countOos, long countReturn, double profits
+            long countPaid, long countProgress, long countOos, long countReturn, double profits
     ) {
-        super(countPayed, countProgress);
+        super(countPaid, countProgress);
         this.date = packetDate;
         this.id = id;
         this.modelId = modelId;

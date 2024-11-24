@@ -115,7 +115,7 @@ class="listbox-style">
                             <p-badge *ngIf="productSize.countProgress > 0 && optionFlags['showProgress']" [value]="productSize.countProgress" severity="info"></p-badge>
                           </div>
                           <div *ngIf="!stock">
-                            <h4>{{ productSize.countPayed }}</h4>
+                            <h4>{{ productSize.countPaid }}</h4>
                             <small *ngIf="productSize.countExchange !== 0 && optionFlags['showExchange']">Exchange: {{ productSize.countExchange }}</small>
                           </div>
                           <div *ngIf="stock">

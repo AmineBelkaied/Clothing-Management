@@ -62,13 +62,14 @@ export class StockTableComponent implements OnInit,OnChanges{
 
   ngOnInit(): void {
   this.tableOptions = [
-    { name: 'showNoStockColors', label: 'couleurs vide' },
+    { name: 'showNoStockColors', label: 'Couleurs vide' },
     { name: 'showNoStockSizes', label: 'Tailles vide' },
     { name: 'showProgress', label: 'En cours' },
     { name: 'showOOS', label: 'Rupture' },
     { name: 'showSeverity', label: 'Info stock' },
     { name: 'showExchange', label: 'Echange' },
-    { name: 'delaiEnabled', label: 'Délai' }
+    { name: 'delaiEnabled', label: 'Délai' },
+    { name: 'Archivé', label: 'Archivé' }
   ];
 
 
@@ -97,7 +98,7 @@ export class StockTableComponent implements OnInit,OnChanges{
   ngOnChanges(simpleChanges: SimpleChanges){
     console.log("simpleChanges",simpleChanges);
     this.selectedProducts = [];
-    if(simpleChanges['selectedModel'] && simpleChanges['selectedModel'].firstChange == false )
+    if(simpleChanges['selectedModel'] && this.selectedModel != null )
       {
         this.historyEnabler = false;
         this.selectedModel = simpleChanges['selectedModel'].currentValue
@@ -109,9 +110,8 @@ export class StockTableComponent implements OnInit,OnChanges{
           this.getStockByModelId(this.modelId);
           this.historyEnablerChange();
         }
-
-
   }
+
   handleColorClick(colorId: number) {
     if (!this.optionFlags['showNoStockColors'] || !this.optionFlags['showNoStockSizes']) {
       this.activateShowNullStock()
@@ -134,6 +134,7 @@ export class StockTableComponent implements OnInit,OnChanges{
       }
     }
   }
+
   handleSizeClick(size: number): void {
     if (!this.optionFlags['showNoStockColors'] || !this.optionFlags['showNoStockSizes']) {
       this.activateShowNullStock()
@@ -310,7 +311,7 @@ export class StockTableComponent implements OnInit,OnChanges{
         if (this.stock) {
             totRow += this.productsCount[colorId][sizeId]?.qte || 0;
         } else {
-            totRow += this.productsCount[colorId][sizeId]?.countPayed || 0;
+            totRow += this.productsCount[colorId][sizeId]?.countPaid || 0;
         }
         totProgressRow += this.productsCount[colorId][sizeId]?.countProgress || 0;
     }
@@ -330,7 +331,7 @@ export class StockTableComponent implements OnInit,OnChanges{
         {
           if (this.stock) {
             totColumn += product?.qte;
-          } else totColumn += product?.countPayed;
+          } else totColumn += product?.countPaid;
           progress += product?.countProgress;
         }
       }
@@ -414,10 +415,10 @@ export class StockTableComponent implements OnInit,OnChanges{
   }
 
   getDaysStock(productSize: any): number {
-    let countPayed = productSize.countPayed;
+    let countPaid = productSize.countPaid;
     let qte = productSize.qte;
-    if (countPayed === 0) countPayed = 1;
-    let dayStock = qte / (countPayed / this.datesCount);
+    if (countPaid === 0) countPaid = 1;
+    let dayStock = qte / (countPaid / this.datesCount);
     return Number(dayStock.toFixed(1));
   }
 

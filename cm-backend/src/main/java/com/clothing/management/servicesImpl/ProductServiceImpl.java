@@ -43,7 +43,12 @@ public class ProductServiceImpl implements ProductService {
     private final ModelMapper modelMapper;
 
 
-    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository, IProductHistoryRepository productHistoryRepository, IProductsPacketRepository productsPacketRepository, IProductRepository productsRepository, SessionUtils sessionUtils, EntityBuilderHelper entityBuilderHelper, SoldProductsDayCountMapper soldProductsDayCountMapper, ModelMapper modelMapper) {
+    public ProductServiceImpl(IProductRepository productRepository, IModelRepository modelRepository,
+                              IProductHistoryRepository productHistoryRepository,
+                              IProductsPacketRepository productsPacketRepository,
+                              IProductRepository productsRepository, SessionUtils sessionUtils,
+                              EntityBuilderHelper entityBuilderHelper,
+                              SoldProductsDayCountMapper soldProductsDayCountMapper, ModelMapper modelMapper) {
         this.productRepository = productRepository;
         this.modelRepository = modelRepository;
         this.productHistoryRepository = productHistoryRepository;
@@ -130,10 +135,8 @@ public class ProductServiceImpl implements ProductService {
             List<Size> sizes = model.getSizes();
             List<Long> orderedSizes = sortSizes(
                     model.getSizes().stream()
-                            .filter(size-> {
-                                return Objects.nonNull(size)
-                                        && sizes.contains(size);
-                            })
+                            .filter(size-> Objects.nonNull(size)
+                                    && sizes.contains(size))
                             .collect(Collectors.toSet())
             );
             List<Color> colors = model.getColors();
@@ -152,12 +155,12 @@ public class ProductServiceImpl implements ProductService {
             groupedProductsByColor.forEach((color, products) -> {
                     //LOGGER.info("Processing products for color: {}", color.getId());
                     List<SoldProductsDayCountDTO> productsDayCountDTOByColor = productsDayCountDTO.stream()
-                            .filter(productDayCountDTO -> productDayCountDTO.getColor().equals(color.getId()))
+                            .filter(productDayCountDTO -> productDayCountDTO.getColorId().equals(color.getId()))
                             .collect(Collectors.toList());
                     List<SoldProductsDayCountDTO> sortedProducts = sortSoldProductsDayCountDTOBySize(productsDayCountDTOByColor, products, orderedSizes);
                     HashMap<Long, SoldProductsDayCountDTO> productsBySize = new HashMap<>();
                     for (SoldProductsDayCountDTO soldProduct : sortedProducts) {
-                        productsBySize.put(soldProduct.getSize(), soldProduct);
+                        productsBySize.put(soldProduct.getSizeId(), soldProduct);
                     }
                     productsByColor.put(color.getId(), productsBySize);
             });
@@ -209,7 +212,7 @@ public class ProductServiceImpl implements ProductService {
         // Create a map to quickly find products by size reference
         Map<Long, SoldProductsDayCountDTO> soldProductMap = new HashMap<>();
         for (SoldProductsDayCountDTO product : productsSold) {
-            soldProductMap.put(product.getSize(), product);
+            soldProductMap.put(product.getSizeId(), product);
         }
         // Create the sorted list based on orderedSizes
         List<SoldProductsDayCountDTO> sortedProducts = new ArrayList<>();
