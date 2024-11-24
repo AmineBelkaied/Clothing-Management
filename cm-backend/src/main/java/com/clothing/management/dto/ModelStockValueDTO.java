@@ -13,7 +13,7 @@ public class ModelStockValueDTO {
 
     private String name;
     private long quantity;
-    private double purshasePrice;
+    private double purchasePrice;
     private double sellingPrice;
     private double profits;
 

@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> findAllUsers() {
-        List<User> users = userRepository.findAll();
+        List<User> users = userRepository.findAll().stream().filter(user->!user.getFullName().equals("SYSTEM")).toList();
         LOGGER.info("Fetched {} users", users.size());
         return users;
     }

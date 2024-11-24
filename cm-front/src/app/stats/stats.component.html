@@ -1,0 +1,138 @@
+
+  <!-- Calendar section -->
+
+  <div class="container-fluid">
+    <div class="card mt-2 mb-3" style="background-color: #fbfbfb; margin-left: 6rem;">
+      <p-toolbar>
+        <div class="p-toolbar-group-start">
+          <H2>{{ getTitle(selectedIndex)}}</H2>
+        </div>
+        <div class="p-toolbar-group-center">
+            <div *ngIf="selectedIndex == 0">
+              <p-selectButton
+              [options]="deliveryCompanyList"
+              [(ngModel)]="deliveryCompanyName"
+              optionLabel="name"
+              optionValue="name"/>
+            </div>
+            <div  *ngIf="selectedIndex == 1">
+              inclure en cours à la somme
+              <p-inputSwitch [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value"></p-inputSwitch>
+            </div>
+        </div>
+        <div class="p-toolbar-group-end">
+          <p-calendar
+          [(ngModel)]="rangeDates"
+          (ngModelChange)="setCalendar()"
+          selectionMode="range"
+          dateFormat="dd/mm"
+          [readonlyInput]="true"
+          inputId="range"
+          placeholder="Filtrer par date/période"
+          [showClear]="true"
+          (onClearClick)="resetTable()"
+          [showButtonBar]="false"
+          [showIcon]="true"
+          [style]="{ width: '100%' }"
+          [touchUI]="true"
+          [autofocus]="false"
+          (onClickOutside) = "onClickOutside()"
+        >
+          <ng-template pTemplate="footer">
+            <div class="p-d-flex p-ai-center p-jc-between">
+              <p-button label="All" styleClass="p-button-text" (click)="allDateFilter()"></p-button>
+              <p-button label="Semaine" styleClass="p-button-text" (click)="weekDate()"></p-button>
+              <p-button label="15 jours" styleClass="p-button-text" (click)="twoWeekDate()"></p-button>
+              <p-button label="Mois" styleClass="p-button-text" (click)="monthDate()"></p-button>
+              <p-button label="-4" styleClass="p-button-text" (click)="minus4daysDate()"></p-button>
+              <p-button styleClass="p-button-text" (click)="previousDate()">
+                <i class="pi pi-arrow-left"></i>
+              </p-button>
+              <p-button styleClass="p-button-text" (click)="nextDate()">
+                <i class="pi pi-arrow-right"></i>
+              </p-button>
+              <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
+            </div>
+          </ng-template>
+        </p-calendar>
+        </div>
+    </p-toolbar>
+    </div>
+  </div>
+  <div class="container-fluid">
+
+<!--***********************************tab View****************************************-->
+<p-tabView [(activeIndex)]="selectedIndex">
+  <p-tabPanel header="Packets" class="mt-0">
+    <app-packet-stat
+      *ngIf="selectedIndex === 0" [beginDateString]="beginDateString" [endDateString]="endDateString" [deliveryCompanyName]="deliveryCompanyName"></app-packet-stat>
+  </p-tabPanel>
+
+  <p-tabPanel header="Models" class="mt-0">
+    <app-model-stat
+      *ngIf="selectedIndex === 1" [beginDateString]="beginDateString" [endDateString]="endDateString" [countProgressEnabler]="countProgressEnabler"></app-model-stat>
+  </p-tabPanel>
+
+  <p-tabPanel header="Offers" class="mt-0">
+    <app-offer-stat
+      *ngIf="selectedIndex === 2" [beginDateString]="beginDateString" [endDateString]="endDateString"></app-offer-stat>
+  </p-tabPanel>
+
+  <p-tabPanel header="Pages" class="mt-0">
+    <app-page-stat
+    *ngIf="selectedIndex === 3" [beginDateString]="beginDateString" [endDateString]="endDateString"></app-page-stat>
+  </p-tabPanel>
+
+  <p-tabPanel header="Colors" class="mt-0">
+    <app-color-stat
+    *ngIf="selectedIndex === 4" [beginDateString]="beginDateString" [endDateString]="endDateString"></app-color-stat>
+  </p-tabPanel>
+
+  <p-tabPanel header="Gouvernerat" class="mt-0">
+    <app-states-stat
+    *ngIf="selectedIndex === 5" [beginDateString]="beginDateString" [endDateString]="endDateString"></app-states-stat>
+  </p-tabPanel>
+
+  <p-tabPanel header="Stock" class="mt-0">
+    <app-stock-stat
+      *ngIf="selectedIndex === 6"[beginDateString]="beginDateString" [endDateString]="endDateString"></app-stock-stat>
+  </p-tabPanel>
+
+</p-tabView>
+
+
+
+
+
+
+
+<!-------------------------------------States/Pages Chart---------------------------------------->
+<!--<div class="container-fluid">
+  <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+    <p-card [style]="{ width: '100%'}">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <H3>States and pages chart</H3>
+        </div>
+        <div>
+          <p-selectButton
+          [options]="enablerOptions"
+          [(ngModel)]="statesAndPagesChartEnabler"
+          optionLabel="label"
+          optionValue="value"
+          (click)="statesChartEnablerChange()">
+        </p-selectButton>
+        </div>
+      </div>
+        <p-tabView *ngIf="statesAndPagesChartEnabler">
+          <p-tabPanel header="Gouvernerat">
+                <p-chart type="bar" [data]="StatesData" [options]="StatesOptions"></p-chart>
+          </p-tabPanel>
+          <p-tabPanel header="Pages">
+                <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
+          </p-tabPanel>
+        </p-tabView>
+    </p-card>
+  </div>
+</div>-->
+

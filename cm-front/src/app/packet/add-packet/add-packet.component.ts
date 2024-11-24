@@ -325,10 +325,14 @@ export class AddPacketComponent implements OnInit {
 
   //start submit block
   onSubmit(event: Event) {
+    console.log("111",event);
+
     let packetGainCoefficient = 0;
-    let packetPurshasePrice = 0;
+    let packetPurchasePrice = 0;
     let packetEarningCoefficient: number;
     let packet = this.packetForm.value;
+    console.log("2222",this.packet);
+
     for (let i = 0; i < packet.offers.length; i++) {
       let offer: Offer = packet.offers[i];
       if (offer.id != null) {
@@ -336,7 +340,7 @@ export class AddPacketComponent implements OnInit {
           offer.offerModels.forEach((model: Model) => {
             if (model) {
               packetGainCoefficient += model.earningCoefficient;//=2.19+1.55+1.6
-              packetPurshasePrice += model.purchasePrice;//32+22+30=84
+              packetPurchasePrice += model.purchasePrice;//32+22+30=84
             }
           });
         }
@@ -347,7 +351,10 @@ export class AddPacketComponent implements OnInit {
         'packetGainCoefficient is zero, cannot calculate packetEarningCoefficient'
       );
     }
-    let gain = this.productsPrice - packet.discount - packetPurshasePrice;//=223-7-(27+40+50)=216-117=99
+    let gain = this.productsPrice - packetPurchasePrice;
+    if(this.packet.exchangeId == null)
+      gain -= packet.discount;
+    //=223-7-(27+40+50)=216-117=99
 
     //117+7+84
     packetEarningCoefficient = gain / packetGainCoefficient;

@@ -710,7 +710,7 @@ public class PacketServiceImpl implements PacketService {
             LOGGER.debug("Updating packet status. Packet ID: {}, New Status: {}", packet.getId(), status);
 
             if (packet.getExchangeId() != null) {
-                if (status.equals(PAID.getStatus()) || status.equals(LIVREE.getStatus())) {
+                if (status.equals(LIVREE.getStatus())) {//status.equals(PAID.getStatus()) correction ahmed should add alert before payed if not received
                     return updateExchangePacketStatusToPaid(packet, status);
                 }
                 if (status.equals(RETURN_RECEIVED.getStatus())) {
@@ -741,7 +741,7 @@ public class PacketServiceImpl implements PacketService {
 
             Long id = packet.getExchangeId();
             Packet exchangePacket = getPacketById(id);
-            packet.setPrice(exchangePacket.getPrice() - exchangePacket.getDiscount() + packet.getPrice() - packet.getDiscount());
+            packet.setDiscount(exchangePacket.getPrice() -packet.getDiscount() + exchangePacket.getDiscount());
 
             if (!exchangePacket.getStatus().equals(RETURN_RECEIVED.getStatus())) {
                 updatePacketStatusAndSaveToHistory(exchangePacket, RETURN.getStatus());

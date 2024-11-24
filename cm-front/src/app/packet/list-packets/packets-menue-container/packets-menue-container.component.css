@@ -1,9 +1,4 @@
-.megabar {
 
-  padding: 0.3rem;
-  width: 100%;
-  border-radius: 4px;
-}
 .statusbar {
   position: fixed;
   top: 3.4rem;
@@ -14,30 +9,11 @@
   z-index: 1000;
 }
 
-.megabar-header { 
-  background-color: #fdfdfd;
-  color: white;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 100%;
-}
-
-.left-section, .middle-section, .right-section {
-  display: flex;
-  align-items: center;
-}
-
-.left-section .btn,
-.middle-section .btn,
-.right-section .btn {
-  margin-right: 0.5rem;
-}
-
 .menu-input-fields{
   padding: 0.5rem 0.5rem;
   font-size: 0.9rem;
 }
+
 .input-group {
   margin-left: 0.5rem;
 }
@@ -62,3 +38,7 @@ button {
 ::ng-deep .p-calendar button {
   width: 37px !important;
 } */
+
+::ng-deep .p-toolbar{
+  padding: 0 0 0 1rem ;
+}

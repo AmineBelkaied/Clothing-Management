@@ -17,7 +17,6 @@ import {
   NOT_SERIOUS,
   PROBLEME,
   DELETED,
-  statesList,
   statusList,
   IN_PROGRESS_1,
   IN_PROGRESS_2,

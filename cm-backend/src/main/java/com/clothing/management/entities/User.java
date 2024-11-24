@@ -44,6 +44,7 @@ public class User implements Serializable {
             name = "users_roles",
             joinColumns = { @JoinColumn(name = "user_id") },
             inverseJoinColumns = { @JoinColumn(name = "role_id") })
+    @Builder.Default
     private Set<Role> roles  = new HashSet<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)

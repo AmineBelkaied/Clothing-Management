@@ -300,20 +300,29 @@ export class StockComponent implements OnInit, OnDestroy {
       this.rangeDates[1] != null
         ? this.dateUtils.formatDateToString(this.rangeDates[1])
         : this.beginDateString;
+    console.log(this.beginDateString,this.endDateString);
+
   }
 
   allDateFilter() {
     this.rangeDates = [new Date(2023, 0, 1), new Date()];
+    console.log(this.rangeDates);
+
     this.getStats();
   }
 
+  onClickOutside(){
+    this.rangeDates[1] = this.rangeDates[1] ? this.rangeDates[1]
+        : this.rangeDates[0];
+    this.getStats();
+  }
   todayDate() {
     this.range = 1;
     if (this.rangeDates[0] != undefined && this.rangeDates[1] == undefined) {
       this.endDateString = this.dateUtils.formatDateToString(this.today);
       this.rangeDates = [this.rangeDates[0], this.today];
       //this.setCalendar();
-    } else this.rangeDates = [this.today];
+    } else this.rangeDates = [this.today,this.today];
     this.getStats();
   }
 
@@ -326,7 +335,7 @@ export class StockComponent implements OnInit, OnDestroy {
       this.endDateString = this.dateUtils.formatDateToString(this.today);
       this.rangeDates = [this.rangeDates[0], yesterday];
       //this.setCalendar();
-    } else this.rangeDates = [yesterday];
+    } else this.rangeDates = [yesterday,yesterday];
     this.getStats();
   }
 

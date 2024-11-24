@@ -35,6 +35,6 @@ public class Size implements Comparable<Size> {
 
     @Override
     public int compareTo(Size o) {
-        return 0;
+        return o.getReference().compareTo(this.getReference());
     }
 }

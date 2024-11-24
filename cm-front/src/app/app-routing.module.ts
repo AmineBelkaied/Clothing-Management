@@ -6,7 +6,7 @@ import { ListOffersComponent } from './offer/list-offers/list-offers.component';
 import { StockComponent } from './stock/stock.component';
 import { ListPacketsComponent } from './packet/list-packets/list-packets.component';
 import { ListSizesComponent } from './config/size/list-sizes/list-sizes.component';
-import { StatistiqueComponent } from './statistique/statistique.component';
+import { StatsComponent } from './stats/stats.component';
 import { PayedReturnComponent } from './payed-return/payed-return.component';
 import { AuthGuard } from 'src/shared/services/auth-gard.service';
 import { Roles } from 'src/shared/enums/roles';
@@ -43,7 +43,7 @@ const routes: Routes = [
     }
   },
   {
-    path: "statistique", "component": StatistiqueComponent, canActivate: [AuthGuard], data: {
+    path: "statistique", "component": StatsComponent, canActivate: [AuthGuard], data: {
       role: [Roles.ADMIN]
     }
   },

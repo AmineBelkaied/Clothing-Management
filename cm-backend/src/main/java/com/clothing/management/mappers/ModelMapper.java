@@ -19,17 +19,13 @@ public interface ModelMapper {
     @Mappings({
             @Mapping(target = "colors", source = "colors", qualifiedByName = "mapColorsToIds"),
             @Mapping(target = "sizes", source = "sizes", qualifiedByName = "mapSizesToIds"),
-            @Mapping(target = "defaultId", source = "products", qualifiedByName = "mapToDefaultId"),
-            @Mapping(target = "isDeleted", source = "deleted"),
-            @Mapping(target = "isEnabled", source = "enabled")
+            @Mapping(target = "defaultId", source = "products", qualifiedByName = "mapToDefaultId")
     })
     ModelDTO toDto(Model model);
 
     @Mappings({
             @Mapping(target = "colors", source = "colors", qualifiedByName = "mapIdsToColors"),
-            @Mapping(target = "sizes", source = "sizes", qualifiedByName = "mapIdsToSizes"),
-            @Mapping(target = "isDeleted", source = "deleted"),
-            @Mapping(target = "isEnabled", source = "enabled")
+            @Mapping(target = "sizes", source = "sizes", qualifiedByName = "mapIdsToSizes")
     })
     Model toEntity(ModelDTO modelDTO);
 

@@ -5,7 +5,8 @@ export interface Status {
   color: string,
   count: number,
   dayCount: number,
-  onlyAdmin: boolean,
-  options: any[],
-  selectedOptions: []
+  onlyAdmin?: boolean,
+  options?: any[],
+  selectedOptions?: [],
+  isUserOption?: boolean
 }

@@ -15,11 +15,11 @@ public interface IModelRepository extends JpaRepository<Model, Long> {
     Optional<Model> findByNameIsIgnoreCase(String name);
 
     @Modifying
-    @Query("UPDATE Model m SET m.isDeleted = true, m.isEnabled = false WHERE m.id = :id")
+    @Query("UPDATE Model m SET m.deleted = true, m.enabled = false WHERE m.id = :id")
     void softDeleteModel(@Param("id") Long id);
 
     @Modifying
-    @Query("UPDATE Model m SET m.isDeleted = false WHERE m.id = :id")
+    @Query("UPDATE Model m SET m.deleted = false WHERE m.id = :id")
     void rollBackModel(@Param("id") Long id);
 
 }

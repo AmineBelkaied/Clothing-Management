@@ -1,6 +1,7 @@
 package com.clothing.management.dto.DayCount;
 import lombok.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 public class SoldProductsDayCountDTO extends DayCountDTO {
