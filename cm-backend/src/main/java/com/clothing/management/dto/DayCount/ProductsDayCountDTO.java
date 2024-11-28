@@ -13,7 +13,6 @@ import java.util.Date;
 public class ProductsDayCountDTO extends DayCountDTO {
 
     private Long id;
-    private Date date;
     private Long modelId;
     private String modelName;
     private Color color;
@@ -30,8 +29,7 @@ public class ProductsDayCountDTO extends DayCountDTO {
             Color color, Size size,
             long countPaid, long countProgress, long countOos, long countReturn, double profits
     ) {
-        super(countPaid, countProgress);
-        this.date = packetDate;
+        super( packetDate, countPaid, countProgress);
         this.id = id;
         this.modelId = modelId;
         this.modelName = modelName;

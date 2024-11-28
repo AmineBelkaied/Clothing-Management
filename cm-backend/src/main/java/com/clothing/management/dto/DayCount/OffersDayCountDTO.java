@@ -9,7 +9,6 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class OffersDayCountDTO  extends DayCountDTO {
-    private Date date;
     private Long packetId;
     private Long packetOfferId;
     private Offer offer;
@@ -22,13 +21,11 @@ public class OffersDayCountDTO  extends DayCountDTO {
                               Long packetOfferId,
                               long countPaid, long countProgress, long countReturn, double profits
     ) {
-        super( countPaid, countProgress);
-        this.date = packetDate;
+        super(packetDate, countPaid, countProgress);
         this.packetId = packetId;
         this.offer = offer;
         this.packetOfferId = packetOfferId;
         this.countReturn = countReturn;
         this.profits = profits;
-
     }
 }

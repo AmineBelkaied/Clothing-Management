@@ -10,7 +10,6 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class ModelsDayCountDTO extends DayCountDTO {
-    private Date date;
     private Long packetId;
     private Model model;
     private long countReturn;
@@ -22,8 +21,7 @@ public class ModelsDayCountDTO extends DayCountDTO {
                              Model model,
                              long countPaid, long countProgress, long countReturn,long countOos, double profits
     ) {
-        super(countPaid, countProgress);
-        this.date = packetDate;
+        super(packetDate,countPaid, countProgress);
         this.packetId = packetId;
         this.model = model;
         this.countOos = countOos;

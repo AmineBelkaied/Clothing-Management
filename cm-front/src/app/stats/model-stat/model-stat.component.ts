@@ -1,17 +1,9 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { DaySales} from 'src/shared/models/stat';
-import { PacketService } from 'src/shared/services/packet.service';
 import { Packet } from 'src/shared/models/Packet';
 import { DatePipe } from '@angular/common';
 import { StatsService } from 'src/shared/services/stats.service';
-import { DateUtils } from 'src/shared/utils/date-utils';
 import { Subject, takeUntil } from 'rxjs';
-import { ModelService } from 'src/shared/services/model.service';
-import { ActivatedRoute } from '@angular/router';
-import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
 import { FormControl } from '@angular/forms';
-import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
-import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 
 @Component({
   selector: 'app-model-stat',
@@ -21,11 +13,7 @@ import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 })
 
 export class ModelStatComponent implements OnInit,OnChanges {
-
-
   selectedModels: FormControl = new FormControl();
-
-
   title: string = 'Stat-Tab';
   selectedModel: string = '';
   allModelsList: any[] = [];
@@ -87,9 +75,7 @@ export class ModelStatComponent implements OnInit,OnChanges {
 
   constructor(
     private statsService: StatsService,
-    public datePipe: DatePipe,
-    private dateUtils: DateUtils,
-    private modelService: ModelService,
+    public datePipe: DatePipe
   ) {}
   ngOnInit() {
     this.intitiateLists();
@@ -98,19 +84,20 @@ export class ModelStatComponent implements OnInit,OnChanges {
       if((simpleChanges['endDateString'] || simpleChanges['countProgressEnabler']) && this.endDateString)
       {
           this.getStatAllModelsChart();
+          this.getStatAllModelsTable();
       }
   }
 
   getStatAllModelsChart() {
     if(this.endDateString)
     this.statsService
-      .statAllModels(this.beginDateString, this.endDateString,this.countProgressEnabler)
+      .statAllModelsChart(this.beginDateString, this.endDateString,this.countProgressEnabler)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
-        next: (response: any) => {
-          //console.log('statAllModels', response);
-          this.createModelsChart(response);
-          this.totalCard = response.statValuesDashboard[0];
+        next: (data: any) => {
+          this.modelTableData = [];
+          this.dates = data.dates;
+          this.createModelsChart(data);
         },
         error: (error: any) => {
           console.log('ErrorProductsCount:', error);
@@ -121,31 +108,33 @@ export class ModelStatComponent implements OnInit,OnChanges {
       });
   }
 
-  getStatValueStockTable() {
+  getStatAllModelsTable() {
     if(this.endDateString)
     this.statsService
-      .statValueStock()
+      .statAllModels(this.beginDateString, this.endDateString,this.countProgressEnabler)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
-        next: (response: any) => {
-          console.log('statValueStock', response);
-          this.stockValueTableData = response;
-          this.totalStock = this.stockValueTableData[this.stockValueTableData.length - 1];
-          this.stockValueTableData.pop();
+        next: (data: any) => {
+          this.modelTableData = [];
+          this.createModelsTable(data.modelsRecapCount);
+          this.createModelsChart(data);
+          this.totalCard = data.statValuesDashboard[0];
         },
         error: (error: any) => {
-          console.log('ErrorStockCount:', error);
+          console.log('ErrorProductsCount:', error);
         },
         complete: () => {
-          console.log('Observable completed-- getStatStockChart --');
+          console.log('Observable completed-- getStatAllModelsChart --');
         },
       });
   }
 
-  createModelsChart(data: any) {
+
+
+  createModelsChart0(data: any) {
     this.modelTableData = [];
-    let modelsCounts: any[] = [];
     this.modelTableData = data.modelsRecapCount;
+    let modelsCounts: any[] = [];
     modelsCounts = data.modelsCount;
     this.dates = data.dates;
     this.modelsDataSetArray = [];
@@ -170,6 +159,37 @@ export class ModelStatComponent implements OnInit,OnChanges {
     };
   }
 
+  createModelsChart(data: any) {
+    this.modelsDataSetArray = [];
+    let modelsCounts: any[] = [];
+    modelsCounts = data.modelsCount;
+    this.modelTableData = data.modelsRecapCount;
+    console.log("data",data);
+
+    let i = 0;
+    this.modelTableData.forEach((item: any) => {
+      this.modelsDataSetArray.push({
+        label: item.name + '/av:' + this.modelTableData[i].avg,
+        data: modelsCounts[i],
+        fill: false,
+        borderColor: this.getRandomColor(item.name),
+        tension: 0.4,
+        hidden: this.modelTableData[i].avg < 4,
+      });
+      i++;
+    });
+    this.modelsData = {
+      labels: this.dates,
+      datasets: this.modelsDataSetArray,
+    };
+  }
+
+  createModelsTable(data: any) {
+    this.modelTableData = data;
+    this.totalModel = this.modelTableData[this.modelTableData.length - 1];
+    this.modelTableData.pop();
+  }
+
 
   getRandomColor(x: string) {
     if (x == 'Noir' || x == 'noir') return 'black';
@@ -186,6 +206,7 @@ export class ModelStatComponent implements OnInit,OnChanges {
     }
     return color;
   }
+
   calculateAverage(numbers: number[]): number {
     if (numbers.length === 0) {
       return 0; // Handle division by zero
@@ -194,6 +215,7 @@ export class ModelStatComponent implements OnInit,OnChanges {
     const average = sum / numbers.length;
     return Number(average.toFixed(1));
   }
+
   calculateSomme(numbers: number[]): number {
     if (numbers.length === 0) {
       return 0; // Handle division by zero
@@ -272,3 +294,23 @@ interface CountDates {
     out: number;
   };
 }
+/*   getStatValueStockTable() {
+    if(this.endDateString)
+    this.statsService
+      .statValueStock()
+      .pipe(takeUntil(this.$unsubscribe))
+      .subscribe({
+        next: (response: any) => {
+          console.log('statValueStock', response);
+          this.stockValueTableData = response;
+          this.totalStock = this.stockValueTableData[this.stockValueTableData.length - 1];
+          this.stockValueTableData.pop();
+        },
+        error: (error: any) => {
+          console.log('ErrorStockCount:', error);
+        },
+        complete: () => {
+          console.log('Observable completed-- getStatStockChart --');
+        },
+      });
+  } */

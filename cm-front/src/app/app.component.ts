@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
 import { SideBarService } from 'src/shared/services/sidebar.service';
-import { StorageService } from 'src/shared/services/strorage.service';
 
 @Component({
   selector: 'app-root',

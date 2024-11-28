@@ -59,6 +59,7 @@ export const STAT_ENDPOINTS = {
     BASE: '/stats',
     MODEL: '/model',
     MODELS: '/models',
+    MODELS_CHART: '/models-chart',
     STOCK: '/stock',
     VALUES: '/values',
     COLORS: '/colors',

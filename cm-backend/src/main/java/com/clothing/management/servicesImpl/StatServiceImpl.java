@@ -111,15 +111,19 @@ public class StatServiceImpl implements StatService {
         return data;
     }
 
-
     @Override
-    public Map<String, List<?>> statAllModelsChart(String beginDate, String endDate,Boolean countProgressEnabler) {
+    public Map<String, List<?>> statAllModelsTable(String beginDate, String endDate,Boolean countProgressEnabler) {
         List<Long> countModelsList;
         List<ModelsDayCountDTO> existingProductsPacket ;
-        if(countProgressEnabler)
-            existingProductsPacket = productsPacketRepository.statAllModels2(beginDate, endDate);
-        else
-            existingProductsPacket = productsPacketRepository.statAllModels(beginDate, endDate);
+        List<String> status = new ArrayList<>();
+        if (countProgressEnabler) {
+            status = Arrays.asList("Livrée", "Payée", "Confirmée",
+                    "En cours (1)", "En cours (2)",
+                    "En cours (3)", "A vérifier");
+        } else {
+            status = Arrays.asList("Livrée", "Payée");
+        }
+        existingProductsPacket = productsPacketRepository.statAllModels(beginDate, endDate, status);
 
         LOGGER.info("Fetched {} product packets for the date range.", existingProductsPacket.size());
 
@@ -151,14 +155,14 @@ public class StatServiceImpl implements StatService {
                 for (ModelsDayCountDTO row : existingProductsPacket) {
                     if (row.getDate().equals(uniqueDate) && row.getModel().getId().equals(uniqueModel.getId())) {
                         count += row.getCountPaid();
-                        countProfits += row.getProfits();
                         countProgress += row.getCountProgress();
                         countRetour += row.getCountReturn();
+                        countProfits += row.getProfits();
                     }
                 }
                 // Update the recap for the current model
                 modelRecap.setPurchasePrice((double) (uniqueModel.getPurchasePrice()* modelRecap.getPaid()));
-                modelRecap.setSellingPrice(modelRecap.getSellingPrice());
+                //modelRecap.setSellingPrice(modelRecap.getSellingPrice());
                 modelRecap.setPaid(count + modelRecap.getPaid());
                 modelRecap.setRetour(countRetour + modelRecap.getRetour());
                 modelRecap.setProgress(countProgress + modelRecap.getProgress());
@@ -193,6 +197,59 @@ public class StatServiceImpl implements StatService {
         ArrayList<ModelStockValueDTO>  statValuesDashboard = statValuesTotalDashboard();
         data.put("statValuesDashboard", statValuesDashboard);
         LOGGER.info("Model chart data generated successfully.");
+        return data;
+    }
+
+    @Override
+    public Map<String, List<?>> statAllModelsChart(String beginDate, String endDate,Boolean countProgressEnabler) {
+        List<Long> countModelsList;
+        List<ModelsDayCountDTO> existingProductsPacket ;
+        List<String> status;
+        if (countProgressEnabler) {
+            status = Arrays.asList("Livrée", "Payée", "Confirmée",
+                    "En cours (1)", "En cours (2)", "En cours (3)", "A vérifier");
+        } else {
+            status = Arrays.asList("Livrée", "Payée");
+        }
+        existingProductsPacket = productsPacketRepository.statAllModelsChart(beginDate, endDate,status);
+
+        LOGGER.info("Fetched {} product packets for the date range.", existingProductsPacket.size());
+
+        Map<String, List<?>> uniqueValues = getUniqueModels(existingProductsPacket);
+        List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
+        List<ModelDTO> uniqueModels = (List<ModelDTO>) uniqueValues.get("uniqueModels");
+
+        List<List<Long>> listModelsCount = new ArrayList<>();
+
+        StatOfferTableDTO modelRecap;
+        for (ModelDTO uniqueModel : uniqueModels) {
+            countModelsList = new ArrayList<>();
+            modelRecap = statTableMapper.modelToStatModelTableDTO(uniqueModel);
+
+            // Process each unique date for the current model
+            for (Date uniqueDate : uniqueDates) {
+                long count = 0;
+                // Calculate counts for the current model on the given date
+                for (ModelsDayCountDTO row : existingProductsPacket) {
+                    if (row.getDate().equals(uniqueDate) && row.getModel().getId().equals(uniqueModel.getId())) {
+                        count += row.getCountPaid();
+                    }
+                }
+                modelRecap.setPaid(count + modelRecap.getPaid());
+                countModelsList.add(count);
+            }
+
+            // Add the model's data to the list and recap counts
+            listModelsCount.add(countModelsList);
+        }
+
+        // Total models count by date
+        listModelsCount.add(countTotal(uniqueDates, listModelsCount));
+
+        // Prepare the final data map
+        Map<String, List<?>> data = new HashMap<>();
+        data.put("dates", uniqueDates);
+        data.put("modelsCount", listModelsCount);
         return data;
     }
 
@@ -243,8 +300,6 @@ public class StatServiceImpl implements StatService {
             totalSellingPrice += sellingPriceForEntry;
         }
         modelStockValuesList.add(new ModelStockValueDTO("Total",totalQuantity,totalPurchasePrice,totalSellingPrice,totalSellingPrice - totalPurchasePrice));
-
-        LOGGER.info("Fetched {} stock history entries", modelStockValuesList.size());
         return modelStockValuesList;
     }
 
@@ -282,7 +337,6 @@ public class StatServiceImpl implements StatService {
 
         // Fetch stock history
         List<ModelStockHistory> statStock = modelStockHistoryRepository.statStockByDate(beginDate, endDate);
-        LOGGER.info("Fetched {} stock history entries", statStock.size());
 
         // Extract unique dates and model information
         Map<String, List<?>> uniqueValues = getUniqueStock(statStock);
@@ -468,6 +522,7 @@ public class StatServiceImpl implements StatService {
             totalRecap.setMax(totalRecap.getMax() + uniqueRecapCount.getMax());
             totalRecap.setMin(totalRecap.getMin() + uniqueRecapCount.getMin());
             totalRecap.setPaid(totalRecap.getPaid() + uniqueRecapCount.getPaid());
+            totalRecap.setProgress(totalRecap.getProgress() + uniqueRecapCount.getProgress());
             totalRecap.setRetour(totalRecap.getRetour() + uniqueRecapCount.getRetour());
             totalRecap.setProfits(totalRecap.getProfits() + uniqueRecapCount.getProfits());
 

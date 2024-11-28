@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -49,8 +48,23 @@ public class StatController {
             @RequestParam Boolean countProgress) {
         LOGGER.info("Fetching stats for all models from {} to {} with countProgress: {}", beginDate, endDate, countProgress);
         try {
-            Map<String, List<?>> stats = statService.statAllModelsChart(beginDate, endDate,countProgress);
+            Map<String, List<?>> stats = statService.statAllModelsTable(beginDate, endDate,countProgress);
             LOGGER.info("Successfully fetched stats for all models");
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            LOGGER.error("Error fetching stats for all models: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/models-chart")
+    public ResponseEntity<Map<String, List<?>>> getAllModelsStatsChart(
+            @RequestParam String beginDate,
+            @RequestParam String endDate,
+            @RequestParam Boolean countProgress) {
+        LOGGER.info("Fetching stats for all models from {} to {} with countProgress: {}", beginDate, endDate, countProgress);
+        try {
+            Map<String, List<?>> stats = statService.statAllModelsChart(beginDate, endDate,countProgress);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             LOGGER.error("Error fetching stats for all models: ", e);
@@ -65,7 +79,6 @@ public class StatController {
         LOGGER.info("Fetching stock stats from {} to {}", beginDate, endDate);
         try {
             Map<String, List<?>> stats = statService.statAllStockChart(beginDate, endDate);
-            LOGGER.info("Successfully fetched stock stats");
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             LOGGER.error("Error fetching stock stats: ", e);
@@ -75,8 +88,6 @@ public class StatController {
 
     @GetMapping("/values")
     public ResponseEntity<ArrayList<ModelStockValueDTO>> getValuesStats() {
-        Date today = new Date();
-
         try {
             ArrayList<ModelStockValueDTO> stats = statService.statValuesDashboard();
             LOGGER.info("Successfully fetched stock stats");

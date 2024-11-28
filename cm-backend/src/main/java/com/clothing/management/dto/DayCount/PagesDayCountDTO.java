@@ -10,7 +10,6 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class PagesDayCountDTO extends DayCountDTO {
-    private Date date;
     private Long packetId;
     private FbPage fbPage;
     private long countReturn;
@@ -22,8 +21,7 @@ public class PagesDayCountDTO extends DayCountDTO {
                             FbPage fbPage,
                             long countPaid, long countProgress, long countReturn, long countOos, double profits
     ) {
-        super( countPaid, countProgress);
-        this.date = packetDate;
+        super( packetDate, countPaid, countProgress);
         this.packetId = packetId;
         this.fbPage = fbPage;
         this.countOos = countOos;

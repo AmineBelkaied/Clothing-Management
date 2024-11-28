@@ -15,7 +15,6 @@ public class ProductsPacketDTO {
 
     long id;
     long packetOfferId;
-    
     List<Long> productIds;
     List<ProductResponse> products;
 
