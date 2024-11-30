@@ -39,9 +39,10 @@ public interface StatTableMapper {
             @Mapping(target = "Avg", constant = "0L"),
             @Mapping(target = "Per", constant = "0.0"),
             @Mapping(target = "progress", constant = "0L"),
-            @Mapping(target = "profits", constant = "0.0")
+            @Mapping(target = "profits", constant = "0.0"),
+            @Mapping(target = "name", constant = "nameRow"),
     })
-    StatOfferTableDTO modelToStatModelTableDTO(ModelDTO modelDTO);
+    StatOfferTableDTO modelToStatModelTableDTO(String nameRow);
 
     @Mappings({
             @Mapping(target = "name", source = "nameRow"),

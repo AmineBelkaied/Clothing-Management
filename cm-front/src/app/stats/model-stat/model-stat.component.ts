@@ -13,6 +13,7 @@ import { FormControl } from '@angular/forms';
 })
 
 export class ModelStatComponent implements OnInit,OnChanges {
+
   selectedModels: FormControl = new FormControl();
   title: string = 'Stat-Tab';
   selectedModel: string = '';
@@ -48,6 +49,16 @@ export class ModelStatComponent implements OnInit,OnChanges {
   modelChartOptions: string[] = ['Chart', 'Table'];
   modelChartBoolean: boolean = true;
   modelTableData: any;
+  modelsCounts: any[] = [];
+
+  totals = {
+    paid: 0,
+    progress: 0,
+    retour: 0,
+    purchasePrice: 0,
+    sellingPrice: 0,
+    profits: 0,
+  };
 
   selectedModelChart: string = 'Chart';
 
@@ -84,6 +95,7 @@ export class ModelStatComponent implements OnInit,OnChanges {
       if((simpleChanges['endDateString'] || simpleChanges['countProgressEnabler']) && this.endDateString)
       {
           this.getStatAllModelsChart();
+
           this.getStatAllModelsTable();
       }
   }
@@ -95,7 +107,6 @@ export class ModelStatComponent implements OnInit,OnChanges {
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (data: any) => {
-          this.modelTableData = [];
           this.dates = data.dates;
           this.createModelsChart(data);
         },
@@ -116,9 +127,10 @@ export class ModelStatComponent implements OnInit,OnChanges {
       .subscribe({
         next: (data: any) => {
           this.modelTableData = [];
-          this.createModelsTable(data.modelsRecapCount);
-          this.createModelsChart(data);
+          //this.createModelsTable(data.modelsStat);
+          this.modelTableData = data.modelsStat;
           this.totalCard = data.statValuesDashboard[0];
+          this.totals = this.calculateTotals();
         },
         error: (error: any) => {
           console.log('ErrorProductsCount:', error);
@@ -129,52 +141,19 @@ export class ModelStatComponent implements OnInit,OnChanges {
       });
   }
 
-
-
-  createModelsChart0(data: any) {
-    this.modelTableData = [];
-    this.modelTableData = data.modelsRecapCount;
-    let modelsCounts: any[] = [];
-    modelsCounts = data.modelsCount;
-    this.dates = data.dates;
-    this.modelsDataSetArray = [];
-
-    let i = 0;
-    this.modelTableData.forEach((item: any) => {
-      this.modelsDataSetArray.push({
-        label: item.name + '/av:' + this.modelTableData[i].avg,
-        data: modelsCounts[i],
-        fill: false,
-        borderColor: this.getRandomColor(item.name),
-        tension: 0.4,
-        hidden: this.modelTableData[i].avg < 4,
-      });
-      i++;
-    });
-    this.totalModel = this.modelTableData[this.modelTableData.length - 1];
-    this.modelTableData.pop();
-    this.modelsData = {
-      labels: this.dates,
-      datasets: this.modelsDataSetArray,
-    };
-  }
-
   createModelsChart(data: any) {
     this.modelsDataSetArray = [];
-    let modelsCounts: any[] = [];
-    modelsCounts = data.modelsCount;
-    this.modelTableData = data.modelsRecapCount;
-    console.log("data",data);
-
+    this.modelsCounts = data.modelsCount;
     let i = 0;
-    this.modelTableData.forEach((item: any) => {
+    this.modelsCounts.forEach((item: any) => {
+      let x = this.calculateAverage(this.modelsCounts[i]);
       this.modelsDataSetArray.push({
-        label: item.name + '/av:' + this.modelTableData[i].avg,
-        data: modelsCounts[i],
+        label: item.name+":"+x,
+        data: this.modelsCounts[i],
         fill: false,
         borderColor: this.getRandomColor(item.name),
         tension: 0.4,
-        hidden: this.modelTableData[i].avg < 4,
+        hidden: x < 3
       });
       i++;
     });
@@ -186,8 +165,6 @@ export class ModelStatComponent implements OnInit,OnChanges {
 
   createModelsTable(data: any) {
     this.modelTableData = data;
-    this.totalModel = this.modelTableData[this.modelTableData.length - 1];
-    this.modelTableData.pop();
   }
 
 
@@ -208,7 +185,9 @@ export class ModelStatComponent implements OnInit,OnChanges {
   }
 
   calculateAverage(numbers: number[]): number {
-    if (numbers.length === 0) {
+    console.log(numbers);
+
+    if (numbers.length === 0 || numbers == undefined) {
       return 0; // Handle division by zero
     }
     const sum = numbers.reduce((acc, current) => acc + current, 0);
@@ -216,6 +195,20 @@ export class ModelStatComponent implements OnInit,OnChanges {
     return Number(average.toFixed(1));
   }
 
+  getMinMax(numbers: number[]): string {
+    console.log(numbers);
+
+    if (numbers.length === 0 || numbers == undefined) {
+      return ""; // Handle division by zero
+    }
+    let min = 1000;
+    let max = 0;
+    for(let x of numbers){
+      if(x<min) min = x;
+      if(x>max) max = x;
+    }
+    return min+"-"+max;
+  }
   calculateSomme(numbers: number[]): number {
     if (numbers.length === 0) {
       return 0; // Handle division by zero
@@ -225,12 +218,44 @@ export class ModelStatComponent implements OnInit,OnChanges {
   }
 
   formatNumber(item: any) {
-    let value = (item.paid*100) / (item.retour+item.paid)
+    let value = (item.countPaid*100) / (item.countReturn+item.countPaid)
       if (!isNaN(value)) {
         return value.toFixed(2);
       }
       return '0.00';
   }
+
+  getItemIndex(item: any): number[] {
+    let x = this.modelTableData.indexOf(item);
+    let y = this.modelsCounts[x];
+    console.log(this.modelsCounts);
+
+    return y;
+  }
+
+  calculateTotals() {
+    const totals = {
+      paid: 0,
+      progress: 0,
+      retour: 0,
+      purchasePrice: 0,
+      sellingPrice: 0,
+      profits: 0,
+    };
+    let i = 1
+    let per=0.00;
+    this.modelTableData.forEach((item : any) => {
+      totals.paid += item.countPaid || 0;
+      totals.progress += item.countProgress || 0;
+      totals.retour += item.countReturn || 0;
+      totals.purchasePrice += (item.model.purchasePrice * item.countPaid) || 0;
+      totals.sellingPrice += ((item.model.purchasePrice * item.countPaid) + item.profits) || 0;
+      totals.profits += item.profits || 0;
+      i++;
+    });
+    return totals;
+  }
+
 
   intitiateLists() {
     const documentStyle = getComputedStyle(document.documentElement);

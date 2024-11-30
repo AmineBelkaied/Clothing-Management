@@ -37,6 +37,7 @@ public class Packet {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "city_id")
+    @JsonIgnore
     private City city;
 
     private String address;

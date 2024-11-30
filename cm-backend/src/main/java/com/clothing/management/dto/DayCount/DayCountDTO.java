@@ -12,4 +12,9 @@ public class DayCountDTO {
     private Date date;
     private long countPaid;
     private long countProgress;
+
+    public DayCountDTO(long countPaid, long countProgress) {
+        this.countPaid = countPaid;
+        this.countProgress = countProgress;
+    }
 }

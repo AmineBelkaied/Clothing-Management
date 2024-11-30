@@ -37,21 +37,17 @@
                       <i class="pi pi-cart-plus"></i>
                     </div>
                     <div class="text-section">
-                      <div class="value">{{ totalModel.paid }}</div>
+                      <div class="value">{{ totals.paid }}</div>
                       <div class="label2">Articles vendu</div>
                     </div>
                     <div class="info-section">
                       <div class="info-item">
                         <span class="info-label2">En cours</span>
-                        <span class="info-value2">{{ totalModel.progress | number:'1.0-0' }} DT</span>
-                      </div>
-                      <div class="info-item">
-                        <span class="info-label2">Moyenne/Jours</span>
-                        <span class="info-value2">{{ totalModel.avg | number:'1.0-0' }} DT</span>
+                        <span class="info-value2">{{ totals.progress }} DT</span>
                       </div>
                       <div class="info-item">
                         <span class="info-label2">Profit Prévu</span>
-                        <span class="info-value2">{{ totalModel.profits | number:'1.0-0' }} DT</span>
+                        <span class="info-value2">{{ totals.profits | number:'1.0-0' }} DT</span>
                       </div>
                     </div>
                   </div>
@@ -78,34 +74,35 @@
                   <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
                 </tr>
               </ng-template>
-              <ng-template pTemplate="body" let-item>
+              <ng-template pTemplate="body" let-item let-index>
                 <tr>
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.min }}-{{ item.max }}</td>
-                  <td>{{ item.avg }}</td>
-                  <td>{{ item.paid }}</td>
-                  <td>{{ item.progress }}</td>
-                  <td>{{ item.retour }}</td>
+                  <td>{{ item.model.name }}</td>
+                  <td>{{ getMinMax(getItemIndex(item)) }}</td><!-- min-max-->
+                  <td>{{ calculateAverage(getItemIndex(item)) }}</td><!-- avg -->
+                  <td>{{ item.countPaid }}</td>
+                  <td>{{ item.countProgress }}</td>
+                  <td>{{ item.countReturn }}</td>
                   <td>{{ formatNumber(item) }}%</td>
-                  <td>{{ item.purchasePrice | number:'1.0-0' }}</td>
-                  <td>{{ item.sellingPrice | number:'1.0-0' }}</td>
+                  <td>{{ item.model.purchasePrice*item.countPaid | number:'1.0-0' }}</td>
+                  <td>{{ item.model.purchasePrice*item.countPaid + item.profits  | number:'1.0-0' }}</td>
                   <td>{{ item.profits | number:'1.0-0' }}</td>
                 </tr>
               </ng-template>
               <ng-template pTemplate="footer">
                 <tr>
-                  <td>{{ totalModel.name }}</td>
-                  <td>{{ totalModel.min }}-{{ totalModel.max }}</td>
-                  <td>{{ totalModel.avg }}</td>
-                  <td>{{ totalModel.paid }}</td>
-                  <td>{{ totalModel.progress }}</td>
-                  <td>{{ totalModel.retour }}</td>
-                  <td>{{ formatNumber(totalModel) }}%</td>
-                  <td>{{ totalModel.purchasePrice | number:'1.0-0' }}</td>
-                  <td>{{ totalModel.sellingPrice | number:'1.0-0' }}</td>
-                  <td>{{ totalModel.profits | number:'1.0-0' }}</td>
+                  <td>Total</td>
+                  <td></td>
+                  <td></td>
+                  <td>{{ totals.paid }}</td>
+                  <td>{{ totals.progress }}</td>
+                  <td>{{ totals.retour }}</td>
+                  <td></td>
+                  <td>{{ totals.purchasePrice | number:'1.0-0' }}</td>
+                  <td>{{ totals.sellingPrice | number:'1.0-0' }}</td>
+                  <td>{{ totals.profits | number:'1.0-0' }}</td>
                 </tr>
               </ng-template>
+
             </p-table>
 
           </p-tabPanel>

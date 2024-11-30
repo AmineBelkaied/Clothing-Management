@@ -113,87 +113,10 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public Map<String, List<?>> statAllModelsTable(String beginDate, String endDate,Boolean countProgressEnabler) {
-        List<Long> countModelsList;
-        List<ModelsDayCountDTO> existingProductsPacket ;
-        List<String> status = new ArrayList<>();
-        if (countProgressEnabler) {
-            status = Arrays.asList("Livrée", "Payée", "Confirmée",
-                    "En cours (1)", "En cours (2)",
-                    "En cours (3)", "A vérifier");
-        } else {
-            status = Arrays.asList("Livrée", "Payée");
-        }
-        existingProductsPacket = productsPacketRepository.statAllModels(beginDate, endDate, status);
-
-        LOGGER.info("Fetched {} product packets for the date range.", existingProductsPacket.size());
-
-        Map<String, List<?>> uniqueValues = getUniqueModels(existingProductsPacket);
-        List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
-        List<ModelDTO> uniqueModels = (List<ModelDTO>) uniqueValues.get("uniqueModels");
-
-        LOGGER.debug("Unique dates: {}, Unique models: {}", uniqueDates, uniqueModels);
-
-        List<List<Long>> listModelsCount = new ArrayList<>();
-        List<StatOfferTableDTO> modelsRecapCount = new ArrayList<>();
-
-        StatOfferTableDTO modelRecap;
-
-        for (ModelDTO uniqueModel : uniqueModels) {
-
-            countModelsList = new ArrayList<>();
-            double countProfits = 0;
-
-            modelRecap = statTableMapper.modelToStatModelTableDTO(uniqueModel);
-
-            // Process each unique date for the current model
-            for (Date uniqueDate : uniqueDates) {
-                long count = 0;
-                long countRetour = 0;
-                long countProgress = 0;
-
-                // Calculate counts for the current model on the given date
-                for (ModelsDayCountDTO row : existingProductsPacket) {
-                    if (row.getDate().equals(uniqueDate) && row.getModel().getId().equals(uniqueModel.getId())) {
-                        count += row.getCountPaid();
-                        countProgress += row.getCountProgress();
-                        countRetour += row.getCountReturn();
-                        countProfits += row.getProfits();
-                    }
-                }
-                // Update the recap for the current model
-                modelRecap.setPurchasePrice((double) (uniqueModel.getPurchasePrice()* modelRecap.getPaid()));
-                //modelRecap.setSellingPrice(modelRecap.getSellingPrice());
-                modelRecap.setPaid(count + modelRecap.getPaid());
-                modelRecap.setRetour(countRetour + modelRecap.getRetour());
-                modelRecap.setProgress(countProgress + modelRecap.getProgress());
-                countModelsList.add(count);
-            }
-
-            // Add the model's data to the list and recap counts
-            listModelsCount.add(countModelsList);
-            modelRecap.setMin(Collections.min(countModelsList));
-            modelRecap.setMax(Collections.max(countModelsList));
-            modelRecap.setAvg(modelRecap.getPaid() / uniqueDates.size());
-            modelRecap.setProfits(countProfits + modelRecap.getProfits());
-            modelRecap.setSellingPrice(modelRecap.getPurchasePrice()+modelRecap.getProfits());
-            modelsRecapCount.add(modelRecap);
-        }
-
-        LOGGER.info("Processed {} models.", uniqueModels.size());
-
-        // Total models count by date
-        listModelsCount.add(countTotal(uniqueDates, listModelsCount));
-
-        // Create total recap product table
-        LOGGER.info("Generating total recap product table.");
-        StatOfferTableDTO modelTotalRecap = createTableTotalRecap(modelsRecapCount);
-        modelsRecapCount.add(modelTotalRecap);
-
-        // Prepare the final data map
+        List<String> status = getCountStatus(countProgressEnabler);
+        List<ModelsDayCountDTO> modelsStat = productsPacketRepository.statAllModels(beginDate, endDate, status);
         Map<String, List<?>> data = new HashMap<>();
-        data.put("dates", uniqueDates);
-        data.put("modelsCount", listModelsCount);
-        data.put("modelsRecapCount", modelsRecapCount);
+        data.put("modelsStat", modelsStat);
         ArrayList<ModelStockValueDTO>  statValuesDashboard = statValuesTotalDashboard();
         data.put("statValuesDashboard", statValuesDashboard);
         LOGGER.info("Model chart data generated successfully.");
@@ -203,15 +126,8 @@ public class StatServiceImpl implements StatService {
     @Override
     public Map<String, List<?>> statAllModelsChart(String beginDate, String endDate,Boolean countProgressEnabler) {
         List<Long> countModelsList;
-        List<ModelsDayCountDTO> existingProductsPacket ;
-        List<String> status;
-        if (countProgressEnabler) {
-            status = Arrays.asList("Livrée", "Payée", "Confirmée",
-                    "En cours (1)", "En cours (2)", "En cours (3)", "A vérifier");
-        } else {
-            status = Arrays.asList("Livrée", "Payée");
-        }
-        existingProductsPacket = productsPacketRepository.statAllModelsChart(beginDate, endDate,status);
+        List<String> status = getCountStatus(countProgressEnabler);
+        List<ModelsDayCountDTO> existingProductsPacket = productsPacketRepository.statAllModelsChart(beginDate, endDate,status);
 
         LOGGER.info("Fetched {} product packets for the date range.", existingProductsPacket.size());
 
@@ -224,12 +140,9 @@ public class StatServiceImpl implements StatService {
         StatOfferTableDTO modelRecap;
         for (ModelDTO uniqueModel : uniqueModels) {
             countModelsList = new ArrayList<>();
-            modelRecap = statTableMapper.modelToStatModelTableDTO(uniqueModel);
-
-            // Process each unique date for the current model
+            modelRecap = statTableMapper.modelToStatModelTableDTO(uniqueModel.getName());
             for (Date uniqueDate : uniqueDates) {
                 long count = 0;
-                // Calculate counts for the current model on the given date
                 for (ModelsDayCountDTO row : existingProductsPacket) {
                     if (row.getDate().equals(uniqueDate) && row.getModel().getId().equals(uniqueModel.getId())) {
                         count += row.getCountPaid();
@@ -238,8 +151,6 @@ public class StatServiceImpl implements StatService {
                 modelRecap.setPaid(count + modelRecap.getPaid());
                 countModelsList.add(count);
             }
-
-            // Add the model's data to the list and recap counts
             listModelsCount.add(countModelsList);
         }
 
@@ -250,7 +161,37 @@ public class StatServiceImpl implements StatService {
         Map<String, List<?>> data = new HashMap<>();
         data.put("dates", uniqueDates);
         data.put("modelsCount", listModelsCount);
+        data.put("models", uniqueModels);
         return data;
+    }
+
+    private List<String> getCountStatus(boolean countProgressEnabler){
+        if (countProgressEnabler) {
+            return Arrays.asList("Livrée", "Payée", "Confirmée",
+                    "En cours (1)", "En cours (2)",
+                    "En cours (3)", "A vérifier");
+        } else {
+            return Arrays.asList("Livrée", "Payée");
+        }
+    }
+
+    private ArrayList<Long> countTotalNoDates(List<List<Long>> listModelsCount) {
+
+        ArrayList<Long> countTotalList = new ArrayList<>();
+        int index = 0;
+            long sum = 0;
+            for (List<Long> totalPerDay : listModelsCount) {
+                if (index < totalPerDay.size()) {
+                    sum += totalPerDay.get(index);
+                } else {
+                    LOGGER.warn("Index {} out of bounds for totalPerDay list with size {}.", index, totalPerDay.size());
+                }
+                index++;
+            }
+            countTotalList.add(sum);
+            LOGGER.debug("Date: {}, Total count: {}", sum);
+
+        return countTotalList;
     }
 
     private ArrayList<Long> countTotal(List<Date> uniqueDates, List<List<Long>> listModelsCount) {
