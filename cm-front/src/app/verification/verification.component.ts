@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
@@ -12,7 +12,7 @@ import { RETURN, VALIDATION } from 'src/shared/utils/status-list';
   templateUrl: './verification.component.html',
   styleUrls: ['./verification.component.scss']
 })
-export class VerificationComponent implements OnInit {
+export class VerificationComponent implements OnInit, OnDestroy {
 
   sourcePackets: PacketValidationDTO[] = [];
 
@@ -165,6 +165,11 @@ Validate(){
       const [packet] = this.sourcePackets.splice(packetIndex, 1);
       this.targetPackets.push(packet);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 }
 

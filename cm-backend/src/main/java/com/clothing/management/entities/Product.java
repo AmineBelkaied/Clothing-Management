@@ -57,10 +57,12 @@ public class Product {
 
     @Override
     public String toString() {
+        String colorName = color != null ? color.getName() : null;
+        String sizeName = size != null ? size.getReference() : null;
         return "Product{" +
                 "id=" + id +
-                ", color=" + color.getName() +
-                ", size=" + size.getReference() +
+                ", color=" + colorName +
+                ", size=" + sizeName +
                 ", quantity=" + quantity +
                 ", date=" + date +
                 ", deleted=" + deleted +

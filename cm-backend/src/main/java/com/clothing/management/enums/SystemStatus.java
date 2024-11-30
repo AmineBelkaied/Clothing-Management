@@ -16,7 +16,7 @@ public enum SystemStatus {
 
     RETOUR_EXCHANGE("Retour Echange"),
     RETURN_RECEIVED("Retour reçu"),
-    NOTSERIOUS("Pas Serieux"),
+    NOT_SERIOUS("Pas Serieux"),
     CANCELED("Annuler"),
     RETOUR_EXPEDITEUR("Retour Expediteur"),
     PAID("Payée"),

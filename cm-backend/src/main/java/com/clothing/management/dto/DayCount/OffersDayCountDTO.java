@@ -2,7 +2,6 @@ package com.clothing.management.dto.DayCount;
 
 import com.clothing.management.entities.Offer;
 import lombok.*;
-
 import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)

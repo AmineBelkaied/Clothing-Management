@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { DaySales} from 'src/shared/models/stat';
 import { PacketService } from 'src/shared/services/packet.service';
 import { Packet } from 'src/shared/models/Packet';
@@ -20,7 +20,7 @@ import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
   providers: [DatePipe],
 })
 
-export class OfferStatComponent implements OnInit,OnChanges {
+export class OfferStatComponent implements OnInit,OnChanges,OnDestroy {
 
   @Input() beginDateString: string;
   @Input() endDateString: string | null;
@@ -188,5 +188,9 @@ export class OfferStatComponent implements OnInit,OnChanges {
         return value.toFixed(2);
       }
       return '0.00';
+  }
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 }

@@ -23,7 +23,7 @@
 </div>
 
 <div class="container-fluid" [style]="{ width: '99%'}">
-    <p-table #dt [value]="models" [rows]="10" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
+    <p-table styleClass="p-datatable-striped" [value]="models" [rows]="10" responsiveLayout="scroll" [rowHover]="true" dataKey="id">
 
         <ng-template pTemplate="header">
             <tr>
@@ -47,7 +47,7 @@
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-model>
-            <tr [ngStyle]="{'background-color': model.deleted ? '#ebebeb' : 'white'}">
+            <tr>
                 <td>{{model.name}}</td>
                 <!--td><img  *ngIf="model.bytes != null" [src]="model.image" [alt]="model.name" width="100" height="100" class="shadow-4" /></td-->
                 <td>{{model.purchasePrice}}</td>

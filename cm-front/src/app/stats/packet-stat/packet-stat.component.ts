@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { StatsService } from 'src/shared/services/stats.service';
 import { Subject, takeUntil } from 'rxjs';
@@ -12,7 +12,7 @@ import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
   providers: [DatePipe],
 })
 
-export class PacketStatComponent implements OnInit,OnChanges {
+export class PacketStatComponent implements OnInit,OnChanges,OnDestroy {
   deliveryCompanyList: DeliveryCompany[] = [];
   @Input() deliveryCompanyName : string = "ALL";
   @Input() beginDateString: string;
@@ -180,5 +180,10 @@ export class PacketStatComponent implements OnInit,OnChanges {
     const sum = numbers.reduce((acc, current) => acc + current, 0);
     const average = sum / numbers.length;
     return Number(average.toFixed(1));
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 }

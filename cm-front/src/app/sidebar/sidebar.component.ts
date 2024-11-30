@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { combineLatest, Subject, takeUntil } from 'rxjs';
@@ -17,7 +17,7 @@ import { StorageService } from 'src/shared/services/strorage.service';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   @Output() expansionChanged = new EventEmitter<boolean>();
   @Input() expanded: boolean = false;
   isExpanded: boolean = false;
@@ -140,5 +140,10 @@ export class SidebarComponent implements OnInit {
     private emitExpansionState() {
       this.sideBarService.isExpanded.next(this.isExpanded);
       //this.expansionChanged.emit(this.isExpanded);
+    }
+
+    ngOnDestroy(): void {
+      this.$unsubscribe.next();
+      this.$unsubscribe.complete();
     }
 }

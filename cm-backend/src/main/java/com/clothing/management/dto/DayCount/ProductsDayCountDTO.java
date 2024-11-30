@@ -3,7 +3,6 @@ package com.clothing.management.dto.DayCount;
 import com.clothing.management.entities.Color;
 import com.clothing.management.entities.Size;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 

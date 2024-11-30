@@ -104,9 +104,9 @@ public class UpdateStatusScheduler implements SchedulingConfigurer {
             for (Packet packet : packets) {
                 try {
                     packetService.getLastStatus(packet, currentUser);
-                    LOGGER.info("UPDATE STATUS FINISHED FOR PACKET: {}", packet);
+                    LOGGER.info("UPDATE STATUS FINISHED FOR PACKET: {}", packet.getId());
                 } catch (IOException | InterruptedException e) {
-                    LOGGER.error("Error updating status for packet {}: {}", packet, e.getMessage(), e);
+                    LOGGER.error("Error updating status for packet {}: {}", packet.getId(), e.getMessage(), e);
                 } catch (Exception e) {
                     LOGGER.error("Unexpected error occurred: {}", e.getMessage(), e);
                     throw new RuntimeException("Unexpected error occurred", e);

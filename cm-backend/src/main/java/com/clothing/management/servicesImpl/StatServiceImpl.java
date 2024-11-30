@@ -894,7 +894,6 @@ public class StatServiceImpl implements StatService {
 
         List<List<Integer>> listColorsCount = new ArrayList<>();
         for (Color uniqueColor : uniqueColors) {
-            LOGGER.debug("Processing color: {}", uniqueColor.getName());
 
             List<Integer> countColorsList = new ArrayList<>();
             for (Date uniqueDate : uniqueDates) {

@@ -24,6 +24,9 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value="SELECT p FROM Packet p WHERE p.status NOT IN :statuses AND p.valid")
     List<Packet> findAllDiggiePackets(@Param("statuses") List<String> statuses);
 
+    @Query("UPDATE Packet p SET p.valid = TRUE WHERE p.barcode = :barcode")
+    void updatePacketValid(@Param("barcode") String barcode);
+
     @Transactional
     @Query(value="SELECT * FROM packet p WHERE p.barcode LIKE %:barcode%", nativeQuery = true)
     Optional<Packet> findByBarcode(@Param("barcode") String barcode);

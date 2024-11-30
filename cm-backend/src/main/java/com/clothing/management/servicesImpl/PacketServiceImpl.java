@@ -193,20 +193,18 @@ public class PacketServiceImpl implements PacketService {
     public List<Packet> findSyncPackets() {
         LOGGER.info("Finding synchronized packets with predefined statuses.");
 
-        List<String> statuses = Arrays.asList(
+        List<String> status = Arrays.asList(
                 SystemStatus.PAID.getStatus(),
                 SystemStatus.CANCELED.getStatus(),
                 SystemStatus.LIVREE.getStatus(),
                 SystemStatus.DELETED.getStatus(),
                 SystemStatus.RETURN.getStatus(),
-                SystemStatus.NOTSERIOUS.getStatus(),
+                SystemStatus.NOT_SERIOUS.getStatus(),
                 SystemStatus.RETURN_RECEIVED.getStatus(),
                 SystemStatus.PROBLEM.getStatus()
         );
 
-        LOGGER.debug("Statuses used for synchronization: {}", statuses);
-
-        List<Packet> syncPackets = packetRepository.findAllDiggiePackets(statuses);
+        List<Packet> syncPackets = packetRepository.findAllDiggiePackets(status);
 
         LOGGER.info("Retrieved {} synchronized packets.", syncPackets.size());
         return syncPackets;
@@ -262,6 +260,10 @@ public class PacketServiceImpl implements PacketService {
         Packet nonValidPacket;
         try {
             nonValidPacket = getPacketByBarcode(barcode);
+            if (nonValidPacket == null) {
+                LOGGER.warn("No packet found for barcode: {}", barcode);
+                return null;
+            }
             Packet packet;
             if (type.equals(CONFIRMED.getStatus())) {
                 nonValidPacket.setValid(true);
@@ -269,12 +271,9 @@ public class PacketServiceImpl implements PacketService {
             } else {
                 packet = updatePacketStatus(nonValidPacket, RETURN_RECEIVED.getStatus());
             }
-
-            LOGGER.info("Updated packet validation for barcode: {}. New status: {}",barcode, packet.getPacketStatus());
             return packetMapper.toValidationDto(packet);
 
         } catch (Exception e) {
-            LOGGER.error("Error updating packet validation for barcode: {}. Error: {}",barcode, e.getMessage(), e);
             return null;
         }
     }
@@ -465,15 +464,8 @@ public class PacketServiceImpl implements PacketService {
             packet.setBarcode(deliveryResponse.getBarcode());
             packet.setDate(new Date());
             packetRepository.save(packet);
-
-            LOGGER.info("Barcode created successfully for packet ID: {}. Link: {}, Barcode: {}",
-                    packet.getId(), deliveryResponse.getLink(), deliveryResponse.getBarcode());
-
             return deliveryResponse;
         } else {
-            LOGGER.error("Failed to create barcode for packet ID: {}. Response code: {}",
-                    packet.getId(), deliveryResponse.getResponseCode());
-
             return null;
         }
     }
@@ -816,7 +808,7 @@ public class PacketServiceImpl implements PacketService {
 
             if (packetStatus != null && packetStatus.equals(OOS.getStatus()) &&
                     (packet.getStatus().equals(NOT_CONFIRMED.getStatus()) ||
-                            packet.getStatus().equals(NOTSERIOUS.getStatus()) ||
+                            packet.getStatus().equals(NOT_SERIOUS.getStatus()) ||
                             packet.getStatus().equals(CANCELED.getStatus()) ||
                             packet.getStatus().equals(UNREACHABLE.getStatus()))) {
                 packet.setStatus(OOS.getStatus());
@@ -834,7 +826,7 @@ public class PacketServiceImpl implements PacketService {
             packet.setDiscount(selectedProductsDTO.getDiscount());
             packet.setChangedPrice(false);
             Packet savedPacket = packetRepository.save(packet);
-            LOGGER.info("Products added to packet ID: {}. New packet details: {}", packet.getId(), savedPacket);
+            //LOGGER.info("Products added to packet ID: {}. New packet details: {}", packet.getId(), savedPacket);
 
             return packetMapper.toDto(savedPacket);
         }

@@ -78,7 +78,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
   selectedPackets: Packet[] = [];
 
   editMode = false;
-  isLoading = false;
   selectedPacket: Packet;
 
   modelDialog!: boolean;
@@ -304,12 +303,13 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error(error);
     } finally {
-      this.loading = false;
+      //this.loading = false;
       this.oldFieldValue = '';
     }
   }
 
   patchPacketService(packet: Packet) {
+    this.loading =true;
     let updatedField;
     if (this.selectedField === 'cityId') {
       updatedField = { ['city']: packet.cityId };

@@ -1,17 +1,7 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { DaySales} from 'src/shared/models/stat';
-import { PacketService } from 'src/shared/services/packet.service';
-import { Packet } from 'src/shared/models/Packet';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { StatsService } from 'src/shared/services/stats.service';
-import { DateUtils } from 'src/shared/utils/date-utils';
 import { Subject, takeUntil } from 'rxjs';
-import { ModelService } from 'src/shared/services/model.service';
-import { ActivatedRoute } from '@angular/router';
-import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
-import { FormControl } from '@angular/forms';
-import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
-import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 
 @Component({
   selector: 'app-color-stat',
@@ -20,7 +10,7 @@ import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
   providers: [DatePipe],
 })
 
-export class ColorStatComponent implements OnInit,OnChanges {
+export class ColorStatComponent implements OnInit,OnChanges,OnDestroy {
 
   @Input() beginDateString: string;
   @Input() endDateString: string | null;
@@ -177,5 +167,10 @@ export class ColorStatComponent implements OnInit,OnChanges {
         return value.toFixed(2);
       }
       return '0.00';
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 }

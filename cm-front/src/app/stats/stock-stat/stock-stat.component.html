@@ -5,7 +5,8 @@
               <p-tabPanel header="Table">
                 <p-table class="table" [value]="stockValueTableData"
                           sortField="quantity" [sortOrder]="-1"
-                          [scrollable]="true" scrollHeight="400px" >
+                          [scrollable]="true" scrollHeight="400px"
+                          styleClass="p-datatable-striped">
                   <ng-template pTemplate="header">
                     <tr>
                       <th>Model</th>

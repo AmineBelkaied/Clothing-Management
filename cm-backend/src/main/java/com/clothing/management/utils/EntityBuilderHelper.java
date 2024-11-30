@@ -76,6 +76,7 @@ public class EntityBuilderHelper {
     public PacketStatus.PacketStatusBuilder createPacketStatusBuilder(String status, Packet packet, User user) {
         return PacketStatus.builder()
                 .status(status)
+                .date(new Date())
                 .packet(packet)
                 .user(user);
     }

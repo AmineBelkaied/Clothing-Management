@@ -24,8 +24,10 @@
     <!--     </p-toolbar> -->
 </div>
 <div class="container-fluid" [style]="{ width: '99%'}">
-    <p-table #dt [value]="offers" [rows]="10" responsiveLayout="scroll" [(selection)]="selectedOffers" [rowHover]="true"
-        dataKey="id" [rowTrackBy]="trackByFunction" selectionMode="multiple">
+    <p-table [value]="offers" [rows]="10" responsiveLayout="scroll"
+        [(selection)]="selectedOffers" [rowHover]="true"
+        dataKey="id" [rowTrackBy]="trackByFunction"
+        styleClass="p-datatable-striped" selectionMode="multiple">
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="name">Nom <p-sortIcon field="name"></p-sortIcon>
@@ -50,7 +52,7 @@
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-offer>
-            <tr [ngStyle]="{'background-color': offer.deleted ? '#ebebeb' : 'white'}">
+            <tr>
                 <td>{{offer.name}}</td>
                 <td>{{offer.offerModels | displayOfferModels}}</td>
                 <td *ngIf ="!globalConf.oneSourceApp">{{ offer.fbPages | displayFbPage | displayJoin : '-'}}</td>

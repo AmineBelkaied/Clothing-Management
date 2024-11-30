@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Model } from 'src/shared/models/Model';
 import { Offer } from 'src/shared/models/Offer';
@@ -14,7 +14,7 @@ import { GlobalConfService } from 'src/shared/services/global-conf.service';
   templateUrl: './list-offers.component.html',
   styleUrls: ['./list-offers.component.css']
 })
-export class ListOffersComponent implements OnInit {
+export class ListOffersComponent implements OnInit,OnDestroy {
 
 
   offerDialog!: boolean;
@@ -208,7 +208,14 @@ export class ListOffersComponent implements OnInit {
 
   findIndexById(id: number): number {
     let index = -1;
+    //console.log(this.offers);
+
     for (let i = 0; i < this.offers.length; i++) {
+
+      let x = this.offers[i].id;
+      console.log(x);
+
+
       if (this.offers[i].id == id) {
         index = i;
         break;
@@ -231,11 +238,12 @@ export class ListOffersComponent implements OnInit {
   OnSubmit($event: any) {
     let offerResponse = $event;
     if (this.editMode) {
-      this.offers[this.findIndexById(offerResponse.offerId)] = offerResponse;
+      console.log('here editMode');
+      let offerId =this.findIndexById(offerResponse.id);
+      this.offers[offerId] = offerResponse;
       this.messageService.add({ severity: 'success', summary: 'Successful', detail: "L'offre a été modifié avec succés", life: 1000 });
     } else {
       console.log("offerResponse", offerResponse);
-
       this.offers.push(offerResponse);
       this.messageService.add({ severity: 'success', summary: 'Successful', detail: "L'offre a été crée avec succés", life: 1000 });
     }

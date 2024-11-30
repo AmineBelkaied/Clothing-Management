@@ -308,6 +308,11 @@ export class ModelStatComponent implements OnInit,OnChanges {
     };
 
   }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
+  }
 }
 
 interface CountDates {
@@ -319,23 +324,3 @@ interface CountDates {
     out: number;
   };
 }
-/*   getStatValueStockTable() {
-    if(this.endDateString)
-    this.statsService
-      .statValueStock()
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe({
-        next: (response: any) => {
-          console.log('statValueStock', response);
-          this.stockValueTableData = response;
-          this.totalStock = this.stockValueTableData[this.stockValueTableData.length - 1];
-          this.stockValueTableData.pop();
-        },
-        error: (error: any) => {
-          console.log('ErrorStockCount:', error);
-        },
-        complete: () => {
-          console.log('Observable completed-- getStatStockChart --');
-        },
-      });
-  } */

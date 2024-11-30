@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { StatsService } from 'src/shared/services/stats.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
@@ -11,7 +11,7 @@ import { Subject, takeUntil } from 'rxjs';
   providers: [DatePipe],
 })
 
-export class PageStatComponent implements OnInit ,OnChanges{
+export class PageStatComponent implements OnInit ,OnChanges ,OnDestroy {
 
   @Input() beginDateString: string;
   @Input() endDateString: string | null;
@@ -162,5 +162,10 @@ export class PageStatComponent implements OnInit ,OnChanges{
         return value.toFixed(2);
       }
       return '0.00';
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 }

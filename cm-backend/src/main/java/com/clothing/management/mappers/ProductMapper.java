@@ -19,13 +19,13 @@ public interface ProductMapper {
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 
     // Method that includes ModelDTO in the mapping
-    @Mappings({
+    /*@Mappings({
             @Mapping(target = "qte", source = "quantity"),  // Map 'quantity' to 'qte'
             @Mapping(target = "modelId", source = "model.id"),
             @Mapping(target = "model.colors", source = "model.colors", qualifiedByName = "mapColorsToIds"),
             @Mapping(target = "model.sizes", source = "model.sizes", qualifiedByName = "mapSizesToIds")
     })
-    ProductDTO toDto(Product product);
+    ProductDTO toDto(Product product);*/
 
     // Method that excludes ModelDTO in the mapping
     @Mappings({

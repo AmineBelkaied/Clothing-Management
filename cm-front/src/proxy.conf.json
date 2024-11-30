@@ -5,7 +5,7 @@
     "changeOrigin": true
   },
   "/api": {
-    "target": "https://lyft.jvmhost.net/cm/api",
+    "target": "https://diggie.jvmhost.net/cm/api",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

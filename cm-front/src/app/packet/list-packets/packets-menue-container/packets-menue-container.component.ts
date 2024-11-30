@@ -233,5 +233,4 @@ export class PacketsMenueContainerComponent implements OnChanges {
     this.rangeDates = [];
     this.filterPackets('global');
   }
-
 }

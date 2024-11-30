@@ -15,7 +15,11 @@ public interface StatOfferTableMapper {
 
     StatOfferTableMapper INSTANCE = Mappers.getMapper(StatOfferTableMapper.class);
 
-    @Mappings({
+
+}
+
+/*
+@Mappings({
             @Mapping(target = "name", source = "offerDTO.name"),
             @Mapping(target = "purchasePrice", constant = "0.0"),
             @Mapping(target = "sellingPrice", constant = "0.0"),
@@ -43,4 +47,4 @@ public interface StatOfferTableMapper {
             @Mapping(target = "profits", constant = "0.0")
     })
     StatOfferTableDTO modelToStatModelTableDTO(ModelDTO modelDTO);
-}
+ */

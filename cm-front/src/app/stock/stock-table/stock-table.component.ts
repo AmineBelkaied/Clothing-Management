@@ -11,7 +11,7 @@ import { ProductService } from 'src/shared/services/product.service';
   templateUrl: './stock-table.component.html',
   styleUrl: './stock-table.component.scss'
 })
-export class StockTableComponent implements OnInit,OnChanges{
+export class StockTableComponent implements OnInit, OnChanges{
 
   selectedColumns: any[] =[];
   totalTableValue: { all: number, progress: number };

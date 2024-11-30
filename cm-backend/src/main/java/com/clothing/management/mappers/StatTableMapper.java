@@ -25,6 +25,7 @@ public interface StatTableMapper {
             @Mapping(target = "Avg", constant = "0L"),
             @Mapping(target = "Per", constant = "0.0"),
             @Mapping(target = "progress", constant = "0L"),
+            @Mapping(target = "received", constant = "0L"),
             @Mapping(target = "profits", constant = "0.0")
     })
     StatOfferTableDTO offerToStatOfferTableDTO(OfferDTO offerDTO);
@@ -52,6 +53,8 @@ public interface StatTableMapper {
             @Mapping(target = "Avg", constant = "0L"),
             @Mapping(target = "Per", constant = "0.0"),
             @Mapping(target = "progress", constant = "0L"),
+            @Mapping(target = "received", constant = "0L"),
+            @Mapping(target = "paid", constant = "0L"),
             @Mapping(target = "profits", constant = "0.0")
     })
     StatTableDTO toStatTableDTO(String nameRow);

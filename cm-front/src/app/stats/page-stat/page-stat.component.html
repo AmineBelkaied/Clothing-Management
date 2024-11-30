@@ -5,7 +5,8 @@
       <p-tabPanel header="Table">
         <p-table class="table" [value]="pagesCountTableData"
               sortField="profits" [sortOrder]="-1"
-              [scrollable]="true" scrollHeight="400px" >
+              [scrollable]="true" scrollHeight="400px"
+              styleClass="p-datatable-striped">
           <ng-template pTemplate="header">
             <tr>
               <th>Model</th>
@@ -37,8 +38,8 @@
         <p-chart type="line" [data]="pagesCountData" [options]="pagesCountOptions" height="30rem"></p-chart>
       </p-tabPanel>
 
-      <p-tabPanel header="O Chart">
-        <p-chart type="pie" [data]="PagesData" [options]="PagesOptions"></p-chart>
+      <p-tabPanel header="Pie Chart">
+        <p-chart type="pie" [data]="PagesData" [options]="PagesOptions" height="30rem"></p-chart>
       </p-tabPanel>
     </p-tabView>
   </p-card>

@@ -66,7 +66,7 @@ export class AddOfferComponent implements OnInit {
         this.fbPages = this.fbPageService.fbPages;
 
     if(this.editMode) {
-      this.offerForm.get('offerId')?.setValue(this.offer.id);
+      this.offerForm.get('id')?.setValue(this.offer.id);
       this.offerForm.get('name')?.setValue(this.offer.name);
       this.offerForm.get('price')?.setValue(this.offer.price);
       this.offerForm.get('enabled')?.setValue(this.offer.enabled);

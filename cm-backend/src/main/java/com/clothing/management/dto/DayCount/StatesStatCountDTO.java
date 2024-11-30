@@ -1,8 +1,6 @@
 package com.clothing.management.dto.DayCount;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)

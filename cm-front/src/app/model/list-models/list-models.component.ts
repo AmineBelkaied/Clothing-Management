@@ -103,7 +103,7 @@ export class ListModelsComponent implements OnInit, OnDestroy {
               }
             });
           }
-          this.modelService.updateModelsSubscriber(response);
+          this.modelService.updateModelsSubscriber(response.modelDTO);
 
           if (this.editMode) {
             this.messageService.add({
@@ -113,7 +113,6 @@ export class ListModelsComponent implements OnInit, OnDestroy {
               life: 3000,
             });
           } else {
-
             this.messageService.add({
               severity: 'success',
               summary: 'Succés',

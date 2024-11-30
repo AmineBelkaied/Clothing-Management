@@ -3,6 +3,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
 } from '@angular/core';
@@ -27,9 +28,6 @@ import { DecimalPipe } from '@angular/common';
 import { ProductResponse } from 'src/shared/models/ProductResponse';
 import { ColorService } from 'src/shared/services/color.service';
 import { SizeService } from 'src/shared/services/size.service';
-import { FbPage } from 'src/shared/models/FbPage';
-import { FbPageService } from 'src/shared/services/fb-page.service';
-import { ModelService } from 'src/shared/services/model.service';
 
 @Component({
   selector: 'app-add-packet',
@@ -37,7 +35,7 @@ import { ModelService } from 'src/shared/services/model.service';
   styleUrls: ['./add-packet.component.css'],
   providers: [ConfirmationService, MessageService],
 })
-export class AddPacketComponent implements OnInit {
+export class AddPacketComponent implements OnInit,OnDestroy {
   @Input() packet: any;
   @Input() oneSourceApp : boolean;
   @Input() offersIdsListByFbPage: any[] = [];
@@ -89,8 +87,7 @@ export class AddPacketComponent implements OnInit {
     private productService: ProductService,
     private decimalPipe: DecimalPipe,
     private colorService: ColorService,
-    private sizeService: SizeService,
-    private fbPageService: FbPageService
+    private sizeService: SizeService
   ) {
     this.packetForm = this.fb.group({
       totalPrice: 0,
@@ -161,7 +158,7 @@ export class AddPacketComponent implements OnInit {
     offerControl: AbstractControl,
     offerValue: Offer
   ): void {
-    this.setControlValue(offerControl, 'offerId', offerValue.id);
+    this.setControlValue(offerControl, 'id', offerValue.id);
     this.setControlValue(offerControl, 'name', offerValue.name);
     this.setControlValue(offerControl, 'price', offerValue.price);
   }
