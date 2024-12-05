@@ -1,14 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { DaySales} from 'src/shared/models/stat';
-import { PacketService } from 'src/shared/services/packet.service';
-import { Packet } from 'src/shared/models/Packet';
 import { DatePipe } from '@angular/common';
-import { StatsService } from 'src/shared/services/stats.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { Subject, takeUntil } from 'rxjs';
-import { ModelService } from 'src/shared/services/model.service';
-import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
-import { FormControl } from '@angular/forms';
+import { Subject } from 'rxjs';
 import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 
@@ -112,7 +105,7 @@ export class StatsComponent implements OnInit {
     return this.range;
   }
 
-  getRandomColor(x: string) {
+  getRandomColor(x: string): string {
     if (x == 'Noir' || x == 'noir') return 'black';
     else if (x == 'Vert'|| x == 'vert') return 'green';
     else if (x == 'Beige'|| x == 'beige') return '#D1AF76';
@@ -127,14 +120,39 @@ export class StatsComponent implements OnInit {
     }
     return color;
   }
-  calculateAverage(numbers: number[]): number {
-    if (numbers.length === 0) {
-      return 0; // Handle division by zero
+
+  getMinMax(numbers: number[]): string {
+    if(numbers){
+      let min = 1000;
+      let max = 0;
+      for(let x of numbers){
+        if(x<min) min = x;
+        if(x>max) max = x;
+      }
+      return min+"-"+max;
     }
-    const sum = numbers.reduce((acc, current) => acc + current, 0);
-    const average = sum / numbers.length;
-    return Number(average.toFixed(1));
+    return "0";
   }
+
+  calculateAverage(numbers: number[]): number {
+
+    if (numbers){
+      const sum = numbers.reduce((acc, current) => acc + current, 0);
+      const average = sum / numbers.length;
+      return Number(average.toFixed(1));
+    }
+    return 0;
+
+  }
+
+  formatNumber(item: any): string{
+    let value = (item.paid*100) / (item.retour+item.paid)
+      if (!isNaN(value)) {
+        return value.toFixed(2);
+      }
+      return '0.00';
+  }
+
   calculateSomme(numbers: number[]): number {
     if (numbers.length === 0) {
       return 0; // Handle division by zero
@@ -142,6 +160,7 @@ export class StatsComponent implements OnInit {
     const sum = numbers.reduce((acc, current) => acc + current, 0);
     return Number(sum);
   }
+
   allDateFilter() {
     this.rangeDates = [new Date(2023, 0, 1), new Date()];
     this.setCalendar();
@@ -216,12 +235,5 @@ export class StatsComponent implements OnInit {
     this.setCalendar();
   }
 
-  formatNumber(item: any) {
-    let value = (item.paid*100) / (item.retour+item.paid)
-      if (!isNaN(value)) {
-        return value.toFixed(2);
-      }
-      return '0.00';
-  }
 }
 

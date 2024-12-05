@@ -11,10 +11,13 @@ import org.mapstruct.factory.Mappers;
 public interface StatTableMapper {
 
     StatTableMapper INSTANCE = Mappers.getMapper(StatTableMapper.class);
-
+    @Mappings({
+            @Mapping(target = "paid", constant = "0L"),
+            @Mapping(target = "name", constant = "nameRow"),
+    })
+    StatOfferTableDTO itemToStatChartDTO(String nameRow);
 
     @Mappings({
-            @Mapping(target = "name", source = "offerDTO.name"),
             @Mapping(target = "purchasePrice", constant = "0.0"),
             @Mapping(target = "sellingPrice", constant = "0.0"),
             // Set default values explicitly for inherited fields from StatTableDTO
@@ -26,9 +29,10 @@ public interface StatTableMapper {
             @Mapping(target = "Per", constant = "0.0"),
             @Mapping(target = "progress", constant = "0L"),
             @Mapping(target = "received", constant = "0L"),
-            @Mapping(target = "profits", constant = "0.0")
+            @Mapping(target = "profits", constant = "0.0"),
+            @Mapping(target = "name", constant = "nameRow"),
     })
-    StatOfferTableDTO offerToStatOfferTableDTO(OfferDTO offerDTO);
+    StatOfferTableDTO offerToStatOfferTableDTO(String nameRow);
 
     @Mappings({
             @Mapping(target = "purchasePrice", constant = "0.0"),

@@ -1,4 +1,4 @@
-package com.clothing.management.dto.DayCount;
+package com.clothing.management.dto.StatDTO;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

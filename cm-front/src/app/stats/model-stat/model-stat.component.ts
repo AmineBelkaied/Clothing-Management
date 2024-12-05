@@ -30,6 +30,13 @@ export class ModelStatComponent implements OnInit,OnChanges {
   @Input() countProgressEnabler : boolean = false;
   @Input() beginDateString: string;
   @Input() endDateString: string | null;
+
+  @Input() calculateAverage:(numbers: number[]) => number;
+  @Input() calculateSomme:(numbers: number[]) => number;
+  @Input() getRandomColor:(x: string)=> string;
+  @Input() getMinMax:(numbers: number[])=> string;
+  @Input() formatNumber:(item: any)=> string;
+
   datesCounts: CountDates = {};
   params: any;
   $unsubscribe: Subject<void> = new Subject();
@@ -68,7 +75,7 @@ export class ModelStatComponent implements OnInit,OnChanges {
     purchasePrice: 0,    // Value of the stock based on purchase price
     sellingPrice: 0      // Selling price of the stock
   };
-  dates: any[];
+
   stockValueTableData: any;
   totalModel = {
     name: 'Default Name', // Product or offer name
@@ -94,29 +101,8 @@ export class ModelStatComponent implements OnInit,OnChanges {
   ngOnChanges(simpleChanges: SimpleChanges): void {
       if((simpleChanges['endDateString'] || simpleChanges['countProgressEnabler']) && this.endDateString)
       {
-          this.getStatAllModelsChart();
-
           this.getStatAllModelsTable();
       }
-  }
-
-  getStatAllModelsChart() {
-    if(this.endDateString)
-    this.statsService
-      .statAllModelsChart(this.beginDateString, this.endDateString,this.countProgressEnabler)
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe({
-        next: (data: any) => {
-          this.dates = data.dates;
-          this.createModelsChart(data);
-        },
-        error: (error: any) => {
-          console.log('ErrorProductsCount:', error);
-        },
-        complete: () => {
-          console.log('Observable completed-- getStatAllModelsChart --');
-        },
-      });
   }
 
   getStatAllModelsTable() {
@@ -127,10 +113,13 @@ export class ModelStatComponent implements OnInit,OnChanges {
       .subscribe({
         next: (data: any) => {
           this.modelTableData = [];
-          //this.createModelsTable(data.modelsStat);
+          //get table chart
           this.modelTableData = data.modelsStat;
-          this.totalCard = data.statValuesDashboard[0];
           this.totals = this.calculateTotals();
+          //create dashboart
+          this.totalCard = data.statValuesDashboard[0];
+          //get chart data
+          this.createModelsChart(data.chart);
         },
         error: (error: any) => {
           console.log('ErrorProductsCount:', error);
@@ -141,11 +130,15 @@ export class ModelStatComponent implements OnInit,OnChanges {
       });
   }
 
-  createModelsChart(data: any) {
-    this.modelsDataSetArray = [];
-    this.modelsCounts = data.modelsCount;
+  createModelsChart(chart: any) {
+
+    let dates = chart.uniqueDates;
+    this.modelsCounts = chart.itemsCount;
+    let uniqueModels = chart.uniqueItems;
+
     let i = 0;
-    this.modelsCounts.forEach((item: any) => {
+    this.modelsDataSetArray = [];
+    uniqueModels.forEach((item: any) => {
       let x = this.calculateAverage(this.modelsCounts[i]);
       this.modelsDataSetArray.push({
         label: item.name+":"+x,
@@ -158,79 +151,18 @@ export class ModelStatComponent implements OnInit,OnChanges {
       i++;
     });
     this.modelsData = {
-      labels: this.dates,
+      labels: dates,
       datasets: this.modelsDataSetArray,
     };
   }
 
-  createModelsTable(data: any) {
-    this.modelTableData = data;
-  }
-
-
-  getRandomColor(x: string) {
-    if (x == 'Noir' || x == 'noir') return 'black';
-    else if (x == 'Vert'|| x == 'vert') return 'green';
-    else if (x == 'Beige'|| x == 'beige') return '#D1AF76';
-    else if (x == 'Bleu'|| x == 'bleu') return '#0080FF';
-    else if (x == 'Gris'|| x == 'gris') return 'grey';
-    else if (x == 'Blanc'|| x == 'blanc') return 'pink';
-
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
-
-  calculateAverage(numbers: number[]): number {
-    console.log(numbers);
-
-    if (numbers.length === 0 || numbers == undefined) {
-      return 0; // Handle division by zero
-    }
-    const sum = numbers.reduce((acc, current) => acc + current, 0);
-    const average = sum / numbers.length;
-    return Number(average.toFixed(1));
-  }
-
-  getMinMax(numbers: number[]): string {
-    console.log(numbers);
-
-    if (numbers.length === 0 || numbers == undefined) {
-      return ""; // Handle division by zero
-    }
-    let min = 1000;
-    let max = 0;
-    for(let x of numbers){
-      if(x<min) min = x;
-      if(x>max) max = x;
-    }
-    return min+"-"+max;
-  }
-  calculateSomme(numbers: number[]): number {
-    if (numbers.length === 0) {
-      return 0; // Handle division by zero
-    }
-    const sum = numbers.reduce((acc, current) => acc + current, 0);
-    return Number(sum);
-  }
-
-  formatNumber(item: any) {
-    let value = (item.countPaid*100) / (item.countReturn+item.countPaid)
-      if (!isNaN(value)) {
-        return value.toFixed(2);
-      }
-      return '0.00';
-  }
-
   getItemIndex(item: any): number[] {
-    let x = this.modelTableData.indexOf(item);
-    let y = this.modelsCounts[x];
-    console.log(this.modelsCounts);
-
-    return y;
+    if(this.modelsCounts){
+      let x = this.modelTableData.indexOf(item);
+      let y = this.modelsCounts[x];
+      return y;
+    }
+    return [];
   }
 
   calculateTotals() {
@@ -243,7 +175,6 @@ export class ModelStatComponent implements OnInit,OnChanges {
       profits: 0,
     };
     let i = 1
-    let per=0.00;
     this.modelTableData.forEach((item : any) => {
       totals.paid += item.countPaid || 0;
       totals.progress += item.countProgress || 0;

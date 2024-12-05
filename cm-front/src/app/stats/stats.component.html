@@ -15,7 +15,7 @@
               optionLabel="name"
               optionValue="name"/>
             </div>
-            <div  *ngIf="selectedIndex == 1">
+            <div  *ngIf="selectedIndex == 1 || selectedIndex == 2">
               inclure en cours à la somme
               <p-inputSwitch [(ngModel)]="countProgressEnabler" optionLabel="label" optionValue="value"></p-inputSwitch>
             </div>
@@ -65,17 +65,32 @@
 <p-tabView [(activeIndex)]="selectedIndex">
   <p-tabPanel header="Packets" class="mt-0">
     <app-packet-stat
-      *ngIf="selectedIndex === 0" [beginDateString]="beginDateString" [endDateString]="endDateString" [deliveryCompanyName]="deliveryCompanyName"></app-packet-stat>
+      *ngIf="selectedIndex === 0"
+      [beginDateString]="beginDateString" [endDateString]="endDateString"
+      [deliveryCompanyName]="deliveryCompanyName"></app-packet-stat>
   </p-tabPanel>
 
   <p-tabPanel header="Models" class="mt-0">
     <app-model-stat
-      *ngIf="selectedIndex === 1" [beginDateString]="beginDateString" [endDateString]="endDateString" [countProgressEnabler]="countProgressEnabler"></app-model-stat>
+      *ngIf="selectedIndex === 1"
+      [beginDateString]="beginDateString" [endDateString]="endDateString"
+      [countProgressEnabler]="countProgressEnabler"
+      [getRandomColor]="getRandomColor"
+      [formatNumber]="formatNumber"
+      [getMinMax]="getMinMax"
+      [calculateAverage]="calculateAverage"
+      [calculateSomme]="calculateSomme"></app-model-stat>
   </p-tabPanel>
 
   <p-tabPanel header="Offers" class="mt-0">
     <app-offer-stat
-      *ngIf="selectedIndex === 2" [beginDateString]="beginDateString" [endDateString]="endDateString"></app-offer-stat>
+      *ngIf="selectedIndex === 2" [beginDateString]="beginDateString" [endDateString]="endDateString"
+      [countProgressEnabler]="countProgressEnabler"
+      [getRandomColor]="getRandomColor"
+      [formatNumber]="formatNumber"
+      [getMinMax]="getMinMax"
+      [calculateAverage]="calculateAverage"
+      [calculateSomme]="calculateSomme"></app-offer-stat>
   </p-tabPanel>
 
   <p-tabPanel header="Pages" class="mt-0">
@@ -95,7 +110,12 @@
 
   <p-tabPanel header="Stock" class="mt-0">
     <app-stock-stat
-      *ngIf="selectedIndex === 6"[beginDateString]="beginDateString" [endDateString]="endDateString"></app-stock-stat>
+      *ngIf="selectedIndex === 6"
+      [beginDateString]="beginDateString" [endDateString]="endDateString"
+      [getRandomColor]="getRandomColor"
+      [formatNumber]="formatNumber"
+      [getMinMax]="getMinMax"
+      [calculateSomme]="calculateSomme"></app-stock-stat>
   </p-tabPanel>
 
 </p-tabView>

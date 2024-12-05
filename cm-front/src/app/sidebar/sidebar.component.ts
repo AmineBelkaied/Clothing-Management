@@ -57,10 +57,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
                   { label: 'Modèles', icon: 'pi pi-th-large', routerLink: "/models", isUserOption : false },
                   { label: 'Offres', icon: 'pi pi-gift', routerLink: "/offers", isUserOption : false },
                   { label: 'Stock', icon: 'pi pi-box', routerLink: "/stock", isUserOption : true },
-                  { label: 'Configuration', icon: 'pi pi-cog', routerLink: "/config", isUserOption : false },
                   { label: 'Statistique', icon: 'pi pi-chart-bar', routerLink: "/statistique", isUserOption : false },
                   { label: 'Suivie packet', icon: 'pi pi-map-marker', routerLink: "/paid-return", isUserOption : false },
                   { label: 'Validation', icon: 'pi pi-check-square', routerLink: "/verification", isUserOption : true },
+                  { label: 'Configuration', icon: 'pi pi-cog', routerLink: "/config", isUserOption : false },
                 ];
 
                 this.storageService.isLoggedIn.subscribe(isLoggedIn => {

@@ -1,5 +1,5 @@
 package com.clothing.management.controllers;
-import com.clothing.management.dto.DayCount.ProductsQuantityDTO;
+import com.clothing.management.dto.StatDTO.ProductsQuantityDTO;
 import com.clothing.management.dto.ProductHistoryDTO;
 import com.clothing.management.dto.StockDTO;
 import com.clothing.management.dto.StockUpdateDTO;

@@ -1,14 +1,9 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MessageService } from 'primeng/api';
-import { Table } from 'primeng/table';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModelService } from 'src/shared/services/model.service';
-import { ProductService } from '../../shared/services/product.service';
 import { Model } from 'src/shared/models/Model';
-import { ProductHistoryService } from 'src/shared/services/product-history.service';
 import { Subject, takeUntil, tap } from 'rxjs';
 import { StatsService } from 'src/shared/services/stats.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { Color } from 'src/shared/models/Color';
 
 @Component({
   selector: 'app-stock',
@@ -34,18 +29,7 @@ export class StockComponent implements OnInit, OnDestroy {
   filteredModels = this.models;
   filterQuery: string = '';
 
-  selectedModel: Model; /* = {
-    id: 0,
-    name: '',
-    colors: [],
-    sizes: [],
-    products: [],
-    purchasePrice: 15,
-    earningCoefficient: 1,
-    deleted: false,
-    enabled: false
-  }; */
-
+  selectedModel: Model;
 
   isMultiple = false;
 
@@ -89,9 +73,6 @@ export class StockComponent implements OnInit, OnDestroy {
 
 
   constructor(
-    private productService: ProductService,
-    private productHistoryService: ProductHistoryService,
-    private messageService: MessageService,
     private statsService: StatsService,
     private modelService: ModelService,
     private dateUtils: DateUtils
@@ -300,8 +281,6 @@ export class StockComponent implements OnInit, OnDestroy {
       this.rangeDates[1] != null
         ? this.dateUtils.formatDateToString(this.rangeDates[1])
         : this.beginDateString;
-    console.log(this.beginDateString,this.endDateString);
-
   }
 
   allDateFilter() {

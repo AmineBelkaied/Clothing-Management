@@ -33,14 +33,16 @@ export class StatsService {
     return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.MODELS}`, { params });
   }
 
-  public statAllModelsChart(beginDate: string, endDate: string, countProgress: boolean): Observable<any> {
+  public statAllOffers(beginDate: string, endDate: string, countProgress: boolean): Observable<any> {
     let params = new HttpParams()
-      .set('beginDate', beginDate)
-      .set('endDate', endDate)
-      .set('countProgress', countProgress);
+    .set('beginDate', beginDate)
+    .set('endDate', endDate)
+    .set('countProgress', countProgress);
 
-    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.MODELS_CHART}`, { params });
+    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.OFFERS}`, { params });
   }
+
+
   public statAllPagesCount(beginDate: string, endDate: string): Observable<any> {
     let params = new HttpParams()
       .set('beginDate', beginDate)
@@ -54,11 +56,6 @@ export class StatsService {
       .set('endDate', endDate);
 
     return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.STOCK}`, { params });
-  }
-
-  public statValueStock(): Observable<any> {
-    let params = new HttpParams();
-    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.VALUES}`, { params });
   }
 
   public statAllPackets(beginDate: string, endDate: string, deliveryCompanyName: string): Observable<any> {
@@ -87,13 +84,6 @@ export class StatsService {
     return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.COLORS}`, { params });
   }
 
-  public statAllOffers(beginDate: string, endDate: string): Observable<any> {
-    let params = new HttpParams()
-    .set('beginDate', beginDate)
-    .set('endDate', endDate);
-
-    return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.OFFERS}`, { params });
-  }
 
   public statModelSold(modelId: number, beginDate: string, endDate: string): Observable<any> {
     let params = new HttpParams()

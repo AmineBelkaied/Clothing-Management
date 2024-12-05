@@ -15,7 +15,12 @@ export class StockStatComponent implements OnInit, OnChanges {
 
   @Input() beginDateString: string;
   @Input() endDateString: string | null;
-  stockData: any;
+  @Input() calculateSomme:(numbers: number[]) => number;
+  @Input() getRandomColor:(x: string)=> string;
+  @Input() getMinMax:(numbers: number[])=> string;
+  @Input() formatNumber:(item: any)=> string;
+
+  stockChartData: any;
   stockDataSetArray: any[];
   stockOptions: any;
   stockValueTableData: any;
@@ -28,6 +33,7 @@ export class StockStatComponent implements OnInit, OnChanges {
   };
   $unsubscribe: Subject<void> = new Subject();
   dates: any[];
+  stockTable: any;
 
   constructor(
     private statsService: StatsService,
@@ -79,7 +85,7 @@ export class StockStatComponent implements OnInit, OnChanges {
         },
       },
     };
-    this.stockData = {
+    this.stockChartData = {
       labels: [],
       datasets: [],
     };
@@ -93,6 +99,7 @@ export class StockStatComponent implements OnInit, OnChanges {
       .subscribe({
         next: (response: any) => {
           //console.log('statAllModels', response);
+          this.stockValueTableData = response.statStockTable;
           this.createStockChart(response);
         },
         error: (error: any) => {
@@ -105,67 +112,36 @@ export class StockStatComponent implements OnInit, OnChanges {
       this.getStatValueStockTable();
   }
   getStatValueStockTable() {
-    if(this.endDateString)
-    this.statsService
-      .statValueStock()
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe({
-        next: (response: any) => {
-          console.log('statValueStock', response);
-          this.stockValueTableData = response;
-          this.totalStock = this.stockValueTableData[this.stockValueTableData.length - 1];
-          this.stockValueTableData.pop();
-        },
-        error: (error: any) => {
-          console.log('ErrorStockCount:', error);
-        },
-        complete: () => {
-          console.log('Observable completed-- getStatStockChart --');
-        },
-      });
+    this.totalStock = this.stockValueTableData[this.stockValueTableData.length - 1];
+    this.stockValueTableData.pop();
   }
   createStockChart(data: any) {
-    //console.log('createModelsChart', data);
-
-    let modelsList: string[] = [];
-    let statStock = data.statStock;
-    //console.log('statStock', statStock);
+    let modelsList: any[] = [];
+    let statStockChart = data.statStockChart;
     modelsList = data.models;
     this.dates = data.dates;
 
     this.stockDataSetArray = [];
 
     let j = 0;
-    statStock.forEach((item: any) => {
+    statStockChart.forEach((item: any) => {
+      let name = modelsList[j].name;
+      let qte = item[item.length - 1];
       this.stockDataSetArray.push({
-        label: modelsList[j] + ':' + item[item.length - 1],
+        label: name + ':' + qte,
         data: item,
         fill: false,
-        borderColor: this.getRandomColor(item),
+        borderColor: this.getRandomColor(name),
         tension: 0.4,
+        hidden: qte < 5
       });
       j++;
     });
 
-    this.stockData = {
+    this.stockChartData = {
       labels: this.dates,
       datasets: this.stockDataSetArray,
     };
   }
 
-  getRandomColor(x: string) {
-    if (x == 'Noir' || x == 'noir') return 'black';
-    else if (x == 'Vert'|| x == 'vert') return 'green';
-    else if (x == 'Beige'|| x == 'beige') return '#D1AF76';
-    else if (x == 'Bleu'|| x == 'bleu') return '#0080FF';
-    else if (x == 'Gris'|| x == 'gris') return 'grey';
-    else if (x == 'Blanc'|| x == 'blanc') return 'pink';
-
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
 }

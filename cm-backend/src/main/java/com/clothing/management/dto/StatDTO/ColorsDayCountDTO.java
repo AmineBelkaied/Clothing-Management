@@ -1,4 +1,4 @@
-package com.clothing.management.dto.DayCount;
+package com.clothing.management.dto.StatDTO;
 import com.clothing.management.entities.Color;
 import lombok.*;
 import java.util.Date;

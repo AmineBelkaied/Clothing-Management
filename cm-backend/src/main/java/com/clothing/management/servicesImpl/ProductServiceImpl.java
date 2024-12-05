@@ -2,8 +2,8 @@ package com.clothing.management.servicesImpl;
 
 import com.clothing.management.auth.util.SessionUtils;
 import com.clothing.management.dto.*;
-import com.clothing.management.dto.DayCount.ProductsQuantityDTO;
-import com.clothing.management.dto.DayCount.SoldProductsDayCountDTO;
+import com.clothing.management.dto.StatDTO.ProductsQuantityDTO;
+import com.clothing.management.dto.StatDTO.SoldProductsDayCountDTO;
 import com.clothing.management.entities.*;
 import com.clothing.management.exceptions.custom.notfound.ProductNotFoundException;
 import com.clothing.management.mappers.ModelMapper;

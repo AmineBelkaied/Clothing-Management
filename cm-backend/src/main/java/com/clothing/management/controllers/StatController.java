@@ -1,7 +1,8 @@
 package com.clothing.management.controllers;
 
-import com.clothing.management.dto.DayCount.*;
-import com.clothing.management.dto.ModelStockValueDTO;
+import com.clothing.management.dto.StatDTO.*;
+import com.clothing.management.dto.StatModelsDTO;
+import com.clothing.management.dto.StatOffersDTO;
 import com.clothing.management.services.StatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,29 +42,14 @@ public class StatController {
     }
 
     @GetMapping("/models")
-    public ResponseEntity<Map<String, List<?>>> getAllModelsStats(
+    public ResponseEntity<StatModelsDTO> getAllModelsStats(
             @RequestParam String beginDate,
             @RequestParam String endDate,
             @RequestParam Boolean countProgress) {
         LOGGER.info("Fetching stats for all models from {} to {} with countProgress: {}", beginDate, endDate, countProgress);
         try {
-            Map<String, List<?>> stats = statService.statAllModelsTable(beginDate, endDate,countProgress);
+            StatModelsDTO stats = statService.statModels(beginDate, endDate,countProgress);
             LOGGER.info("Successfully fetched stats for all models");
-            return ResponseEntity.ok(stats);
-        } catch (Exception e) {
-            LOGGER.error("Error fetching stats for all models: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping("/models-chart")
-    public ResponseEntity<Map<String, List<?>>> getAllModelsStatsChart(
-            @RequestParam String beginDate,
-            @RequestParam String endDate,
-            @RequestParam Boolean countProgress) {
-        LOGGER.info("Fetching stats for all models from {} to {} with countProgress: {}", beginDate, endDate, countProgress);
-        try {
-            Map<String, List<?>> stats = statService.statAllModelsChart(beginDate, endDate,countProgress);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             LOGGER.error("Error fetching stats for all models: ", e);
@@ -78,19 +63,7 @@ public class StatController {
             @RequestParam String endDate) {
         LOGGER.info("Fetching stock stats from {} to {}", beginDate, endDate);
         try {
-            Map<String, List<?>> stats = statService.statAllStockChart(beginDate, endDate);
-            return ResponseEntity.ok(stats);
-        } catch (Exception e) {
-            LOGGER.error("Error fetching stock stats: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping("/values")
-    public ResponseEntity<ArrayList<ModelStockValueDTO>> getValuesStats() {
-        try {
-            ArrayList<ModelStockValueDTO> stats = statService.statValuesDashboard();
-            LOGGER.info("Successfully fetched stock stats");
+            Map<String, List<?>> stats = statService.statStock(beginDate, endDate);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             LOGGER.error("Error fetching stock stats: ", e);
@@ -130,12 +103,13 @@ public class StatController {
     }
 
     @GetMapping("/offers")
-    public ResponseEntity<Map<String, List<?>>> getOffersStats(
+    public ResponseEntity<StatOffersDTO> getOffersStats(
             @RequestParam String beginDate,
-            @RequestParam String endDate) {
+            @RequestParam String endDate,
+            @RequestParam Boolean countProgress) {
         LOGGER.info("Fetching offers stats from {} to {}", beginDate, endDate);
         try {
-            Map<String, List<?>> stats = statService.statAllOffersChart(beginDate, endDate);
+            StatOffersDTO stats = statService.statOffers(beginDate, endDate, countProgress);
             LOGGER.info("Successfully fetched offers stats");
             return ResponseEntity.ok(stats);
         } catch (Exception e) {

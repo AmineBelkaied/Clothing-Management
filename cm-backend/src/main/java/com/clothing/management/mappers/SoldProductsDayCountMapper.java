@@ -1,8 +1,7 @@
 package com.clothing.management.mappers;
 
-import com.clothing.management.dto.DayCount.SoldProductsDayCountDTO;
+import com.clothing.management.dto.StatDTO.SoldProductsDayCountDTO;
 import com.clothing.management.entities.Product;
-import lombok.NoArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;

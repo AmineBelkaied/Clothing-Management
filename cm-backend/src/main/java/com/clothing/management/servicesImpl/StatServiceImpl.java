@@ -1,24 +1,23 @@
 package com.clothing.management.servicesImpl;
 
 import com.clothing.management.dto.*;
-import com.clothing.management.dto.DayCount.*;
+import com.clothing.management.dto.StatDTO.*;
+import com.clothing.management.dto.StatDTO.ChartDTO.ChartDTO;
+import com.clothing.management.dto.StatDTO.ChartDTO.IDNameDTO;
+import com.clothing.management.dto.StatDTO.ChartDTO.StatChartDTO;
+import com.clothing.management.dto.StatDTO.TableDTO.ModelTableDTO;
+import com.clothing.management.dto.StatDTO.TableDTO.OfferTableDTO;
 import com.clothing.management.entities.*;
 import com.clothing.management.enums.SystemStatus;
-import com.clothing.management.mappers.ModelMapper;
-import com.clothing.management.mappers.OfferMapper;
 import com.clothing.management.mappers.StatTableMapper;
 import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.repository.IPacketRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.services.StatService;
-import com.clothing.management.tenant.DataSourceBasedMultiTenantConnectionProviderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,27 +29,21 @@ public class StatServiceImpl implements StatService {
     private final IProductsPacketRepository productsPacketRepository;
     private final IModelStockHistoryRepository modelStockHistoryRepository;
     private final IPacketRepository packetRepository;
-    private final OfferMapper offerMapper;
-    private final ModelMapper modelMapper;
     private final StatTableMapper statTableMapper;
-    private final DataSourceBasedMultiTenantConnectionProviderImpl dataSourceBasedMultiTenantConnectionProviderImpl;
 
     public StatServiceImpl(IProductsPacketRepository productsPacketRepository,
                            IModelStockHistoryRepository modelStockHistoryRepository,
-                           IPacketRepository packetRepository, OfferMapper offerMapper, ModelMapper modelMapper, StatTableMapper statTableMapper, DataSourceBasedMultiTenantConnectionProviderImpl dataSourceBasedMultiTenantConnectionProviderImpl) {
+                           IPacketRepository packetRepository,
+                           StatTableMapper statTableMapper) {
         this.productsPacketRepository = productsPacketRepository;
         this.modelStockHistoryRepository = modelStockHistoryRepository;
         this.packetRepository = packetRepository;
-        this.offerMapper = offerMapper;
-        this.modelMapper = modelMapper;
         this.statTableMapper = statTableMapper;
-        this.dataSourceBasedMultiTenantConnectionProviderImpl = dataSourceBasedMultiTenantConnectionProviderImpl;
     }
 
     public Map<String, List<?>> statAllPagesChart(String beginDate, String endDate) {
         List<Long> countPagesList;
         List<PagesDayCountDTO> existingProductsPacket = productsPacketRepository.statAllPages(beginDate, endDate);
-        LOGGER.info("Fetched {} product packets for the date range.", existingProductsPacket.size());
 
         Map<String, List<?>> uniqueValues = getUniquePages(existingProductsPacket);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
@@ -112,57 +105,21 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
-    public Map<String, List<?>> statAllModelsTable(String beginDate, String endDate,Boolean countProgressEnabler) {
+    public StatModelsDTO statModels(String beginDate, String endDate, Boolean countProgressEnabler) {
         List<String> status = getCountStatus(countProgressEnabler);
-        List<ModelsDayCountDTO> modelsStat = productsPacketRepository.statAllModels(beginDate, endDate, status);
-        Map<String, List<?>> data = new HashMap<>();
-        data.put("modelsStat", modelsStat);
-        ArrayList<ModelStockValueDTO>  statValuesDashboard = statValuesTotalDashboard();
-        data.put("statValuesDashboard", statValuesDashboard);
+        StatModelsDTO dto = new StatModelsDTO();
+        List<ChartDTO> chartData = productsPacketRepository.statModelsChart(beginDate, endDate, status);
+        dto.setChart(createListsCount(chartData));
+
+        // Create model table
+        List<ModelTableDTO> modelsStat = productsPacketRepository.statAllModels(beginDate, endDate, status);
+        dto.setModelsStat(modelsStat);
+
+        // Create statValuesDashboard
+        ArrayList<ModelStockValueDTO> statValuesDashboard = statValuesTotalDashboard();
+        dto.setStatValuesDashboard(statValuesDashboard);
         LOGGER.info("Model chart data generated successfully.");
-        return data;
-    }
-
-    @Override
-    public Map<String, List<?>> statAllModelsChart(String beginDate, String endDate,Boolean countProgressEnabler) {
-        List<Long> countModelsList;
-        List<String> status = getCountStatus(countProgressEnabler);
-        List<ModelsDayCountDTO> existingProductsPacket = productsPacketRepository.statAllModelsChart(beginDate, endDate,status);
-
-        LOGGER.info("Fetched {} product packets for the date range.", existingProductsPacket.size());
-
-        Map<String, List<?>> uniqueValues = getUniqueModels(existingProductsPacket);
-        List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
-        List<ModelDTO> uniqueModels = (List<ModelDTO>) uniqueValues.get("uniqueModels");
-
-        List<List<Long>> listModelsCount = new ArrayList<>();
-
-        StatOfferTableDTO modelRecap;
-        for (ModelDTO uniqueModel : uniqueModels) {
-            countModelsList = new ArrayList<>();
-            modelRecap = statTableMapper.modelToStatModelTableDTO(uniqueModel.getName());
-            for (Date uniqueDate : uniqueDates) {
-                long count = 0;
-                for (ModelsDayCountDTO row : existingProductsPacket) {
-                    if (row.getDate().equals(uniqueDate) && row.getModel().getId().equals(uniqueModel.getId())) {
-                        count += row.getCountPaid();
-                    }
-                }
-                modelRecap.setPaid(count + modelRecap.getPaid());
-                countModelsList.add(count);
-            }
-            listModelsCount.add(countModelsList);
-        }
-
-        // Total models count by date
-        listModelsCount.add(countTotal(uniqueDates, listModelsCount));
-
-        // Prepare the final data map
-        Map<String, List<?>> data = new HashMap<>();
-        data.put("dates", uniqueDates);
-        data.put("modelsCount", listModelsCount);
-        data.put("models", uniqueModels);
-        return data;
+        return dto;
     }
 
     private List<String> getCountStatus(boolean countProgressEnabler){
@@ -173,25 +130,6 @@ public class StatServiceImpl implements StatService {
         } else {
             return Arrays.asList("Livrée", "Payée");
         }
-    }
-
-    private ArrayList<Long> countTotalNoDates(List<List<Long>> listModelsCount) {
-
-        ArrayList<Long> countTotalList = new ArrayList<>();
-        int index = 0;
-            long sum = 0;
-            for (List<Long> totalPerDay : listModelsCount) {
-                if (index < totalPerDay.size()) {
-                    sum += totalPerDay.get(index);
-                } else {
-                    LOGGER.warn("Index {} out of bounds for totalPerDay list with size {}.", index, totalPerDay.size());
-                }
-                index++;
-            }
-            countTotalList.add(sum);
-            LOGGER.debug("Date: {}, Total count: {}", sum);
-
-        return countTotalList;
     }
 
     private ArrayList<Long> countTotal(List<Date> uniqueDates, List<List<Long>> listModelsCount) {
@@ -215,14 +153,10 @@ public class StatServiceImpl implements StatService {
         return countTotalList;
     }
 
-    @Override
-    public ArrayList<ModelStockValueDTO> statValuesDashboard() {
-        // Set date to October 7, 2024
-        LocalDate localDate = LocalDate.of(2024, 10, 7);
-        Date today = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
+    public ArrayList<ModelStockValueDTO> statStockTable() {
         // Fetch stock history data
-        List<ModelStockHistory> statStock = modelStockHistoryRepository.statValues(today);
+        List<ModelStockHistory> statStock = modelStockHistoryRepository.statValues(new Date());
 
         // Initialize variables
         long totalQuantity = 0L;
@@ -231,26 +165,24 @@ public class StatServiceImpl implements StatService {
         ArrayList<ModelStockValueDTO> modelStockValuesList = new ArrayList<>();
         // Iterate through stock history entries
         for (ModelStockHistory modelStockHistory : statStock) {
-            Model model = modelStockHistory.getModel();
             long quantity = modelStockHistory.getQuantity();
-            double purchasePriceForEntry = model.getPurchasePrice() * quantity;
-            double sellingPriceForEntry = purchasePriceForEntry * model.getEarningCoefficient();
-            modelStockValuesList.add(new ModelStockValueDTO(model.getName(),quantity,purchasePriceForEntry,sellingPriceForEntry,sellingPriceForEntry-purchasePriceForEntry));
-            totalQuantity += quantity;
-            totalPurchasePrice += purchasePriceForEntry;
-            totalSellingPrice += sellingPriceForEntry;
+            if(quantity>0) {
+                Model model = modelStockHistory.getModel();
+                double purchasePriceForEntry = model.getPurchasePrice() * quantity;
+                double sellingPriceForEntry = purchasePriceForEntry * model.getEarningCoefficient();
+                modelStockValuesList.add(new ModelStockValueDTO(model.getName(), quantity, purchasePriceForEntry, sellingPriceForEntry, sellingPriceForEntry - purchasePriceForEntry));
+                totalQuantity += quantity;
+                totalPurchasePrice += purchasePriceForEntry;
+                totalSellingPrice += sellingPriceForEntry;
+            }
         }
         modelStockValuesList.add(new ModelStockValueDTO("Total",totalQuantity,totalPurchasePrice,totalSellingPrice,totalSellingPrice - totalPurchasePrice));
         return modelStockValuesList;
     }
 
     public ArrayList<ModelStockValueDTO> statValuesTotalDashboard() {
-        // Set date to October 7, 2024
-        LocalDate localDate = LocalDate.of(2024, 10, 7);
-        Date today = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
         // Fetch stock history data
-        List<ModelStockHistory> statStock = modelStockHistoryRepository.statValues(today);
+        List<ModelStockHistory> statStock = modelStockHistoryRepository.statValues(new Date());
 
         // Initialize variables
         long totalQuantity = 0L;
@@ -274,184 +206,90 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
-    public Map<String, List<?>> statAllStockChart(String beginDate, String endDate) {
+    public Map<String, List<?>> statStock(String beginDate, String endDate) {
 
         // Fetch stock history
-        List<ModelStockHistory> statStock = modelStockHistoryRepository.statStockByDate(beginDate, endDate);
+        List<ChartDTO> statStock = modelStockHistoryRepository.statStockByDate(beginDate, endDate);
 
         // Extract unique dates and model information
-        Map<String, List<?>> uniqueValues = getUniqueStock(statStock);
+        Map<String, List<?>> uniqueValues = getUniqueItems(statStock);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
-        List<Long> uniqueModelsIds = (List<Long>) uniqueValues.get("modelsIds");
-        List<String> uniqueModels = (List<String>) uniqueValues.get("uniqueModelsNames");
+        List<IDNameDTO> uniqueItems = (List<IDNameDTO>) uniqueValues.get("uniqueItemsNames");
 
-        LOGGER.debug("Unique dates: {}, Unique model IDs: {}, Unique models: {}", uniqueDates, uniqueModelsIds, uniqueModels);
-
-        List<List<Long>> modelsStockHistory = new ArrayList<>();
+        List<List<Long>> statStockChart = new ArrayList<>();
         // Process stock history for each model
-        for (Long uniqueModelId : uniqueModelsIds) {
-            LOGGER.debug("Processing stock history for model ID: {}", uniqueModelId);
-
-            ArrayList<Long> uniqueModelStockHistory = new ArrayList<>();
-
-            for (Date uniqueDate : uniqueDates) {
-                LOGGER.debug("Processing stock for model ID: {} on date: {}", uniqueModelId, uniqueDate);
-
-                Long quantity = statStock.stream()
-                        .filter(statStockRow -> {
-                            try {
-                                return statStockRow.getDate().equals(uniqueDate) && statStockRow.getModel().getId().equals(uniqueModelId);
-                            } catch (Exception e) {
-                                LOGGER.error("Error parsing date for model ID: {} on date: {}", uniqueModelId, uniqueDate, e);
-                                throw new RuntimeException("Error parsing date", e);
-                            }
-                        })
-                        .map(ModelStockHistory::getQuantity)
-                        .findFirst()
-                        .orElse(2L); // Default value if no stock data found
-                uniqueModelStockHistory.add(quantity);
-            }
-
-            modelsStockHistory.add(uniqueModelStockHistory);
+        for (IDNameDTO uniqueItem : uniqueItems) {
+            statStockChart.add(createChartCountList(uniqueItem, statStock, uniqueDates));
         }
 
         // Calculate total models stock history by day
         LOGGER.info("Calculating total stock history by day.");
-        List<Long> totalRow = countTotal(uniqueDates, modelsStockHistory);
-        modelsStockHistory.add(totalRow);
-        uniqueModels.add("Total");
+        List<Long> totalRow = countTotal(uniqueDates, statStockChart);
+        ArrayList<ModelStockValueDTO> statStockTable = statStockTable();
+        statStockChart.add(totalRow);
+        uniqueItems.add(new IDNameDTO(0L,"Total"));
 
         // Prepare final data map
         Map<String, List<?>> data = new HashMap<>();
         data.put("dates", uniqueDates);
-        data.put("models", uniqueModels);
-        data.put("statStock", modelsStockHistory);
-        LOGGER.info("Stock chart data generated for {} models over {} dates.", uniqueModels.size(), uniqueDates.size());
+        data.put("models", uniqueItems);
+        data.put("statStockChart", statStockChart);
+        data.put("statStockTable", statStockTable);
         return data;
     }
 
+    @Transactional("tenantTransactionManager")
+    @Override
+    public StatOffersDTO statOffers(String beginDate, String endDate, Boolean countProgressEnabler) {
+        List<String> status = getCountStatus(countProgressEnabler);
+        StatOffersDTO dto = new StatOffersDTO();
 
-    public static Map<String, List<?>> getUniqueStock(List<ModelStockHistory> modelList) {
-        List<Date> uniqueDates = new ArrayList<>();
-        List<Long> uniquemodelsIds = new ArrayList<>();
-        List<String> uniqueModelNames = new ArrayList<>();
-        for (ModelStockHistory model : modelList) {
-            Date modelStockDate = model.getDate();
-            if (!uniqueDates.contains(modelStockDate)) {
-                uniqueDates.add(modelStockDate);
-            }
+        List<ChartDTO> offersChartData = productsPacketRepository.statOffersChart(beginDate, endDate,status);
+        dto.setChart(createListsCount(offersChartData));
 
-            if (!uniquemodelsIds.contains(model.getModel().getId())) {
-                uniquemodelsIds.add(model.getModel().getId());
-                uniqueModelNames.add(model.getModel().getName());
-            }
-        }
-        Map<String, List<?>> uniqueAttributes = new HashMap<>();
-        uniqueAttributes.put("uniqueDates", uniqueDates);
-        uniqueAttributes.put("modelsIds", uniquemodelsIds);
-        uniqueAttributes.put("uniqueModelsNames", uniqueModelNames);
+        List<OfferTableDTO> offersStat = productsPacketRepository.statOffersTable(beginDate, endDate, status);
+        dto.setOffersStat(offersStat);
 
-        return uniqueAttributes;
+        LOGGER.info("Model chart data generated successfully.");
+        return dto;
     }
 
-    @Override
-    @Transactional("tenantTransactionManager")
-    public Map<String, List<?>> statAllOffersChart(String beginDate, String endDate) {
-
-        List<Long> countOffersList;
-        // Fetch offer data
-        List<OffersDayCountDTO> existingOffersPacket = productsPacketRepository.offersCountByDate(beginDate, endDate);
-        LOGGER.info("Fetched {} offer packets for the date range.", existingOffersPacket.size());
-
+    private StatChartDTO createListsCount(List<ChartDTO> chartData){
         // Get unique dates and offers
-        Map<String, List<?>> uniqueValues = getUniqueOffers(existingOffersPacket);
+        Map<String, List<?>> uniqueValues = getUniqueItems(chartData);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
-        List<OfferDTO> uniqueOffers = (List<OfferDTO>) uniqueValues.get("uniqueOffers");
-        LOGGER.debug("Unique dates: {}, Unique offers: {}", uniqueDates, uniqueOffers);
+        List<IDNameDTO> uniqueOffers = (List<IDNameDTO>) uniqueValues.get("uniqueItemsNames");
 
         // Initialize offers count list and recap
         List<List<Long>> listOffersCount = new ArrayList<>();
-        List<StatOfferTableDTO> offersRecapCount = new ArrayList<>();
-        StatOfferTableDTO offerRecap;
 
-        // Process each unique offer
-        for (OfferDTO uniqueOffer : uniqueOffers) {
-            LOGGER.debug("Processing offer: {}", uniqueOffer.getName());
-
-            countOffersList = new ArrayList<>();
-            offerRecap = statTableMapper.offerToStatOfferTableDTO(uniqueOffer);
-
-            // Process each unique date for the current offer
-            for (Date uniqueDate : uniqueDates) {
-                long countPaid = 0;
-                long countProgress = 0;
-                long countRetour = 0;
-                double countProfits = 0;
-
-                // Calculate counts for the current offer on the given date
-                for (OffersDayCountDTO row : existingOffersPacket) {
-                    if (row.getDate().equals(uniqueDate) && row.getOffer().getId().equals(uniqueOffer.getId())) {
-                        if (row.getCountPaid() > 0) {
-                            countPaid += 1;
-                            countProfits += row.getProfits();
-                        }
-                        if (row.getCountReturn() > 0) countRetour += 1;
-                        if (row.getCountProgress() > 0) countProgress += 1;
-                    }
-                }
-
-                // Update the recap for the current offer
-                offerRecap.setPaid(countPaid + offerRecap.getPaid());
-                offerRecap.setRetour(countRetour + offerRecap.getRetour());
-                offerRecap.setProgress(countProgress + offerRecap.getProgress());
-                offerRecap.setProfits(countProfits + offerRecap.getProfits());
-                countOffersList.add(countPaid);
-            }
-
-            // Add the offer's data to the list and recap counts
-            listOffersCount.add(countOffersList);
-            offerRecap.setMin(Collections.min(countOffersList));
-            offerRecap.setMax(Collections.max(countOffersList));
-            offerRecap.setAvg(offerRecap.getPaid() / uniqueDates.size());
-
-            // Calculate purchase price
-            Double purchasePrice = calculateOfferpurchasePrice(uniqueOffer);
-            offerRecap.setPurchasePrice(purchasePrice * offerRecap.getPaid());
-            offerRecap.setSellingPrice(offerRecap.getPurchasePrice() + offerRecap.getProfits());
-
-            offersRecapCount.add(offerRecap);
+        for (IDNameDTO uniqueOffer : uniqueOffers) {
+            List<ChartDTO> miniList = chartData.stream().filter(model-> model.getIdName().getId().equals(uniqueOffer.getId())).toList();
+            listOffersCount.add(createChartCountList(uniqueOffer, miniList, uniqueDates));
         }
-
-        LOGGER.info("Processed {} offers.", uniqueOffers.size());
-
-        // Total offers count by date
+        // Add Total models count row
         listOffersCount.add(countTotal(uniqueDates, listOffersCount));
+        uniqueOffers.add(new IDNameDTO(1000L,"Total"));
+        return new StatChartDTO(uniqueDates,uniqueOffers,listOffersCount);
+    }
 
-        // Create total recap table for offers
-        LOGGER.info("Generating total recap table for offers.");
-        StatOfferTableDTO offerTotalRecap = createTableTotalRecap(offersRecapCount);
-        offersRecapCount.add(offerTotalRecap);
+    private List<Long> createChartCountList(IDNameDTO uniqueItem, List<ChartDTO> chartData, List<Date> uniqueDates){
 
-        // Prepare the final data map
-        Map<String, List<?>> data = new HashMap<>();
-        data.put("dates", uniqueDates);
-        data.put("countOffersLists", listOffersCount);
-        data.put("offersRecapCount", offersRecapCount);
-
-        LOGGER.info("Offers chart data generated successfully.");
-        return data;
+        List<Long> countList = new ArrayList<>();
+        for (Date uniqueDate : uniqueDates) {
+            long value = 0;
+            for (ChartDTO row : chartData) {
+                if (row.getDate().equals(uniqueDate) && row.getIdName().getId().equals(uniqueItem.getId())) {
+                        value += row.getValue();
+                }
+            }
+            countList.add(value);
+        }
+        return countList;
     }
 
     public StatTableDTO createPageTableRecap(List<StatTableDTO> recapCount) {
         StatTableDTO totalRecap = statTableMapper.toStatTableDTO(("Total"));
-        return createTotalRecap(recapCount, totalRecap);
-    }
-
-    public StatOfferTableDTO createTableTotalRecap(List<StatOfferTableDTO> recapCount) {
-        StatOfferTableDTO totalRecap = statTableMapper.offerToStatOfferTableDTO(
-                OfferDTO.builder()
-                        .name("Total")
-                        .build());
         return createTotalRecap(recapCount, totalRecap);
     }
 
@@ -476,20 +314,6 @@ public class StatServiceImpl implements StatService {
         }
         return totalRecap;
     }
-
-
-    private <T extends StatTableDTO> T createPagesTotalRecap(List<T> recapCount, T totalRecap) {
-        totalRecap.setMin(0L);
-
-        for (T uniqueRecapCount : recapCount) {
-            totalRecap.setAvg(totalRecap.getAvg() + uniqueRecapCount.getAvg());
-            totalRecap.setMax(totalRecap.getMax() + uniqueRecapCount.getMax());
-            totalRecap.setMin(totalRecap.getMin() + uniqueRecapCount.getMin());
-            totalRecap.setPaid(totalRecap.getPaid() + uniqueRecapCount.getPaid());
-        }
-        return totalRecap;
-    }
-
 
     private Double calculateOfferpurchasePrice(OfferDTO offer) {
         double purchasePrice = 0;
@@ -690,26 +514,25 @@ public class StatServiceImpl implements StatService {
         LOGGER.debug("Finalizing recap stats. Avg: {}, Percentage: {}", avg, percentage);
     }
 
-    public Map<String, List<?>> getUniqueModels(List<ModelsDayCountDTO> productsList) {
+    public Map<String, List<?>> getUniqueItems(List<ChartDTO> productsList) {
 
         Map<String, List<?>> uniqueAttributes = new HashMap<>();
         List<Date> uniqueDates = new ArrayList<>();
-        List<ModelDTO> uniqueModels = new ArrayList<>();
-        List<Long> uniqueModelsIds = new ArrayList<>();
+        List<IDNameDTO> uniqueModels = new ArrayList<>();
+        List<Long> uniqueItemsIds = new ArrayList<>();
 
-        for (ModelsDayCountDTO product : productsList) {
+        for (ChartDTO product : productsList) {
             if (!uniqueDates.contains(product.getDate())) {
                 uniqueDates.add(product.getDate());
             }
 
-            Model model = product.getModel();
-            if (!uniqueModelsIds.contains(model.getId())) {
-                uniqueModels.add(modelMapper.toDto(model));
-                uniqueModelsIds.add(model.getId());
+            if (!uniqueItemsIds.contains(product.getIdName().getId())) {
+                uniqueModels.add(product.getIdName());
+                uniqueItemsIds.add(product.getIdName().getId());
             }
         }
         uniqueAttributes.put("uniqueDates", uniqueDates);
-        uniqueAttributes.put("uniqueModels", uniqueModels);
+        uniqueAttributes.put("uniqueItemsNames", uniqueModels);
         return uniqueAttributes;
     }
 
@@ -755,33 +578,6 @@ public class StatServiceImpl implements StatService {
         LOGGER.info("Unique attributes extracted. Dates: {}, Colors: {}", uniqueDates.size(), uniqueColors.size());
         uniqueAttributes.put("uniqueDates", uniqueDates);
         uniqueAttributes.put("uniqueColors", uniqueColors);
-        return uniqueAttributes;
-    }
-
-    @Transactional("tenantTransactionManager")
-    public Map<String, List<?>> getUniqueOffers(List<OffersDayCountDTO> productsList) {
-
-        Map<String, List<?>> uniqueAttributes = new HashMap<>();
-        List<Date> uniqueDates = new ArrayList<>();
-        List<OfferDTO> uniqueOffers = new ArrayList<>();
-        List<Long> uniqueOffersIds = new ArrayList<>();
-
-        for (OffersDayCountDTO product : productsList) {
-            Offer offer = product.getOffer();
-            if (!uniqueDates.contains(product.getDate())) {
-                uniqueDates.add(product.getDate());
-            }
-            if (offer != null && !uniqueOffersIds.contains(offer.getId())) {
-                uniqueOffersIds.add(offer.getId());
-                uniqueOffers.add(offerMapper.toDto(offer));
-            }
-        }
-
-        LOGGER.info("Unique attributes extracted. Offers: {}, Dates: {}", uniqueOffers.size(), uniqueDates.size());
-
-        uniqueAttributes.put("uniqueOffers", uniqueOffers);
-        uniqueAttributes.put("uniqueDates", uniqueDates);
-
         return uniqueAttributes;
     }
 

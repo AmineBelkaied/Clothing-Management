@@ -1,17 +1,8 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { DaySales} from 'src/shared/models/stat';
-import { PacketService } from 'src/shared/services/packet.service';
-import { Packet } from 'src/shared/models/Packet';
 import { DatePipe } from '@angular/common';
 import { StatsService } from 'src/shared/services/stats.service';
-import { DateUtils } from 'src/shared/utils/date-utils';
 import { Subject, takeUntil } from 'rxjs';
-import { ModelService } from 'src/shared/services/model.service';
-import { ActivatedRoute } from '@angular/router';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
-import { FormControl } from '@angular/forms';
-import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
-import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 
 @Component({
   selector: 'app-offer-stat',
@@ -21,9 +12,14 @@ import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
 })
 
 export class OfferStatComponent implements OnInit,OnChanges,OnDestroy {
-
+  @Input() countProgressEnabler : boolean = false;
   @Input() beginDateString: string;
   @Input() endDateString: string | null;
+  @Input() calculateAverage:(numbers: number[]) => number;
+  @Input() calculateSomme:(numbers: number[]) => number;
+  @Input() getRandomColor:(x: string)=> string;
+  @Input() getMinMax:(numbers: number[])=> string;
+  @Input() formatNumber:(item: any)=> string;
   offersCount: ProductCountDTO[] = [];
   offersDataSetArray: any[];
   offersData: any;
@@ -44,40 +40,54 @@ export class OfferStatComponent implements OnInit,OnChanges,OnDestroy {
     profits: 0                  // Projected or actual profit
   };
 
-  dates: any[];
   $unsubscribe: Subject<void> = new Subject();
+
+
+  offersCounts: any[] = [];
+  totals = {
+    paid: 0,
+    progress: 0,
+    retour: 0,
+    purchasePrice: 0,
+    sellingPrice: 0,
+    profits: 0,
+  };
 
   constructor(
     private statsService: StatsService,
-    public datePipe: DatePipe,
-    private deliveryCompanyService: DeliveryCompanyService,
+    public datePipe: DatePipe
   ) {}
 
   ngOnInit() {
     this.intitiateLists();
 
   }
+
   ngOnChanges(simpleChanges: SimpleChanges): void {
-    if(simpleChanges['endDateString'] && this.endDateString){
+    if((simpleChanges['endDateString'] || simpleChanges['countProgressEnabler']) && this.endDateString){
           this.getStatAllOffersChart();
       }
   }
   getStatAllOffersChart() {
-    if(this.endDateString)
-    this.statsService
-      .statAllOffers(this.beginDateString, this.endDateString)
-      .pipe(takeUntil(this.$unsubscribe))
-      .subscribe({
-        next: (response: any) => {
-          this.createOffersChart(response);
-        },
-        error: (error: any) => {
-          console.log('ErrorOffersCount:', error);
-        },
-        complete: () => {
-          console.log('Observable completed-- getStatAllOffersChart --');
-        },
-      });
+    if(this.endDateString){
+      this.offerTableData = [];
+      this.statsService
+        .statAllOffers(this.beginDateString, this.endDateString,this.countProgressEnabler)
+        .pipe(takeUntil(this.$unsubscribe))
+        .subscribe({
+          next: (data: any) => {
+            this.offerTableData = data.offersStat;
+            this.totals = this.calculateTotals();
+            this.createModelsChart(data.chart);
+          },
+          error: (error: any) => {
+            console.log('ErrorOffersCount:', error);
+          },
+          complete: () => {
+            console.log('Observable completed-- getStatAllOffersChart --');
+          },
+        });
+    }
   }
   intitiateLists() {
 
@@ -127,68 +137,62 @@ export class OfferStatComponent implements OnInit,OnChanges,OnDestroy {
 
   }
 
-  createOffersChart(data: any) {
-    console.log("createOffersChart",data);
-
-    this.offerTableData = [];
-    let offersCounts: any[];
-    this.offerTableData = data.offersRecapCount;
-    offersCounts = data.countOffersLists;
+  createModelsChart(chart :any) {
+    let dates = chart.uniqueDates;
+    this.offersCounts = chart.itemsCount;
+    let uniqueOffers = chart.uniqueItems;
 
     this.offersDataSetArray = [];
-    this.dates = data.dates;
-
-    let k = 0;
-    this.offerTableData.forEach((item: any) => {
+    let i = 0;
+    uniqueOffers.forEach((item: any) => {
+      let x = this.calculateAverage(this.offersCounts[i]);
       this.offersDataSetArray.push({
-        label: item.name + '/av:' + this.offerTableData[k].avg,
-        data: offersCounts[k],
+        label: item.name + '/av:' + x,
+        data: this.offersCounts[i],
         fill: false,
         borderColor: this.getRandomColor(item.name),
         tension: 0.4,
-        hidden: this.offerTableData[k].avg < 3
+        hidden: x < 3
       });
-      k++;
+      i++;
     });
-    this.totalOffer = this.offerTableData[this.offerTableData.length - 1];
-    this.offerTableData.pop();
 
     this.offersData = {
-      labels: this.dates,
+      labels: dates,
       datasets: this.offersDataSetArray,
     };
   }
-  calculateAverage(numbers: number[]): number {
-    if (numbers.length === 0) {
-      return 0; // Handle division by zero
-    }
-    const sum = numbers.reduce((acc, current) => acc + current, 0);
-    const average = sum / numbers.length;
-    return Number(average.toFixed(1));
-  }
-  getRandomColor(x: string) {
-    if (x == 'Noir' || x == 'noir') return 'black';
-    else if (x == 'Vert'|| x == 'vert') return 'green';
-    else if (x == 'Beige'|| x == 'beige') return '#D1AF76';
-    else if (x == 'Bleu'|| x == 'bleu') return '#0080FF';
-    else if (x == 'Gris'|| x == 'gris') return 'grey';
-    else if (x == 'Blanc'|| x == 'blanc') return 'pink';
 
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+  calculateTotals() {
+    const totals = {
+      paid: 0,
+      progress: 0,
+      retour: 0,
+      purchasePrice: 0,
+      sellingPrice: 0,
+      profits: 0,
+    };
+    let i = 1
+    let per=0.00;
+    this.offerTableData.forEach((item : any) => {
+      totals.paid += item.countPaid || 0;
+      totals.progress += item.countProgress || 0;
+      totals.retour += item.countReturn || 0;
+      totals.purchasePrice += 0;// (item.model.purchasePrice * item.countPaid) || 0;
+      totals.sellingPrice += 0;//((item.model.purchasePrice * item.countPaid) + item.profits) || 0;
+      totals.profits += item.profits || 0;
+      i++;
+    });
+    return totals;
   }
 
-  formatNumber(item: any) {
-    let value = (item.paid*100) / (item.retour+item.paid)
-      if (!isNaN(value)) {
-        return value.toFixed(2);
-      }
-      return '0.00';
+  getItemIndex(item: any): number[] {
+    let x = this.offerTableData.indexOf(item);
+    let y = this.offersCounts[x];
+
+    return y;
   }
+
   ngOnDestroy(): void {
     this.$unsubscribe.next();
     this.$unsubscribe.complete();

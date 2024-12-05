@@ -1,6 +1,6 @@
 
-        <div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
-<p-card [style]="{ width: '100%'}">
+<div class="card ml-4 mt-2 mb-3" style="background-color: #fbfbfb">
+  <p-card [style]="{ width: '100%'}">
     <p-tabView >
       <p-tabPanel header="Table">
         <p-table class="table" [value]="pagesCountTableData"
@@ -32,12 +32,10 @@
             </tr>
           </ng-template>
         </p-table>
-
       </p-tabPanel>
       <p-tabPanel header="Chart">
         <p-chart type="line" [data]="pagesCountData" [options]="pagesCountOptions" height="30rem"></p-chart>
       </p-tabPanel>
-
       <p-tabPanel header="Pie Chart">
         <p-chart type="pie" [data]="PagesData" [options]="PagesOptions" height="30rem"></p-chart>
       </p-tabPanel>

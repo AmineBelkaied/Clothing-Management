@@ -61,7 +61,6 @@ export const STAT_ENDPOINTS = {
     MODELS: '/models',
     MODELS_CHART: '/models-chart',
     STOCK: '/stock',
-    VALUES: '/values',
     COLORS: '/colors',
     PACKETS: '/packets',
     OFFERS: '/offers',

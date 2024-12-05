@@ -127,7 +127,7 @@ class="listbox-style">
                                       [severity]="getSeverity(productSize.qte, delai)"></p-tag>
                               </div>
                               <div *ngIf="optionFlags['delaiEnabled']">
-                                <h4>{{ delai }} days</h4>
+                                <h6>{{ delai }} J</h6>
                               </div>
                             </ng-container>
 
@@ -145,14 +145,14 @@ class="listbox-style">
         <tr>
           <td class="td-width" *ngIf="totalTableValue as total">
             <strong>Total Size {{ total.all }}</strong>
-            <p-badge *ngIf="total.progress > 0 && optionFlags['showProgress']" [value]="total.progress" severity="info"></p-badge>
+            <p-badge *ngIf="total.progress > 0 && optionFlags['showProgress'] && productsStockTable.length>1" [value]="total.progress" severity="info"></p-badge>
           </td>
           <ng-container *ngFor="let size of selectedColumns">
             <ng-container *ngIf="totalColumnArray[size] as totalCol">
               <ng-container *ngIf="totalCol.all > 0 || optionFlags['showNoStockSizes']">
                 <td class="td-width" (click)="handleSizeClick(size)">
                   <h6>{{ [size] | displaySize }}: {{ totalCol.all }}</h6>
-                  <p-badge *ngIf="totalCol.progress > 0 && optionFlags['showProgress']" [value]="totalCol.progress" severity="info"></p-badge>
+                  <p-badge *ngIf="totalCol.progress > 0 && optionFlags['showProgress'] && productsStockTable.length>1" [value]="totalCol.progress" severity="info"></p-badge>
                 </td>
               </ng-container>
             </ng-container>

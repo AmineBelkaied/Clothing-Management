@@ -1,4 +1,4 @@
-package com.clothing.management.dto.DayCount;
+package com.clothing.management.dto.StatDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,9 +12,4 @@ public class DayCountDTO {
     private Date date;
     private long countPaid;
     private long countProgress;
-
-    public DayCountDTO(long countPaid, long countProgress) {
-        this.countPaid = countPaid;
-        this.countProgress = countProgress;
-    }
 }

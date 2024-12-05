@@ -98,15 +98,17 @@ export class StockTableComponent implements OnInit, OnChanges{
   ngOnChanges(simpleChanges: SimpleChanges){
     console.log("simpleChanges",simpleChanges);
     this.selectedProducts = [];
+
     if(simpleChanges['selectedModel'] && this.selectedModel != null )
       {
         this.historyEnabler = false;
-        this.selectedModel = simpleChanges['selectedModel'].currentValue
+        this.selectedModel = simpleChanges['selectedModel'].currentValue;
         this.modelId = this.selectedModel.id!;
         this.getStockByModelId(this.modelId);
       }
     else if(simpleChanges['endDateString'] && simpleChanges['endDateString'].firstChange == false)
         {
+
           this.getStockByModelId(this.modelId);
           this.historyEnablerChange();
         }
@@ -415,6 +417,11 @@ export class StockTableComponent implements OnInit, OnChanges{
   }
 
   getDaysStock(productSize: any): number {
+    if(productSize.id == 722){
+      console.log(productSize);
+      console.log("change",this.datesCount);
+    }
+
     let countPaid = productSize.countPaid;
     let qte = productSize.qte;
     if (countPaid === 0) countPaid = 1;
