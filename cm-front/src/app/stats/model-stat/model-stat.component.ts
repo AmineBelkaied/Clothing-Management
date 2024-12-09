@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 import { StatsService } from 'src/shared/services/stats.service';
 import { Subject, takeUntil } from 'rxjs';
 import { FormControl } from '@angular/forms';
+import { ChartDTO } from 'src/shared/models/ChartDTO';
 
 @Component({
   selector: 'app-model-stat',
@@ -31,10 +32,10 @@ export class ModelStatComponent implements OnInit,OnChanges {
   @Input() beginDateString: string;
   @Input() endDateString: string | null;
 
-  @Input() calculateAverage:(numbers: number[]) => number;
+  @Input() calculateAverage:(item: any) => number;
+  @Input() getMinMax:(item: any,tableData: any)=> string;
   @Input() calculateSomme:(numbers: number[]) => number;
   @Input() getRandomColor:(x: string)=> string;
-  @Input() getMinMax:(numbers: number[])=> string;
   @Input() formatNumber:(item: any)=> string;
 
   datesCounts: CountDates = {};
@@ -130,7 +131,7 @@ export class ModelStatComponent implements OnInit,OnChanges {
       });
   }
 
-  createModelsChart(chart: any) {
+  createModelsChart(chart: ChartDTO) {
 
     let dates = chart.uniqueDates;
     this.modelsCounts = chart.itemsCount;

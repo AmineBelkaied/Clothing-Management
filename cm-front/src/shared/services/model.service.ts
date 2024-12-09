@@ -13,7 +13,6 @@ export class ModelService {
   private baseUrl: string = environment.baseUrl + `${MODEL_ENDPOINTS.BASE}`;
 
   defaultModel: Model = {
-    id: 0, // Or any default value
     name: '',
     description: '',
     colors: [] =[],

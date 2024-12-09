@@ -64,8 +64,6 @@
               <ng-template pTemplate="header">
                 <tr>
                   <th>Model</th>
-                  <th>Min-Max</th>
-                  <th pSortableColumn="avg">Avg<p-sortIcon field="avg" /></th>
                   <th pSortableColumn="paid">Payée<p-sortIcon field="paid" /></th>
                   <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
                   <th>Retour</th>
@@ -78,8 +76,6 @@
               <ng-template pTemplate="body" let-item let-index>
                 <tr>
                   <td>{{ item.model.name }}</td>
-                  <td>{{ getMinMax(getItemIndex(item)) }}</td><!-- min-max-->
-                  <td>{{ calculateAverage(getItemIndex(item)) }}</td><!-- avg -->
                   <td>{{ item.countPaid }}</td>
                   <td>{{ item.countProgress }}</td>
                   <td>{{ item.countReturn }}</td>
@@ -92,8 +88,6 @@
               <ng-template pTemplate="footer">
                 <tr>
                   <td>Total</td>
-                  <td></td>
-                  <td></td>
                   <td>{{ totals.paid }}</td>
                   <td>{{ totals.progress }}</td>
                   <td>{{ totals.retour }}</td>

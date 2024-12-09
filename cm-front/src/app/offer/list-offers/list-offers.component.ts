@@ -182,7 +182,6 @@ export class ListOffersComponent implements OnInit,OnDestroy {
     });
   }
 
-
   private getOfferConfirmationMessage(offerUsageNumber: number, offerName: string) {
     return offerUsageNumber ? `<p>L'offre <strong>${offerName}</strong> est utilisé
                   <strong style="color: red;">${offerUsageNumber} fois</strong> au niveau des commandes.</p>

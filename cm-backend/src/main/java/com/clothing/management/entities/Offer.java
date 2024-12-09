@@ -42,14 +42,14 @@ public class Offer {
             inverseJoinColumns = { @JoinColumn(name = "fb_page_id") }
     )
     @Builder.Default
-    private Set<FbPage> fbPages = new HashSet<>();
+    private List<FbPage> fbPages = new ArrayList<>();
 
     @Column(nullable = false)
     private Double price;
 
     @Column(name = "is_enabled", nullable = false)
     @Builder.Default
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default

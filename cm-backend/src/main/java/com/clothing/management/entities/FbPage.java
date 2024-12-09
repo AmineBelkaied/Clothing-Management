@@ -1,5 +1,6 @@
 package com.clothing.management.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,11 +29,11 @@ public class FbPage {
 
     private String link;
 
-    @JsonIgnore
+    @JsonBackReference
     @OneToMany(mappedBy = "fbPage", fetch = FetchType.LAZY)
     private List<Packet> packets;
 
-    @JsonIgnore
+    @JsonBackReference
     @ManyToMany(mappedBy = "fbPages", fetch = FetchType.LAZY)
     @Builder.Default
     private Set<Offer> offers = new HashSet<>();

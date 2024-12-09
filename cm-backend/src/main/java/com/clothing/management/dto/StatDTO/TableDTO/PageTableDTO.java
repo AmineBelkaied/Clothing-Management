@@ -9,12 +9,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(callSuper = true)
 
-public class OfferTableDTO extends TableDTO {
+public class PageTableDTO extends TableDTO {
     private Long id;
     private String name;
 
-    public OfferTableDTO(Long id, String name,
-                         long countPaid, long countProgress, long countReturn, double profits
+    public PageTableDTO(Long id, String name,
+                        long countPaid, long countProgress, long countReturn, double profits
     ) {
         super(countPaid, countProgress, countReturn, profits);
         this.id = id;

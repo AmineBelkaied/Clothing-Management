@@ -37,6 +37,7 @@
           [touchUI]="true"
           [autofocus]="false"
           (onClickOutside) = "onClickOutside()"
+          [numberOfMonths]="2"
         >
           <ng-template pTemplate="footer">
             <div class="p-d-flex p-ai-center p-jc-between">
@@ -77,25 +78,30 @@
       [countProgressEnabler]="countProgressEnabler"
       [getRandomColor]="getRandomColor"
       [formatNumber]="formatNumber"
-      [getMinMax]="getMinMax"
       [calculateAverage]="calculateAverage"
       [calculateSomme]="calculateSomme"></app-model-stat>
   </p-tabPanel>
 
   <p-tabPanel header="Offers" class="mt-0">
     <app-offer-stat
-      *ngIf="selectedIndex === 2" [beginDateString]="beginDateString" [endDateString]="endDateString"
+      *ngIf="selectedIndex === 2"
+      [beginDateString]="beginDateString" [endDateString]="endDateString"
       [countProgressEnabler]="countProgressEnabler"
       [getRandomColor]="getRandomColor"
       [formatNumber]="formatNumber"
-      [getMinMax]="getMinMax"
       [calculateAverage]="calculateAverage"
       [calculateSomme]="calculateSomme"></app-offer-stat>
   </p-tabPanel>
 
   <p-tabPanel header="Pages" class="mt-0">
     <app-page-stat
-    *ngIf="selectedIndex === 3" [beginDateString]="beginDateString" [endDateString]="endDateString"></app-page-stat>
+      *ngIf="selectedIndex === 3"
+      [beginDateString]="beginDateString" [endDateString]="endDateString"
+      [countProgressEnabler]="countProgressEnabler"
+      [getRandomColor]="getRandomColor"
+      [formatNumber]="formatNumber"
+      [calculateAverage]="calculateAverage"
+      [calculateSomme]="calculateSomme"></app-page-stat>
   </p-tabPanel>
 
   <p-tabPanel header="Colors" class="mt-0">

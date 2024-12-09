@@ -42,7 +42,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             "SUM(CASE WHEN DATE(p.date) >= DATE(:beginDate) " +
             "AND DATE(p.date) <= DATE(:endDate) " +
             "THEN 1 ELSE 0 END)) " +
-            "FROM Packet p WHERE (p.status <> 'Problème') GROUP BY p.status")
+            "FROM Packet p WHERE (p.status <> 'Problème' AND p.customerName IS NOT NULL AND p.customerPhoneNb IS NOT NULL) GROUP BY p.status")
     List<DashboardCard> createNotification(@Param("beginDate") String beginDate, @Param("endDate") String endDate);//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
 
     @Query(value ="SELECT p FROM Packet p " +

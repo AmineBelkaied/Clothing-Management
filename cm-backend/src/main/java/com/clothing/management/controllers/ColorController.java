@@ -17,7 +17,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("${api.prefix}/colors")
 @CrossOrigin
-@Secured({"ROLE_ADMIN", "ROLE_USER"})
 public class ColorController {
 
     private final ColorService colorService;

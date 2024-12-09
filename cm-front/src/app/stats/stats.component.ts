@@ -121,8 +121,15 @@ export class StatsComponent implements OnInit {
     return color;
   }
 
-  getMinMax(numbers: number[]): string {
-    if(numbers){
+  getMinMax(numbers: any): string {
+    if (!Array.isArray(numbers)) {
+      console.error("Invalid input: numbers is not an array");
+      return "Invalid input";
+    }
+    else if (numbers.length === 0) {
+        return "0-0";
+    }
+    else if(numbers){
       let min = 1000;
       let max = 0;
       for(let x of numbers){
@@ -134,8 +141,11 @@ export class StatsComponent implements OnInit {
     return "0";
   }
 
-  calculateAverage(numbers: number[]): number {
-
+  calculateAverage(numbers: any): number {
+    if (!Array.isArray(numbers)) {
+      console.error("Invalid input: numbers is not an array");
+      return 0;
+    }
     if (numbers){
       const sum = numbers.reduce((acc, current) => acc + current, 0);
       const average = sum / numbers.length;
@@ -143,6 +153,13 @@ export class StatsComponent implements OnInit {
     }
     return 0;
 
+  }
+  getItemIndex(item: any,pagesTableData: any): number[] {
+    let x = pagesTableData.indexOf(item);
+    console.log(x);
+    let y = pagesTableData[x];
+    console.log(y);
+    return y;
   }
 
   formatNumber(item: any): string{

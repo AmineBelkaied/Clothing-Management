@@ -1,5 +1,6 @@
 package com.clothing.management.dto;
 
+import com.clothing.management.entities.Model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,11 +20,13 @@ public class ModelDTO {
     private String description;
     private float purchasePrice;
     private double earningCoefficient;
-    private boolean deleted;
+    @Builder.Default
+    private boolean deleted = false;
     @Builder.Default
     private List<Long> colors = new ArrayList<>();
     @Builder.Default
     private List<Long> sizes = new ArrayList<>();
-    private boolean enabled;
+    @Builder.Default
+    private boolean enabled = false;
     private Long defaultId;
 }

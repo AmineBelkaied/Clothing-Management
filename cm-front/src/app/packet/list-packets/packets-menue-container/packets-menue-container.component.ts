@@ -66,6 +66,7 @@ export class PacketsMenueContainerComponent implements OnChanges {
   isAdmin: boolean;
   isSuperAdmin: boolean;
   oldStatus: Status;
+  showCalendar = true;
 
   ngOnInit(): void {
     this.storageService.isLoggedIn.subscribe(isLoggedIn => {
@@ -227,6 +228,11 @@ export class PacketsMenueContainerComponent implements OnChanges {
       }
     else this.rangeDates = [this.today,this.today];
     this.filterPackets('global');
+  }
+  hideDateFilter(){
+    this.showCalendar = !this.showCalendar;
+    console.log("aaaaa");
+
   }
 
   clearDate(){

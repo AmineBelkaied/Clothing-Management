@@ -17,9 +17,10 @@ public class OfferRequest {
     private Long id;
     private String name;
     private Set<OfferModelsDTO> offerModels;
-    private Set<FbPage> fbPages;
+    private Set<Long> fbPages;
     private Double price;
-    private boolean enabled;
+    @Builder.Default
+    private boolean enabled = true;
 
     public OfferRequest(String name){
         this.name = name;

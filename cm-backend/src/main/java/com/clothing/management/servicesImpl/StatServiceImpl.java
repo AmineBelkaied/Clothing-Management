@@ -5,8 +5,13 @@ import com.clothing.management.dto.StatDTO.*;
 import com.clothing.management.dto.StatDTO.ChartDTO.ChartDTO;
 import com.clothing.management.dto.StatDTO.ChartDTO.IDNameDTO;
 import com.clothing.management.dto.StatDTO.ChartDTO.StatChartDTO;
+import com.clothing.management.dto.StatDTO.Response.StatModelsDTO;
+import com.clothing.management.dto.StatDTO.Response.StatOffersDTO;
+import com.clothing.management.dto.StatDTO.Response.StatPagesDTO;
+import com.clothing.management.dto.StatDTO.Response.StatStockDTO;
 import com.clothing.management.dto.StatDTO.TableDTO.ModelTableDTO;
 import com.clothing.management.dto.StatDTO.TableDTO.OfferTableDTO;
+import com.clothing.management.dto.StatDTO.TableDTO.PageTableDTO;
 import com.clothing.management.entities.*;
 import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.mappers.StatTableMapper;
@@ -41,9 +46,22 @@ public class StatServiceImpl implements StatService {
         this.statTableMapper = statTableMapper;
     }
 
-    public Map<String, List<?>> statAllPagesChart(String beginDate, String endDate) {
+    @Override
+    public StatPagesDTO statPages(String beginDate, String endDate, Boolean countProgressEnabler) {
+        List<String> status = getCountStatus(countProgressEnabler);
+        StatPagesDTO dto = new StatPagesDTO();
+        List<ChartDTO> chartData = productsPacketRepository.statPagesChart(beginDate, endDate,status);
+        dto.setChart(createListsCount(chartData));
+
+        // Create model table
+        List<PageTableDTO> pagesStat = productsPacketRepository.statAllPages(beginDate, endDate, status);
+        dto.setPagesStat(pagesStat);
+        return dto;
+    }
+
+    /*public Map<String, List<?>> statAllPagesChart(String beginDate, String endDate) {
         List<Long> countPagesList;
-        List<PagesDayCountDTO> existingProductsPacket = productsPacketRepository.statAllPages(beginDate, endDate);
+        List<PagesDayCountDTO> existingProductsPacket = productsPacketRepository.statAllPagesChart(beginDate, endDate);
 
         Map<String, List<?>> uniqueValues = getUniquePages(existingProductsPacket);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
@@ -99,10 +117,8 @@ public class StatServiceImpl implements StatService {
         data.put("dates", uniqueDates);
         data.put("pagesCount", listPagesCount);
         data.put("pagesRecapCount", pagesRecapCount);
-
-        LOGGER.info("PagesCount chart data generated successfully.");
         return data;
-    }
+    }*/
 
     @Override
     public StatModelsDTO statModels(String beginDate, String endDate, Boolean countProgressEnabler) {
@@ -206,36 +222,16 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
-    public Map<String, List<?>> statStock(String beginDate, String endDate) {
+    public StatStockDTO statStock(String beginDate, String endDate) {
 
+        StatStockDTO dto = new StatStockDTO();
         // Fetch stock history
         List<ChartDTO> statStock = modelStockHistoryRepository.statStockByDate(beginDate, endDate);
+        dto.setChart(createListsCount(statStock));
 
-        // Extract unique dates and model information
-        Map<String, List<?>> uniqueValues = getUniqueItems(statStock);
-        List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
-        List<IDNameDTO> uniqueItems = (List<IDNameDTO>) uniqueValues.get("uniqueItemsNames");
-
-        List<List<Long>> statStockChart = new ArrayList<>();
-        // Process stock history for each model
-        for (IDNameDTO uniqueItem : uniqueItems) {
-            statStockChart.add(createChartCountList(uniqueItem, statStock, uniqueDates));
-        }
-
-        // Calculate total models stock history by day
-        LOGGER.info("Calculating total stock history by day.");
-        List<Long> totalRow = countTotal(uniqueDates, statStockChart);
         ArrayList<ModelStockValueDTO> statStockTable = statStockTable();
-        statStockChart.add(totalRow);
-        uniqueItems.add(new IDNameDTO(0L,"Total"));
-
-        // Prepare final data map
-        Map<String, List<?>> data = new HashMap<>();
-        data.put("dates", uniqueDates);
-        data.put("models", uniqueItems);
-        data.put("statStockChart", statStockChart);
-        data.put("statStockTable", statStockTable);
-        return data;
+        dto.setStockTable(statStockTable);
+        return dto;
     }
 
     @Transactional("tenantTransactionManager")

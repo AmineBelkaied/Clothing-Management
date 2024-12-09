@@ -29,6 +29,8 @@ public class ModelServiceImpl implements ModelService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelServiceImpl.class);
 
     private final IModelRepository modelRepository;
+    private final IColorRepository colorRepository;
+    private final ISizeRepository sizeRepository;
     private final IProductRepository productRepository;
     private final EntityBuilderHelper entityBuilderHelper;
     private final ModelMapper modelMapper;
@@ -38,9 +40,16 @@ public class ModelServiceImpl implements ModelService {
     private static List<String> confirmedPacketStatus = List.of(new String[]{"Livrée", "Payée","En cours (1)", "En cours (2)", "En cours (3)", "A verifier"});
     private final static String EMPTY_STRING = "";
 
-    public ModelServiceImpl(IModelRepository modelRepository, IProductRepository productRepository, EntityBuilderHelper entityBuilderHelper, ModelMapper modelMapper,
-                            IProductsPacketRepository productsPacketRepository, IOfferRepository offerRepository, IOfferModelRepository offerModelRepository) {
+    public ModelServiceImpl(IModelRepository modelRepository, IColorRepository colorRepository, ISizeRepository sizeRepository,
+                            IProductRepository productRepository,
+                            EntityBuilderHelper entityBuilderHelper,
+                            ModelMapper modelMapper,
+                            IProductsPacketRepository productsPacketRepository,
+                            IOfferRepository offerRepository,
+                            IOfferModelRepository offerModelRepository) {
         this.modelRepository = modelRepository;
+        this.colorRepository = colorRepository;
+        this.sizeRepository = sizeRepository;
         this.productRepository = productRepository;
         this.entityBuilderHelper = entityBuilderHelper;
         this.modelMapper = modelMapper;
@@ -116,9 +125,7 @@ public class ModelServiceImpl implements ModelService {
 
 
         Model updatedModel = modelRepository.save(modelMapper.toEntity(modelDTO));
-        LOGGER.info("Model saved with ID: {}", updatedModel.getId());
 
-        LOGGER.info("Generating products for model ID: {}", updatedModel.getId());
         generateModelProducts(updatedModel);
 
         return ModelSaveResponse.builder()

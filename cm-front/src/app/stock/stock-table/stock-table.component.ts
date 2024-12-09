@@ -65,6 +65,7 @@ export class StockTableComponent implements OnInit, OnChanges{
     { name: 'showNoStockColors', label: 'Couleurs vide' },
     { name: 'showNoStockSizes', label: 'Tailles vide' },
     { name: 'showProgress', label: 'En cours' },
+    { name: 'showReturn', label: 'Retour' },
     { name: 'showOOS', label: 'Rupture' },
     { name: 'showSeverity', label: 'Info stock' },
     { name: 'showExchange', label: 'Echange' },

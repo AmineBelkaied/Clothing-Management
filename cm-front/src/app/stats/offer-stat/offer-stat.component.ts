@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { StatsService } from 'src/shared/services/stats.service';
 import { Subject, takeUntil } from 'rxjs';
 import { ProductCountDTO } from 'src/shared/models/ProductCountDTO';
+import { ChartDTO } from 'src/shared/models/ChartDTO';
 
 @Component({
   selector: 'app-offer-stat',
@@ -15,10 +16,10 @@ export class OfferStatComponent implements OnInit,OnChanges,OnDestroy {
   @Input() countProgressEnabler : boolean = false;
   @Input() beginDateString: string;
   @Input() endDateString: string | null;
-  @Input() calculateAverage:(numbers: number[]) => number;
+  @Input() calculateAverage:(item: any) => number;
+  @Input() getMinMax:(item: any,tableData: any)=> string;
   @Input() calculateSomme:(numbers: number[]) => number;
   @Input() getRandomColor:(x: string)=> string;
-  @Input() getMinMax:(numbers: number[])=> string;
   @Input() formatNumber:(item: any)=> string;
   offersCount: ProductCountDTO[] = [];
   offersDataSetArray: any[];
@@ -78,7 +79,7 @@ export class OfferStatComponent implements OnInit,OnChanges,OnDestroy {
           next: (data: any) => {
             this.offerTableData = data.offersStat;
             this.totals = this.calculateTotals();
-            this.createModelsChart(data.chart);
+            this.createOffersChart(data.chart);
           },
           error: (error: any) => {
             console.log('ErrorOffersCount:', error);
@@ -137,7 +138,7 @@ export class OfferStatComponent implements OnInit,OnChanges,OnDestroy {
 
   }
 
-  createModelsChart(chart :any) {
+  createOffersChart(chart : ChartDTO) {
     let dates = chart.uniqueDates;
     this.offersCounts = chart.itemsCount;
     let uniqueOffers = chart.uniqueItems;

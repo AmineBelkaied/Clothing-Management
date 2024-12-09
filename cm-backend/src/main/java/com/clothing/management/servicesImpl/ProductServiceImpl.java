@@ -125,7 +125,6 @@ public class ProductServiceImpl implements ProductService {
     @Transactional("tenantTransactionManager")
     public StockDTO getStock(Long modelId, String beginDate, String endDate) {
         StockDTO stockDTO = new StockDTO();
-        // HashMap to store products grouped by Color, then Size, and their respective SoldProductsDayCountDTO
         HashMap<Long, HashMap<Long, SoldProductsDayCountDTO>> productsByColor = new HashMap<>();
 
         modelRepository.findById(modelId).ifPresent((Model model) -> {

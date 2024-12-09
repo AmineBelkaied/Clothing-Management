@@ -8,9 +8,7 @@
               styleClass="p-datatable-striped">
             <ng-template pTemplate="header">
               <tr>
-                <th>Model</th>
-                <th>Min-Max</th>
-                <th pSortableColumn="avg">Avg<p-sortIcon field="avg" /></th>
+                <th>Offer</th>
                 <th pSortableColumn="paid">Payée<p-sortIcon field="paid" /></th>
                 <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
                 <th>Retour</th>
@@ -18,11 +16,9 @@
                 <th pSortableColumn="profits" >Profits<p-sortIcon field="profits" /></th>
               </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-item>
+            <ng-template pTemplate="body" let-item let-index>
               <tr>
-                <td>{{ item.offerName }}</td>
-                <td>{{ getMinMax(getItemIndex(item)) }}</td><!-- min-max-->
-                <td>{{ calculateAverage(getItemIndex(item)) }}</td><!-- avg -->
+                <td>{{ item.name }}</td>
                 <td>{{ item.countPaid }}</td>
                 <td>{{ item.countProgress }}</td>
                 <td>{{ item.countReturn }}</td>
@@ -33,8 +29,6 @@
             <ng-template pTemplate="footer">
               <tr>
                 <td>Total</td>
-                <td></td>
-                <td></td>
                 <td>{{ totals.paid }}</td>
                 <td>{{ totals.progress }}</td>
                 <td>{{ totals.retour }}</td>

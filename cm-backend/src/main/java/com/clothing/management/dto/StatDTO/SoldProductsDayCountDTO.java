@@ -5,7 +5,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SoldProductsDayCountDTO {
-
     private Long id;           // Product ID
     private Long colorId;        // Color ID
     private Long sizeId;         // Size ID
@@ -13,5 +12,6 @@ public class SoldProductsDayCountDTO {
     private long countPaid;    // Count of "Livrée" and "Payée" statuses
     private long countProgress; // Count of "Confirmée" and progress statuses
     private long countOos;     // Count of "En rupture" status
-    private long countExchange; // Count of "Retour" and "Retour reçu" statuses where no exchange ID exists
+    private long countExchange;
+    private long countReturn;
 }

@@ -15,7 +15,9 @@
 
       </div>
       <div class="p-toolbar-group-center">
-        <p-calendar [(ngModel)]="rangeDates"
+        <p-calendar
+        *ngIf="showCalendar"
+        [(ngModel)]="rangeDates"
         (ngModelChange)="filterPackets('date')"
         selectionMode="range"
         [readonlyInput]="true"
@@ -28,7 +30,11 @@
         inputId="icondisplay"
         variant="filled"
         [touchUI]="true"
-        (onClickOutside) = "onClickOutside()">
+        (onClickOutside) = "onClickOutside()"
+        [numberOfMonths]="2">
+        <ng-template pTemplate="inputicon" let-clickCallBack="hideDateFilter">
+          <i class="pi pi-times" (click)="hideDateFilter()"></i>
+        </ng-template>
         <ng-template pTemplate="footer">
           <div style="display: flex; align-items: center">
             <p-inputSwitch [(ngModel)]="mandatoryDateCheckBox" optionLabel="label"
@@ -39,6 +45,10 @@
           </div>
         </ng-template>
       </p-calendar>
+      <!--<p-togglebutton [(ngModel)]="showCalendar" onIcon="pi pi-check" offIcon="pi pi-times" size="small" styleClass="min-w-16" />
+      <p-togglebutton [(ngModel)]="showCalendar" onIcon="pi pi-check" offIcon="pi pi-times" class="ng-invalid ng-dirty" styleClass="w-full sm:w-40" aria-label="Confirmation" />-->
+
+      <p-button *ngIf="!showCalendar" icon="pi pi-calendar" aria-label="Save" />
       </div>
       <div class="p-toolbar-group-end">
         <app-status-container [params]="params" (statusChange)="onStatusChange($event)"></app-status-container>
