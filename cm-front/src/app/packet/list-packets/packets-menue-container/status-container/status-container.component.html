@@ -1,6 +1,6 @@
-<div class="flex justify-content-center mt-2 mb-2">
+<div class="flex justify-content-center p-1">
   <ng-container *ngFor="let item of statusItems; let i = index">
-    <div class="flex-container shadow-6 d-flex justify-content-center mr-2"
+    <div class="flex-container shadow-6 d-flex justify-content-center"
       style="cursor: pointer;"
       *ngIf="item.isUserOption == true || isAdmin"
       (click)="toggleListbox(i,item)"
@@ -10,21 +10,18 @@
       }"
       >
       <div class="flex flex-column align-items-center p-2 relative"
-      [ngClass]="{'cursor-pointer': item.options}">
+      [ngClass]="{'cursor-pointer': item.items}">
         <i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"  class="icon-shadow"></i>
         <span class="text-400 mt-1" style="color: black">{{ item.label }}</span>
         <span class="mt-1">
-          <p-badge [value]="item.count" severity="info"></p-badge>
-          <b *ngIf="item.dayCount">
-            <p-badge [value]="item.dayCount" severity="warning" class="ml-1"></p-badge>
-          </b>
+          <p-badge *ngIf="item.dayCount && item.dayCount != item.count" class="ml-auto" [value]="item.dayCount" severity="warning"></p-badge>
+          <p-badge *ngIf="item.count" class="ml-auto" [value]="item.count"></p-badge>
         </span>
       </div>
 
-      <!-- Listbox logic here -->
-      <div *ngIf="item.options && selectedIndex === i" class="listbox-container">
+      <div *ngIf="item.items && selectedIndex === i" class="listbox-container">
         <p-listbox
-          [options]="item.options"
+          [options]="item.items"
           [(ngModel)]="item.selectedOptions"
           [multiple]="true"
           (onChange)="onOptionSelect(item)"
@@ -33,4 +30,21 @@
       </div>
     </div>
   </ng-container>
+        <!--<p-panelMenu [model]="statusItems" styleClass="horizontal-panelmenu w-full">
+          <ng-template pTemplate="item" let-item>
+              <a pRipple
+                 class="flex align-items-center px-3 py-2 cursor-pointer horizontal-menu-item"
+                 (click)="toggleListbox(item)">
+                  <i [class]="item.icon" [ngStyle]="{'color': item.color, 'font-size': '1.23rem'}"></i>
+                  <span class="ml-2">
+                      {{ item.label }}
+                  </span>
+                  <p-badge *ngIf="item.dayCount" class="ml-auto" [value]="item.dayCount"></p-badge>
+                  <span *ngIf="item.count && item.dayCount != item.count"
+                        class="ml-auto border-1 surface-border border-round surface-100 text-xs p-1">
+                      {{ item.count }}
+                  </span>
+              </a>
+          </ng-template>
+      </p-panelMenu>-->
 </div>

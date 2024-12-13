@@ -8,7 +8,7 @@
         <button pButton icon="pi pi-refresh" class="p-button-info mr-2 p-2 buttonSize" (click)="resetTable()"></button>
         <span class="p-input-icon-left">
           <i class="pi pi-search"></i>
-          <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets()"
+          <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets('inputFilter')"
             (input)="handleInputChange()" placeholder="Client, Tel, Ville, Adresse, Page, Id"
             [style]="{ width: '230px' }" class="mr-2" />
         </span>
@@ -16,7 +16,7 @@
       </div>
       <div class="p-toolbar-group-center">
         <p-calendar
-        *ngIf="showCalendar"
+        *ngIf="mandatoryDateCheckBox"
         [(ngModel)]="rangeDates"
         (ngModelChange)="filterPackets('date')"
         selectionMode="range"
@@ -33,26 +33,28 @@
         (onClickOutside) = "onClickOutside()"
         [numberOfMonths]="2">
         <ng-template pTemplate="inputicon" let-clickCallBack="hideDateFilter">
-          <i class="pi pi-times" (click)="hideDateFilter()"></i>
+          <i class="pi pi-times" (click)="mandatoryDateChange()"></i>
         </ng-template>
         <ng-template pTemplate="footer">
           <div style="display: flex; align-items: center">
-            <p-inputSwitch [(ngModel)]="mandatoryDateCheckBox" optionLabel="label"
-              optionValue="value" (click)="mandatoryDateChange()"></p-inputSwitch><p>Obligatoire</p>
             <p-button label="Ancien Date" styleClass="p-button-text" (click)="oldDateFilter()"></p-button>
             <p-button label="Today" styleClass="p-button-text" (click)="todayDate()"></p-button>
             <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
           </div>
         </ng-template>
       </p-calendar>
-      <!--<p-togglebutton [(ngModel)]="showCalendar" onIcon="pi pi-check" offIcon="pi pi-times" size="small" styleClass="min-w-16" />
-      <p-togglebutton [(ngModel)]="showCalendar" onIcon="pi pi-check" offIcon="pi pi-times" class="ng-invalid ng-dirty" styleClass="w-full sm:w-40" aria-label="Confirmation" />-->
-
-      <p-button *ngIf="!showCalendar" icon="pi pi-calendar" aria-label="Save" />
-      </div>
+      <button pButton *ngIf="!mandatoryDateCheckBox" icon="pi pi-calendar" class="p-button-success ml-2 p-2 buttonSize" (click)="mandatoryDateChange()" ></button>
+    </div>
       <div class="p-toolbar-group-end">
-        <app-status-container [params]="params" (statusChange)="onStatusChange($event)"></app-status-container>
+        <p-toggleButton
+        [(ngModel)]="statusFilter"
+        (click)="mandatoryStatusChange()"
+        class="ml-2"
+        onIcon="pi pi-lock"
+        offIcon="pi pi-lock-open"
+        class="m-1" />
       </div>
+      <app-status-container [params]="params" (statusChange)="onStatusChange($event)" [ngClass]="{ 'red-border': !statusFilter }"></app-status-container>
     </p-toolbar>
   </div>
 </div>

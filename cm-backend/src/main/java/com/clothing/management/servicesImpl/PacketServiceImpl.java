@@ -34,9 +34,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import java.util.Date;
 import static com.clothing.management.enums.SystemStatus.*;
 import static com.clothing.management.enums.SystemStatus.LIVREE;
+
 
 @Transactional("tenantTransactionManager")
 @Service
@@ -49,7 +50,7 @@ public class PacketServiceImpl implements PacketService {
     private final DeliveryCompanyServiceFactory deliveryCompanyServiceFactory;
     private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
-    private final static List<String> ignoredDateStatusList = List.of(new String[]{RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus()});
+    private final static List<String> allStatusList = List.of(new String[]{RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus(), PAID.getStatus(), LIVREE.getStatus(), CONFIRMED.getStatus(), RETURN.getStatus(), RETURN_RECEIVED.getStatus()});
     private final PacketBuilderHelper packetBuilderHelper;
     private final EntityBuilderHelper entityBuilderHelper;
     private final PacketMapper packetMapper;
@@ -107,61 +108,22 @@ public class PacketServiceImpl implements PacketService {
 
     @Override
     @Transactional(readOnly = true, transactionManager = "tenantTransactionManager")
-    public Page<PacketDTO> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status, boolean mandatoryDate) throws ParseException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-        if (mandatoryDate) {
-            Date begin = dateFormat.parse(beginDate);
-            Date end = dateFormat.parse(endDate);
-
-            if (searchText != null) {
-                LOGGER.debug("Searching packets by field and date.");
-                Page<PacketDTO> result = packetRepository.findAllPacketsByFieldAndDate(searchText, begin, end, pageable)
-                        .map(packetMapper::toDto);
-                LOGGER.info("Found {} packets matching search text and date.", result.getTotalElements());
-                return result;
-            }
-
-            if (status != null) {
-                if (status.equals("Tous"))
-                    return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
-                            .map(packetMapper::toDto);
-                return packetRepository.findAllPacketsByDateAndStatus(dateFormat.parse(beginDate), dateFormat.parse(endDate), convertStatusToList(status), pageable)
-                        .map(packetMapper::toDto);
-            }
-
-        } else {
-            if (searchText != null) {
-                LOGGER.debug("Searching packets by field.");
-                Page<PacketDTO> result = packetRepository.findAllPacketsByField(searchText, pageable)
-                        .map(packetMapper::toDto);
-                LOGGER.info("Found {} packets matching search text.", result.getTotalElements());
-                return result;
-            }
-            if (beginDate != null && status != null) {
-                if (status.equals("Tous"))
-                    return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
-                            .map(packetMapper::toDto);
-                return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status), dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
-                        .map(packetMapper::toDto);
-            }
-
-            if (status != null) {
-                LOGGER.debug("Searching packets by status.");
-                Page<PacketDTO> result = packetRepository.findAllPacketsByStatus(convertStatusToList(status), pageable)
-                        .map(packetMapper::toDto);
-                LOGGER.info("Found {} packets matching status.", result.getTotalElements());
-                return result;
-            }
+    public Page<PacketDTO> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status) throws ParseException {
+        Date begin = null;
+        Date end = null;
+        if (beginDate!= null && !beginDate.isEmpty() && endDate!= null && !endDate.isEmpty()) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            begin = dateFormat.parse(beginDate);
+            end = dateFormat.parse(endDate);
         }
-
-        LOGGER.debug("Searching packets by date.");
-        Page<PacketDTO> result = packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
-                .map(packetMapper::toDto);
-        LOGGER.info("Found {} packets matching date.", result.getTotalElements());
-        return result;
+        if (status!= null && !status.isEmpty()) {
+            return packetRepository.findAllPacketsByFieldAndDateAndStatus(searchText, begin, end, convertStatusToList(status), pageable)
+                    .map(packetMapper::toDto);
+        }
+        else
+            return packetRepository.findAllPacketsByFieldAndDate(searchText, begin, end, pageable)
+                    .map(packetMapper::toDto);
     }
-
 
     @Override
     @Transactional(readOnly = true, transactionManager = "tenantTransactionManager")
@@ -204,7 +166,7 @@ public class PacketServiceImpl implements PacketService {
                 SystemStatus.PROBLEM.getStatus()
         );
 
-        List<Packet> syncPackets = packetRepository.findAllDiggiePackets(status);
+        List<Packet> syncPackets = packetRepository.findAllValidByStatusPackets(status);
 
         LOGGER.info("Retrieved {} synchronized packets.", syncPackets.size());
         return syncPackets;
@@ -213,7 +175,7 @@ public class PacketServiceImpl implements PacketService {
 
     @Override
     public List<Packet> findAllPacketsByDate(Date date) {
-        List<Packet> packets = packetRepository.findAllByDate(date);
+        List<Packet> packets = packetRepository.findAllTodayPacket(date);
 
         LOGGER.info("Retrieved {} packets for date: {}", packets.size(), date);
         return packets;
@@ -427,8 +389,8 @@ public class PacketServiceImpl implements PacketService {
     }
 
     @Override
-    public List<DashboardCard> syncNotification(String beginDate, String endDate) {
-        List<DashboardCard> notifications = packetRepository.createNotification(beginDate, endDate);
+    public List<DashboardCard> syncNotification(String searchField,String beginDate, String endDate) {
+        List<DashboardCard> notifications = packetRepository.createNotification(searchField,beginDate, endDate);
         LOGGER.debug("Retrieved {} notifications.", notifications.size());
         return notifications;
     }

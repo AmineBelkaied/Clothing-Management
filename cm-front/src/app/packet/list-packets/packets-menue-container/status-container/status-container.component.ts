@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
@@ -29,17 +29,17 @@ import {
   styleUrl: './status-container.component.css'
 })
 
-export class StatusContainerComponent {
+export class StatusContainerComponent implements OnChanges {
   @Input() params!: any;
   @Input() activeIndex: number;
   selectedStatus: FormControl = new FormControl();
-  oldActiveIndex: number = 2;
+  oldActiveIndex: number = 1;
   $unsubscribe: Subject<void> = new Subject();
   @Output() statusChange = new EventEmitter<Status>();
   isAdmin: boolean;
   statusItems: Status[];
   selectedIndex: number | null = null;
-  borderIndex: number = 2;
+  borderIndex: number = 1;
   item: Status;
   changed = false;
 
@@ -51,39 +51,46 @@ export class StatusContainerComponent {
   }
 
   ngOnInit(): void {
+    this.storageService.isLoggedIn.subscribe(isLoggedIn => {//Correction
+      this.isAdmin = this.storageService.hasRoleAdmin();
+    });
+  }
 
+  initNotification(){
     this.statusItems = [
-      { label: 'Tous', value: "Tous", icon: 'pi pi-bars', color: '#22C55E', count: 0, dayCount: 0, isUserOption: false },
       { label: 'En rupture', value: OOS, icon: 'pi pi-times', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
       {
         label: 'Non confirmée', value: NOT_CONFIRMED, icon: 'pi pi-phone', color: '#EAB308', count: 0, dayCount: 0, isUserOption: true,
-        options: this.getNonConfirmedOptions(), selectedOptions: []
+        items: this.getNonConfirmedOptions(), selectedOptions: []
       },
       { label: 'Confirmée', value: CONFIRMED, icon: 'pi pi-check', color: '#22C55E', count: 0, dayCount: 0, isUserOption: true },
       {
         label: 'À vérifier', value: IN_PROGRESS, icon: 'pi pi-play', color: '#A855F7', count: 0, dayCount: 0, isUserOption: true,
-        options: this.getInProgressOptions(), selectedOptions: []
+        items: this.getInProgressOptions(), selectedOptions: []
       },
-      { label: 'Retour', value: RETURN, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
+      { label: 'Retour', value: RETURN, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true},
+      { label: 'Retour reçu', value: RETURN_RECEIVED, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0, dayCount: 0, isUserOption: false},
       {
         label: 'Annuler', value: CANCELED, icon: 'pi pi-ban', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true,
-        options: this.getCanceledOptions(), selectedOptions: []
+        items: this.getCanceledOptions(), selectedOptions: []
       },
       {
         label: 'Livrée', value: 'Terminé', icon: 'pi pi-flag', color: '#3B82F6', count: 0, dayCount: 0, isUserOption: false,
-        options: this.getEndedOptions(), selectedOptions: []
+        items: this.getEndedOptions(), selectedOptions: []
       }
     ];
+  }
 
-    this.storageService.isLoggedIn.subscribe(isLoggedIn => {//Correction
-      this.isAdmin = this.storageService.hasRoleAdmin();
-    });
-    this.createNotification();
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['params']) {
+      this.createNotification();
+    }
   }
 
   toggleListbox(index: any, item: any) {
     this.borderIndex = index;
-    if (this.statusItems[index].options) {
+    if (this.statusItems[index].items) {
       if (index != null && this.changed==false) {
         this.selectedIndex = this.selectedIndex === index ? null : index;
         this.emitSelectedStatus(item);
@@ -137,11 +144,11 @@ export class StatusContainerComponent {
     ];
   }
 
-
   createNotification(): void {
+    this.initNotification();
     let all = 0;
 
-    this.packetService.syncNotification(this.params.beginDate, this.params.endDate)
+    this.packetService.syncNotification(this.params)
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: DashboardCard[]) => {
@@ -150,26 +157,30 @@ export class StatusContainerComponent {
 
               switch (element.status) {
                 case OOS:
-                  this.statusItems[1].count = element.statusCount;
-                  this.statusItems[1].dayCount = element.statusByDateCount;
+                  this.statusItems[0].count = element.statusCount;
+                  this.statusItems[0].dayCount = element.statusByDateCount;
                   break;
                 case NOT_CONFIRMED:
                 case UNREACHABLE:
-                  this.statusItems[2].count += element.statusCount;
-                  this.statusItems[2].dayCount += element.statusByDateCount;
+                  this.statusItems[1].count += element.statusCount;
+                  this.statusItems[1].dayCount += element.statusByDateCount;
                   break;
                 case CONFIRMED:
-                  this.statusItems[3].count = element.statusCount;
-                  this.statusItems[3].dayCount += element.statusByDateCount;
+                  this.statusItems[2].count = element.statusCount;
+                  this.statusItems[2].dayCount += element.statusByDateCount;
                   break;
                 case IN_PROGRESS_1:
                 case IN_PROGRESS_2:
                 case IN_PROGRESS_3:
                 case TO_VERIFY:
-                  this.statusItems[4].count += element.statusCount;
-                  this.statusItems[4].dayCount += element.statusByDateCount;
+                  this.statusItems[3].count += element.statusCount;
+                  this.statusItems[3].dayCount += element.statusByDateCount;
                   break;
                 case RETURN:
+                  this.statusItems[4].count = element.statusCount;
+                  this.statusItems[4].dayCount = element.statusByDateCount;
+                  break;
+                case RETURN_RECEIVED:
                   this.statusItems[5].count = element.statusCount;
                   this.statusItems[5].dayCount = element.statusByDateCount;
                   break;
@@ -180,7 +191,6 @@ export class StatusContainerComponent {
                   break;
                 case DELIVERED:
                 case PAID:
-                case RETURN_RECEIVED:
                   this.statusItems[7].count += element.statusCount;
                   this.statusItems[7].dayCount += element.statusByDateCount;
                   break;
@@ -189,7 +199,9 @@ export class StatusContainerComponent {
               all += element.statusCount;
             });
           }
-          this.statusItems[0].count = all;
+          console.log(all);
+
+          //this.statusItems[0].count = all;
           //this.loadNotification();
         },
         error: (error: Error) => {
@@ -200,7 +212,7 @@ export class StatusContainerComponent {
 
   ngOnDestroy(): void {
     if (this.changed)
-      if (this.item.options) {
+      if (this.item.items) {
         this.emitSelectedStatus(this.item);
         console.log("destroy", this.item);
       }

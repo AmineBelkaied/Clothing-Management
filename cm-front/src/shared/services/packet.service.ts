@@ -37,29 +37,40 @@ export class PacketService {
     if (params.searchText) {
       httpParams = httpParams.set('searchText', params.searchText);
     }
-    if (params.beginDate) {
-      httpParams = httpParams.set('beginDate', params.beginDate);
-    }
-    if (params.beginDate && params.endDate) {
-      httpParams = httpParams.set('endDate', params.endDate);
-    }
-    if (params.status) {
-      httpParams = httpParams.set('status', params.status);
-    }
+
     if (params.mandatoryDate) {
-      httpParams = httpParams.set('mandatoryDate', params.mandatoryDate);
+      if (params.beginDate) {
+        httpParams = httpParams.set('beginDate', params.beginDate);
+      }
+      if (params.beginDate && params.endDate) {
+        httpParams = httpParams.set('endDate', params.endDate);
+      }
+    }
+    if (params.statusFilter) {
+      if (params.status) {
+        httpParams = httpParams.set('status', params.status);
+      }
     }
 
     const path = `${this.baseUrl}${PACKET_ENDPOINTS.PAGINATED}`;
     return this.http.get(path, { params: httpParams });
   }
 
-  public syncNotification(beginDate: string, endDate: string): Observable<any> {
-    let params = new HttpParams()
-      .set('beginDate', beginDate)
-      .set('endDate', endDate);
+  public syncNotification(params:any): Observable<any> {
+    let httpParams = new HttpParams();
 
-    return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.NOTIFICATIONS_SYNC}`, { params });
+      if (params.searchText) {
+        httpParams = httpParams.set('searchField', params.searchText);
+      }
+      if (params.mandatoryDate) {
+        if (params.beginDate) {
+          httpParams = httpParams.set('beginDate', params.beginDate);
+        }
+        if (params.beginDate && params.endDate) {
+          httpParams = httpParams.set('endDate', params.endDate);
+        }
+      }
+    return this.http.get(`${this.baseUrl}${PACKET_ENDPOINTS.NOTIFICATIONS_SYNC}`, { params: httpParams });
   }
 
   public findPacketById(id: number): Observable<any> {

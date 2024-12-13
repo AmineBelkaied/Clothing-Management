@@ -72,6 +72,8 @@ public class DeliveryResponseJax extends DeliveryResponse {
     public int responseCode;
     @JsonIgnore
     public String responseMessage;
+    @JsonIgnore
+    public Object client;
 }
 
 
