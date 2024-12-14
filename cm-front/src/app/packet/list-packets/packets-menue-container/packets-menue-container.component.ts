@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { NOT_CONFIRMED, statusList, UNREACHABLE } from 'src/shared/utils/status-list';
+import { CONFIRMED, NOT_CONFIRMED, statusList, UNREACHABLE } from 'src/shared/utils/status-list';
 import { Packet } from 'src/shared/models/Packet';
 import { StorageService } from 'src/shared/services/strorage.service';
 import { Status } from 'src/shared/models/status';
@@ -42,7 +42,7 @@ export class PacketsMenueContainerComponent implements OnChanges {
   value: boolean = this.mandatoryDateCheckBox;
   selectedStatus: string[] = [NOT_CONFIRMED,UNREACHABLE];
   loading: boolean = false;
-  statusItemsLabel: string =NOT_CONFIRMED;
+  //statusItemsLabel: string =NOT_CONFIRMED;
   oldStatusItemsLabel: string =NOT_CONFIRMED;
 
   @Output()
@@ -94,8 +94,9 @@ export class PacketsMenueContainerComponent implements OnChanges {
         this.filterPackets('inputFilter');
       }
       if (this.filter === '') {
+        //this.selectedStatus = [NOT_CONFIRMED];
+        this.statusFilter = true;
         this.filterPackets('inputFilter');
-        this.statusItemsLabel = this.oldStatusItemsLabel;
       }
     }
 
@@ -113,9 +114,9 @@ export class PacketsMenueContainerComponent implements OnChanges {
   addNewRow(): void {
     //console.log("activeIndex", this.activeIndex);
     this.filter ='';
-    if (this.statusItemsLabel != NOT_CONFIRMED){
-      this.statusItemsLabel =NOT_CONFIRMED;
+    if (this.selectedStatus[0]!=NOT_CONFIRMED){
       this.selectedStatus=[NOT_CONFIRMED];
+      this.statusFilter = true;
       this.filterPackets('global');
     }
     else if (!this.loading) {
@@ -152,10 +153,13 @@ export class PacketsMenueContainerComponent implements OnChanges {
 
       if (this.selectedStatus == null) this.selectedStatus =[];
       if($event == "inputFilter")
-        if(this.filter != null){
-          this.oldStatusItemsLabel = this.statusItemsLabel;
+        if(this.filter == ""){
+          this.statusFilter = true;
+        }else if(this.filter != null){
           this.statusFilter = false;
         }
+
+
       if($event == "status")
         this.statusFilter = true;
 
@@ -200,8 +204,7 @@ export class PacketsMenueContainerComponent implements OnChanges {
   onStatusChange(item: Status) {
     if(this.oldStatus != item){
       this.selectedItemStatus = item;
-       this.selectedStatus = item.items ? item.selectedOptions?.length==0 ? this.getArrayFromStatusItems(item.items) ?? [] : item.selectedOptions ?? [] : [item.label] ;
-      this.statusItemsLabel = item.label;
+      this.selectedStatus = item.items ? item.selectedOptions?.length==0 ? this.getArrayFromStatusItems(item.items) ?? [] : item.selectedOptions ?? [] : [item.label] ;
       this.filterPackets('status')
       this.oldStatus= Object.assign({}, item);
     }

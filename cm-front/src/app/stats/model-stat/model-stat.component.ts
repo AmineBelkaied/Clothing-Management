@@ -62,7 +62,8 @@ export class ModelStatComponent implements OnInit,OnChanges {
   totals = {
     paid: 0,
     progress: 0,
-    retour: 0,
+    return: 0,
+    returnReceived: 0,
     purchasePrice: 0,
     sellingPrice: 0,
     profits: 0,
@@ -170,7 +171,8 @@ export class ModelStatComponent implements OnInit,OnChanges {
     const totals = {
       paid: 0,
       progress: 0,
-      retour: 0,
+      return: 0,
+      returnReceived: 0,
       purchasePrice: 0,
       sellingPrice: 0,
       profits: 0,
@@ -179,7 +181,8 @@ export class ModelStatComponent implements OnInit,OnChanges {
     this.modelTableData.forEach((item : any) => {
       totals.paid += item.countPaid || 0;
       totals.progress += item.countProgress || 0;
-      totals.retour += item.countReturn || 0;
+      totals.return += item.countReturn || 0;
+      totals.returnReceived += item.countReturnReceived || 0;
       totals.purchasePrice += (item.model.purchasePrice * item.countPaid) || 0;
       totals.sellingPrice += ((item.model.purchasePrice * item.countPaid) + item.profits) || 0;
       totals.profits += item.profits || 0;

@@ -38,9 +38,8 @@ export class StatusContainerComponent implements OnChanges {
   @Output() statusChange = new EventEmitter<Status>();
   isAdmin: boolean;
   statusItems: Status[];
-  selectedIndex: number | null = null;
-  borderIndex: number = 1;
-  item: Status;
+  selectedIndex: number | null;
+  selectedItem: Status;
   changed = false;
 
   constructor(
@@ -58,24 +57,28 @@ export class StatusContainerComponent implements OnChanges {
 
   initNotification(){
     this.statusItems = [
-      { label: 'En rupture', value: OOS, icon: 'pi pi-times', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
+      { label: OOS, value: OOS, icon: 'pi pi-times', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
       {
-        label: 'Non confirmée', value: NOT_CONFIRMED, icon: 'pi pi-phone', color: '#EAB308', count: 0, dayCount: 0, isUserOption: true,
+        label: NOT_CONFIRMED, value: NOT_CONFIRMED, icon: 'pi pi-phone', color: '#EAB308', count: 0, dayCount: 0, isUserOption: true,
         items: this.getNonConfirmedOptions(), selectedOptions: []
       },
-      { label: 'Confirmée', value: CONFIRMED, icon: 'pi pi-check', color: '#22C55E', count: 0, dayCount: 0, isUserOption: true },
+      { label: CONFIRMED, value: CONFIRMED, icon: 'pi pi-check', color: '#22C55E', count: 0, dayCount: 0, isUserOption: true },
       {
-        label: 'À vérifier', value: IN_PROGRESS, icon: 'pi pi-play', color: '#A855F7', count: 0, dayCount: 0, isUserOption: true,
+        label: IN_PROGRESS, value: IN_PROGRESS, icon: 'pi pi-truck', color: '#A855F7', count: 0, dayCount: 0, isUserOption: true,
         items: this.getInProgressOptions(), selectedOptions: []
       },
-      { label: 'Retour', value: RETURN, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true},
-      { label: 'Retour reçu', value: RETURN_RECEIVED, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0, dayCount: 0, isUserOption: false},
       {
-        label: 'Annuler', value: CANCELED, icon: 'pi pi-ban', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true,
+        label: TO_VERIFY, value: IN_PROGRESS, icon: 'pi pi-megaphone', color: '#A855F7', count: 0, dayCount: 0, isUserOption: true,
+        items: this.getProblem(), selectedOptions: []
+      },
+      { label: RETURN, value: RETURN, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true},
+      { label: RETURN_RECEIVED, value: RETURN_RECEIVED, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0, dayCount: 0, isUserOption: false},
+      {
+        label: CANCELED, value: CANCELED, icon: 'pi pi-ban', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true,
         items: this.getCanceledOptions(), selectedOptions: []
       },
       {
-        label: 'Livrée', value: 'Terminé', icon: 'pi pi-flag', color: '#3B82F6', count: 0, dayCount: 0, isUserOption: false,
+        label: DELIVERED, value: 'Terminé', icon: 'pi pi-flag', color: '#3B82F6', count: 0, dayCount: 0, isUserOption: false,
         items: this.getEndedOptions(), selectedOptions: []
       }
     ];
@@ -83,34 +86,40 @@ export class StatusContainerComponent implements OnChanges {
 
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log("changet detected");
+
     if (changes['params']) {
       this.createNotification();
+      console.log(changes);
+      if(changes['params'].currentValue.statusFilter == false)
+        this.selectedIndex = null;
+      if(changes['params'].currentValue.statusFilter == true && this.selectedIndex == null )
+        this.selectedIndex = 1;
     }
   }
 
   toggleListbox(index: any, item: any) {
-    this.borderIndex = index;
     if (this.statusItems[index].items) {
       if (index != null && this.changed==false) {
-        this.selectedIndex = this.selectedIndex === index ? null : index;
         this.emitSelectedStatus(item);
       }
     } else {
       this.emitSelectedStatus(item);
     }
+    this.selectedIndex = index;
     this.changed = false;
   }
 
 
   emitSelectedStatus(item: any) {
-      this.item = item;
+      this.selectedItem = item;
       this.statusChange.emit(item);
   }
 
 
   onOptionSelect(item: any) {
     this.changed = true
-    this.item = item;
+    this.selectedItem = item;
   }
 
   getNonConfirmedOptions() {
@@ -124,8 +133,13 @@ export class StatusContainerComponent implements OnChanges {
     return [
       { label: IN_PROGRESS_1, value: IN_PROGRESS_1 },
       { label: IN_PROGRESS_2, value: IN_PROGRESS_2 },
-      { label: IN_PROGRESS_3, value: IN_PROGRESS_3 },
-      { label: TO_VERIFY, value: TO_VERIFY }
+      { label: IN_PROGRESS_3, value: IN_PROGRESS_3 }
+    ];
+  }
+  getProblem() {
+    return [
+      { label: TO_VERIFY, value: TO_VERIFY },
+      { label: PROBLEME, value: PROBLEME }
     ];
   }
 
@@ -139,8 +153,7 @@ export class StatusContainerComponent implements OnChanges {
   getEndedOptions() {
     return [
       { label: DELIVERED, value: DELIVERED },
-      { label: PAID, value: PAID },
-      { label: RETURN_RECEIVED, value: RETURN_RECEIVED }
+      { label: PAID, value: PAID }
     ];
   }
 
@@ -172,34 +185,38 @@ export class StatusContainerComponent implements OnChanges {
                 case IN_PROGRESS_1:
                 case IN_PROGRESS_2:
                 case IN_PROGRESS_3:
-                case TO_VERIFY:
                   this.statusItems[3].count += element.statusCount;
                   this.statusItems[3].dayCount += element.statusByDateCount;
                   break;
-                case RETURN:
-                  this.statusItems[4].count = element.statusCount;
-                  this.statusItems[4].dayCount = element.statusByDateCount;
+                case TO_VERIFY:
+                case PROBLEME:
+                  this.statusItems[4].count += element.statusCount;
+                  this.statusItems[4].dayCount += element.statusByDateCount;
                   break;
-                case RETURN_RECEIVED:
+                case RETURN:
                   this.statusItems[5].count = element.statusCount;
                   this.statusItems[5].dayCount = element.statusByDateCount;
                   break;
+                case RETURN_RECEIVED:
+                  this.statusItems[6].count = element.statusCount;
+                  this.statusItems[6].dayCount = element.statusByDateCount;
+                  break;
                 case CANCELED:
                 case DELETED:
-                  this.statusItems[6].count += element.statusCount;
-                  this.statusItems[6].dayCount += element.statusByDateCount;
+                  this.statusItems[7].count += element.statusCount;
+                  this.statusItems[7].dayCount += element.statusByDateCount;
                   break;
                 case DELIVERED:
                 case PAID:
-                  this.statusItems[7].count += element.statusCount;
-                  this.statusItems[7].dayCount += element.statusByDateCount;
+                  this.statusItems[8].count += element.statusCount;
+                  this.statusItems[8].dayCount += element.statusByDateCount;
                   break;
 
               }
               all += element.statusCount;
             });
           }
-          console.log(all);
+          //console.log(all);
 
           //this.statusItems[0].count = all;
           //this.loadNotification();
@@ -212,9 +229,9 @@ export class StatusContainerComponent implements OnChanges {
 
   ngOnDestroy(): void {
     if (this.changed)
-      if (this.item.items) {
-        this.emitSelectedStatus(this.item);
-        console.log("destroy", this.item);
+      if (this.selectedItem.items) {
+        this.emitSelectedStatus(this.selectedItem);
+        console.log("destroy", this.selectedItem);
       }
     this.$unsubscribe.next();
     this.$unsubscribe.complete();

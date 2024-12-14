@@ -163,7 +163,10 @@ export class StatsComponent implements OnInit {
   }
 
   formatNumber(item: any): string{
-    let value = (item.paid*100) / (item.retour+item.paid)
+    let retour=item.countReturn;
+    if(item.countReturnReceived)
+      retour = item.countReturnReceived + item.countReturnReceived
+    let value = (item.countPaid*100) / (retour+item.countPaid)
       if (!isNaN(value)) {
         return value.toFixed(2);
       }

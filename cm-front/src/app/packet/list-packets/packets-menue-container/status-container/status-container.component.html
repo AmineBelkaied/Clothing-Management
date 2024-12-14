@@ -5,8 +5,8 @@
       *ngIf="item.isUserOption == true || isAdmin"
       (click)="toggleListbox(i,item)"
       [ngClass]="{
-        'selected-item': i === borderIndex,
-        'default-item': i !== borderIndex
+        'selected-item': i === selectedIndex,
+        'default-item': i !== selectedIndex
       }"
       >
       <div class="flex flex-column align-items-center p-2 relative"

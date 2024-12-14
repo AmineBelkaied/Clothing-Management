@@ -143,12 +143,7 @@
             </tr>
 
             <!-- Optional: Notes logic -->
-            <tr *ngIf="packet?.notes?.length > 0 && (
-                        packet.status === 'Injoignable' || packet.status === 'Supprimé' ||
-                        packet.status === 'Annuler'|| packet.status === 'Retour' ||
-                        packet.status === 'En cours (1)'|| packet.status === 'En cours (2)' ||
-                        packet.status === 'En cours (3)'|| packet.status === 'En rupture' ||
-                        packet.status === 'A verifier')">
+            <tr *ngIf="packet?.notes?.length > 0">
               <td colspan="2" style="background-color: #f2f8ff !important; border-radius: 10px" (click)="onNoteClick($event, op, packet?.notes)">
                 <i class="pi pi-comment mr-3 p-text-secondary" severity="info" [value]="packet?.notes.length" *ngIf="packet?.notes.length > 1" pBadge style="font-size: 0.8rem" value="2"></i>
                 <span class="note-explanation"> - {{ packet.notes[packet.notes.length - 1]?.explanation }} </span><br>

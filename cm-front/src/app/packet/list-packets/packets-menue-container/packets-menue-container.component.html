@@ -45,15 +45,6 @@
       </p-calendar>
       <button pButton *ngIf="!mandatoryDateCheckBox" icon="pi pi-calendar" class="p-button-success ml-2 p-2 buttonSize" (click)="mandatoryDateChange()" ></button>
     </div>
-      <div class="p-toolbar-group-end">
-        <p-toggleButton
-        [(ngModel)]="statusFilter"
-        (click)="mandatoryStatusChange()"
-        class="ml-2"
-        onIcon="pi pi-lock"
-        offIcon="pi pi-lock-open"
-        class="m-1" />
-      </div>
       <app-status-container [params]="params" (statusChange)="onStatusChange($event)" [ngClass]="{ 'red-border': !statusFilter }"></app-status-container>
     </p-toolbar>
   </div>
