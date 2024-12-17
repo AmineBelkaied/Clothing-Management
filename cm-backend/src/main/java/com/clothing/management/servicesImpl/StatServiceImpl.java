@@ -27,7 +27,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional("tenantTransactionManager")
 public class StatServiceImpl implements StatService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatServiceImpl.class);
@@ -59,67 +58,6 @@ public class StatServiceImpl implements StatService {
         return dto;
     }
 
-    /*public Map<String, List<?>> statAllPagesChart(String beginDate, String endDate) {
-        List<Long> countPagesList;
-        List<PagesDayCountDTO> existingProductsPacket = productsPacketRepository.statAllPagesChart(beginDate, endDate);
-
-        Map<String, List<?>> uniqueValues = getUniquePages(existingProductsPacket);
-        List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
-        List<FbPage> uniquePages = (List<FbPage>) uniqueValues.get("uniquePages");
-
-        List<List<Long>> listPagesCount = new ArrayList<>();
-        List<StatTableDTO> pagesRecapCount = new ArrayList<>();
-
-        for (FbPage page : uniquePages) {
-            StatTableDTO pageRecap = new StatTableDTO(page.getName());
-            countPagesList = new ArrayList<>();
-            double countProfits = 0;
-
-            // Process each unique date for the current model
-            for (Date uniqueDate : uniqueDates) {
-                long count = 0;
-                long countRetour = 0;
-                long countProgress = 0;
-
-                // Calculate counts for the current model on the given date
-                for (PagesDayCountDTO row : existingProductsPacket) {
-                    if (row.getDate().equals(uniqueDate) && row.getFbPage().getId().equals(page.getId())) {
-                        count += row.getCountPaid();
-                        countProfits += row.getProfits();
-                        countProgress += row.getCountProgress();
-                        countRetour += row.getCountReturn();
-                    }
-                }
-                pageRecap.setPaid(count + pageRecap.getPaid());
-                pageRecap.setRetour(countRetour + pageRecap.getRetour());
-                pageRecap.setProgress(countProgress + pageRecap.getProgress());
-                countPagesList.add(count);
-            }
-
-            // Add the model's data to the list and recap counts
-            listPagesCount.add(countPagesList);
-            pageRecap.setMin(Collections.min(countPagesList));
-            pageRecap.setMax(Collections.max(countPagesList));
-            pageRecap.setAvg(pageRecap.getPaid() / uniqueDates.size());
-            pageRecap.setProfits(countProfits + pageRecap.getProfits());
-            pagesRecapCount.add(pageRecap);
-        }
-
-        // Total models count by date
-        listPagesCount.add(countTotal(uniqueDates, listPagesCount));
-
-        // Create total recap product table
-        StatTableDTO modelTotalRecap = createPageTableRecap(pagesRecapCount);
-        pagesRecapCount.add(modelTotalRecap);
-
-        // Prepare the final data map
-        Map<String, List<?>> data = new HashMap<>();
-        data.put("dates", uniqueDates);
-        data.put("pagesCount", listPagesCount);
-        data.put("pagesRecapCount", pagesRecapCount);
-        return data;
-    }*/
-
     @Override
     public StatModelsDTO statModels(String beginDate, String endDate, Boolean countProgressEnabler) {
         List<String> status = getCountStatus(countProgressEnabler);
@@ -134,7 +72,6 @@ public class StatServiceImpl implements StatService {
         // Create statValuesDashboard
         ArrayList<ModelStockValueDTO> statValuesDashboard = statValuesTotalDashboard();
         dto.setStatValuesDashboard(statValuesDashboard);
-        LOGGER.info("Model chart data generated successfully.");
         return dto;
     }
 
@@ -234,7 +171,6 @@ public class StatServiceImpl implements StatService {
         return dto;
     }
 
-    @Transactional("tenantTransactionManager")
     @Override
     public StatOffersDTO statOffers(String beginDate, String endDate, Boolean countProgressEnabler) {
         List<String> status = getCountStatus(countProgressEnabler);
@@ -309,15 +245,6 @@ public class StatServiceImpl implements StatService {
             }
         }
         return totalRecap;
-    }
-
-    private Double calculateOfferpurchasePrice(OfferDTO offer) {
-        double purchasePrice = 0;
-        Set<OfferModelsDTO> offerModels= offer.getOfferModels();
-        for (OfferModelsDTO uniqueOfferModel : offerModels) {
-            purchasePrice +=uniqueOfferModel.getQuantity()*uniqueOfferModel.getModel().getPurchasePrice();
-        }
-        return purchasePrice;
     }
 
     @Override
@@ -529,29 +456,6 @@ public class StatServiceImpl implements StatService {
         }
         uniqueAttributes.put("uniqueDates", uniqueDates);
         uniqueAttributes.put("uniqueItemsNames", uniqueModels);
-        return uniqueAttributes;
-    }
-
-    public Map<String, List<?>> getUniquePages(List<PagesDayCountDTO> pagesList) {
-
-        Map<String, List<?>> uniqueAttributes = new HashMap<>();
-        List<Date> uniqueDates = new ArrayList<>();
-        List<Long> uniquePagesIds = new ArrayList<>();
-        List<FbPage> uniquePages = new ArrayList<>();
-
-        for (PagesDayCountDTO page : pagesList) {
-            if (!uniqueDates.contains(page.getDate())) {
-                uniqueDates.add(page.getDate());
-            }
-            FbPage fbPage = page.getFbPage();
-            if (!uniquePagesIds.contains(fbPage.getId())) {
-                uniquePages.add(fbPage);
-                uniquePagesIds.add(fbPage.getId());
-            }
-
-        }
-        uniqueAttributes.put("uniqueDates", uniqueDates);
-        uniqueAttributes.put("uniquePages", uniquePages);
         return uniqueAttributes;
     }
 

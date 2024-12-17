@@ -1,6 +1,7 @@
 package com.clothing.management.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
@@ -27,10 +28,10 @@ public class Size implements Comparable<Size> {
     private String reference;
     private String description;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "sizes")
-    @JsonBackReference
     @Builder.Default
-    private Set<Model> models = new HashSet<>();;
+    private Set<Model> models = new HashSet<>();
 
     public Size(Long id) {
         this.id = id;

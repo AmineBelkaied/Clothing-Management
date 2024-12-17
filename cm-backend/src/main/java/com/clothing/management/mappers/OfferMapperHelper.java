@@ -27,11 +27,6 @@ public class OfferMapperHelper {
                 .collect(Collectors.toSet());
     }
 
-    @Named("mapIdsToFbPages")
-    public Set<FbPage> mapIdsToFbPages(Set<Long> ids) {
-        return new HashSet<>(fbPageRepository.findAllById(ids));
-    }
-
     @Named("mapColorsToIds")
     public List<Long> mapColorsToIds(List<Color> colors) {
         return colors.stream()

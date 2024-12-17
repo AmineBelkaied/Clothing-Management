@@ -1,5 +1,7 @@
 package com.clothing.management.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,8 +27,8 @@ public class GlobalConf {
     @JoinColumn(name = "delivery_company_id")
     private DeliveryCompany deliveryCompany;
 
-    @OneToOne
-    @JoinColumn(name = "fb_Page_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fb_page_id")
     private FbPage fbPage;
 
     @Builder.Default

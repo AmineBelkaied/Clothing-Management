@@ -2,6 +2,7 @@ package com.clothing.management.entities;
 
 import com.clothing.management.enums.ClientReason;
 import com.clothing.management.enums.SystemStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Builder;

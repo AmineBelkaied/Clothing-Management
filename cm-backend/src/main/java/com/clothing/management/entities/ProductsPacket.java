@@ -3,12 +3,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.Objects;
 
 @Entity
 @Table(name="products_packet", indexes = {
@@ -17,6 +13,7 @@ import java.util.Objects;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"product","offer","packet"})
 @Builder
 public class ProductsPacket {
 
@@ -24,18 +21,18 @@ public class ProductsPacket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @JsonManagedReference
-    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonManagedReference("productsPacket-product")
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @JsonManagedReference
+    @JsonManagedReference(value = "productsPacket-offre")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "offer_id")
     private Offer offer;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference(value = "packet-productsPacket")
+    @ManyToOne
     @JoinColumn(name = "packet_id")
     private Packet packet;
 

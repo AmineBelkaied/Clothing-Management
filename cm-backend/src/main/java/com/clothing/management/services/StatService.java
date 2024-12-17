@@ -13,12 +13,10 @@ import java.util.Map;
 public interface StatService {
 
     Map<String, List<?>> statAllPacketsChart(String beginDate, String endDate, String deliveryCompanyName);
-    //Map<String, List<?>> statAllPagesChart(String beginDate, String endDate);
     StatPagesDTO statPages(String beginDate, String endDate, Boolean countProgress);
     Map <String , List<?>> statModelSoldChart(Long modelId, String beginDate, String endDate);
     StatModelsDTO statModels(String beginDate, String endDate, Boolean countProgress);
     StatStockDTO statStock(String beginDate, String endDate);
-    @Transactional("tenantTransactionManager")
     StatOffersDTO statOffers(String beginDate, String endDate, Boolean countProgressEnabler);
 
     Map <String , List<?>> statAllColorsChart(String beginDate, String endDate);//,List<Long> lookForModelIds);

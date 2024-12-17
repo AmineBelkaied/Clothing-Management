@@ -1,6 +1,8 @@
 package com.clothing.management.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,9 +37,9 @@ public class Packet {
     @Column(name = "customer_phone_nb")
     private String customerPhoneNb;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "city_id")
-    @JsonIgnore
     private City city;
 
     private String address;
@@ -50,23 +52,26 @@ public class Packet {
     @Column(name = "last_delivery_status")
     private String lastDeliveryStatus;
 
-    @Column(name = "old_client")
     @Builder.Default
+    @Column(name = "old_client")
     private Integer oldClient = 0;
 
+    @JsonManagedReference(value = "packet-productsPacket")
     @OneToMany(mappedBy = "packet", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @Builder.Default
     private List<ProductsPacket> productsPackets = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "packet", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "packet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<PacketStatus> packetStatus = new ArrayList<>();
 
-    @ManyToOne
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fbpage_id")
     private FbPage fbPage;
 
+    @JsonManagedReference
     @ManyToOne
     @JoinColumn(name = "delivery_company")
     private DeliveryCompany deliveryCompany;
@@ -113,24 +118,7 @@ public class Packet {
     private boolean changedPrice = false;
 
 
-    // Custom methods
-    public void addProductsToPacket(List<ProductsPacket> productsPacket) {
-        for (ProductsPacket productPacket : productsPacket) {
-            productPacket.setPacket(this);
-        }
-        this.productsPackets.clear(); // Clear existing productsPackets if necessary
-        this.productsPackets.addAll(productsPacket);
-    }
 
-    public void createProductsPacket(List<ProductsPacket> productsPacket) {
-        this.setProductsPackets(
-                productsPacket.stream()
-                        .map(productPacket -> {
-                            productPacket.setPacket(this);  // Set the new packet reference
-                            productPacket.setId(null);  // Reset the ID to make it a new entity
-                            return productPacket;
-                        })
-                        .collect(Collectors.toList())
-        );
-    }
+
+
 }

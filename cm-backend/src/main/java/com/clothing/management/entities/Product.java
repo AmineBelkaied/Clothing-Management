@@ -39,7 +39,7 @@ public class Product {
     private Date date;
 
     @JsonIgnore
-    @JsonBackReference
+    @JsonBackReference("productsPacket-product")
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<ProductsPacket> productsPacket;
 

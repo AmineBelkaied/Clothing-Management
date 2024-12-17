@@ -13,7 +13,7 @@ export class FbPageService {
 
   private baseUrl: string = environment.baseUrl + `${FB_PAGE_ENDPOINTS.BASE}`;
   public fbPagesSubscriber: BehaviorSubject<FbPage[]> = new BehaviorSubject<FbPage[]>([]);
-  public fbPage: BehaviorSubject<any> = new BehaviorSubject([]);
+  public fbPage: BehaviorSubject<any> = new BehaviorSubject({});
   public fbPages: FbPage[] = [];
   public editMode = false;
   private fbPagesCache$: Observable<FbPage[]> | undefined;
@@ -68,14 +68,32 @@ export class FbPageService {
     return this.http.get(`${this.baseUrl}/${id}`);
   }
 
-  saveFbPage(fbPage: FbPage) {
-    return this.http.post(`${this.baseUrl}`, fbPage , {headers : { 'content-type': 'application/json'}});
+  saveFbPage(fbPage: FbPage): Observable<FbPage> {
+    console.log("save", fbPage);
+    return this.http.post<FbPage>(`${this.baseUrl}`, fbPage , {observe: 'body'})
+    .pipe(
+      catchError((error) => {
+        console.error('Error adding color', error);
+        return throwError(() => error);
+      })
+    );
   }
+
+    updateFbPage(fbPage: FbPage): Observable<FbPage> {
+      console.log("update",fbPage);
+      return this.http.put<FbPage>(`${this.baseUrl}`, fbPage, { headers: { 'Content-Type': 'application/json' } })
+        .pipe(
+          catchError((error) => {
+            console.error('Error updating color', error);
+            return throwError(() => error);
+          })
+        );
+    }
 
   checkFbPageUsage(id: number) {
     return this.http.get(`${this.baseUrl}${FB_PAGE_ENDPOINTS.CHECK_FB_PAGE_USAGE}/${id}`);
   }
-  
+
   deleteFbPageById(id: any) {
     return this.http.delete(`${this.baseUrl}/${id}`);
   }

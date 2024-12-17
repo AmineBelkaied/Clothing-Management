@@ -25,11 +25,14 @@ export class AddFbpageComponent implements OnInit,OnDestroy {
   }
 
   saveFbPage(form: NgForm) {
+    console.log(form);
+
+    this.fbPage.name = form.value.name;
+    this.fbPage.link = form.value.link;
     if(this.fbPageService.editMode){
-      this.fbPage.name = form.value.name;
-      this.fbPage.link = form.value.link;
       this.fbPage.enabled = form.value.enabled;
-      this.fbPageService.saveFbPage(this.fbPage).pipe(takeUntil(this.$unsubscribe))
+      this.fbPage.deleted = false;
+      this.fbPageService.updateFbPage(this.fbPage).pipe(takeUntil(this.$unsubscribe))
       .subscribe((updatedFbPage: any) => {
         console.log(updatedFbPage)
         this.fbPageService.spliceFbPage(updatedFbPage);
@@ -38,12 +41,25 @@ export class AddFbpageComponent implements OnInit,OnDestroy {
         this.fbPageService.editMode = false;
       });
     }
+    else {
+      this.fbPage.enabled = true;
+      this.fbPage.deleted = false;
+      this.fbPageService.saveFbPage(this.fbPage).pipe(takeUntil(this.$unsubscribe))
+      .subscribe((newFbPage: any) => {
+        this.fbPageService.fbPages.push(newFbPage);
+        this.messageService.add({ severity: 'success', summary: 'Succés', detail: "La couleur a été crée avec succés", life: 1000 });
+        form.reset();
+        this.fbPageService.editMode = false;
+      });
+    }
+    console.log("this.fbPage",this.fbPage);
   }
 
   reset(fbForm: NgForm){
     fbForm.reset();
     this.fbPageService.editMode = false;
   }
+
   ngOnDestroy(): void {
     this.$unsubscribe.next();
     this.$unsubscribe.complete();

@@ -727,11 +727,9 @@ public class PacketServiceImpl implements PacketService {
 
         public void updateProductsQuantity(Packet packet, String status) {
             LOGGER.debug("Updating products quantity for packet ID: {}, Status: {}", packet.getId(), status);
-
             int quantity = 0;
             if (status.equals(RETURN_RECEIVED.getStatus()) || status.equals(CANCELED.getStatus())) quantity = 1;
             if (status.equals(CONFIRMED.getStatus())) quantity = -1;
-
             List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
             if (!productsPackets.isEmpty()) {
                 for (ProductsPacket productsPacket : productsPackets) {
@@ -745,7 +743,6 @@ public class PacketServiceImpl implements PacketService {
 
         public void updateProductQuantity(Product product, int quantityChange) {
             LOGGER.debug("Updating product quantity. Product ID: {}, Quantity Change: {}", product.getId(), quantityChange);
-
             product.setQuantity(product.getQuantity() + quantityChange);
             product.setDate(new Date());
             productRepository.save(product);
@@ -753,13 +750,8 @@ public class PacketServiceImpl implements PacketService {
 
         public Packet savePacketStatus(Packet packet, String status) {
             LOGGER.debug("Saving packet status. Packet ID: {}, Status: {}", packet.getId(), status);
-
             packet.setStatus(status);
             packet.setLastUpdateDate(new Date());
-
-            // Uncomment this line if you want to save packet status directly
-            // packetRepository.savePacketStatus(packet.getId(), status, packet.getLastDeliveryStatus());
-
             return packetRepository.save(packet);
         }
 

@@ -16,6 +16,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(of = "id")
+@ToString(exclude = {"offerModels","fbPages"})
 public class Offer {
 
     @Id
@@ -25,16 +26,17 @@ public class Offer {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Builder.Default
+    @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<OfferModel> offerModels = new HashSet<>();
 
-    @JsonIgnore
-    @JsonBackReference
-    @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @JsonBackReference(value = "productsPacket-offre")
+    @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductsPacket> productsPacket = new ArrayList<>();
 
+
+    @JsonIgnore
     @ManyToMany(cascade = { CascadeType.PERSIST }, fetch = FetchType.EAGER)
     @JoinTable(
             name = "offer_fb_pages",

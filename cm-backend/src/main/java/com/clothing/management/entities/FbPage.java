@@ -29,11 +29,11 @@ public class FbPage {
 
     private String link;
 
-    @JsonBackReference
+    @JsonIgnore
     @OneToMany(mappedBy = "fbPage", fetch = FetchType.LAZY)
     private List<Packet> packets;
 
-    @JsonBackReference
+    @JsonIgnore
     @ManyToMany(mappedBy = "fbPages", fetch = FetchType.LAZY)
     @Builder.Default
     private Set<Offer> offers = new HashSet<>();

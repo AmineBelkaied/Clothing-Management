@@ -39,7 +39,10 @@ export class StatusContainerComponent implements OnChanges {
   isAdmin: boolean;
   statusItems: Status[];
   selectedIndex: number | null;
-  selectedItem: Status;
+  selectedItem: Status ={
+    label: "", value: "", icon: 'pi pi-phone', color: '#EAB308', count: 0, dayCount: 0, isUserOption: true,
+    items: [] , selectedOptions: []
+  };
   changed = false;
 
   constructor(
@@ -50,12 +53,16 @@ export class StatusContainerComponent implements OnChanges {
   }
 
   ngOnInit(): void {
+    console.log("ngOnInit");
+
     this.storageService.isLoggedIn.subscribe(isLoggedIn => {//Correction
       this.isAdmin = this.storageService.hasRoleAdmin();
     });
   }
 
   initNotification(){
+    console.log('this.selectedItem',this.selectedItem);
+
     this.statusItems = [
       { label: OOS, value: OOS, icon: 'pi pi-times', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
       {
@@ -89,16 +96,37 @@ export class StatusContainerComponent implements OnChanges {
     console.log("changet detected");
 
     if (changes['params']) {
-      this.createNotification();
+      if( changes['params'].firstChange == true)
+        {
+          this.createNotification();
+        }
+      if(changes['params'].currentValue.searchText != changes['params'].previousValue.searchText
+        || changes['params'].currentValue.mandatoryDate != changes['params'].previousValue.mandatoryDate
+        || changes['params'].currentValue.beginDate != changes['params'].previousValue.beginDate
+        || changes['params'].currentValue.endDate != changes['params'].previousValue.endDate ){
+        this.createNotification();
+
+
+      }else console.log('aaaa');
+
       console.log(changes);
       if(changes['params'].currentValue.statusFilter == false)
         this.selectedIndex = null;
       if(changes['params'].currentValue.statusFilter == true && this.selectedIndex == null )
-        this.selectedIndex = 1;
+        {
+          this.selectedItem = this.statusItems[1];
+          this.selectedIndex = 1;
+        }
+
+
+
+
     }
   }
 
   toggleListbox(index: any, item: any) {
+    console.log("toggleListbox");
+
     if (this.statusItems[index].items) {
       if (index != null && this.changed==false) {
         this.emitSelectedStatus(item);
@@ -106,6 +134,9 @@ export class StatusContainerComponent implements OnChanges {
     } else {
       this.emitSelectedStatus(item);
     }
+/*     if(this.selectedIndex != index){
+      this.selectedItem.selectedOptions = [];
+    } */
     this.selectedIndex = index;
     this.changed = false;
   }
@@ -158,8 +189,13 @@ export class StatusContainerComponent implements OnChanges {
   }
 
   createNotification(): void {
+    console.log("createNotification");
+
     this.initNotification();
     let all = 0;
+    console.log("this.statusItems",this.selectedItem);
+    console.log(this.params);
+
 
     this.packetService.syncNotification(this.params)
       .pipe(takeUntil(this.$unsubscribe))
@@ -167,7 +203,6 @@ export class StatusContainerComponent implements OnChanges {
         next: (response: DashboardCard[]) => {
           if (response.length > 0) {
             response.forEach((element: any) => {
-
               switch (element.status) {
                 case OOS:
                   this.statusItems[0].count = element.statusCount;
@@ -228,6 +263,8 @@ export class StatusContainerComponent implements OnChanges {
   }
 
   ngOnDestroy(): void {
+    console.log("ngOnDestroy");
+
     if (this.changed)
       if (this.selectedItem.items) {
         this.emitSelectedStatus(this.selectedItem);

@@ -89,6 +89,7 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "FROM ProductsPacket pp " +
             "WHERE DATE(pp.packet.date) >= DATE(:beginDate) " +
             "AND DATE(pp.packet.date) <= DATE(:endDate) " +
+
             "AND pp.packet.status IN :statusList " +
             "GROUP BY DATE(pp.packet.date), pp.packet.id, pp.packet.fbPage.id " +
             "ORDER BY DATE(pp.packet.date) ASC")
