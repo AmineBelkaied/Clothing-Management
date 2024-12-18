@@ -5,6 +5,7 @@ public class DashboardCard {
     private Long statusCount;
     private Long statusByDateCount;
 
+
     public DashboardCard(String status, Long statusCount, Long statusByDateCount) {
         this.status = status;
         this.statusCount = statusCount;

@@ -1,7 +1,6 @@
-package com.clothing.management.dto;
-
+package com.clothing.management.dto.StatDTO.Response;
 import com.clothing.management.dto.StatDTO.ChartDTO.StatChartDTO;
-import com.clothing.management.dto.StatDTO.TableDTO.OfferTableDTO;
+import com.clothing.management.dto.StatDTO.TableDTO.PageTableDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class StatOffersDTO {
+public class StatPagesDTO {
     private StatChartDTO chart;
-    private List<OfferTableDTO> offersStat;
+    private List<PageTableDTO> pagesStat;
 }

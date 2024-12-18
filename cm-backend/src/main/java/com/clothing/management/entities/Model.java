@@ -54,6 +54,7 @@ public class Model {
     @Builder.Default
     private boolean deleted = false;
 
+    @JsonIgnore
     @ManyToMany(cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "model_colors",
@@ -63,6 +64,7 @@ public class Model {
     @Builder.Default
     private List<Color> colors = new ArrayList<>();
 
+    @JsonIgnore
     @ManyToMany(cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "model_sizes",

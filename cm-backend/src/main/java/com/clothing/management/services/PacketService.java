@@ -21,8 +21,8 @@ public interface PacketService {
 
  Packet getPacketByBarcode(String barcode) throws Exception;
  List<Packet> findAllPackets();
- Page<PacketDTO> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status, boolean mandatoryDate) throws ParseException;
- public List<PacketValidationDTO> findValidationPackets();
+ Page<PacketDTO> findAllPackets(Pageable pageable, String searchText, String beginDate, String endDate, String status) throws ParseException;
+ List<PacketValidationDTO> findValidationPackets();
  List<PacketDTO> findAllPacketsByDate(String start,String end) throws ParseException;
  List<Packet> findAllPacketsByDate(Date date);
  List<Packet> findSyncPackets();
@@ -38,11 +38,9 @@ public interface PacketService {
  PacketDTO getLastStatus(Packet packet, User user) throws Exception;
  Packet addAttempt(Note note, Long packetId) throws PacketNotFoundException;
  int checkPhone(String phoneNumber);
-    //List<DashboardCard> createDashboard();
-    List<DashboardCard> syncNotification(String beginDate, String endDate);
-    PacketDTO duplicatePacket(Long idPacket) throws Exception;
-    List<String> updatePacketsByBarcodes(BarcodeStatusDTO barcodeStatusDTO);
-    //Long getExchangeId(Packet packet);
-    int deleteEmptyPacket();
-    PacketValidationDTO updatePacketValid(String barcode, String type) throws Exception;
+ List<DashboardCard> syncNotification(String searchField,String beginDate, String endDate);
+ PacketDTO duplicatePacket(Long idPacket) throws Exception;
+ List<String> updatePacketsByBarcodes(BarcodeStatusDTO barcodeStatusDTO);
+ int deleteEmptyPacket();
+ PacketValidationDTO updatePacketValid(String barcode, String type) throws Exception;
 }

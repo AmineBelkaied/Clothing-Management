@@ -91,6 +91,8 @@ export class ColorService {
       );
   }
 
+
+
   updateColor(color: Color): Observable<Color> {
     return this.http.put<Color>(`${this.baseUrl}`, color, { headers: { 'Content-Type': 'application/json' } })
       .pipe(

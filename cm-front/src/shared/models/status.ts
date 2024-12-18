@@ -6,7 +6,7 @@ export interface StatusItem {
   count: number,
   dayCount: number,
   onlyAdmin?: boolean,
-  options?: any[],
+  items?: any[],
   selectedOptions?: [],
   isUserOption?: boolean
 }

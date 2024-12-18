@@ -1,5 +1,6 @@
 package com.clothing.management.services;
 
+import com.clothing.management.entities.Color;
 import com.clothing.management.entities.FbPage;
 
 import java.util.List;

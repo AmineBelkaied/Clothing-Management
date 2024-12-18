@@ -32,6 +32,5 @@ public class DeliveryCompany {
     @Column(name = "additional_name")
     private String additionalName;
 
-    @Column(name = "color")
-    private String Color;
+    private String color;
 }

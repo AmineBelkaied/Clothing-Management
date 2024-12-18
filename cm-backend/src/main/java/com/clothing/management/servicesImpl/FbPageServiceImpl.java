@@ -1,5 +1,6 @@
 package com.clothing.management.servicesImpl;
 
+import com.clothing.management.entities.Color;
 import com.clothing.management.entities.FbPage;
 import com.clothing.management.exceptions.custom.alreadyexists.FbPageAlreadyExistsException;
 import com.clothing.management.repository.IFbPageRepository;

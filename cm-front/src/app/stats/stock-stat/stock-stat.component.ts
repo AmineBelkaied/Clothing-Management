@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { StatsService } from 'src/shared/services/stats.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
 import { Subject, takeUntil } from 'rxjs';
+import { ChartDTO } from 'src/shared/models/ChartDTO';
 
 @Component({
   selector: 'app-stock-stat',
@@ -15,9 +16,11 @@ export class StockStatComponent implements OnInit, OnChanges {
 
   @Input() beginDateString: string;
   @Input() endDateString: string | null;
+
+  @Input() calculateAverage:(item: any,tableData: any) => number;
+  @Input() getMinMax:(item: any,tableData: any)=> string;
   @Input() calculateSomme:(numbers: number[]) => number;
   @Input() getRandomColor:(x: string)=> string;
-  @Input() getMinMax:(numbers: number[])=> string;
   @Input() formatNumber:(item: any)=> string;
 
   stockChartData: any;
@@ -32,7 +35,6 @@ export class StockStatComponent implements OnInit, OnChanges {
     profits: 0                   // Total profits
   };
   $unsubscribe: Subject<void> = new Subject();
-  dates: any[];
   stockTable: any;
 
   constructor(
@@ -98,9 +100,10 @@ export class StockStatComponent implements OnInit, OnChanges {
       .pipe(takeUntil(this.$unsubscribe))
       .subscribe({
         next: (response: any) => {
-          //console.log('statAllModels', response);
-          this.stockValueTableData = response.statStockTable;
-          this.createStockChart(response);
+          this.stockValueTableData = response.stockTable;
+          this.totalStock = this.stockValueTableData[this.stockValueTableData.length - 1];
+          this.stockValueTableData.pop();
+          this.createStockChart(response.chart);
         },
         error: (error: any) => {
           console.log('ErrorStockCount:', error);
@@ -109,17 +112,13 @@ export class StockStatComponent implements OnInit, OnChanges {
           console.log('Observable completed-- getStatStockChart --');
         },
       });
-      this.getStatValueStockTable();
   }
-  getStatValueStockTable() {
-    this.totalStock = this.stockValueTableData[this.stockValueTableData.length - 1];
-    this.stockValueTableData.pop();
-  }
-  createStockChart(data: any) {
+
+  createStockChart(chart: ChartDTO) {
     let modelsList: any[] = [];
-    let statStockChart = data.statStockChart;
-    modelsList = data.models;
-    this.dates = data.dates;
+    let statStockChart = chart.itemsCount;
+    modelsList = chart.uniqueItems;
+    let dates = chart.uniqueDates;
 
     this.stockDataSetArray = [];
 
@@ -139,7 +138,7 @@ export class StockStatComponent implements OnInit, OnChanges {
     });
 
     this.stockChartData = {
-      labels: this.dates,
+      labels: dates,
       datasets: this.stockDataSetArray,
     };
   }

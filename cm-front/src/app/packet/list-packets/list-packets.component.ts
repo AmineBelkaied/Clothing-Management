@@ -193,8 +193,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           }));
           this.realTotalItems = response.totalItems;
           this.totalItems = this.packets.length;
-          //let countConfirmed =response.result.filter(packet => packet.status === CONFIRMED).length;
-          //this.statusItems[3].badge = countConfirmed > 0 ? countConfirmed:0;
           this.loading = false;
         },
         error: (error: Error) => {
@@ -968,7 +966,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         },
         {
           label: 'Ajouter note',
-          icon: 'pi pi-refresh',
+          icon: 'pi pi-file-edit',
           disabled: packet.status != Status.UNREACHABLE,
           command: () => {
             this.addAttempt('UNREACHABLE', packet);

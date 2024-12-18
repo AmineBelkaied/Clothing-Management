@@ -3,6 +3,7 @@ import com.clothing.management.dto.StatDTO.*;
 import com.clothing.management.dto.StatDTO.ChartDTO.ChartDTO;
 import com.clothing.management.dto.StatDTO.TableDTO.ModelTableDTO;
 import com.clothing.management.dto.StatDTO.TableDTO.OfferTableDTO;
+import com.clothing.management.dto.StatDTO.TableDTO.PageTableDTO;
 import com.clothing.management.entities.ProductsPacket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -23,7 +24,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "SUM(CASE WHEN pp.packet.status IN :deliveredStatuses THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN pp.packet.status IN :activeAndConfirmedStatuses THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN pp.packet.status = :outOfStockStatus THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN pp.packet.status IN :returnStatuses AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END)) " +
+            "SUM(CASE WHEN pp.packet.haveExchange = TRUE THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN pp.packet.status = :returnStatus THEN 1 ELSE 0 END)) " +
             "FROM ProductsPacket pp " +
             "WHERE pp.product.model.id = :modelId " +
             "AND pp.packet.status IN :activeConfirmedDeliveredReturnAndOosStatuses " +
@@ -33,21 +35,21 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "AND DATE(pp.packet.date) >= DATE(:beginDate) " +
             "AND DATE(pp.packet.date) <= DATE(:endDate) " +
             "GROUP BY pp.product.color, pp.product.size")
-    List<SoldProductsDayCountDTO> soldProductsCountByDate(@Param("modelId") Long modelId,@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("outOfStockStatus") String outOfStockStatus, @Param("returnStatuses") List<String> returnStatuses, @Param("deliveredStatuses") List<String> deliveredStatuses,
+    List<SoldProductsDayCountDTO> soldProductsCountByDate(@Param("modelId") Long modelId,@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("outOfStockStatus") String outOfStockStatus, @Param("returnStatus") String returnStatus, @Param("deliveredStatuses") List<String> deliveredStatuses,
                                                           @Param("activeAndConfirmedStatuses") List<String> activeAndConfirmedStatuses, @Param("activeConfirmedDeliveredReturnAndOosStatuses") List<String> activeConfirmedDeliveredReturnAndOosStatuses);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.StatDTO.TableDTO.OfferTableDTO(" +
             "pp.offer.id , " +
             "pp.offer.name , " +
-            "SUM(CASE WHEN pp.packet.status IN :statusList THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN pp.packet.status IN :activeAndConfirmedStatuses THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN pp.packet.status IN :returnStatuses AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END), " +//retour
+            "COUNT(DISTINCT(CASE WHEN pp.packet.status IN :statusList THEN CONCAT(pp.packet.id, '-', pp.packetOfferId) ELSE NULL END)), " +
+            "COUNT(DISTINCT(CASE WHEN pp.packet.status IN :activeAndConfirmedStatuses THEN CONCAT(pp.packet.id, '-', pp.packetOfferId) ELSE NULL END)), " +
+            "COUNT(DISTINCT(CASE WHEN pp.packet.status IN :returnStatuses AND pp.packet.exchangeId IS NULL THEN CONCAT(pp.packet.id, '-', pp.packetOfferId) ELSE NULL END)), " +//retour
             "SUM(CASE WHEN pp.packet.status IN :statusList THEN pp.profits ELSE 0 END))" +
             "FROM ProductsPacket pp " +
             "WHERE DATE(pp.packet.date) >= DATE(:beginDate) " +
             "AND DATE(pp.packet.date) <= DATE(:endDate) " +
             "AND pp.packet.status IN :activeConfirmedDeliveredAndReturnStatuses " +
-            "GROUP BY pp.offer")
+            "GROUP BY pp.offer.id ")
     List<OfferTableDTO> statOffersTable(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("statusList") List<String> statusList, @Param("returnStatuses") List<String> returnStatuses,
                                         @Param("activeAndConfirmedStatuses") List<String> activeAndConfirmedStatuses, @Param("activeConfirmedDeliveredAndReturnStatuses") List<String> activeConfirmedDeliveredAndReturnStatuses);
 
@@ -65,22 +67,35 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
     List<ChartDTO> statOffersChart(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("statusList") List<String> statusList);
 
 
-    @Query(value = "SELECT NEW com.clothing.management.dto.StatDTO.PagesDayCountDTO(" +
-            "DATE(pp.packet.date), " +
-            "pp.packet.fbPage, " +
+    @Query(value = "SELECT NEW com.clothing.management.dto.StatDTO.TableDTO.PageTableDTO(" +
+            "pp.packet.fbPage.id, " +
+            "pp.packet.fbPage.name, " +
             "SUM(CASE WHEN pp.packet.status IN :deliveredStatuses THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN pp.packet.status IN :activeAndConfirmedStatuses THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN pp.packet.status IN :returnStatuses AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END), " +//retour
-            "SUM(CASE WHEN pp.packet.status = :outOfStockStatus THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN pp.packet.status IN :deliveredStatuses THEN pp.profits ELSE 0 END))" +
             "FROM ProductsPacket pp " +
             "WHERE DATE(pp.packet.date) >= DATE(:beginDate) " +
             "AND DATE(pp.packet.date) <= DATE(:endDate) " +
-            "AND pp.packet.status IN :activeConfirmedDeliveredReturnAndOosStatuses " +
-            "GROUP BY DATE(pp.packet.date), pp.packet.fbPage.name " +
+            "AND pp.packet.status IN :activeConfirmedDeliveredAndReturnStatuses " +
+            "GROUP BY pp.packet.fbPage.name ")
+    List<PageTableDTO> statAllPages(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("returnStatuses") List<String> returnStatuses, @Param("deliveredStatuses") List<String> deliveredStatuses,
+                                    @Param("activeAndConfirmedStatuses") List<String> activeAndConfirmedStatuses, @Param("activeConfirmedDeliveredAndReturnStatuses") List<String> activeConfirmedDeliveredReturnAndOosStatuses);
+
+
+    @Query(value = "SELECT NEW com.clothing.management.dto.StatDTO.ChartDTO.ChartDTO(" +
+            "DATE(pp.packet.date), " +
+            "pp.packet.fbPage.id, " +
+            "pp.packet.fbPage.name, " +
+            "CASE WHEN pp.packet.status IN :statusList THEN 1 ELSE 0 END) " +
+            "FROM ProductsPacket pp " +
+            "WHERE DATE(pp.packet.date) >= DATE(:beginDate) " +
+            "AND DATE(pp.packet.date) <= DATE(:endDate) " +
+
+            "AND pp.packet.status IN :statusList " +
+            "GROUP BY DATE(pp.packet.date), pp.packet.id, pp.packet.fbPage.id " +
             "ORDER BY DATE(pp.packet.date) ASC")
-    List<PagesDayCountDTO> statAllPages(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("outOfStockStatus") String outOfStockStatus, @Param("returnStatuses") List<String> returnStatuses, @Param("deliveredStatuses") List<String> deliveredStatuses,
-                                        @Param("activeAndConfirmedStatuses") List<String> activeAndConfirmedStatuses, @Param("activeConfirmedDeliveredReturnAndOosStatuses") List<String> activeConfirmedDeliveredReturnAndOosStatuses);
+    List<ChartDTO> statPagesChart(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("statusList") List<String> statusList);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.StatDTO.ProductsDayCountDTO( " +
             "DATE(pp.packet.date), pp.product.id, " +
@@ -118,7 +133,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "pp.product.model, " +
             "SUM(CASE WHEN pp.packet.status IN :statusList THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN pp.packet.status IN :activeAndConfirmedStatuses THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN pp.packet.status IN :returnStatuses AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END), " +//retour
+            "SUM(CASE WHEN pp.packet.status = :returnStatus AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END), " +//retour
+            "SUM(CASE WHEN pp.packet.status = :returnReceivedStatus AND pp.packet.exchangeId IS NULL THEN 1 ELSE 0 END), " +//retour
             "SUM(CASE WHEN pp.packet.status = :outOfStockStatus THEN 1 ELSE 0 END), " +
             "SUM(CASE WHEN pp.packet.status IN :statusList THEN pp.profits ELSE 0 END))" +
             "FROM ProductsPacket pp " +
@@ -126,8 +142,8 @@ public interface IProductsPacketRepository extends JpaRepository<ProductsPacket 
             "AND DATE(pp.packet.date) <= DATE(:endDate) " +
             "AND pp.packet.status IN :activeConfirmedDeliveredReturnAndOosStatuses " +
             "GROUP BY pp.product.model.id")
-    List<ModelTableDTO> statAllModels(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("statusList") List<String> statusList, @Param("outOfStockStatus") String outOfStockStatus, @Param("returnStatuses") List<String> returnStatuses,
-                                      @Param("activeAndConfirmedStatuses") List<String> activeAndConfirmedStatuses, @Param("activeConfirmedDeliveredReturnAndOosStatuses") List<String> activeConfirmedDeliveredReturnAndOosStatuses);
+    List<ModelTableDTO> statAllModels(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("statusList") List<String> statusList, @Param("outOfStockStatus") String outOfStockStatus, @Param("returnStatus") String returnStatus,
+                                      @Param("returnReceivedStatus") String returnReceivedStatus, @Param("activeAndConfirmedStatuses") List<String> activeAndConfirmedStatuses, @Param("activeConfirmedDeliveredReturnAndOosStatuses") List<String> activeConfirmedDeliveredReturnAndOosStatuses);
 
     @Query(value = "SELECT NEW com.clothing.management.dto.StatDTO.ChartDTO.ChartDTO(" +
             "DATE(pp.packet.date), " +

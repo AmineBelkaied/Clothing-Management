@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = OfferMapperHelper.class)
 public interface OfferMapper {
 
     OfferMapper INSTANCE = Mappers.getMapper(OfferMapper.class);
@@ -44,26 +44,5 @@ public interface OfferMapper {
                 .findFirst()
                 .map(Product::getId)
                 .orElse(null);
-    }
-
-    @Named("mapFbPagesToIds")
-    default Set<Long> mapFbPagesToIds(Set<FbPage> fbPages) {
-        return fbPages.stream()
-                .map(FbPage::getId)
-                .collect(Collectors.toSet());
-    }
-
-    @Named("mapColorsToIds")
-    default List<Long> mapColorsToIds(List<Color> colors) {
-        return colors.stream()
-                .map(Color::getId)
-                .collect(Collectors.toList());
-    }
-
-    @Named("mapSizesToIds")
-    default List<Long> mapSizesToIds(List<Size> sizes) {
-        return sizes.stream()
-                .map(Size::getId)
-                .collect(Collectors.toList());
     }
 }

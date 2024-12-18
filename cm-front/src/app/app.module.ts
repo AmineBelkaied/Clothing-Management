@@ -42,6 +42,7 @@ import { ColorPickerModule } from 'primeng/colorpicker';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RippleModule } from 'primeng/ripple';
 import { ScrollerModule } from 'primeng/scroller';
+import { PanelMenuModule } from 'primeng/panelmenu';
 
 
 
@@ -215,7 +216,8 @@ import { ColorStatComponent } from './stats/color-stat/color-stat.component';
     OverlayPanelModule,
     ColorPickerModule,
     ScrollerModule,
-    TabMenuModule
+    TabMenuModule,
+    PanelMenuModule
   ],
   providers: [
     MessageService,

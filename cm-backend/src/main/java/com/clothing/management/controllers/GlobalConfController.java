@@ -5,6 +5,7 @@ import com.clothing.management.services.GlobalConfService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +33,7 @@ public class GlobalConfController {
         }
     }
 
-    @PutMapping
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> upsertGlobalConfig(@RequestBody GlobalConf globalConf) {
         LOGGER.info("Upserting global configuration: {}", globalConf);
         try {

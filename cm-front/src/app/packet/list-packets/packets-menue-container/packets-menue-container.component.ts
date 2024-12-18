@@ -4,7 +4,6 @@ import { Packet } from 'src/shared/models/Packet';
 import { StorageService } from 'src/shared/services/strorage.service';
 import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
 import { Status } from 'src/shared/enums/status';
-import { StatusUtils } from 'src/shared/utils/status-utils';
 import { StatusItem } from 'src/shared/models/status';
 @Component({
   selector: 'app-packets-menue-container',
@@ -26,8 +25,6 @@ export class PacketsMenueContainerComponent implements OnChanges {
   @Input() nbrSelectedPackets: number;
   statusList: string[] = [];
   pageSize: number = 100;
-  dateOptions: any[] = [{ label: 'Off', value: false }, { label: 'On', value: true }];
-  //showStatus: boolean = false;
 
   first = 0;
   rows = 100;
@@ -47,12 +44,12 @@ export class PacketsMenueContainerComponent implements OnChanges {
   loading: boolean = false;
   statusItemsLabel: string = Status.NOT_CONFIRMED;
   oldStatusItemsLabel: string = Status.NOT_CONFIRMED;
-
   @Output()
   filterPacketsEmitter: EventEmitter<PacketFilterParams> = new EventEmitter()
 
   @Output()
   buttonPacketsEmitter: EventEmitter<String> = new EventEmitter();
+  selectedItemStatus: StatusItem;
 
   constructor(
     private dateUtils: DateUtils,
@@ -68,6 +65,7 @@ export class PacketsMenueContainerComponent implements OnChanges {
   isAdmin: boolean;
   isSuperAdmin: boolean;
   oldStatus: StatusItem;
+  statusFilter: boolean = true;
 
   ngOnInit(): void {
     this.storageService.isLoggedIn.subscribe(isLoggedIn => {
@@ -83,28 +81,22 @@ export class PacketsMenueContainerComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['filter']) {
-      console.log("changes detected");
-
       this.handleInputChange();
     }
   }
+
   handleInputChange() {
     const inputValue = this.filter;
     if(inputValue){
       const numbersCount = (inputValue.match(/\d/g) || []).length;
-      console.log(inputValue,numbersCount);
 
       if ( numbersCount === 5 || numbersCount === 8 || numbersCount === 12  ) {
-        //this.oldActiveIndex = this.activeIndex;
-        this.filterPackets('global');
-
-        //this.activeIndex = 0;
+        this.filterPackets('inputFilter');
       }
       if (this.filter === '') {
-        this.filterPackets('global');
-        this.statusItemsLabel = this.oldStatusItemsLabel;
-
-        //this.activeIndex = this.oldActiveIndex;//Correction
+        //this.selectedStatus = [NOT_CONFIRMED];
+        this.statusFilter = true;
+        this.filterPackets('inputFilter');
       }
     }
 
@@ -119,9 +111,9 @@ export class PacketsMenueContainerComponent implements OnChanges {
 
   addNewRow(): void {
     this.filter ='';
-    if (this.statusItemsLabel != Status.NOT_CONFIRMED){
-      this.statusItemsLabel = Status.NOT_CONFIRMED;
-      this.selectedStatus =[Status.NOT_CONFIRMED];
+    if (this.selectedStatus[0] != Status.NOT_CONFIRMED) {
+      this.selectedStatus = [Status.NOT_CONFIRMED];
+      this.statusFilter = true;
       this.filterPackets('global');
     }
     else if (!this.loading) {
@@ -154,12 +146,19 @@ export class PacketsMenueContainerComponent implements OnChanges {
         this.selectedStatus=[];
       } else if ($event == 'page')
         page = this.currentPage;
-      if (this.selectedStatus == null) this.selectedStatus =[];
 
-      if(this.filter != null && this.filter != ''){
-        this.oldStatusItemsLabel = this.statusItemsLabel;
-        this.statusItemsLabel ="Tous"
-      }
+      if (this.selectedStatus == null) this.selectedStatus =[];
+      if($event == "inputFilter")
+        if(this.filter == ""){
+          this.statusFilter = true;
+        }else if(this.filter != null){
+          this.statusFilter = false;
+        }
+
+
+      if($event == "status")
+        this.statusFilter = true;
+
       this.params = {
         page: page,
         size: this.pageSize,
@@ -167,7 +166,8 @@ export class PacketsMenueContainerComponent implements OnChanges {
         beginDate: this.dateUtils.formatDateToString(this.beginDate),
         endDate: this.dateUtils.formatDateToString(this.endDate),
         status: this.selectedStatus.length == 0 ? null : this.selectedStatus.map(status => Status.findByValue(status)),
-        mandatoryDate: this.mandatoryDateCheckBox
+        mandatoryDate: this.mandatoryDateCheckBox,
+        statusFilter: this.statusFilter
       };
       this.filterPacketsEmitter.next(this.params);
     }
@@ -187,34 +187,41 @@ export class PacketsMenueContainerComponent implements OnChanges {
     }
   }
 
-
   mandatoryDateChange(){
+    this.mandatoryDateCheckBox = !this.mandatoryDateCheckBox;
     if(this.selectedStatus != null && this.selectedStatus.length > 0)
-    this.filterPackets('global')
+    this.filterPackets('filterDate')
+  }
+
+  mandatoryStatusChange(){
+    this.filterPackets('filterStatus')
   }
 
   onStatusChange(item: StatusItem) {
     if(this.oldStatus != item){
-       this.selectedStatus = item.options ? item.selectedOptions?.length==0 ? this.getArrayFromStatusItems(item.options) ?? [] : item.selectedOptions ?? [] : [item.label] ;
-      this.statusItemsLabel = item.label;
-      this.filterPackets('global')
-      this.oldStatus= Object.assign({}, item);
+      this.selectedItemStatus = item;
+      this.selectedStatus = item.items ? item.selectedOptions?.length==0 ? this.getArrayFromStatusItems(item.items) ?? [] : item.selectedOptions ?? [] : [item.label] ;
+      this.filterPackets('status');
+      this.oldStatus = Object.assign({}, item);
     }
   }
 
   getArrayFromStatusItems(statusItems:any) : string[]{
     return statusItems.map((item :any) => item.value);
   }
-  oldDateFilter(){
+
+  oldDateFilter() {
       this.rangeDates = [new Date(2023, 0, 1), new Date(Date.now() - 86400000)];
-      this.filterPackets('global');
+      this.filterPackets('date');
   }
-  onClickOutside(){
+
+  onClickOutside() {
     this.rangeDates[1] = this.rangeDates[1] ? this.rangeDates[1]
         : this.rangeDates[0];
-        this.filterPackets('global');
+        this.filterPackets('date');
   }
-  todayDate(){
+
+  todayDate() {
     if(this.rangeDates[0] != undefined && this.rangeDates[1]==undefined)
       {
         this.rangeDates[0]=this.beginDate;
@@ -222,11 +229,11 @@ export class PacketsMenueContainerComponent implements OnChanges {
         this.rangeDates= [this.beginDate,this.today];
       }
     else this.rangeDates = [this.today,this.today];
-    this.filterPackets('global');
+    this.filterPackets('date');
   }
 
-  clearDate(){
+  clearDate() {
     this.rangeDates = [];
-    this.filterPackets('global');
+    this.filterPackets('date');
   }
 }

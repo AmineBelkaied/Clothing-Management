@@ -12,14 +12,17 @@ import lombok.ToString;
 
 public class ModelTableDTO extends TableDTO {
     private Model model;
+
     private long countOos;
+    private long countReturnReceived;
 
 
     public ModelTableDTO(Model model,
-                         long countPaid, long countProgress, long countReturn, long countOos, double profits
+                         long countPaid, long countProgress, long countReturn, long countReturnReceived, long countOos, double profits
     ) {
         super(countPaid, countProgress, countReturn, profits);
         this.model = model;
+        this.countReturnReceived =countReturnReceived;
         this.countOos = countOos;
     }
 

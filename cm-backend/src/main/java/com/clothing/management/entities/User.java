@@ -25,7 +25,7 @@ public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Integer userId;
+    private Long userId;
 
     @Column(name = "full_name",nullable = false)
     private String fullName;
@@ -47,15 +47,15 @@ public class User implements Serializable {
     @Builder.Default
     private Set<Role> roles  = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<PacketStatus> packetStatusList;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<ProductHistory> productHistoryList;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Note> notes;
 }

@@ -1,8 +1,10 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.dto.StatDTO.*;
-import com.clothing.management.dto.StatModelsDTO;
-import com.clothing.management.dto.StatOffersDTO;
+import com.clothing.management.dto.StatDTO.Response.StatModelsDTO;
+import com.clothing.management.dto.StatDTO.Response.StatOffersDTO;
+import com.clothing.management.dto.StatDTO.Response.StatPagesDTO;
+import com.clothing.management.dto.StatDTO.Response.StatStockDTO;
 import com.clothing.management.services.StatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,12 +60,12 @@ public class StatController {
     }
 
     @GetMapping("/stock")
-    public ResponseEntity<Map<String, List<?>>> getStockStats(
+    public ResponseEntity<StatStockDTO> getStockStats(
             @RequestParam String beginDate,
             @RequestParam String endDate) {
         LOGGER.info("Fetching stock stats from {} to {}", beginDate, endDate);
         try {
-            Map<String, List<?>> stats = statService.statStock(beginDate, endDate);
+            StatStockDTO stats = statService.statStock(beginDate, endDate);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             LOGGER.error("Error fetching stock stats: ", e);
@@ -135,12 +137,13 @@ public class StatController {
     }
 
     @GetMapping("/pages")
-    public ResponseEntity<Map<String, List<?>>> getPagesCountChart(
+    public ResponseEntity<StatPagesDTO> getPagesCountChart(
             @RequestParam String beginDate,
-            @RequestParam String endDate) {
+            @RequestParam String endDate,
+            @RequestParam Boolean countProgress) {
         LOGGER.info("Fetching packet pages stats from {} to {}", beginDate, endDate);
         try {
-            Map<String, List<?>> pagesStatCountDTO = statService.statAllPagesChart(beginDate, endDate);
+            StatPagesDTO pagesStatCountDTO = statService.statPages(beginDate, endDate, countProgress);
             LOGGER.info("Successfully fetched packet pages stats");
             return ResponseEntity.ok(pagesStatCountDTO);
         } catch (Exception e) {

@@ -64,11 +64,10 @@
               <ng-template pTemplate="header">
                 <tr>
                   <th>Model</th>
-                  <th>Min-Max</th>
-                  <th pSortableColumn="avg">Avg<p-sortIcon field="avg" /></th>
-                  <th pSortableColumn="paid">Payée<p-sortIcon field="paid" /></th>
-                  <th pSortableColumn="progress">En cours<p-sortIcon field="progress" /></th>
-                  <th>Retour</th>
+                  <th pSortableColumn="countPaid">Payée<p-sortIcon field="countPaid" /></th>
+                  <th pSortableColumn="countProgress">En cours<p-sortIcon field="countProgress" /></th>
+                  <th pSortableColumn="countReturn">Retour<p-sortIcon field="countReturn" /></th>
+                  <th pSortableColumn="countReturnReceived">Retour reçu<p-sortIcon field="countReturnReceived" /></th>
                   <th>Payée/Retour</th>
                   <th pSortableColumn="purchasePrice">Prix Achat<p-sortIcon field="purchasePrice" /></th>
                   <th pSortableColumn="sellingPrice">Prix Vente<p-sortIcon field="sellingPrice" /></th>
@@ -78,11 +77,10 @@
               <ng-template pTemplate="body" let-item let-index>
                 <tr>
                   <td>{{ item.model.name }}</td>
-                  <td>{{ getMinMax(getItemIndex(item)) }}</td><!-- min-max-->
-                  <td>{{ calculateAverage(getItemIndex(item)) }}</td><!-- avg -->
                   <td>{{ item.countPaid }}</td>
                   <td>{{ item.countProgress }}</td>
                   <td>{{ item.countReturn }}</td>
+                  <td>{{ item.countReturnReceived }}</td>
                   <td>{{ formatNumber(item) }}%</td>
                   <td>{{ item.model.purchasePrice*item.countPaid | number:'1.0-0' }}</td>
                   <td>{{ item.model.purchasePrice*item.countPaid + item.profits  | number:'1.0-0' }}</td>
@@ -92,11 +90,10 @@
               <ng-template pTemplate="footer">
                 <tr>
                   <td>Total</td>
-                  <td></td>
-                  <td></td>
                   <td>{{ totals.paid }}</td>
                   <td>{{ totals.progress }}</td>
-                  <td>{{ totals.retour }}</td>
+                  <td>{{ totals.return }}</td>
+                  <td>{{ totals.returnReceived }}</td>
                   <td></td>
                   <td>{{ totals.purchasePrice | number:'1.0-0' }}</td>
                   <td>{{ totals.sellingPrice | number:'1.0-0' }}</td>

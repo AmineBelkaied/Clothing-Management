@@ -60,4 +60,40 @@
   gap: 3px;
 }
 
+.horizontal-panelmenu {
+  display: flex;
+  flex-direction: row; /* Align children horizontally */
+  gap: 0.5rem; /* Add spacing between items */
+  overflow-x: auto; /* Allow scrolling for overflow content */
+  padding: 0.5rem; /* Optional: Adjust padding for better aesthetics */
+}
 
+.horizontal-menu-item {
+  display: flex;
+  align-items: center; /* Center align items vertically */
+  justify-content: center; /* Ensure consistent spacing */
+  padding: 0.5rem 1rem; /* Adjust padding for horizontal layout */
+  text-align: center;
+  white-space: nowrap; /* Prevent text wrapping */
+  transition: transform 0.3s, box-shadow 0.3s; /* Add smooth hover effect */
+  background-color: white;
+}
+
+.horizontal-menu-item:hover {
+  transform: scale(1.05); /* Slightly enlarge on hover */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow effect */
+  background-color: var(--surface-hover); /* Highlight background */
+}
+
+.horizontal-panelmenu .p-badge {
+  margin-left: auto;
+}
+
+.horizontal-menu-item span {
+  color: black; /* Ensure text is clearly visible */
+  margin: 0 0.5rem; /* Add spacing around the label */
+}
+
+.horizontal-menu-item .ml-auto {
+  margin-left: auto; /* Ensure badges and counts are aligned to the right */
+}

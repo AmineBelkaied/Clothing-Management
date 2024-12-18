@@ -1,6 +1,7 @@
 package com.clothing.management.controllers;
 
 import com.clothing.management.dto.ModelDeleteDTO;
+import com.clothing.management.entities.Color;
 import com.clothing.management.entities.FbPage;
 import com.clothing.management.services.FbPageService;
 import org.slf4j.Logger;
@@ -49,6 +50,12 @@ public class FbPageController {
         LOGGER.info("Saving a new Facebook page: {}", fbPage.getName());
         FbPage createdFbPage = fbPageService.saveFbPage(fbPage);
         return new ResponseEntity<>(createdFbPage, HttpStatus.CREATED);
+    }
+    @PutMapping
+    public ResponseEntity<FbPage> updateFbPage(@RequestBody FbPage fbPage) {
+        LOGGER.info("Updating fbPage with ID: {}", fbPage.getId());
+        FbPage updatedColor = fbPageService.saveFbPage(fbPage);
+        return new ResponseEntity<>(updatedColor, HttpStatus.OK);
     }
 
     @GetMapping("/check-fb-page-usage/{id}")

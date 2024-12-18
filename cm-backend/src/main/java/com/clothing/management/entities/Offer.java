@@ -16,6 +16,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(of = "id")
+@ToString(exclude = {"offerModels","fbPages"})
 public class Offer {
 
     @Id
@@ -25,16 +26,17 @@ public class Offer {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Builder.Default
+    @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<OfferModel> offerModels = new HashSet<>();
 
-    @JsonIgnore
-    @JsonBackReference
-    @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @JsonBackReference(value = "productsPacket-offre")
+    @OneToMany(mappedBy = "offer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductsPacket> productsPacket = new ArrayList<>();
 
+
+    @JsonIgnore
     @ManyToMany(cascade = { CascadeType.PERSIST }, fetch = FetchType.EAGER)
     @JoinTable(
             name = "offer_fb_pages",
@@ -42,14 +44,14 @@ public class Offer {
             inverseJoinColumns = { @JoinColumn(name = "fb_page_id") }
     )
     @Builder.Default
-    private Set<FbPage> fbPages = new HashSet<>();
+    private List<FbPage> fbPages = new ArrayList<>();
 
     @Column(nullable = false)
     private Double price;
 
     @Column(name = "is_enabled", nullable = false)
     @Builder.Default
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default

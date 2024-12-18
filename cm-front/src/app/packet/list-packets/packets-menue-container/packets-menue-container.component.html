@@ -8,14 +8,16 @@
         <button pButton icon="pi pi-refresh" class="p-button-info mr-2 p-2 buttonSize" (click)="resetTable()"></button>
         <span class="p-input-icon-left">
           <i class="pi pi-search"></i>
-          <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets()"
+          <input pInputText type="text" [(ngModel)]="filter" (keyup.enter)="filterPackets('inputFilter')"
             (input)="handleInputChange()" placeholder="Client, Tel, Ville, Adresse, Page, Id"
             [style]="{ width: '230px' }" class="mr-2" />
         </span>
 
       </div>
       <div class="p-toolbar-group-center">
-        <p-calendar [(ngModel)]="rangeDates"
+        <p-calendar
+        *ngIf="mandatoryDateCheckBox"
+        [(ngModel)]="rangeDates"
         (ngModelChange)="filterPackets('date')"
         selectionMode="range"
         [readonlyInput]="true"
@@ -28,21 +30,22 @@
         inputId="icondisplay"
         variant="filled"
         [touchUI]="true"
-        (onClickOutside) = "onClickOutside()">
+        (onClickOutside) = "onClickOutside()"
+        [numberOfMonths]="2">
+        <ng-template pTemplate="inputicon" let-clickCallBack="hideDateFilter">
+          <i class="pi pi-times" (click)="mandatoryDateChange()"></i>
+        </ng-template>
         <ng-template pTemplate="footer">
           <div style="display: flex; align-items: center">
-            <p-inputSwitch [(ngModel)]="mandatoryDateCheckBox" optionLabel="label"
-              optionValue="value" (click)="mandatoryDateChange()"></p-inputSwitch><p>Obligatoire</p>
             <p-button label="Ancien Date" styleClass="p-button-text" (click)="oldDateFilter()"></p-button>
             <p-button label="Today" styleClass="p-button-text" (click)="todayDate()"></p-button>
             <p-button label="Clear" styleClass="p-button-text" (click)="clearDate()"></p-button>
           </div>
         </ng-template>
       </p-calendar>
-      </div>
-      <div class="p-toolbar-group-end">
-        <app-status-container [params]="params" (statusChange)="onStatusChange($event)"></app-status-container>
-      </div>
+      <button pButton *ngIf="!mandatoryDateCheckBox" icon="pi pi-calendar" class="p-button-success ml-2 p-2 buttonSize" (click)="mandatoryDateChange()" ></button>
+    </div>
+      <app-status-container [params]="params" (statusChange)="onStatusChange($event)" [ngClass]="{ 'red-border': !statusFilter }"></app-status-container>
     </p-toolbar>
   </div>
 </div>

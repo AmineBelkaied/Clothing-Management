@@ -6,10 +6,8 @@ import com.clothing.management.dto.OfferRequest;
 import com.clothing.management.entities.*;
 import com.clothing.management.exceptions.custom.notfound.OfferNotFoundException;
 import com.clothing.management.mappers.OfferMapper;
-import com.clothing.management.repository.IModelRepository;
-import com.clothing.management.repository.IOfferModelRepository;
-import com.clothing.management.repository.IOfferRepository;
-import com.clothing.management.repository.IProductsPacketRepository;
+import com.clothing.management.repository.*;
+import com.clothing.management.services.FbPageService;
 import com.clothing.management.services.OfferService;
 import com.clothing.management.utils.SystemStatusUtil;
 import org.slf4j.Logger;
@@ -32,13 +30,21 @@ public class OfferServiceImpl implements OfferService {
     private final EntityBuilderHelper entityBuilderHelper;
     private static final Logger LOGGER = LoggerFactory.getLogger(OfferServiceImpl.class);
     private final IProductsPacketRepository productsPacketRepository;
+    private final IFbPageRepository fbPageRepository;
 
-    public OfferServiceImpl(IOfferRepository offerRepository, IOfferModelRepository offerModelRepository, IModelRepository modelRepository, OfferMapper offerMapper, EntityBuilderHelper entityBuilderHelper, IProductsPacketRepository productsPacketRepository) {
+    public OfferServiceImpl(IOfferRepository offerRepository,
+                            IOfferModelRepository offerModelRepository,
+                            IModelRepository modelRepository,
+                            OfferMapper offerMapper,
+                            EntityBuilderHelper entityBuilderHelper,
+                            IProductsPacketRepository productsPacketRepository,
+                            IFbPageRepository fbPageRepository) {
         this.offerRepository = offerRepository;
         this.offerModelRepository = offerModelRepository;
         this.productsPacketRepository = productsPacketRepository;
         this.offerMapper = offerMapper;
         this.entityBuilderHelper = entityBuilderHelper;
+        this.fbPageRepository = fbPageRepository;
     }
 
     @Override
@@ -89,8 +95,9 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferDTO addOffer(OfferRequest offerRequest) {
+        List<FbPage> fbPages = fbPageRepository.findAllById(offerRequest.getFbPages());
         Offer offer = entityBuilderHelper
-                .createOfferBuilder(offerRequest.getName(), offerRequest.getFbPages(), offerRequest.getPrice(), offerRequest.isEnabled(), false)
+                .createOfferBuilder(offerRequest.getName(), fbPages, offerRequest.getPrice(), offerRequest.isEnabled(), false)
                 .build();
         Offer savedOffer = offerRepository.save(offer);
         Set<OfferModel> offerModels = new HashSet<>();
@@ -118,9 +125,9 @@ public class OfferServiceImpl implements OfferService {
                     LOGGER.error("Offer with id: {} not found for update.", offerId);
                     return new OfferNotFoundException(offerId);
                 });
-        Set<FbPage> fbPages  = fbPagesId.stream().map(fbPageId ->
+        List<FbPage> fbPages  = fbPagesId.stream().map(fbPageId ->
             FbPage.builder().id(fbPageId).build()
-        ).collect(Collectors.toSet());
+        ).collect(Collectors.toList());
         offer.setFbPages(fbPages);
         Offer updatedOffer = offerRepository.save(offer);
         LOGGER.info("Updated fbPages for offerId: {}.", offerId);

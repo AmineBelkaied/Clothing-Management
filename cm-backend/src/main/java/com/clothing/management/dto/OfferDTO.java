@@ -17,9 +17,13 @@ public class OfferDTO {
 
     private Long id;
     private String name;
-    private Set<OfferModelsDTO> offerModels;
-    private Set<Long> fbPages;
+    @Builder.Default
+    private Set<OfferModelsDTO> offerModels = new java.util.HashSet<>();
+    @Builder.Default
+    private Set<Long> fbPages= new java.util.HashSet<>();
     private Double price;
-    private boolean enabled;
-    private boolean deleted;
+    @Builder.Default
+    private boolean enabled= true;
+    @Builder.Default
+    private boolean deleted=false;
 }

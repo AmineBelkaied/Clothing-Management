@@ -53,13 +53,12 @@ public class PacketController {
                                                                 @RequestParam(required = false) String searchText,
                                                                 @RequestParam(required = false) String beginDate,
                                                                 @RequestParam(required = false) String endDate,
-                                                                @RequestParam(required = false) String status,
-                                                                @RequestParam(required = false) boolean mandatoryDate) throws ParseException {
+                                                                @RequestParam(required = false) String status) throws ParseException {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        LOGGER.info("Finding packets with parameters - Pageable: {}, SearchText: {}, BeginDate: {}, EndDate: {}, Status: {}, MandatoryDate: {}",
-                pageable, searchText, beginDate, endDate, status, mandatoryDate);
-        Page<PacketDTO> allPackets = packetService.findAllPackets(pageable, searchText, beginDate, endDate, status, mandatoryDate);
+        LOGGER.info("Finding packets with parameters - Pageable: {}, SearchText: {}, BeginDate: {}, EndDate: {}, Status: {}",
+                pageable, searchText, beginDate, endDate, status);
+        Page<PacketDTO> allPackets = packetService.findAllPackets(pageable, searchText, beginDate, endDate, status);
         return new ResponseEntity<>(new ResponsePage.Builder()
                 .result(allPackets.getContent())
                 .currentPage(allPackets.getNumber())
@@ -151,10 +150,11 @@ public class PacketController {
     }
 
     @GetMapping("/notifications/sync")
-    public List<DashboardCard> syncNotifications(@RequestParam(required = false) String beginDate,
+    public List<DashboardCard> syncNotifications(@RequestParam(required = false) String searchField,
+                                                 @RequestParam(required = false) String beginDate,
                                                  @RequestParam(required = false) String endDate) {
-        LOGGER.info("Syncing notifications. BeginDate: {}, EndDate: {}", beginDate, endDate);
-        return packetService.syncNotification(beginDate, endDate);
+        LOGGER.info("Syncing notifications. BeginDate: {}, EndDate: {}, searchField: {}", beginDate, endDate, searchField);
+        return packetService.syncNotification(searchField,beginDate, endDate);
     }
 
     @GetMapping("/duplicate/{id}")

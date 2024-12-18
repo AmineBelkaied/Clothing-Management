@@ -8,6 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.naming.Context;
+
 @Component
 public class SessionUtils {
 
@@ -18,17 +20,6 @@ public class SessionUtils {
         this.userRepository = userRepository;
     }
 
-    public User getCurrentUser0() {
-        if(SecurityContextHolder.getContext().getAuthentication() != null) {
-            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (userDetails != null) {
-                return userRepository.findByUserName(userDetails.getUsername());
-            } else {
-                throw new UserNotAuthenticatedException("User details are null. User not authenticated.");
-            }
-        }
-        return userRepository.findByUserName(SYSTEM_USER);
-    }
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {

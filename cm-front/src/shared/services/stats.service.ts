@@ -43,10 +43,11 @@ export class StatsService {
   }
 
 
-  public statAllPagesCount(beginDate: string, endDate: string): Observable<any> {
+  public statAllPagesCount(beginDate: string, endDate: string, countProgress: boolean): Observable<any> {
     let params = new HttpParams()
       .set('beginDate', beginDate)
-      .set('endDate', endDate);
+      .set('endDate', endDate)
+      .set('countProgress', countProgress);
     return this.http.get(`${this.baseUrl}${STAT_ENDPOINTS.PAGES}`, { params });
   }
 

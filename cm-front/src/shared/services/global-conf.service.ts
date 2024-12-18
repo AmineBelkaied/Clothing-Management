@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
@@ -46,7 +46,7 @@ export class GlobalConfService {
   }
 
   updateGlobalConf(globalConf: GlobalConf): Observable<any> {
-    return this.http.put(`${this.baseUrl}`, globalConf , {headers : {'content-type': 'application/json'}});
+    return this.http.put(`${this.baseUrl}`, globalConf, {headers : {'content-type': 'application/json'}});
   }
 
   getGlobalConfSubscriber(): Observable<GlobalConf> {
