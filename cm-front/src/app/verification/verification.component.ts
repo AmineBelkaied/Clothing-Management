@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
+import { Status } from 'src/shared/enums/status';
 import { Packet } from 'src/shared/models/Packet';
 import { PacketValidationDTO } from 'src/shared/models/PacketValidationDTO';
 import { PacketService } from 'src/shared/services/packet.service';
 import { StorageService } from 'src/shared/services/strorage.service';
-import { RETURN, VALIDATION } from 'src/shared/utils/status-list';
 
 @Component({
   selector: 'app-verification',
@@ -25,7 +25,7 @@ export class VerificationComponent implements OnInit, OnDestroy {
   packets: PacketValidationDTO[];
   totalItems: number;
   packet: Packet;
-  type : string = VALIDATION;
+  type : Status = Status.VALIDATION;
   sourceString : string = "Non Validé";
   targetString : string = "Validé";
   isAdmin: boolean;
@@ -42,12 +42,12 @@ export class VerificationComponent implements OnInit, OnDestroy {
 }
 
 findAllConfirmedPackets(): void {
-  if(this.type == VALIDATION){
+  if(this.type == Status.VALIDATION){
     this.sourceString = "Non validé";
     this.targetString = "Validé";
   }
   else {
-    this.sourceString = RETURN;
+    this.sourceString = Status.RETURN;
     this.targetString = "Retour Echange";
   }
   this.packetService.getValidationPackets()
@@ -56,7 +56,7 @@ findAllConfirmedPackets(): void {
       next: (response: any) => {
         this.packets = response.result;
 
-        if(this.type == VALIDATION){
+        if(this.type == Status.VALIDATION){
           this.sourcePackets = this.packets.filter((packet: PacketValidationDTO) => !packet.valid);
           this.targetPackets = this.packets.filter((packet: PacketValidationDTO) => packet.valid);
         }
@@ -74,7 +74,7 @@ findAllConfirmedPackets(): void {
 Validate(){
   let lastNineCharacters = this.barcode.slice(-9);
   let num: number = Number(this.barcode);
-  if (this.type == VALIDATION){
+  if (this.type == Status.VALIDATION){
     if(this.barcode.length > 8){
 
       if (!(this.sourcePackets.map((packet : PacketValidationDTO) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1)){
@@ -133,7 +133,7 @@ Validate(){
       });
       console.log('response', response);
 
-      if (this.type === VALIDATION) {
+      if (this.type === Status.VALIDATION) {
         this.movePacketToTarget(this.barcode);
       }
 

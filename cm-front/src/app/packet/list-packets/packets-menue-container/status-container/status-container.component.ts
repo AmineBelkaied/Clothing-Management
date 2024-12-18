@@ -2,27 +2,11 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
+import { Status } from 'src/shared/enums/status';
 import { DashboardCard } from 'src/shared/models/DashboardCard';
-import { Status } from 'src/shared/models/status';
+import { StatusItem } from 'src/shared/models/status';
 import { PacketService } from 'src/shared/services/packet.service';
 import { StorageService } from 'src/shared/services/strorage.service';
-
-import {
-  CANCELED, OOS, NOT_SERIOUS, PROBLEME,
-  DELETED,
-  IN_PROGRESS_1,
-  IN_PROGRESS_2,
-  IN_PROGRESS_3,
-  CONFIRMED,
-  TO_VERIFY,
-  RETURN,
-  RETURN_RECEIVED,
-  PAID,
-  NOT_CONFIRMED,
-  DELIVERED,
-  UNREACHABLE,
-  IN_PROGRESS
-} from 'src/shared/utils/status-list';
 @Component({
   selector: 'app-status-container',
   templateUrl: './status-container.component.html',
@@ -35,12 +19,12 @@ export class StatusContainerComponent {
   selectedStatus: FormControl = new FormControl();
   oldActiveIndex: number = 2;
   $unsubscribe: Subject<void> = new Subject();
-  @Output() statusChange = new EventEmitter<Status>();
+  @Output() statusChange = new EventEmitter<StatusItem>();
   isAdmin: boolean;
-  statusItems: Status[];
+  statusItems: StatusItem[];
   selectedIndex: number | null = null;
   borderIndex: number = 2;
-  item: Status;
+  item: StatusItem;
   changed = false;
 
   constructor(
@@ -54,23 +38,23 @@ export class StatusContainerComponent {
 
     this.statusItems = [
       { label: 'Tous', value: "Tous", icon: 'pi pi-bars', color: '#22C55E', count: 0, dayCount: 0, isUserOption: false },
-      { label: 'En rupture', value: OOS, icon: 'pi pi-times', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
+      { label: 'En rupture', value: Status.OOS, icon: 'pi pi-times', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
       {
-        label: 'Non confirmée', value: NOT_CONFIRMED, icon: 'pi pi-phone', color: '#EAB308', count: 0, dayCount: 0, isUserOption: true,
+        label: 'Non confirmée', value: Status.NOT_CONFIRMED, icon: 'pi pi-phone', color: '#EAB308', count: 0, dayCount: 0, isUserOption: true,
         options: this.getNonConfirmedOptions(), selectedOptions: []
       },
-      { label: 'Confirmée', value: CONFIRMED, icon: 'pi pi-check', color: '#22C55E', count: 0, dayCount: 0, isUserOption: true },
+      { label: 'Confirmée', value: Status.CONFIRMED, icon: 'pi pi-check', color: '#22C55E', count: 0, dayCount: 0, isUserOption: true },
       {
-        label: 'À vérifier', value: IN_PROGRESS, icon: 'pi pi-play', color: '#A855F7', count: 0, dayCount: 0, isUserOption: true,
+        label: 'À vérifier', value: Status.IN_PROGRESS, icon: 'pi pi-play', color: '#A855F7', count: 0, dayCount: 0, isUserOption: true,
         options: this.getInProgressOptions(), selectedOptions: []
       },
-      { label: 'Retour', value: RETURN, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
+      { label: 'Retour', value: Status.RETURN, icon: 'pi pi-thumbs-down', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true },
       {
-        label: 'Annuler', value: CANCELED, icon: 'pi pi-ban', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true,
+        label: 'Annuler', value: Status.CANCELED, icon: 'pi pi-ban', color: '#EF4444', count: 0, dayCount: 0, isUserOption: true,
         options: this.getCanceledOptions(), selectedOptions: []
       },
       {
-        label: 'Livrée', value: 'Terminé', icon: 'pi pi-flag', color: '#3B82F6', count: 0, dayCount: 0, isUserOption: false,
+        label: 'Livrée', value: Status.TERMINE, icon: 'pi pi-flag', color: '#3B82F6', count: 0, dayCount: 0, isUserOption: false,
         options: this.getEndedOptions(), selectedOptions: []
       }
     ];
@@ -108,32 +92,32 @@ export class StatusContainerComponent {
 
   getNonConfirmedOptions() {
     return [
-      { label: NOT_CONFIRMED, value: NOT_CONFIRMED },
-      { label: UNREACHABLE, value: UNREACHABLE }
+      { label: Status.NOT_CONFIRMED, value: Status.NOT_CONFIRMED },
+      { label: Status.UNREACHABLE, value: Status.UNREACHABLE }
     ];
   }
 
   getInProgressOptions() {
     return [
-      { label: IN_PROGRESS_1, value: IN_PROGRESS_1 },
-      { label: IN_PROGRESS_2, value: IN_PROGRESS_2 },
-      { label: IN_PROGRESS_3, value: IN_PROGRESS_3 },
-      { label: TO_VERIFY, value: TO_VERIFY }
+      { label: Status.IN_PROGRESS_1, value: Status.IN_PROGRESS_1 },
+      { label: Status.IN_PROGRESS_2, value: Status.IN_PROGRESS_2 },
+      { label: Status.IN_PROGRESS_3, value: Status.IN_PROGRESS_3 },
+      { label: Status.TO_VERIFY, value: Status.TO_VERIFY }
     ];
   }
 
   getCanceledOptions() {
     return [
-      { label: CANCELED, value: CANCELED },
-      { label: DELETED, value: DELETED }
+      { label: Status.CANCELED, value: Status.CANCELED },
+      { label: Status.DELETED, value: Status.DELETED }
     ];
   }
 
   getEndedOptions() {
     return [
-      { label: DELIVERED, value: DELIVERED },
-      { label: PAID, value: PAID },
-      { label: RETURN_RECEIVED, value: RETURN_RECEIVED }
+      { label: Status.DELIVERED, value: Status.DELIVERED },
+      { label: Status.PAID, value: Status.PAID },
+      { label: Status.RETURN_RECEIVED, value: Status.RETURN_RECEIVED }
     ];
   }
 
@@ -146,41 +130,40 @@ export class StatusContainerComponent {
       .subscribe({
         next: (response: DashboardCard[]) => {
           if (response.length > 0) {
-            response.forEach((element: any) => {
-
-              switch (element.status) {
-                case OOS:
+            response.forEach((element: any) => {                
+              switch (Status.findByKey(element.status)) {
+                case Status.OOS:
                   this.statusItems[1].count = element.statusCount;
                   this.statusItems[1].dayCount = element.statusByDateCount;
                   break;
-                case NOT_CONFIRMED:
-                case UNREACHABLE:
+                case Status.NOT_CONFIRMED:
+                case Status.UNREACHABLE:
                   this.statusItems[2].count += element.statusCount;
                   this.statusItems[2].dayCount += element.statusByDateCount;
                   break;
-                case CONFIRMED:
+                case Status.CONFIRMED:
                   this.statusItems[3].count = element.statusCount;
                   this.statusItems[3].dayCount += element.statusByDateCount;
                   break;
-                case IN_PROGRESS_1:
-                case IN_PROGRESS_2:
-                case IN_PROGRESS_3:
-                case TO_VERIFY:
+                case Status.IN_PROGRESS_1:
+                case Status.IN_PROGRESS_2:
+                case Status.IN_PROGRESS_3:
+                case Status.TO_VERIFY:
                   this.statusItems[4].count += element.statusCount;
                   this.statusItems[4].dayCount += element.statusByDateCount;
                   break;
-                case RETURN:
+                case Status.RETURN:
                   this.statusItems[5].count = element.statusCount;
                   this.statusItems[5].dayCount = element.statusByDateCount;
                   break;
-                case CANCELED:
-                case DELETED:
+                case Status.CANCELED:
+                case Status.DELETED:
                   this.statusItems[6].count += element.statusCount;
                   this.statusItems[6].dayCount += element.statusByDateCount;
                   break;
-                case DELIVERED:
-                case PAID:
-                case RETURN_RECEIVED:
+                case Status.DELIVERED:
+                case Status.PAID:
+                case Status.RETURN_RECEIVED:
                   this.statusItems[7].count += element.statusCount;
                   this.statusItems[7].dayCount += element.statusByDateCount;
                   break;

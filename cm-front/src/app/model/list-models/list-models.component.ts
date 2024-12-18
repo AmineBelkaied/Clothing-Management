@@ -18,7 +18,6 @@ export class ListModelsComponent implements OnInit, OnDestroy {
   msg: String = 'Erreur de connexion';
   showStockDialog: boolean = false;
   selectedModel: Model = {
-    id: 0, // Or any default value
     name: '',
     description: '',
     colors: [] = [],
@@ -60,6 +59,8 @@ export class ListModelsComponent implements OnInit, OnDestroy {
   clonedModel: Model;
   isOptionsDialogVisible: boolean = false;
   error: string = '';
+  hasDeletionErrors: boolean;
+  errors: any;
 
   constructor(
     private modelService: ModelService,
@@ -94,14 +95,15 @@ export class ListModelsComponent implements OnInit, OnDestroy {
         tap((response: any) => {
           console.log(response);
           if(!response.success) {
-            const formattedErrors = response.errors.replace(/\n/g, '<br>');
-            this.confirmationService.confirm({
+            this.hasDeletionErrors = true;
+            this.errors = response.errors.replace(/\n/g, '<p>');
+/*             this.confirmationService.confirm({
               message: formattedErrors,
               header: 'Confirmation',
               icon: 'pi pi-exclamation-triangle',
               accept: () => {
               }
-            });
+            }); */
           }
           this.modelService.updateModelsSubscriber(response.modelDTO);
 

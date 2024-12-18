@@ -14,5 +14,4 @@ import java.util.List;
 public class BarcodeStatusDTO {
 
     private List<String> barcodes;
-    private String status;
 }

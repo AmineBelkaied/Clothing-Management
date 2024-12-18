@@ -3,7 +3,7 @@ package com.clothing.management.enums;
 public enum SystemStatus {
 
     CREATION("Creation"),
-    LIVREE("Livrée"),
+    DELIVERED("Livrée"),
     UNREACHABLE("Injoignable"),
     CONFIRMED("Confirmée"),
     NOT_CONFIRMED("Non confirmée"),
@@ -52,6 +52,16 @@ public enum SystemStatus {
                 if (status.equalsIgnoreCase(systemStatus.status)) {
                     return systemStatus;
                 }
+            }
+        }
+        return OTHER_STATUS;
+    }
+
+    // Method to return the key by checking manually
+    public static SystemStatus fromKey(String key) {
+        for (SystemStatus systemStatus : SystemStatus.values()) {
+            if (systemStatus.name().equalsIgnoreCase(key)) {
+                return systemStatus;
             }
         }
         return OTHER_STATUS;

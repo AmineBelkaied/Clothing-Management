@@ -11,26 +11,6 @@ import { FbPageService } from '../../../shared/services/fb-page.service';
 import { catchError, EMPTY, Observable, Subject, takeUntil } from 'rxjs';
 import { StorageService } from 'src/shared/services/strorage.service';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import {
-  CANCELED,
-  OOS,
-  NOT_SERIOUS,
-  PROBLEME,
-  DELETED,
-  statusList,
-  IN_PROGRESS_1,
-  IN_PROGRESS_2,
-  IN_PROGRESS_3,
-  CONFIRMED,
-  TO_VERIFY,
-  RETURN,
-  RETURN_RECEIVED,
-  PAID,
-  NOT_CONFIRMED,
-  DELIVERED,
-  UNREACHABLE,
-  IN_PROGRESS,
-} from 'src/shared/utils/status-list';
 import { ResponsePage } from 'src/shared/models/ResponsePage';
 import {
   ChangeDetectorRef,
@@ -52,6 +32,7 @@ import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
 import { GlobalConf } from 'src/shared/models/GlobalConf';
 import { GlobalConfService } from 'src/shared/services/global-conf.service';
 import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
+import { Status } from 'src/shared/enums/status';
 
 @Component({
   selector: 'app-list-packets',
@@ -82,7 +63,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   modelDialog!: boolean;
 
-  oldFieldValue: string = '';
+  oldFieldValue = Status.EMPTY;
   offersIdsListByFbPage: any[] = [];
   allOffersList: any[] = [];
   groupedCities: SelectItemGroup[] = [];
@@ -146,7 +127,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     public messageService: MessageService,
     private cdRef: ChangeDetectorRef,
     private globalConfService: GlobalConfService
-  ) {}
+  ) { }
 
   ngAfterViewChecked() {
     this.cdRef.detectChanges();
@@ -206,7 +187,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           this.selectedPackets = [];
           this.packets = response.result.filter((packet: any) =>
             this.checkPacketNotNull(packet)
-          );
+          ).map(packet => ({
+            ...packet,
+            status: Status.findByKey(packet.status)
+          }));
           this.realTotalItems = response.totalItems;
           this.totalItems = this.packets.length;
           //let countConfirmed =response.result.filter(packet => packet.status === CONFIRMED).length;
@@ -236,6 +220,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       });
     });
   }
+
   checkPacketNotNull(packet: Packet): boolean {
     return (
       this.isValid(packet.address) ||
@@ -304,12 +289,12 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       console.error(error);
     } finally {
       //this.loading = false;
-      this.oldFieldValue = '';
+      this.oldFieldValue = Status.EMPTY;
     }
   }
 
   patchPacketService(packet: Packet) {
-    this.loading =true;
+    this.loading = true;
     let updatedField;
     if (this.selectedField === 'cityId') {
       updatedField = { ['city']: packet.cityId };
@@ -346,7 +331,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           let msg = 'Packet updated successfully';
           if (
             this.selectedField === 'status' &&
-            status === CONFIRMED &&
+            status === Status.CONFIRMED &&
             responsePacket.barcode != null
           ) {
             this.updatePacketFields(responsePacket);
@@ -427,9 +412,9 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   getLastStatus(packet: Packet): void {
     if (
-      packet.status != PAID &&
-      packet.status != RETURN_RECEIVED &&
-      packet.status != DELIVERED
+      packet.status != Status.PAID &&
+      packet.status != Status.RETURN_RECEIVED &&
+      packet.status != Status.DELIVERED
     )
       this.packetService.getLastStatus(packet.id!).subscribe({
         next: (response: any) => {
@@ -686,21 +671,21 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     this.updatePacketFields($event.packet);
     this.editMode
       ? this.messageService.add({
-          severity: 'info',
-          summary: 'Success',
-          detail: 'Les articles ont été mis à jour avec succés',
-          life: 1000,
-        })
+        severity: 'info',
+        summary: 'Success',
+        detail: 'Les articles ont été mis à jour avec succés',
+        life: 1000,
+      })
       : this.messageService.add({
-          severity: 'info',
-          summary: 'Success',
-          detail: 'Les articles ont été ajoutés avec succés',
-          life: 1000,
-        });
+        severity: 'info',
+        summary: 'Success',
+        detail: 'Les articles ont été ajoutés avec succés',
+        life: 1000,
+      });
   }
 
   checkValidity(date1: Date, date2: Date, status: String): boolean {
-    if (status != PAID && status != RETURN_RECEIVED)
+    if (status != Status.PAID && status != Status.RETURN_RECEIVED)
       return this.dateUtils.getDate(date1) < this.dateUtils.getDate(date2);
     return false;
   }
@@ -823,63 +808,63 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           summary: 'Error',
           detail: 'Please fill in all article fields',
         });
-        this.packetStatusList = [UNREACHABLE];
-      } else if ([NOT_CONFIRMED].includes(this.oldFieldValue)) {
-        this.packetStatusList = [OOS, CONFIRMED, NOT_SERIOUS, UNREACHABLE];
+        this.packetStatusList = [Status.UNREACHABLE];
+      } else if ([Status.NOT_CONFIRMED].includes(this.oldFieldValue)) {
+        this.packetStatusList = [Status.OOS, Status.CONFIRMED, Status.NOT_SERIOUS, Status.UNREACHABLE];
       } else if (
-        [NOT_SERIOUS, UNREACHABLE, CANCELED, DELETED, OOS].includes(
+        [Status.NOT_SERIOUS, Status.UNREACHABLE, Status.CANCELED, Status.DELETED, Status.OOS].includes(
           this.oldFieldValue
         )
       ) {
         this.packetStatusList = [
-          NOT_CONFIRMED,
-          OOS,
-          CONFIRMED,
-          NOT_SERIOUS,
-          UNREACHABLE,
-          CANCELED,
+          Status.NOT_CONFIRMED,
+          Status.OOS,
+          Status.CONFIRMED,
+          Status.NOT_SERIOUS,
+          Status.UNREACHABLE,
+          Status.CANCELED,
         ];
-      } else if ([CONFIRMED, TO_VERIFY].includes(this.oldFieldValue)) {
+      } else if ([Status.CONFIRMED, Status.TO_VERIFY].includes(this.oldFieldValue)) {
         this.packetStatusList = [
-          IN_PROGRESS_1,
-          IN_PROGRESS_2,
-          IN_PROGRESS_3,
-          CANCELED,
-          TO_VERIFY,
-          DELIVERED,
-          RETURN,
-          PAID,
-          RETURN_RECEIVED,
-          PROBLEME,
+          Status.IN_PROGRESS_1,
+          Status.IN_PROGRESS_2,
+          Status.IN_PROGRESS_3,
+          Status.CANCELED,
+          Status.TO_VERIFY,
+          Status.DELIVERED,
+          Status.RETURN,
+          Status.PAID,
+          Status.RETURN_RECEIVED,
+          Status.PROBLEM,
         ];
       } else if (
-        [IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3].includes(
+        [Status.IN_PROGRESS_1, Status.IN_PROGRESS_2, Status.IN_PROGRESS_3].includes(
           this.oldFieldValue
         )
       ) {
         this.packetStatusList = [
-          UNREACHABLE,
-          IN_PROGRESS_1,
-          IN_PROGRESS_2,
-          IN_PROGRESS_3,
-          TO_VERIFY,
-          DELIVERED,
-          RETURN,
-          PAID,
-          RETURN_RECEIVED,
-          PROBLEME,
+          Status.UNREACHABLE,
+          Status.IN_PROGRESS_1,
+          Status.IN_PROGRESS_2,
+          Status.IN_PROGRESS_3,
+          Status.TO_VERIFY,
+          Status.DELIVERED,
+          Status.RETURN,
+          Status.PAID,
+          Status.RETURN_RECEIVED,
+          Status.PROBLEM,
         ];
-      } else if ([DELIVERED, PAID].includes(this.oldFieldValue)) {
-        this.packetStatusList = [PAID, RETURN, RETURN_RECEIVED];
-      } else if (this.oldFieldValue === RETURN) {
-        this.packetStatusList = [PROBLEME, RETURN_RECEIVED];
-      } else if (this.oldFieldValue === PROBLEME) {
+      } else if ([Status.DELIVERED, Status.PAID].includes(this.oldFieldValue)) {
+        this.packetStatusList = [Status.PAID, Status.RETURN, Status.RETURN_RECEIVED];
+      } else if (this.oldFieldValue === Status.RETURN) {
+        this.packetStatusList = [Status.PROBLEM, Status.RETURN_RECEIVED];
+      } else if (this.oldFieldValue === Status.PROBLEM) {
         this.packetStatusList = [
-          RETURN_RECEIVED,
-          DELIVERED,
-          PAID,
-          IN_PROGRESS_2,
-          CANCELED,
+          Status.RETURN_RECEIVED,
+          Status.DELIVERED,
+          Status.PAID,
+          Status.IN_PROGRESS_2,
+          Status.CANCELED,
         ];
       }
     }
@@ -891,48 +876,48 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     let errorMessage: string | undefined = undefined;
 
     switch (status) {
-      case CANCELED:
-        if (this.oldFieldValue == NOT_CONFIRMED)
+      case Status.CANCELED:
+        if (this.oldFieldValue == Status.NOT_CONFIRMED)
           errorMessage = "Delete don't cancel";
         else if (
-          this.oldFieldValue !== CONFIRMED &&
-          this.oldFieldValue !== TO_VERIFY &&
-          this.oldFieldValue !== DELETED
+          this.oldFieldValue !== Status.CONFIRMED &&
+          this.oldFieldValue !== Status.TO_VERIFY &&
+          this.oldFieldValue !== Status.DELETED
         ) {
           errorMessage = 'Please do not cancel outgoing packets';
         } else if (barcode != null && barcode !== '')
           this.addAttempt('CANCELED', packet);
         break;
-      case NOT_CONFIRMED:
-      case OOS:
-      case NOT_SERIOUS:
+      case Status.NOT_CONFIRMED:
+      case Status.OOS:
+      case Status.NOT_SERIOUS:
         if (
-          this.oldFieldValue === IN_PROGRESS_1 ||
-          this.oldFieldValue === IN_PROGRESS_2 ||
-          this.oldFieldValue === IN_PROGRESS_3
+          this.oldFieldValue === Status.IN_PROGRESS_1 ||
+          this.oldFieldValue === Status.IN_PROGRESS_2 ||
+          this.oldFieldValue === Status.IN_PROGRESS_3
         ) {
           errorMessage = 'This packet is already in progress';
         }
         break;
-      case IN_PROGRESS_1:
-      case IN_PROGRESS_2:
-      case IN_PROGRESS_3:
-      case DELIVERED:
-      case RETURN:
-      case RETURN_RECEIVED:
-      case PAID:
+      case Status.IN_PROGRESS_1:
+      case Status.IN_PROGRESS_2:
+      case Status.IN_PROGRESS_3:
+      case Status.DELIVERED:
+      case Status.RETURN:
+      case Status.RETURN_RECEIVED:
+      case Status.PAID:
         if (barcode == null || barcode === '') {
           errorMessage = 'This packet has not been dispatched yet';
         }
         break;
-      case UNREACHABLE:
+      case Status.UNREACHABLE:
         {
           if (barcode != null && barcode !== '') {
             errorMessage = 'This packet is already completed';
           }
         }
         break;
-      case CONFIRMED:
+      case Status.CONFIRMED:
         if (!this.checkPacketValidity(packet)) {
           errorMessage = 'Packet validation failed';
         } else if (!this.checkPacketDescription(packet)) {
@@ -976,7 +961,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         {
           label: 'Duplicate',
           icon: 'pi pi-refresh',
-          disabled: !(packet.status == DELIVERED || packet.status == PAID),
+          disabled: !(packet.status == Status.DELIVERED || packet.status == Status.PAID),
           command: () => {
             this.duplicatePacket(packet);
           },
@@ -984,7 +969,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
         {
           label: 'Ajouter note',
           icon: 'pi pi-refresh',
-          disabled: packet.status != UNREACHABLE,
+          disabled: packet.status != Status.UNREACHABLE,
           command: () => {
             this.addAttempt('UNREACHABLE', packet);
           },

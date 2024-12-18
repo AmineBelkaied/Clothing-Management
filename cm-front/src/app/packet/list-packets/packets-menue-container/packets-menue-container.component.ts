@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { DateUtils } from 'src/shared/utils/date-utils';
-import { NOT_CONFIRMED, statusList, UNREACHABLE } from 'src/shared/utils/status-list';
 import { Packet } from 'src/shared/models/Packet';
 import { StorageService } from 'src/shared/services/strorage.service';
-import { Status } from 'src/shared/models/status';
 import { PacketFilterParams } from 'src/shared/models/PacketFilterParams';
+import { Status } from 'src/shared/enums/status';
+import { StatusUtils } from 'src/shared/utils/status-utils';
+import { StatusItem } from 'src/shared/models/status';
 @Component({
   selector: 'app-packets-menue-container',
   templateUrl: './packets-menue-container.component.html',
@@ -42,10 +43,11 @@ export class PacketsMenueContainerComponent implements OnChanges {
   mandatoryDateCheckBox: boolean = false;
   oldDateFilterCheckBox: boolean = false;
   value: boolean = this.mandatoryDateCheckBox;
-  selectedStatus: string[] = [NOT_CONFIRMED,UNREACHABLE];
+  selectedStatus: any[] = [Status.NOT_CONFIRMED, Status.UNREACHABLE];
   loading: boolean = false;
-  statusItemsLabel: string =NOT_CONFIRMED;
-  oldStatusItemsLabel: string =NOT_CONFIRMED;
+  statusItemsLabel: string = Status.NOT_CONFIRMED;
+  oldStatusItemsLabel: string = Status.NOT_CONFIRMED;
+
   @Output()
   filterPacketsEmitter: EventEmitter<PacketFilterParams> = new EventEmitter()
 
@@ -57,7 +59,7 @@ export class PacketsMenueContainerComponent implements OnChanges {
     private storageService: StorageService
 
     ) {
-    this.statusList = statusList;
+    this.statusList = Status.values();
   }
 
   activeClass: boolean;
@@ -65,7 +67,7 @@ export class PacketsMenueContainerComponent implements OnChanges {
   isLoggedIn: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
-  oldStatus: Status;
+  oldStatus: StatusItem;
 
   ngOnInit(): void {
     this.storageService.isLoggedIn.subscribe(isLoggedIn => {
@@ -115,21 +117,18 @@ export class PacketsMenueContainerComponent implements OnChanges {
     this.filterPackets('global');
   }
 
-
-
   addNewRow(): void {
-    //console.log("activeIndex", this.activeIndex);
     this.filter ='';
-    if (this.statusItemsLabel != NOT_CONFIRMED){
-      this.statusItemsLabel =NOT_CONFIRMED;
-      this.selectedStatus=[NOT_CONFIRMED];
+    if (this.statusItemsLabel != Status.NOT_CONFIRMED){
+      this.statusItemsLabel = Status.NOT_CONFIRMED;
+      this.selectedStatus =[Status.NOT_CONFIRMED];
       this.filterPackets('global');
     }
     else if (!this.loading) {
-      console.log("new pack");
       this.buttonPacketsEmitter.next('add');
     }
   }
+
   deleteSelectedPackets() {
     this.buttonPacketsEmitter.next('delete');
   }
@@ -138,18 +137,17 @@ export class PacketsMenueContainerComponent implements OnChanges {
     return (this.isValid(packet.address) || this.isValid(packet.customerName) ||
       this.isValid(packet.customerPhoneNb) || packet.cityId! >0 || this.isValid(packet.packetDescription));
   }
+
   isValid(field: any) {
     return field != null && field != '';
   }
+
   $unsubscribe($unsubscribe: any): import("rxjs").OperatorFunction<any, any> {
     throw new Error('Method not implemented.');
   }
 
   filterPackets($event?: string): void {
     this.createRangeDate();
-    console.log(this.selectedStatus);
-
-    //this.showStatus = false;
     if(this.endDate){
       let page = 0;
       if ($event == 'clear') {
@@ -168,12 +166,10 @@ export class PacketsMenueContainerComponent implements OnChanges {
         searchText: this.filter != null && this.filter != '' ? this.filter : null,
         beginDate: this.dateUtils.formatDateToString(this.beginDate),
         endDate: this.dateUtils.formatDateToString(this.endDate),
-        status: this.selectedStatus.length == 0 ? null : this.selectedStatus,
+        status: this.selectedStatus.length == 0 ? null : this.selectedStatus.map(status => Status.findByValue(status)),
         mandatoryDate: this.mandatoryDateCheckBox
       };
       this.filterPacketsEmitter.next(this.params);
-      //this.findAllPackets();
-
     }
   }
 
@@ -197,7 +193,7 @@ export class PacketsMenueContainerComponent implements OnChanges {
     this.filterPackets('global')
   }
 
-  onStatusChange(item: Status) {
+  onStatusChange(item: StatusItem) {
     if(this.oldStatus != item){
        this.selectedStatus = item.options ? item.selectedOptions?.length==0 ? this.getArrayFromStatusItems(item.options) ?? [] : item.selectedOptions ?? [] : [item.label] ;
       this.statusItemsLabel = item.label;

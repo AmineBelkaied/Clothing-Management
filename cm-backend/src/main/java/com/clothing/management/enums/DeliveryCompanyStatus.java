@@ -7,7 +7,7 @@ public enum DeliveryCompanyStatus {
 
     WAITING("En attente", "En attente", Arrays.asList("En attente", "à enlever")),
     IN_PROGRESS("En cours", "En cours", List.of("En cours de livraison")),
-    LIVREE("Livré", "Livrer", List.of("Livré")),
+    DELIVERED("Livré", "Livrer", List.of("Livré")),
     EXCHANGE("Echange", "Echange", List.of("Echange")),
     RETOUR_EXPEDITEUR("Retour Expéditeur", "Retour Expediteur", Arrays.asList("En cours de préparation au retour vers l'expéditeur", "Colis à retourner", "Retour expéditeur")),
     RETOUR_CLIENT_AGENCE("Rtn client/agence", "Rtn client/agence", List.of("Rtn client/agence")),

@@ -18,7 +18,6 @@ import { PacketService } from '../../../shared/services/packet.service';
 import { ProductsPacket } from 'src/shared/models/ProductsPacket';
 import { Color } from 'src/shared/models/Color';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { OOS, NOT_CONFIRMED } from 'src/shared/utils/status-list';
 import { Offer } from 'src/shared/models/Offer';
 import { OfferService } from 'src/shared/services/offer.service';
 import { Observable, Subject, takeUntil, tap } from 'rxjs';
@@ -28,6 +27,7 @@ import { DecimalPipe } from '@angular/common';
 import { ProductResponse } from 'src/shared/models/ProductResponse';
 import { ColorService } from 'src/shared/services/color.service';
 import { SizeService } from 'src/shared/services/size.service';
+import { Status } from 'src/shared/enums/status';
 
 @Component({
   selector: 'app-add-packet',
@@ -399,8 +399,8 @@ export class AddPacketComponent implements OnInit,OnDestroy {
 
   submitProductsOffers(productsOffers: ProductsPacket[], stock: number) {
     let selectedProducts: {};
-    let status = OOS;
-    if (stock) status = NOT_CONFIRMED;
+    let status = Status.OOS;
+    if (stock) status = Status.NOT_CONFIRMED;
     selectedProducts = {
       idPacket: this.packet.id,
       totalPrice: this.productsPrice,

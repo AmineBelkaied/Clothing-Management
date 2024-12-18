@@ -18,6 +18,7 @@ import com.clothing.management.repository.*;
 import com.clothing.management.services.PacketService;
 import com.clothing.management.utils.EntityBuilderHelper;
 import com.clothing.management.utils.PacketBuilderHelper;
+import com.clothing.management.utils.SystemStatusUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +35,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.clothing.management.enums.SystemStatus.*;
-import static com.clothing.management.enums.SystemStatus.LIVREE;
 
 @Transactional("tenantTransactionManager")
 @Service
@@ -49,7 +50,6 @@ public class PacketServiceImpl implements PacketService {
     private final DeliveryCompanyServiceFactory deliveryCompanyServiceFactory;
     private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
-    private final static List<String> ignoredDateStatusList = List.of(new String[]{RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus()});
     private final PacketBuilderHelper packetBuilderHelper;
     private final EntityBuilderHelper entityBuilderHelper;
     private final PacketMapper packetMapper;
@@ -142,7 +142,7 @@ public class PacketServiceImpl implements PacketService {
                 if (status.equals("Tous"))
                     return packetRepository.findAllPacketsByDate(dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
                             .map(packetMapper::toDto);
-                return packetRepository.findAllPacketsByStatus(ignoredDateStatusList, convertStatusToList(status), dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
+                return packetRepository.findAllPacketsByStatus(SystemStatusUtil.getIgnoredDateStatusList(), convertStatusToList(status), dateFormat.parse(beginDate), dateFormat.parse(endDate), pageable)
                         .map(packetMapper::toDto);
             }
 
@@ -193,18 +193,18 @@ public class PacketServiceImpl implements PacketService {
     public List<Packet> findSyncPackets() {
         LOGGER.info("Finding synchronized packets with predefined statuses.");
 
-        List<String> status = Arrays.asList(
-                SystemStatus.PAID.getStatus(),
-                SystemStatus.CANCELED.getStatus(),
-                SystemStatus.LIVREE.getStatus(),
-                SystemStatus.DELETED.getStatus(),
-                SystemStatus.RETURN.getStatus(),
-                SystemStatus.NOT_SERIOUS.getStatus(),
-                SystemStatus.RETURN_RECEIVED.getStatus(),
-                SystemStatus.PROBLEM.getStatus()
+        List<SystemStatus> status = Arrays.asList(
+                PAID,
+                CANCELED,
+                DELIVERED,
+                DELETED,
+                RETURN,
+                NOT_SERIOUS,
+                RETURN_RECEIVED,
+                PROBLEM
         );
 
-        List<Packet> syncPackets = packetRepository.findAllDiggiePackets(status);
+        List<Packet> syncPackets = packetRepository.findAllDiggiePackets(Stream.of(status).map(String::valueOf).toList());
 
         LOGGER.info("Retrieved {} synchronized packets.", syncPackets.size());
         return syncPackets;
@@ -269,7 +269,7 @@ public class PacketServiceImpl implements PacketService {
                 nonValidPacket.setValid(true);
                 packet = packetRepository.save(nonValidPacket);
             } else {
-                packet = updatePacketStatus(nonValidPacket, RETURN_RECEIVED.getStatus());
+                packet = updatePacketStatus(nonValidPacket, RETURN_RECEIVED);
             }
             return packetMapper.toValidationDto(packet);
 
@@ -295,7 +295,7 @@ public class PacketServiceImpl implements PacketService {
                         if (value.equals(CONFIRMED.getStatus())) {
                             createBarCode(packet);
                         }
-                        updatePacketStatus(packet, value);
+                        updatePacketStatus(packet, SystemStatus.fromKey(value));
                         LOGGER.info("Updated status for packet ID: {} to {}", idPacket, value);
                     }
                     case "customerPhoneNb" -> {
@@ -421,14 +421,14 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public int checkPhone(String phoneNumber) {
         LOGGER.info("Checking phone number: {}", phoneNumber);
-        int count = packetRepository.findAllPacketsByPhone_number(phoneNumber);
+        int count = packetRepository.findAllPacketsByPhone_number(phoneNumber, String.valueOf(NOT_SERIOUS));
         LOGGER.debug("Found {} packets with phone number: {}", count, phoneNumber);
         return count;
     }
 
     @Override
     public List<DashboardCard> syncNotification(String beginDate, String endDate) {
-        List<DashboardCard> notifications = packetRepository.createNotification(beginDate, endDate);
+        List<DashboardCard> notifications = packetRepository.createNotification(beginDate, endDate, String.valueOf(PROBLEM));
         LOGGER.debug("Retrieved {} notifications.", notifications.size());
         return notifications;
     }
@@ -498,10 +498,10 @@ public class PacketServiceImpl implements PacketService {
 
             if (deliveryResponse.getState() != null) {
                 String deliveryState = deliveryResponse.getState();
-                String packetStatus = packet.getStatus();
+                SystemStatus packetStatus = SystemStatus.valueOf(packet.getStatus());
 
                 if (deliveryResponse.getResponseCode() == 200 || deliveryResponse.getResponseCode() == 201 || deliveryResponse.getResponseCode() == 404) {
-                    String systemNewStatus = TO_VERIFY.getStatus();
+                    SystemStatus systemNewStatus = TO_VERIFY;
 
                     if (deliveryResponse.getStatus() == 404 || deliveryState.isEmpty()) {
                         LOGGER.error("API returned 404 or empty state for barcode: {}", packet.getBarcode());
@@ -517,14 +517,14 @@ public class PacketServiceImpl implements PacketService {
                         if (dcStatus == DeliveryCompanyStatus.WAITING
                                 || dcStatus == DeliveryCompanyStatus.RETOUR_DEPOT
                                 || (dcStatus == DeliveryCompanyStatus.AU_MAGASIN
-                                && packetStatus.equals(IN_PROGRESS_1.getStatus()))) {
+                                && packetStatus.equals(IN_PROGRESS_1))) {
                             return packetMapper.toDto(packet);
                         }
 
-                        systemNewStatus = (systemNewStatus.equals(IN_PROGRESS_1.getStatus()) // First always return "en cours"
-                                || systemNewStatus.equals(IN_PROGRESS_2.getStatus()) // Not in First System
-                                || systemNewStatus.equals(IN_PROGRESS_3.getStatus())) // Not in First System
-                                && !packetStatus.equals(PROBLEM.getStatus()) // Not in First System
+                        systemNewStatus = (systemNewStatus.equals(IN_PROGRESS_1) // First always return "en cours"
+                                || systemNewStatus.equals(IN_PROGRESS_2) // Not in First System
+                                || systemNewStatus.equals(IN_PROGRESS_3)) // Not in First System
+                                && !packetStatus.equals(PROBLEM) // Not in First System
                                 ? upgradeInProgressStatus(packet) : systemNewStatus;
                     }
                     return packetMapper.toDto(updatePacketStatus(packet, systemNewStatus));
@@ -569,42 +569,42 @@ public class PacketServiceImpl implements PacketService {
         return updatedPacket;
     }
 
-    private String mapDeliveryToSystemStatus(DeliveryCompanyStatus status) {
+    private SystemStatus mapDeliveryToSystemStatus(DeliveryCompanyStatus status) {
         if (status == null) {
             LOGGER.debug("DeliveryCompanyStatus is null, returning default status.");
-            return TO_VERIFY.getStatus();
+            return TO_VERIFY;
         }
 
-        String systemStatus = switch (status) {
-            case LIVREE, EXCHANGE -> LIVREE.getStatus();
+        SystemStatus systemStatus = switch (status) {
+            case DELIVERED, EXCHANGE -> DELIVERED;
             case RETOUR_EXPEDITEUR,
                     RETOUR_DEFINITIF, RETOUR_CLIENT_AGENCE,
-                    RETOUR_RECU -> RETURN.getStatus();
-            case ANNULER, WAITING, A_VERIFIER -> TO_VERIFY.getStatus();
-            default -> IN_PROGRESS_1.getStatus();
+                    RETOUR_RECU -> RETURN;
+            case ANNULER, WAITING, A_VERIFIER -> TO_VERIFY;
+            default -> IN_PROGRESS_1;
         };
 
         LOGGER.debug("Mapped DeliveryCompanyStatus {} to SystemStatus {}", status, systemStatus);
         return systemStatus;
     }
 
-    private String upgradeInProgressStatus(Packet packet) {
+    private SystemStatus upgradeInProgressStatus(Packet packet) {
         LOGGER.debug("Upgrading status for packet with ID: {}", packet.getId());
 
         DeliveryCompanyName deliveryCompanyName = DeliveryCompanyName.fromString(packet.getDeliveryCompany().getName());
-        SystemStatus systemStatus = SystemStatus.fromString(packet.getStatus());
+        SystemStatus systemStatus = SystemStatus.valueOf(packet.getStatus());
 
-        if (checkSameDateStatus(packet) && !packet.getStatus().equals(CANCELED.getStatus())) {
+        if (checkSameDateStatus(packet) && !SystemStatus.valueOf(packet.getStatus()).equals(CANCELED)) {
             LOGGER.debug("Status has not changed for the same date. Current status: {}", packet.getStatus());
-            return packet.getStatus();
+            return SystemStatus.valueOf(packet.getStatus());
         }
 
-        String upgradedStatus = switch (systemStatus) {
-            case IN_PROGRESS_1 -> IN_PROGRESS_2.getStatus();
-            case IN_PROGRESS_2 -> IN_PROGRESS_3.getStatus();
-            case IN_PROGRESS_3 -> TO_VERIFY.getStatus();
+        SystemStatus upgradedStatus = switch (systemStatus) {
+            case IN_PROGRESS_1 -> IN_PROGRESS_2;
+            case IN_PROGRESS_2 -> IN_PROGRESS_3;
+            case IN_PROGRESS_3 -> TO_VERIFY;
             case TO_VERIFY -> mapDeliveryToSystemStatus(DeliveryCompanyStatus.fromString(packet.getLastDeliveryStatus(), deliveryCompanyName));
-            default -> IN_PROGRESS_1.getStatus();
+            default -> IN_PROGRESS_1;
         };
 
         LOGGER.debug("Upgraded status: {}", upgradedStatus);
@@ -668,17 +668,16 @@ public class PacketServiceImpl implements PacketService {
         }
 
         public List<String> updatePacketsByBarcodes(BarcodeStatusDTO barcodeStatusDTO) {
-            LOGGER.info("Updating packets by barcodes. Status: {}", barcodeStatusDTO.getStatus());
+            LOGGER.info("Updating packets by barcodes. Status: {}", barcodeStatusDTO.getBarcodes());
             List<String> errors = new ArrayList<>();
-            String newState = barcodeStatusDTO.getStatus();
 
-           barcodeStatusDTO.getBarcodes().forEach(barcode -> {
+            barcodeStatusDTO.getBarcodes().forEach(barcode -> {
                 try {
                     Packet packet = getPacketByBarcode(barcode);
                     LOGGER.debug("Updating packet with barcode: {}",barcode);
 
-                    if (!packet.getStatus().equals(RETURN_RECEIVED.getStatus())) {
-                        updatePacketStatus(packet, newState);
+                    if (!RETURN_RECEIVED.equals(SystemStatus.valueOf(packet.getStatus()))) {
+                        updatePacketStatus(packet, PAID);
                     } else {
                         LOGGER.warn("Barcode {} already received",barcode);
                         errors.add(barcode + " déja récu");
@@ -692,15 +691,15 @@ public class PacketServiceImpl implements PacketService {
             return errors;
         }
 
-        public Packet updatePacketStatus(Packet packet, String status) {
+        public Packet updatePacketStatus(Packet packet, SystemStatus status) {
             LOGGER.debug("Updating packet status. Packet ID: {}, New Status: {}", packet.getId(), status);
 
             if (packet.getExchangeId() != null) {
-                if (status.equals(LIVREE.getStatus())) {
+                if (status.equals(DELIVERED)) {
                     //status.equals(PAID.getStatus()) correction ahmed should add alert before paid if not received
                     return updateExchangePacketStatusToPaid(packet, status);
                 }
-                if (status.equals(RETURN_RECEIVED.getStatus())) {
+                if (status.equals(RETURN_RECEIVED)) {
                     return updateExchangePacketStatusToReturnReceived(packet);
                 }
             }
@@ -713,62 +712,62 @@ public class PacketServiceImpl implements PacketService {
             Long id = packet.getExchangeId();
             Packet exchangePacket = getPacketById(id);
 
-            if (packet.getStatus().equals(LIVREE.getStatus())
-                    || packet.getStatus().equals(PAID.getStatus())
-                    || exchangePacket.getStatus().equals(RETURN.getStatus())
-                    || exchangePacket.getStatus().equals(RETURN_RECEIVED.getStatus())) {
-                return updatePacketStatusAndSaveToHistory(exchangePacket, RETURN_RECEIVED.getStatus());
+            if (DELIVERED.equals(SystemStatus.valueOf(packet.getStatus()))
+                    || PAID.equals(SystemStatus.valueOf(packet.getStatus()))
+                    || RETURN.equals(SystemStatus.valueOf(exchangePacket.getStatus()))
+                    || RETURN_RECEIVED.equals(SystemStatus.valueOf(exchangePacket.getStatus()))) {
+                return updatePacketStatusAndSaveToHistory(exchangePacket, RETURN_RECEIVED);
             } else {
-                return updatePacketStatusAndSaveToHistory(packet, RETURN_RECEIVED.getStatus());
+                return updatePacketStatusAndSaveToHistory(packet, RETURN_RECEIVED);
             }
         }
 
-        public Packet updateExchangePacketStatusToPaid(Packet packet, String status) {
+        public Packet updateExchangePacketStatusToPaid(Packet packet, SystemStatus status) {
             LOGGER.debug("Updating exchange packet status to PAID. Packet ID: {}", packet.getId());
 
             Long id = packet.getExchangeId();
             Packet exchangePacket = getPacketById(id);
-            packet.setDiscount(exchangePacket.getPrice() -packet.getDiscount() + exchangePacket.getDiscount());
+            packet.setDiscount(exchangePacket.getPrice() - packet.getDiscount() + exchangePacket.getDiscount());
 
-            if (!exchangePacket.getStatus().equals(RETURN_RECEIVED.getStatus())) {
-                updatePacketStatusAndSaveToHistory(exchangePacket, RETURN.getStatus());
+            if (!RETURN_RECEIVED.equals(SystemStatus.valueOf(exchangePacket.getStatus()))) {
+                updatePacketStatusAndSaveToHistory(exchangePacket, RETURN);
             }
             return updatePacketStatusAndSaveToHistory(packet, status);
         }
 
-        public Packet updatePacketStatusAndSaveToHistory(Packet packet, String status) {
+        public Packet updatePacketStatusAndSaveToHistory(Packet packet, SystemStatus status) {
             LOGGER.debug("Updating packet status and saving to history. Packet ID: {}, Status: {}", packet.getId(), status);
 
-            if (!packet.getStatus().equals(status) &&
-                    !(packet.getStatus().equals(RETURN.getStatus()) &&
-                            !(status.equals(RETURN_RECEIVED.getStatus()) || status.equals(PROBLEM.getStatus())))) {
+            if (!SystemStatus.valueOf(packet.getStatus()).equals(status) &&
+                    !(RETURN.equals(SystemStatus.valueOf(packet.getStatus())) &&
+                            !(status.equals(RETURN_RECEIVED) || status.equals(PROBLEM)))) {
 
                 // Uncomment this line if you want to update product status
                 // updateProducts_Status(packet, status);
                 updateProducts_Quantity(packet, status);
 
                 User currentUser = sessionUtils.getCurrentUser();
-                packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(status, packet, currentUser).build());
+                packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(status.toString(), packet, currentUser).build());
 
                 return savePacketStatus(packet, status);
             }
             return packet;
         }
 
-        public void updateProducts_Quantity(Packet packet, String status) {
-            if (status.equals(RETURN_RECEIVED.getStatus())
-                    || status.equals(CONFIRMED.getStatus())
-                    || status.equals(CANCELED.getStatus())) {
+        public void updateProducts_Quantity(Packet packet, SystemStatus status) {
+            if (status.equals(RETURN_RECEIVED)
+                    || status.equals(CONFIRMED)
+                    || status.equals(CANCELED)) {
                 updateProductsQuantity(packet, status);
             }
         }
 
-        public void updateProductsQuantity(Packet packet, String status) {
+        public void updateProductsQuantity(Packet packet, SystemStatus status) {
             LOGGER.debug("Updating products quantity for packet ID: {}, Status: {}", packet.getId(), status);
 
             int quantity = 0;
-            if (status.equals(RETURN_RECEIVED.getStatus()) || status.equals(CANCELED.getStatus())) quantity = 1;
-            if (status.equals(CONFIRMED.getStatus())) quantity = -1;
+            if (status.equals(RETURN_RECEIVED) || status.equals(CANCELED)) quantity = 1;
+            if (status.equals(CONFIRMED)) quantity = -1;
 
             List<ProductsPacket> productsPackets = productsPacketRepository.findByPacketId(packet.getId());
             if (!productsPackets.isEmpty()) {
@@ -789,10 +788,10 @@ public class PacketServiceImpl implements PacketService {
             productRepository.save(product);
         }
 
-        public Packet savePacketStatus(Packet packet, String status) {
+        public Packet savePacketStatus(Packet packet, SystemStatus status) {
             LOGGER.debug("Saving packet status. Packet ID: {}, Status: {}", packet.getId(), status);
 
-            packet.setStatus(status);
+            packet.setStatus(String.valueOf(status));
             packet.setLastUpdateDate(new Date());
 
             // Uncomment this line if you want to save packet status directly
@@ -806,12 +805,12 @@ public class PacketServiceImpl implements PacketService {
             String packetStatus = selectedProductsDTO.getStatus();
             Packet packet = getPacketById(selectedProductsDTO.getIdPacket());
 
-            if (packetStatus != null && packetStatus.equals(OOS.getStatus()) &&
-                    (packet.getStatus().equals(NOT_CONFIRMED.getStatus()) ||
-                            packet.getStatus().equals(NOT_SERIOUS.getStatus()) ||
-                            packet.getStatus().equals(CANCELED.getStatus()) ||
-                            packet.getStatus().equals(UNREACHABLE.getStatus()))) {
-                packet.setStatus(OOS.getStatus());
+            if (OOS.equals(SystemStatus.valueOf(packetStatus)) &&
+                    (NOT_CONFIRMED.equals(SystemStatus.valueOf(packet.getStatus())) ||
+                            NOT_SERIOUS.equals(SystemStatus.valueOf(packet.getStatus())) ||
+                            CANCELED.equals(SystemStatus.valueOf(packet.getStatus())) ||
+                            UNREACHABLE.equals(SystemStatus.valueOf(packet.getStatus())))) {
+                packet.setStatus(String.valueOf(OOS));
                 LOGGER.debug("Packet status updated to OOS for packet ID: {}", packet.getId());
             }
 
@@ -880,7 +879,7 @@ public class PacketServiceImpl implements PacketService {
                             packet.getNotes().add(note);
                             LOGGER.debug("Adding note to packet ID {}. Note status: {}", packetId, note.getStatus());
 
-                            packet.setStatus(DELETED.getStatus());
+                            packet.setStatus(String.valueOf(DELETED));
                             packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(DELETED.getStatus(), packet, currentUser).build());
                             packets.add(packet);
                         }

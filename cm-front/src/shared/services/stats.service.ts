@@ -3,8 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Packet } from '../models/Packet';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { TO_VERIFY, CONFIRMED, IN_PROGRESS, IN_PROGRESS_1, IN_PROGRESS_2, IN_PROGRESS_3, PAID, RETURN_RECEIVED, RETURN, DELIVERED } from '../utils/status-list';
 import { STAT_ENDPOINTS } from '../constants/api-endpoints';
+import { Status } from '../enums/status';
 
 @Injectable({
   providedIn: 'root'
@@ -126,16 +126,16 @@ export class StatsService {
         else {
           dateCounts[date] = { count: 1, paid: 0, return: 0, exchange: 0, out: 0 };
         }
-        if (packet.status == PAID || packet.status == DELIVERED) {
+        if (packet.status == Status.PAID || packet.status == Status.DELIVERED) {
           dateCounts[date].paid++;
         }
-        else if (packet.status == RETURN || packet.status == RETURN_RECEIVED) {
+        else if (packet.status == Status.RETURN || packet.status == Status.RETURN_RECEIVED) {
           dateCounts[date].return++;
         }
 
-        if (packet.status == CONFIRMED || packet.status == PAID || packet.status == DELIVERED
-          || packet.status == RETURN || packet.status == RETURN_RECEIVED || packet.status == TO_VERIFY
-          || packet.status == IN_PROGRESS_1 || packet.status == IN_PROGRESS_2 || packet.status == IN_PROGRESS_3 || packet.status == IN_PROGRESS
+        if (packet.status == Status.CONFIRMED || packet.status == Status.PAID || packet.status == Status.DELIVERED
+          || packet.status == Status.RETURN || packet.status == Status.RETURN_RECEIVED || packet.status == Status.TO_VERIFY
+          || packet.status == Status.IN_PROGRESS_1 || packet.status == Status.IN_PROGRESS_2 || packet.status == Status.IN_PROGRESS_3 || packet.status == Status.IN_PROGRESS
         ) {
           //|| packet.status.substring(0,7) == 'En Cours'
           if (packet.exchangeId) {

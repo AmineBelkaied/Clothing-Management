@@ -140,3 +140,12 @@
         class="listbox-style">
     </p-listbox>
 </p-overlayPanel>
+
+<p-dialog
+    header="Header"
+    [modal]="true"
+    [(visible)]="hasDeletionErrors"
+    [style]="{ width: '50rem' }"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+        {{errors}}
+</p-dialog>

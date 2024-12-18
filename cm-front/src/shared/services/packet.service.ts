@@ -3,9 +3,9 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, throwError } from 'rxjs';
 import { Packet } from 'src/shared/models/Packet';
 import { environment } from '../../environments/environment';
-import { CONFIRMED, VALIDATION } from '../utils/status-list';
 import { Note } from '../models/Note';
 import { PACKET_ENDPOINTS } from '../constants/api-endpoints';
+import { Status } from '../enums/status';
 
 @Injectable({
   providedIn: 'root',
@@ -109,8 +109,8 @@ export class PacketService {
 
 
   validatePacket(barcode: string, state: string): Observable<any> {
-    if (state == VALIDATION)
-      state = CONFIRMED;
+    if (state == Status.VALIDATION)
+      state = Status.CONFIRMED;
     return this.http.post(`${this.baseUrl}${PACKET_ENDPOINTS.VALIDATE}/${barcode}`, state, {
       headers: { 'content-type': 'application/json' },
     });

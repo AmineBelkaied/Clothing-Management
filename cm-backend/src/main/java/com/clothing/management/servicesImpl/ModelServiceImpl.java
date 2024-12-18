@@ -12,6 +12,7 @@ import com.clothing.management.models.ModelSaveResponse;
 import com.clothing.management.repository.*;
 import com.clothing.management.services.ModelService;
 import com.clothing.management.utils.EntityBuilderHelper;
+import com.clothing.management.utils.SystemStatusUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +114,6 @@ public class ModelServiceImpl implements ModelService {
                 success = false;
             }
         }
-
 
         Model updatedModel = modelRepository.save(modelMapper.toEntity(modelDTO));
         LOGGER.info("Model saved with ID: {}", updatedModel.getId());
@@ -224,7 +224,7 @@ public class ModelServiceImpl implements ModelService {
     }
 
     private boolean isProductUsed(Long productId) {
-        return productsPacketRepository.countProductsPacketByProductId(productId) > 0;
+        return productsPacketRepository.countProductsPacketByProductId(productId, SystemStatusUtil.getActiveConfirmedAndDeliveredAStatuses()) > 0;
     }
 
     private void createProductIfNotExists(Model model, Color color, Size size) {
@@ -264,7 +264,7 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public ModelDeleteDTO checkModelUsage(Long idModel) {
-        long usedOffersCount = productsPacketRepository.countProductsPacketByModelId(idModel);
+        long usedOffersCount = productsPacketRepository.countProductsPacketByModelId(idModel, SystemStatusUtil.getActiveConfirmedAndDeliveredAStatuses());
         Set<OfferModel> offerModels = offerModelRepository.findByModelId(idModel);
 
         return ModelDeleteDTO.builder()

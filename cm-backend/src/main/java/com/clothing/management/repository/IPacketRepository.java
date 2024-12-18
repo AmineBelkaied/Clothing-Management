@@ -33,8 +33,8 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value="SELECT COUNT(p.id) FROM packet p " +
             "WHERE p.customer_phone_nb LIKE %:phoneNumber% " +
             "AND ((p.barcode != '' AND p.exchange_Id IS NULL) " +
-            "OR p.status <> 'Pas Serieux')", nativeQuery = true)
-    int findAllPacketsByPhone_number(@Param("phoneNumber") String phoneNumber);
+            "OR p.status <> :notSeriousStatus)", nativeQuery = true)
+    int findAllPacketsByPhone_number(@Param("phoneNumber") String phoneNumber, @Param("notSeriousStatus") String notSeriousStatus);
 
     @Query(value="SELECT NEW com.clothing.management.models.DashboardCard(" +
             " p.status, " +
@@ -42,8 +42,8 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             "SUM(CASE WHEN DATE(p.date) >= DATE(:beginDate) " +
             "AND DATE(p.date) <= DATE(:endDate) " +
             "THEN 1 ELSE 0 END)) " +
-            "FROM Packet p WHERE (p.status <> 'Problème') GROUP BY p.status")
-    List<DashboardCard> createNotification(@Param("beginDate") String beginDate, @Param("endDate") String endDate);//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
+            "FROM Packet p WHERE (p.status <> :problemStatus) GROUP BY p.status")
+    List<DashboardCard> createNotification(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("problemStatus") String problemStatus);//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
 
     @Query(value ="SELECT p FROM Packet p " +
             "WHERE CAST(p.id as String) LIKE %:searchField% " +
@@ -67,13 +67,12 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
     @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList) AND (p.status IN (:ignoredDateStatusList) OR (DATE(p.date) >= DATE(:beginDate) AND DATE(p.date) <= DATE(:endDate)))")
     Page<Packet> findAllPacketsByStatus(@Param("ignoredDateStatusList") List<String> ignoredDateStatusList, @Param("selectedList") List<String> selectedList, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate, Pageable pageable);
 
-    @Query(value ="SELECT p FROM Packet p WHERE p.status = 'Confirmée'")
+    @Query(value ="SELECT p FROM Packet p WHERE p.status = com.clothing.management.enums.SystemStatus.CONFIRMED")
     List<Packet> findValidationPackets();
 
     @Transactional
     @Query(value ="SELECT p FROM Packet p WHERE p.status IN (:selectedList)")
     Page<Packet> findAllPacketsByStatus(@Param("selectedList") List<String> selectedList, Pageable pageable);
-
 
     @Query(value ="SELECT p FROM Packet p WHERE DATE(p.date) >= DATE(:beginDate) AND DATE(p.date) <= DATE(:endDate)")
     Page<Packet> findAllPacketsByDate(@Param("beginDate") Date beginDate, @Param("endDate") Date endDate, Pageable pageable);
@@ -86,17 +85,16 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
 
     @Query(value = "SELECT NEW com.clothing.management.dto.StatDTO.StatesStatCountDTO( " +
             "DATE(p.date), p.city.governorate.name, " +
-            "SUM(CASE WHEN p.status IN ('Livrée', 'Payée') THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN p.status IN ('En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier') THEN 1 ELSE 0 END), " +
-            "SUM(CASE WHEN (p.status = 'Retour' OR p.status = 'Retour reçu') AND p.exchangeId IS NULL THEN 1 ELSE 0 END)) " +
+            "SUM(CASE WHEN p.status IN :deliveredStatuses THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status IN :activeStatuses THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN p.status IN :returnStatuses AND p.exchangeId IS NULL THEN 1 ELSE 0 END)) " +
             "FROM Packet p " +
             "WHERE DATE(p.date) >= DATE(:beginDate) " +
             "AND DATE(p.date) <= DATE(:endDate) " +
-            "AND p.status IN ('Livrée', 'Payée','En cours (1)', 'En cours (2)', 'En cours (3)', 'A verifier', 'Retour' ,'Retour reçu') " +
+            "AND p.status IN :activeDeliveredAndReturnStatuses " +
             "GROUP BY p.city.governorate.id ORDER BY DATE(p.date) ASC ")
-    List<StatesStatCountDTO> findAllPacketsStates(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
-
-    
+    List<StatesStatCountDTO> findAllPacketsStates(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("returnStatuses") List<String> returnStatuses, @Param("deliveredStatuses") List<String> deliveredStatuses,
+                                                  @Param("activeStatuses") List<String> activeStatuses, @Param("activeDeliveredAndReturnStatuses") List<String> activeDeliveredAndReturnStatuses);
 
 
     @Modifying

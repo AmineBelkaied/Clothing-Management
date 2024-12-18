@@ -14,6 +14,7 @@ import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.repository.IPacketRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.services.StatService;
+import com.clothing.management.utils.SystemStatusUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,8 @@ public class StatServiceImpl implements StatService {
 
     public Map<String, List<?>> statAllPagesChart(String beginDate, String endDate) {
         List<Long> countPagesList;
-        List<PagesDayCountDTO> existingProductsPacket = productsPacketRepository.statAllPages(beginDate, endDate);
+        List<PagesDayCountDTO> existingProductsPacket = productsPacketRepository.statAllPages(beginDate, endDate, SystemStatus.OOS.getStatus(), SystemStatusUtil.getReturnStatuses(), SystemStatusUtil.getDeliveredStatuses(),
+                SystemStatusUtil.getActiveAndConfirmedStatuses(), SystemStatusUtil.getActiveConfirmedDeliveredReturnAndOosStatuses());
 
         Map<String, List<?>> uniqueValues = getUniquePages(existingProductsPacket);
         List<Date> uniqueDates = (List<Date>) uniqueValues.get("uniqueDates");
@@ -112,7 +114,8 @@ public class StatServiceImpl implements StatService {
         dto.setChart(createListsCount(chartData));
 
         // Create model table
-        List<ModelTableDTO> modelsStat = productsPacketRepository.statAllModels(beginDate, endDate, status);
+        List<ModelTableDTO> modelsStat = productsPacketRepository.statAllModels(beginDate, endDate, status, SystemStatus.OOS.getStatus(), SystemStatusUtil.getReturnStatuses(),
+                SystemStatusUtil.getActiveAndConfirmedStatuses(), SystemStatusUtil.getActiveConfirmedDeliveredReturnAndOosStatuses());
         dto.setModelsStat(modelsStat);
 
         // Create statValuesDashboard
@@ -247,7 +250,7 @@ public class StatServiceImpl implements StatService {
         List<ChartDTO> offersChartData = productsPacketRepository.statOffersChart(beginDate, endDate,status);
         dto.setChart(createListsCount(offersChartData));
 
-        List<OfferTableDTO> offersStat = productsPacketRepository.statOffersTable(beginDate, endDate, status);
+        List<OfferTableDTO> offersStat = productsPacketRepository.statOffersTable(beginDate, endDate, status, SystemStatusUtil.getReturnStatuses(), SystemStatusUtil.getActiveAndConfirmedStatuses(), SystemStatusUtil.getActiveConfirmedDeliveredAndReturnStatuses());
         dto.setOffersStat(offersStat);
 
         LOGGER.info("Model chart data generated successfully.");
@@ -328,7 +331,8 @@ public class StatServiceImpl implements StatService {
     public Map<String, List<?>> statAllColorsChart(String beginDate, String endDate) {
 
         // Fetch products data by color
-        List<ColorsDayCountDTO> existingProductsPacketColor = productsPacketRepository.statAllModelsByColor(beginDate, endDate);
+        List<ColorsDayCountDTO> existingProductsPacketColor = productsPacketRepository.statAllModelsByColor(beginDate, endDate, SystemStatusUtil.getDeliveredStatuses(),
+                SystemStatusUtil.getActiveAndConfirmedStatuses(), SystemStatusUtil.getActiveConfirmedAndDeliveredAStatuses());
         LOGGER.info("Fetched {} product packets by color for the date range.", existingProductsPacketColor.size());
 
         // Get unique dates and colors
@@ -424,10 +428,12 @@ public class StatServiceImpl implements StatService {
 
         if (deliveryCompanyName.equals("ALL")) {
             LOGGER.debug("Fetching all packets.");
-            return productsPacketRepository.statAllPackets(beginDate, endDate);
+            return productsPacketRepository.statAllPackets(beginDate, endDate, SystemStatus.DELIVERED.getStatus(), SystemStatus.PAID.getStatus(), SystemStatus.CANCELED.getStatus(), SystemStatus.OOS.getStatus(),
+                    SystemStatusUtil.getReturnStatuses(), SystemStatusUtil.getActiveStatuses(), SystemStatusUtil.getActiveAndDeliveredStatuses());
         } else {
             LOGGER.debug("Fetching packets for specific delivery company: {}", deliveryCompanyName);
-            return productsPacketRepository.statAllPackets(beginDate, endDate, deliveryCompanyName);
+            return productsPacketRepository.statAllPackets(beginDate, endDate, deliveryCompanyName, SystemStatus.DELIVERED.getStatus(), SystemStatus.PAID.getStatus(), SystemStatus.CANCELED.getStatus(), SystemStatus.OOS.getStatus(),
+                    SystemStatusUtil.getReturnStatuses(), SystemStatusUtil.getActiveStatuses(), SystemStatusUtil.getActiveAndDeliveredStatuses());
         }
     }
 
@@ -461,7 +467,7 @@ public class StatServiceImpl implements StatService {
         StatTableDTO exchangeRecap = statTableMapper.toStatTableDTO(SystemStatus.EXCHANGE.getStatus());
         StatTableDTO returnRecap = statTableMapper.toStatTableDTO(SystemStatus.RETURN.getStatus());
         StatTableDTO paidRecap = statTableMapper.toStatTableDTO(SystemStatus.PAID.getStatus());
-        StatTableDTO receivedRecap = statTableMapper.toStatTableDTO(SystemStatus.LIVREE.getStatus());
+        StatTableDTO receivedRecap = statTableMapper.toStatTableDTO(SystemStatus.DELIVERED.getStatus());
         StatTableDTO oosRecap = statTableMapper.toStatTableDTO(SystemStatus.OOS.getStatus());
         StatTableDTO outRecap = statTableMapper.toStatTableDTO("Sortie");
         StatTableDTO allRecap = statTableMapper.toStatTableDTO("All");
@@ -620,7 +626,9 @@ public class StatServiceImpl implements StatService {
     public Map<String, List<?>> statModelSoldChart(Long modelId, String beginDate, String endDate) {
 
         // Fetch existing product packets
-        List<ProductDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSoldProgress(modelId, beginDate, endDate);
+        List<ProductDayCountDTO> existingProductsPacket = productsPacketRepository.statModelSoldProgress(
+                modelId, beginDate, endDate, SystemStatusUtil.getDeliveredStatuses(),
+                SystemStatusUtil.getActiveAndConfirmedStatuses(), SystemStatusUtil.getReturnStatuses(), SystemStatusUtil.getActiveConfirmedDeliveredAndReturnStatuses());
         LOGGER.debug("Fetched {} product packets for Model ID: {}", existingProductsPacket.size(), modelId);
 
         // Get unique values (dates, colors, sizes, product refs)
@@ -735,7 +743,8 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<ProductsDayCountDTO> productsCountByDate(Long modelId, String beginDate, String endDate) {
-        List<ProductsDayCountDTO> productCounts = productsPacketRepository.productsCountByDate(modelId, beginDate, endDate);
+        List<ProductsDayCountDTO> productCounts = productsPacketRepository.productsCountByDate(modelId, beginDate, endDate, SystemStatus.OOS.getStatus(), SystemStatusUtil.getReturnStatuses(),
+                SystemStatusUtil.getDeliveredStatuses(), SystemStatusUtil.getActiveAndConfirmedStatuses(), SystemStatusUtil.getActiveConfirmedDeliveredReturnAndOosStatuses());
 
         LOGGER.debug("Fetched {} product count entries for Model ID: {}", productCounts.size(), modelId);
         return productCounts;
@@ -743,7 +752,8 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<StatesStatCountDTO> findAllPacketsStates(String beginDate, String endDate) {
-        List<StatesStatCountDTO> statesStatCounts = packetRepository.findAllPacketsStates(beginDate, endDate);
+        List<StatesStatCountDTO> statesStatCounts = packetRepository.findAllPacketsStates(beginDate, endDate, SystemStatusUtil.getReturnStatuses(), SystemStatusUtil.getDeliveredStatuses(),
+                SystemStatusUtil.getActiveStatuses(), SystemStatusUtil.getActiveDeliveredAndReturnStatuses());
 
         LOGGER.debug("Fetched {} packet state statistics entries.", statesStatCounts.size());
         return statesStatCounts;

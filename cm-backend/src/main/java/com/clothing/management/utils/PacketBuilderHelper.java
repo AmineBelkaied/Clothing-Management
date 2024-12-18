@@ -1,6 +1,7 @@
 package com.clothing.management.utils;
 
 import com.clothing.management.entities.*;
+import com.clothing.management.enums.SystemStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class PacketBuilderHelper {
 
     private static final String exchangeIdLabel = "   echange id: ";
 
-    public Packet createNewPacket(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> productsPackets, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, String status, Date lastUpdateDate, boolean exchange, boolean valid, String printLink, DeliveryCompany deliveryCompany, Long exchangeId) {
+    public Packet createNewPacket(Long id, String customerName, String customerPhoneNb, Integer oldClient, City city, String address, String packetDescription, String barcode, String lastDeliveryStatus, List<ProductsPacket> productsPackets, List<PacketStatus> packetStatus, FbPage fbPage, double price, double deliveryPrice, double discount, Date date, SystemStatus status, Date lastUpdateDate, boolean exchange, boolean valid, String printLink, DeliveryCompany deliveryCompany, Long exchangeId) {
         return Packet.builder()
                 .id(id)
                 .customerName(customerName)
@@ -32,7 +33,7 @@ public class PacketBuilderHelper {
                 .deliveryPrice(deliveryPrice)
                 .discount(discount)
                 .date(date)
-                .status(status)
+                .status(String.valueOf(status))
                 .lastUpdateDate(lastUpdateDate)
                 .exchange(exchange)
                 .valid(valid)
@@ -49,7 +50,7 @@ public class PacketBuilderHelper {
                 .address(packet.getAddress())
                 .packetDescription(packet.getPacketDescription())
                 .price(packet.getPrice())
-                .status(NOT_CONFIRMED.getStatus())
+                .status(String.valueOf(NOT_CONFIRMED))
                 .fbPage(packet.getFbPage())
                 .city(packet.getCity())
                 .deliveryPrice(packet.getDeliveryPrice())

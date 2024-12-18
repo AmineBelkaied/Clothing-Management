@@ -11,6 +11,7 @@ import com.clothing.management.repository.IOfferModelRepository;
 import com.clothing.management.repository.IOfferRepository;
 import com.clothing.management.repository.IProductsPacketRepository;
 import com.clothing.management.services.OfferService;
+import com.clothing.management.utils.SystemStatusUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.clothing.management.utils.EntityBuilderHelper;
@@ -155,7 +156,7 @@ public class OfferServiceImpl implements OfferService {
         return offerMapper.toDto(updatedOffer);
     }
     private int correctPacketPrice(long offerId){
-        return productsPacketRepository.updatePacketsByOfferId(offerId);
+        return productsPacketRepository.updatePacketsByOfferId(offerId, SystemStatusUtil.getActiveConfirmedAndDeliveredAStatuses());
     }
 
     @Override

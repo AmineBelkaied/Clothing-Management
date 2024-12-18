@@ -1,4 +1,4 @@
-export interface Status {
+export interface StatusItem {
   label: string,
   value: string,
   icon: string,
