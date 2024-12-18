@@ -52,7 +52,6 @@ public class PacketServiceImpl implements PacketService {
     private final DeliveryCompanyServiceFactory deliveryCompanyServiceFactory;
     private final SessionUtils sessionUtils;
     private final IGlobalConfRepository globalConfRepository;
-    private final static List<String> allStatusList = List.of(new String[]{RETURN.getStatus(), NOT_CONFIRMED.getStatus(), UNREACHABLE.getStatus(), PROBLEM.getStatus(), TO_VERIFY.getStatus(), OOS.getStatus(), IN_PROGRESS_1.getStatus(), IN_PROGRESS_2.getStatus(), IN_PROGRESS_3.getStatus(), PAID.getStatus(), LIVREE.getStatus(), CONFIRMED.getStatus(), RETURN.getStatus(), RETURN_RECEIVED.getStatus()});
     private final PacketBuilderHelper packetBuilderHelper;
     private final EntityBuilderHelper entityBuilderHelper;
     private final PacketMapper packetMapper;
@@ -130,7 +129,7 @@ public class PacketServiceImpl implements PacketService {
     @Override
     @Transactional(readOnly = true, transactionManager = "tenantTransactionManager")
     public List<PacketValidationDTO> findValidationPackets() {
-        return packetRepository.findValidationPackets().stream()
+        return packetRepository.findValidationPackets(CONFIRMED.name()).stream()
                 .map(packetMapper::toValidationDto)
                 .collect(Collectors.toList());
     }
@@ -204,7 +203,7 @@ public class PacketServiceImpl implements PacketService {
                 .build();
         User currentUser = sessionUtils.getCurrentUser();
             packet.setFbPage(globalConf.getFbPage());
-        packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(CREATION.getStatus(), packet, currentUser).build());
+        packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(CREATION.name(), packet, currentUser).build());
         Packet savedPacket = packetRepository.save(packet);
 
         LOGGER.info("Added new packet with ID: {}", savedPacket.getId());
@@ -229,7 +228,7 @@ public class PacketServiceImpl implements PacketService {
                 return null;
             }
             Packet packet;
-            if (type.equals(CONFIRMED.getStatus())) {
+            if (CONFIRMED.name().equals(type)) {
                 nonValidPacket.setValid(true);
                 packet = packetRepository.save(nonValidPacket);
             } else {
@@ -256,7 +255,7 @@ public class PacketServiceImpl implements PacketService {
                 switch (firstKey) {
                     case "status" -> {
                         packet = getPacketById(idPacket);
-                        if (value.equals(CONFIRMED.getStatus())) {
+                        if (CONFIRMED.name().equals(value)) {
                             createBarCode(packet);
                         }
                         updatePacketStatus(packet, SystemStatus.fromKey(value));
@@ -385,14 +384,14 @@ public class PacketServiceImpl implements PacketService {
     @Override
     public int checkPhone(String phoneNumber) {
         LOGGER.info("Checking phone number: {}", phoneNumber);
-        int count = packetRepository.findAllPacketsByPhone_number(phoneNumber, String.valueOf(NOT_SERIOUS));
+        int count = packetRepository.findAllPacketsByPhone_number(phoneNumber, NOT_SERIOUS.name());
         LOGGER.debug("Found {} packets with phone number: {}", count, phoneNumber);
         return count;
     }
 
     @Override
     public List<DashboardCard> syncNotification(String searchField,String beginDate, String endDate) {
-        List<DashboardCard> notifications = packetRepository.createNotification(searchField,beginDate, endDate, String.valueOf(PROBLEM));
+        List<DashboardCard> notifications = packetRepository.createNotification(searchField, beginDate, endDate, PROBLEM.name());
         LOGGER.debug("Retrieved {} notifications.", notifications.size());
         return notifications;
     }
@@ -621,7 +620,7 @@ public class PacketServiceImpl implements PacketService {
                     .collect(Collectors.toList()));
 
             User currentUser = sessionUtils.getCurrentUser();
-            newPacket.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(CREATION.getStatus(), newPacket, currentUser).build());
+            newPacket.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(CREATION.name(), newPacket, currentUser).build());
 
             packetRepository.save(newPacket);
             packet.setHaveExchange(true);
@@ -751,7 +750,7 @@ public class PacketServiceImpl implements PacketService {
 
         public Packet savePacketStatus(Packet packet, SystemStatus status) {
             LOGGER.debug("Saving packet status. Packet ID: {}, Status: {}", packet.getId(), status);
-            packet.setStatus(String.valueOf(status));
+            packet.setStatus(status.name());
             packet.setLastUpdateDate(new Date());
             return packetRepository.save(packet);
         }
@@ -766,7 +765,7 @@ public class PacketServiceImpl implements PacketService {
                             NOT_SERIOUS.equals(SystemStatus.valueOf(packet.getStatus())) ||
                             CANCELED.equals(SystemStatus.valueOf(packet.getStatus())) ||
                             UNREACHABLE.equals(SystemStatus.valueOf(packet.getStatus())))) {
-                packet.setStatus(String.valueOf(OOS));
+                packet.setStatus(OOS.name());
                 LOGGER.debug("Packet status updated to OOS for packet ID: {}", packet.getId());
             }
 
@@ -835,8 +834,8 @@ public class PacketServiceImpl implements PacketService {
                             packet.getNotes().add(note);
                             LOGGER.debug("Adding note to packet ID {}. Note status: {}", packetId, note.getStatus());
 
-                            packet.setStatus(String.valueOf(DELETED));
-                            packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(DELETED.getStatus(), packet, currentUser).build());
+                            packet.setStatus(DELETED.name());
+                            packet.getPacketStatus().add(entityBuilderHelper.createPacketStatusBuilder(DELETED.name(), packet, currentUser).build());
                             packets.add(packet);
                         }
                     } catch (PacketNotFoundException e) {

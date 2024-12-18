@@ -5,7 +5,6 @@ import com.clothing.management.dto.*;
 import com.clothing.management.dto.StatDTO.ProductsQuantityDTO;
 import com.clothing.management.dto.StatDTO.SoldProductsDayCountDTO;
 import com.clothing.management.entities.*;
-import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.exceptions.custom.notfound.ProductNotFoundException;
 import com.clothing.management.mappers.ModelMapper;
 import com.clothing.management.mappers.SoldProductsDayCountMapper;
@@ -25,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.clothing.management.enums.SystemStatus.*;
 import static java.util.stream.Collectors.groupingBy;
 
 @Service
@@ -150,7 +150,7 @@ public class ProductServiceImpl implements ProductService {
                     .collect(groupingBy(Product::getColor));
 
             // 2. Fetch and Group Products by Color
-            List<SoldProductsDayCountDTO> productsDayCountDTO = productsPacketRepository.soldProductsCountByDate(modelId, beginDate, endDate, SystemStatus.OOS.getStatus(), SystemStatusUtil.getReturnStatuses(),
+            List<SoldProductsDayCountDTO> productsDayCountDTO = productsPacketRepository.soldProductsCountByDate(modelId, beginDate, endDate, OOS.name(), RETURN.name(),
                     SystemStatusUtil.getDeliveredStatuses(), SystemStatusUtil.getActiveAndConfirmedStatuses(), SystemStatusUtil.getActiveConfirmedDeliveredReturnAndOosStatuses());
 
             // 3. Process Each Group of Products by Color

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.clothing.management.enums.SystemStatus.CONFIRMED;
 import static com.clothing.management.enums.SystemStatus.NOT_CONFIRMED;
 
 @Component
@@ -33,7 +34,7 @@ public class PacketBuilderHelper {
                 .deliveryPrice(deliveryPrice)
                 .discount(discount)
                 .date(date)
-                .status(String.valueOf(status))
+                .status(status.name())
                 .lastUpdateDate(lastUpdateDate)
                 .exchange(exchange)
                 .valid(valid)
@@ -50,7 +51,7 @@ public class PacketBuilderHelper {
                 .address(packet.getAddress())
                 .packetDescription(packet.getPacketDescription())
                 .price(packet.getPrice())
-                .status(String.valueOf(NOT_CONFIRMED))
+                .status(CONFIRMED.name())
                 .fbPage(packet.getFbPage())
                 .city(packet.getCity())
                 .deliveryPrice(packet.getDeliveryPrice())

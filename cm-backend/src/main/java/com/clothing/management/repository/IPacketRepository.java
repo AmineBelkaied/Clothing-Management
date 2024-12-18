@@ -50,7 +50,7 @@ public interface IPacketRepository extends JpaRepository<Packet, Long> {
             "OR p.packetDescription LIKE %:searchField%) " +
             "THEN 1 ELSE 0 END) ) " +
             "FROM Packet p WHERE (p.status <> :problemStatus) GROUP BY p.status")
-    List<DashboardCard> createNotification(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("problemStatus") String problemStatus);//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
+    List<DashboardCard> createNotification(@Param("searchField") String searchField, @Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("problemStatus") String problemStatus);//DATEDIFF(CURRENT_DATE() , p.date)>0 AND
 
     @Query(value ="SELECT p FROM Packet p " +
             "WHERE CAST(p.id as String) LIKE %:searchField% " +

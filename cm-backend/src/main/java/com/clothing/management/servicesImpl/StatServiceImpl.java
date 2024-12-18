@@ -13,7 +13,6 @@ import com.clothing.management.dto.StatDTO.TableDTO.ModelTableDTO;
 import com.clothing.management.dto.StatDTO.TableDTO.OfferTableDTO;
 import com.clothing.management.dto.StatDTO.TableDTO.PageTableDTO;
 import com.clothing.management.entities.*;
-import com.clothing.management.enums.SystemStatus;
 import com.clothing.management.mappers.StatTableMapper;
 import com.clothing.management.repository.IModelStockHistoryRepository;
 import com.clothing.management.repository.IPacketRepository;
@@ -26,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.clothing.management.enums.SystemStatus.*;
 
 @Service
 public class StatServiceImpl implements StatService {
@@ -54,7 +55,8 @@ public class StatServiceImpl implements StatService {
         dto.setChart(createListsCount(chartData));
 
         // Create model table
-        List<PageTableDTO> pagesStat = productsPacketRepository.statAllPages(beginDate, endDate, status);
+        List<PageTableDTO> pagesStat = productsPacketRepository.statAllPages(beginDate, endDate, status, SystemStatusUtil.getActiveAndConfirmedStatuses(),
+                SystemStatusUtil.getReturnStatuses(), SystemStatusUtil.getActiveConfirmedDeliveredAndReturnStatuses());
         dto.setPagesStat(pagesStat);
         return dto;
     }
@@ -67,8 +69,8 @@ public class StatServiceImpl implements StatService {
         dto.setChart(createListsCount(chartData));
 
         // Create model table
-        List<ModelTableDTO> modelsStat = productsPacketRepository.statAllModels(beginDate, endDate, status, SystemStatus.OOS.getStatus(), SystemStatusUtil.getReturnStatuses(),
-                SystemStatusUtil.getActiveAndConfirmedStatuses(), SystemStatusUtil.getActiveConfirmedDeliveredReturnAndOosStatuses());
+        List<ModelTableDTO> modelsStat = productsPacketRepository.statAllModels(beginDate, endDate, status, OOS.name(), RETURN.name(),
+                RETURN_RECEIVED.name(), SystemStatusUtil.getActiveAndConfirmedStatuses(), SystemStatusUtil.getActiveConfirmedDeliveredReturnAndOosStatuses());
         dto.setModelsStat(modelsStat);
 
         // Create statValuesDashboard
@@ -79,11 +81,9 @@ public class StatServiceImpl implements StatService {
 
     private List<String> getCountStatus(boolean countProgressEnabler){
         if (countProgressEnabler) {
-            return Arrays.asList("Livrée", "Payée", "Confirmée",
-                    "En cours (1)", "En cours (2)",
-                    "En cours (3)", "A vérifier");
+            return SystemStatusUtil.getActiveConfirmedAndDeliveredAStatuses();
         } else {
-            return Arrays.asList("Livrée", "Payée");
+            return SystemStatusUtil.getDeliveredStatuses();
         }
     }
 
@@ -350,11 +350,11 @@ public class StatServiceImpl implements StatService {
 
         if (deliveryCompanyName.equals("ALL")) {
             LOGGER.debug("Fetching all packets.");
-            return productsPacketRepository.statAllPackets(beginDate, endDate, SystemStatus.DELIVERED.getStatus(), SystemStatus.PAID.getStatus(), SystemStatus.CANCELED.getStatus(), SystemStatus.OOS.getStatus(),
+            return productsPacketRepository.statAllPackets(beginDate, endDate, DELIVERED.name(), PAID.name(), CANCELED.name(), OOS.name(),
                     SystemStatusUtil.getReturnStatuses(), SystemStatusUtil.getActiveStatuses(), SystemStatusUtil.getActiveAndDeliveredStatuses());
         } else {
             LOGGER.debug("Fetching packets for specific delivery company: {}", deliveryCompanyName);
-            return productsPacketRepository.statAllPackets(beginDate, endDate, deliveryCompanyName, SystemStatus.DELIVERED.getStatus(), SystemStatus.PAID.getStatus(), SystemStatus.CANCELED.getStatus(), SystemStatus.OOS.getStatus(),
+            return productsPacketRepository.statAllPackets(beginDate, endDate, deliveryCompanyName, DELIVERED.name(), PAID.name(), CANCELED.name(), OOS.name(),
                     SystemStatusUtil.getReturnStatuses(), SystemStatusUtil.getActiveStatuses(), SystemStatusUtil.getActiveAndDeliveredStatuses());
         }
     }
@@ -386,14 +386,14 @@ public class StatServiceImpl implements StatService {
 
     private List<StatTableDTO> createStatusRecapCount(List<PacketsStatCountDTO> existingPackets, int datesSize) {
 
-        StatTableDTO exchangeRecap = statTableMapper.toStatTableDTO(SystemStatus.EXCHANGE.getStatus());
-        StatTableDTO returnRecap = statTableMapper.toStatTableDTO(SystemStatus.RETURN.getStatus());
-        StatTableDTO paidRecap = statTableMapper.toStatTableDTO(SystemStatus.PAID.getStatus());
-        StatTableDTO receivedRecap = statTableMapper.toStatTableDTO(SystemStatus.DELIVERED.getStatus());
-        StatTableDTO oosRecap = statTableMapper.toStatTableDTO(SystemStatus.OOS.getStatus());
-        StatTableDTO outRecap = statTableMapper.toStatTableDTO("Sortie");
-        StatTableDTO allRecap = statTableMapper.toStatTableDTO("All");
-        StatTableDTO progressRecap = statTableMapper.toStatTableDTO("En Cours");
+        StatTableDTO exchangeRecap = statTableMapper.toStatTableDTO(EXCHANGE.name());
+        StatTableDTO returnRecap = statTableMapper.toStatTableDTO(RETURN.name());
+        StatTableDTO paidRecap = statTableMapper.toStatTableDTO(PAID.name());
+        StatTableDTO receivedRecap = statTableMapper.toStatTableDTO(DELIVERED.name());
+        StatTableDTO oosRecap = statTableMapper.toStatTableDTO(OOS.name());
+        StatTableDTO outRecap = statTableMapper.toStatTableDTO(RELEASED.getStatus());
+        StatTableDTO allRecap = statTableMapper.toStatTableDTO(ALL.getStatus());
+        StatTableDTO progressRecap = statTableMapper.toStatTableDTO(IN_PROGRESS.getStatus());
 
         // Update recap stats
         for (PacketsStatCountDTO dayStat : existingPackets) {
@@ -642,7 +642,7 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<ProductsDayCountDTO> productsCountByDate(Long modelId, String beginDate, String endDate) {
-        List<ProductsDayCountDTO> productCounts = productsPacketRepository.productsCountByDate(modelId, beginDate, endDate, SystemStatus.OOS.getStatus(), SystemStatusUtil.getReturnStatuses(),
+        List<ProductsDayCountDTO> productCounts = productsPacketRepository.productsCountByDate(modelId, beginDate, endDate, OOS.name(), SystemStatusUtil.getReturnStatuses(),
                 SystemStatusUtil.getDeliveredStatuses(), SystemStatusUtil.getActiveAndConfirmedStatuses(), SystemStatusUtil.getActiveConfirmedDeliveredReturnAndOosStatuses());
 
         LOGGER.debug("Fetched {} product count entries for Model ID: {}", productCounts.size(), modelId);

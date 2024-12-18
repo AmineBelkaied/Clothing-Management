@@ -25,6 +25,10 @@ public enum SystemStatus {
     INCORRECT_BARCODE("Code à barre incorrect"),
     DELETED("Supprimé"),
     OOS("En rupture"),
+
+    RELEASED("Sortie"),
+    IN_PROGRESS("En Cours"),
+    ALL("Tous"),
     OTHER_STATUS();
 
     private String status;

@@ -7,6 +7,7 @@
                     <div class="text-900 text-2xl font-medium mb-3">Connexion</div>
                     <span>Clothing Management</span>
                     <p *ngIf="!form.tenantName" style="color: red;font-weight: bold;">Veuillez ajouter le nom la sociéité au niveau de l'url (exp: /login/nom-société)</p>
+                    <h4 *ngIf="form.tenantName" style="color: rgb(51, 0, 181);" class="mt-3">{{form.tenantName | uppercase}}</h4>
                 </div>
 
                 <div>

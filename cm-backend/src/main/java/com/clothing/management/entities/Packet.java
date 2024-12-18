@@ -9,7 +9,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.clothing.management.enums.SystemStatus.NOT_CONFIRMED;
 
@@ -90,7 +89,7 @@ public class Packet {
     private Date date = new Date();
 
     @Builder.Default
-    private String status = NOT_CONFIRMED.getStatus();
+    private String status = NOT_CONFIRMED.name();
 
     @Column(name = "last_update_date")
     private Date lastUpdateDate;
