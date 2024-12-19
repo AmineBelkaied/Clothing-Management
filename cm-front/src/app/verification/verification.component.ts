@@ -25,7 +25,7 @@ export class VerificationComponent implements OnInit, OnDestroy {
   packets: PacketValidationDTO[];
   totalItems: number;
   packet: Packet;
-  type : Status = Status.VALIDATION;
+  type : Status = Status.CONFIRMED;
   sourceString : string = "Non Validé";
   targetString : string = "Validé";
   isAdmin: boolean;
@@ -42,7 +42,7 @@ export class VerificationComponent implements OnInit, OnDestroy {
 }
 
 findAllConfirmedPackets(): void {
-  if(this.type == Status.VALIDATION){
+  if(this.type == Status.CONFIRMED){
     this.sourceString = "Non validé";
     this.targetString = "Validé";
   }
@@ -56,7 +56,7 @@ findAllConfirmedPackets(): void {
       next: (response: any) => {
         this.packets = response.result;
 
-        if(this.type == Status.VALIDATION){
+        if(this.type == Status.CONFIRMED){
           this.sourcePackets = this.packets.filter((packet: PacketValidationDTO) => !packet.valid);
           this.targetPackets = this.packets.filter((packet: PacketValidationDTO) => packet.valid);
         }
@@ -71,10 +71,12 @@ findAllConfirmedPackets(): void {
     });
 }
 
-Validate(){
+validate(){
   let lastNineCharacters = this.barcode.slice(-9);
   let num: number = Number(this.barcode);
-  if (this.type == Status.VALIDATION){
+  console.log(this.type);
+  
+  if (this.type == Status.CONFIRMED){
     if(this.barcode.length > 8){
 
       if (!(this.sourcePackets.map((packet : PacketValidationDTO) => packet.barcode.slice(-9)).indexOf(lastNineCharacters) > -1)){
@@ -123,7 +125,7 @@ Validate(){
       return;
     }}
   }
-  this.packetService.validatePacket(this.barcode, this.type).subscribe({
+  this.packetService.validatePacket(this.barcode, Status.findByValue(this.type)!).subscribe({
     next: (response: any) => {
       // Handle the response here
       this.messageService.add({
@@ -133,7 +135,7 @@ Validate(){
       });
       console.log('response', response);
 
-      if (this.type === Status.VALIDATION) {
+      if (this.type === Status.CONFIRMED) {
         this.movePacketToTarget(this.barcode);
       }
 

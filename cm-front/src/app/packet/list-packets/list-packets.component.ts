@@ -204,12 +204,12 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
 
   addNewPacket() {
     this.loading = true;
-    this.packetService.addPacket().subscribe((response: Packet) => {
-      console.log('new pack', response);
-
+    this.packetService.addPacket().subscribe((packet: Packet) => {
+      console.log('new pack', packet);
+      packet.status = Status.findByKey(packet.status);
       this.loading = false;
       //this.packets = [...this.packets.map(packet => packet.id === updatedPacket.id ? updatedPacket : packet)];
-      this.packets.unshift(response);
+      this.packets.unshift(packet);
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
@@ -300,9 +300,11 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       updatedField = { ['fbPage']: packet.fbPageId };
     } else if (this.selectedField === 'date')
       updatedField = { [this.selectedField]: this.onDateSelect(packet.date) };
+      else if (this.selectedField === 'status')
+        updatedField = { [this.selectedField]: Status.findByValue(packet.status!) };
     else updatedField = { [this.selectedField]: packet[this.selectedField] };
 
-    let status = packet.status;
+    let status = Status.findByValue(packet.status!);
     this.packetService
       .patchPacket(packet.id!, updatedField)
       .pipe(
@@ -329,7 +331,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           let msg = 'Packet updated successfully';
           if (
             this.selectedField === 'status' &&
-            status === Status.CONFIRMED &&
+            status === Status.findByValue(Status.CONFIRMED) &&
             responsePacket.barcode != null
           ) {
             this.updatePacketFields(responsePacket);
@@ -430,7 +432,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     let X = listId.indexOf(updatedPacket.id);
     if (X > -1) {
       //this.packets = [...this.packets.map(packet => packet.id === updatedPacket.id ? updatedPacket : packet)];
-      this.packets[X].status = updatedPacket.status;
+      this.packets[X].status = Status.findByKey(updatedPacket.status);
       this.packets[X].lastDeliveryStatus = updatedPacket.lastDeliveryStatus;
       this.packets[X].lastUpdateDate = updatedPacket.lastUpdateDate;
       if (action === 'ADD_NOTE_ACTION') {
@@ -585,6 +587,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
       }
     }
   }
+  
   openLinkGetterJAX(code: any, deliveryCompanyId: number): void {
     let jax =
       'https://core.jax-delivery.com/api/user/colis/all?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2NvcmUuamF4LWRlbGl2ZXJ5LmNvbS9hcGkvY2xpZW50L2xvZ2luIiwiaWF0IjoxNzI5MzYxMzMzLCJleHAiOjE3NjU2NDkzMzMsIm5iZiI6MTcyOTM2MTMzMywianRpIjoiYXNZejJxd1FkR1BwSWdtVyIsInN1YiI6IjE2NzciLCJwcnYiOiJkMDkwNWJjZjY1YTZkOTkyZDkwY2JmZTQ2MjI2YmQzMTNhZTUxOTNmIn0.HmVJusi_0DtMYntj3gBADSDEuG6OLrwofOv4FZ1xNt8&code=SOU290207831&id=0&nbr=0&page=0';
@@ -610,7 +613,7 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
           if (response != null && response.length > 0) {
             response.forEach((element: any) => {
               this.statusEvents.push({
-                status: element.status,
+                status: Status.findByKey(element.status) ?? element.status,
                 date: element.date,
                 user: element.user,
                 icon: PrimeIcons.ENVELOPE,
@@ -797,9 +800,10 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     console.log('this.selectedField', this.selectedField);
 
     this.oldFieldValue = $event.data[this.selectedField];
+    console.log(this.oldFieldValue);
+    
     if (this.selectedField === 'status') {
       this.packetStatusList = [];
-
       if ($event.data.stock === -1) {
         this.messageService.add({
           severity: 'error',
@@ -872,7 +876,6 @@ export class ListPacketsComponent implements OnInit, OnDestroy {
     const status = packet[this.selectedField];
     const barcode = packet.barcode;
     let errorMessage: string | undefined = undefined;
-
     switch (status) {
       case Status.CANCELED:
         if (this.oldFieldValue == Status.NOT_CONFIRMED)

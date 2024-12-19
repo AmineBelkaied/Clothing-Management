@@ -120,8 +120,6 @@ export class PacketService {
 
 
   validatePacket(barcode: string, state: string): Observable<any> {
-    if (state == Status.VALIDATION)
-      state = Status.CONFIRMED;
     return this.http.post(`${this.baseUrl}${PACKET_ENDPOINTS.VALIDATE}/${barcode}`, state, {
       headers: { 'content-type': 'application/json' },
     });

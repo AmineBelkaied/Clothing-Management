@@ -4,6 +4,7 @@ import { StatsService } from 'src/shared/services/stats.service';
 import { Subject, takeUntil } from 'rxjs';
 import { DeliveryCompanyService } from 'src/shared/services/delivery-company.service';
 import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
+import { Status } from 'src/shared/enums/status';
 
 @Component({
   selector: 'app-packet-stat',
@@ -12,9 +13,9 @@ import { DeliveryCompany } from 'src/shared/models/DeliveryCompany';
   providers: [DatePipe],
 })
 
-export class PacketStatComponent implements OnInit,OnChanges,OnDestroy {
+export class PacketStatComponent implements OnInit, OnChanges, OnDestroy {
   deliveryCompanyList: DeliveryCompany[] = [];
-  @Input() deliveryCompanyName : string = "ALL";
+  @Input() deliveryCompanyName: string = "ALL";
   @Input() beginDateString: string;
   @Input() endDateString: string | null;
   packetsDataSetArray: any[];
@@ -27,7 +28,7 @@ export class PacketStatComponent implements OnInit,OnChanges,OnDestroy {
   constructor(
     private statsService: StatsService,
     public datePipe: DatePipe
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.intitiateLists();
@@ -35,7 +36,7 @@ export class PacketStatComponent implements OnInit,OnChanges,OnDestroy {
   }
 
   ngOnChanges(simpleChanges: SimpleChanges): void {
-    if((simpleChanges['endDateString'] || simpleChanges['deliveryCompanyName']) && this.endDateString){
+    if ((simpleChanges['endDateString'] || simpleChanges['deliveryCompanyName']) && this.endDateString) {
       this.getStatAllPacketsChart();
     }
   }
@@ -88,8 +89,8 @@ export class PacketStatComponent implements OnInit,OnChanges,OnDestroy {
 
   getStatAllPacketsChart() {
 
-    if(this.deliveryCompanyName==null)this.deliveryCompanyName="ALL";
-    if(this.endDateString){
+    if (this.deliveryCompanyName == null) this.deliveryCompanyName = "ALL";
+    if (this.endDateString) {
       this.statsService
         .statAllPackets(this.beginDateString, this.endDateString, this.deliveryCompanyName)
         .pipe(takeUntil(this.$unsubscribe))
@@ -104,14 +105,14 @@ export class PacketStatComponent implements OnInit,OnChanges,OnDestroy {
             console.log('Observable completed-- getStatAllPacketsChart --');
           },
         });
-      }
+    }
   }
 
   createPacketsChart(data: any) {
     this.packetsTableData = [];
     let statusCounts: any[];
 
-    this.packetsTableData = data.statusRecapCount;
+    this.packetsTableData = data.statusRecapCount.map((packetData: any) => ({ ...packetData, name: Status.findByKey(packetData.name) ?? packetData.name }));
     statusCounts = data.statusCountLists;
     this.dates = data.dates;
 

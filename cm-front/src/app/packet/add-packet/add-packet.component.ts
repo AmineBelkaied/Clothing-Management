@@ -408,7 +408,7 @@ export class AddPacketComponent implements OnInit,OnDestroy {
       packetDescription: this.packetDescription,
       deliveryPrice: this.packetForm.value.deliveryPrice,
       discount: this.packetForm.value.discount,
-      status: status
+      status: Status.findByValue(status)
     };
     this.packetService
       .addProductsToPacket(selectedProducts)

@@ -1,6 +1,5 @@
 package com.clothing.management.tenant;
 
-import com.clothing.management.auth.constant.UserStatus;
 import com.clothing.management.auth.mastertenant.entity.MasterTenant;
 import com.clothing.management.auth.mastertenant.service.MasterTenantService;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -32,7 +31,9 @@ import static com.clothing.management.auth.constant.AppConstants.*;
 
 @Service
 public class TenantDatabaseManager {
+
     private static final Logger LOG = LoggerFactory.getLogger(TenantDatabaseManager.class);
+
     @Value("${spring.datasource.username}")
     private String masterDbUser;
     @Value("${spring.datasource.password}")
@@ -47,6 +48,7 @@ public class TenantDatabaseManager {
     private String driverClassName;
     @Value("${spring.jpa.properties.hibernate.dialect}")
     private String hibernateDialect;
+
     private final MasterTenantService masterTenantService;
 
     public TenantDatabaseManager(MasterTenantService masterTenantService) {

@@ -1,4 +1,5 @@
 export enum Status {
+    CREATION = 'Création',
     NOT_CONFIRMED = 'Non confirmée',
     CONFIRMED = 'Confirmée',
     OOS = 'En rupture',
@@ -19,6 +20,8 @@ export enum Status {
     NOT_SERIOUS = 'Pas Serieux',
     CANCELED = 'Annuler',
     VALIDATION = 'validation',
+    EXCHANGE = 'Echange',
+    INCORRECT_BARCODE = 'Code à barre incorrect',
     EMPTY = ''
 }
 
